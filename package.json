@@ -1,0 +1,36 @@
+{
+  "name": "fortune_app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fortune App monorepo — Flutter (apps/mobile) + NestJS (apps/api). Foundation Phase 1.",
+  "workspaces": [
+    "apps/api",
+    "packages/shared_contracts",
+    "packages/lint_rules"
+  ],
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "install:all": "npm install && (cd apps/mobile && flutter pub get)",
+    "api:dev": "npm --workspace apps/api run start:dev",
+    "api:build": "npm --workspace apps/api run build",
+    "api:test": "npm --workspace apps/api run test",
+    "api:lint": "npm --workspace apps/api run lint",
+    "mobile:run": "cd apps/mobile && flutter run",
+    "mobile:test": "cd apps/mobile && flutter test",
+    "mobile:analyze": "cd apps/mobile && flutter analyze",
+    "db:generate": "npm --workspace apps/api run prisma:generate",
+    "db:migrate": "npm --workspace apps/api run prisma:migrate",
+    "lint": "npm run api:lint",
+    "format": "npm --workspace apps/api run format",
+    "test": "npm run api:test",
+    "api:e2e": "npm --workspace apps/api run test:e2e",
+    "test:e2e": "npm --workspace apps/api run test:e2e",
+    "build": "npm run api:build",
+    "validate:sprint04": "bash scripts/validate-sprint-04.sh",
+    "api:format:check": "npm --workspace apps/api run format:check",
+    "db:seed": "npm --workspace apps/api run db:seed"
+  }
+}

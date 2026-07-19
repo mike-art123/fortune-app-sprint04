@@ -1,0 +1,61 @@
+name: CI
+on:
+  push: { branches: [main, develop] }
+  pull_request: { branches: [main, develop] }
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: fortune, POSTGRES_PASSWORD: fortune, POSTGRES_DB: fortune_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U fortune" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://fortune:fortune@localhost:5432/fortune_test?schema=public
+      REDIS_HOST: localhost
+      NODE_ENV: test
+      TELEGRAM_BOT_TOKEN: "7654321:AAF-ci-test-token" # e2e Telegram login (Sprint 04)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npx --workspace apps/api prisma validate
+      # prisma format must be a no-op on a committed schema
+      - run: npx --workspace apps/api prisma format && git diff --exit-code apps/api/prisma/schema.prisma
+      - run: npm --workspace apps/api run prisma:generate
+      - run: npx --workspace apps/api prisma migrate deploy
+      # Sprint 04B: migrations replayed onto a REAL empty shadow database must
+      # reproduce schema.prisma exactly (exit code 0 = no drift).
+      - run: PGPASSWORD=fortune psql -h localhost -U fortune -d fortune_test -c 'CREATE DATABASE fortune_shadow'
+      - run: >-
+          npx --workspace apps/api prisma migrate diff
+          --from-migrations apps/api/prisma/migrations
+          --to-schema-datamodel apps/api/prisma/schema.prisma
+          --shadow-database-url "postgresql://fortune:fortune@localhost:5432/fortune_shadow"
+          --exit-code
+      - run: npm run api:format:check
+      - run: npm run api:lint
+      - run: npm run api:test
+      - run: npm run api:e2e
+      - run: npm run api:build
+
+  mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable }
+      - run: cd apps/mobile && flutter pub get
+      - run: cd apps/mobile && flutter gen-l10n
+      - run: cd apps/mobile && dart format --output=none --set-exit-if-changed .
+      - run: cd apps/mobile && flutter analyze
+      - run: cd apps/mobile && flutter test

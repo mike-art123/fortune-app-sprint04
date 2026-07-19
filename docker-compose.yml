@@ -1,0 +1,50 @@
+# Local development infrastructure (doc 52 §39). No production secrets here.
+version: "3.9"
+
+name: fortune-app
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fortune
+      POSTGRES_PASSWORD: fortune
+      POSTGRES_DB: fortune_dev
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fortune -d fortune_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [fortune]
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [fortune]
+
+  # Optional — local hot reload usually runs the API on the host instead.
+  api:
+    profiles: ["api"]
+    build: ./apps/api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://fortune:fortune@postgres:5432/fortune_dev?schema=public
+      REDIS_HOST: redis
+    ports: ["3000:3000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [fortune]
+
+volumes:
+  pgdata:
+
+networks:
+  fortune:

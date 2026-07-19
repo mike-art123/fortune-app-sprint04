@@ -1,0 +1,149 @@
+// Foundation schema (doc 52 §17) + Sprint 04 identity/entitlements (doc 53).
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// User anchored to Telegram identity (`tg:<id>` = the unique telegramId).
+model User {
+  id          String   @id @default(cuid())
+  telegramId  String   @unique @map("telegram_id")
+  displayName String?  @map("display_name")
+  locale      String   @default("fa")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  idempotencyKeys IdempotencyKey[]
+  subscription    Subscription?
+
+  @@map("users")
+}
+
+/// Simple key/value system settings, audit-friendly.
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+/// Server-side feature flags (doc 52 §36).
+model FeatureFlag {
+  key       String   @id
+  enabled   Boolean  @default(false)
+  note      String?
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("feature_flags")
+}
+
+/// Durable idempotency records for retry-safe operations (doc 52 §30).
+model IdempotencyKey {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  operation   String
+  key         String
+  fingerprint String
+  result      String
+  createdAt   DateTime @default(now()) @map("created_at")
+  expiresAt   DateTime @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, operation, key])
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+/// Outbox events written in the same transaction as state changes (doc 52 §32).
+model OutboxEvent {
+  id          String    @id @default(cuid())
+  name        String
+  payload     String
+  requestId   String?   @map("request_id")
+  occurredAt  DateTime  @map("occurred_at")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([publishedAt])
+  @@map("outbox_events")
+}
+
+/// One generated reading. Sprint 04: new rows always carry the owner; null
+/// userId only survives on pre-auth legacy rows.
+model Reading {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  fortuneId String   @map("fortune_id")
+  title     String
+  content   String
+  inputJson String   @map("input_json")
+  requestId String?  @map("request_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@map("readings")
+}
+
+/// One wallet per identity. Sprint 04 re-anchors wallets to `userId`;
+/// `anonId` remains only as a migration breadcrumb for pre-auth wallets.
+/// `balance` is denormalized for cheap reads but is ONLY ever mutated in the
+/// same transaction that writes the matching CoinTransaction row — the ledger
+/// is the truth, the balance is the cache of it.
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String?  @unique @map("user_id")
+  anonId    String?  @unique @map("anon_id")
+  balance   Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  transactions CoinTransaction[]
+
+  @@map("wallets")
+}
+
+/// Append-only ledger row. `amount` is signed: positive = credit,
+/// negative = debit. Rows are never updated or deleted.
+///
+/// Sprint 04: `refType`/`refId` tie a row to what caused it — a debit carries
+/// the client Idempotency-Key, a refund carries the id of the debit it
+/// reverses. The unique constraint is the database-level backstop against
+/// duplicate charges and duplicate refunds (NULL refIds stay unconstrained).
+model CoinTransaction {
+  id        String   @id @default(cuid())
+  walletId  String   @map("wallet_id")
+  amount    Int
+  kind      String
+  reason    String?
+  refType   String?  @map("ref_type")
+  refId     String?  @map("ref_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@unique([walletId, kind, refId])
+  @@index([walletId, createdAt])
+  @@map("coin_transactions")
+}
+
+/// Subscription entitlement (Sprint 04 / doc 53). One per user. Payments and
+/// renewal flows arrive with their own document; grants are system-level.
+model Subscription {
+  id               String   @id @default(cuid())
+  userId           String   @unique @map("user_id")
+  plan             String
+  status           String
+  currentPeriodEnd DateTime @map("current_period_end")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}

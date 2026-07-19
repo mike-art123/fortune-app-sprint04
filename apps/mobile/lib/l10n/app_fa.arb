@@ -1,0 +1,97 @@
+{
+  "@@locale": "fa",
+  "appTitle": "فال",
+  "@appTitle": {
+    "description": "Application display name"
+  },
+  "splashPreparing": "در حال آماده‌سازی…",
+  "@splashPreparing": {
+    "description": "Shown while the app bootstraps"
+  },
+  "exploreTitle": "کاوش",
+  "@exploreTitle": {
+    "description": "Title of the Explore page"
+  },
+  "ritualTitle": "آیین",
+  "@ritualTitle": {
+    "description": "Title of the Ritual Entry page"
+  },
+  "readingTitle": "فال تو",
+  "@readingTitle": {
+    "description": "Title of the Reading result page"
+  },
+  "walletTitle": "کیف سکه",
+  "@walletTitle": {
+    "description": "Title of the Wallet page"
+  },
+  "profileTitle": "پروفایل",
+  "@profileTitle": {
+    "description": "Title of the Profile page"
+  },
+  "placeholderNotice": "این بخش در مرحله‌های بعد ساخته می‌شود.",
+  "@placeholderNotice": {
+    "description": "Foundation-phase placeholder notice"
+  },
+  "routeNotFoundTitle": "این صفحه پیدا نشد",
+  "@routeNotFoundTitle": {
+    "description": "Branded unknown-route recovery title"
+  },
+  "routeNotFoundBody": "شاید نشانی تغییر کرده باشد. می‌توانی به کاوش برگردی.",
+  "@routeNotFoundBody": {
+    "description": "Unknown-route recovery description"
+  },
+  "actionBackToExplore": "بازگشت به کاوش",
+  "@actionBackToExplore": {
+    "description": "Recovery action label"
+  },
+  "actionRetry": "دوباره تلاش کن",
+  "@actionRetry": {
+    "description": "Generic retry action"
+  },
+  "startupFailedTitle": "شروع برنامه ممکن نشد",
+  "@startupFailedTitle": {
+    "description": "Bootstrap failure title"
+  },
+  "startupFailedBody": "اطلاعاتت محفوظ است. یک بار دیگر امتحان کن.",
+  "@startupFailedBody": {
+    "description": "Bootstrap failure reassurance"
+  },
+  "exploreSubtitle": "یک لحظه‌ی آرام برای خودت.",
+  "comingSoon": "به‌زودی",
+  "comingSoonDetail": "این آیین به‌زودی آماده می‌شود.",
+  "readingSealedTitle": "نیتت سپرده شد.",
+  "readingSealedBody": "خوانشِ کامل در مرحله‌ی بعدِ ساخت به این‌جا می‌آید.",
+  "actionSave": "ذخیره",
+  "actionShare": "اشتراک",
+  "readingUnavailableTitle": "این خوانش در دسترس نیست",
+  "readingUnavailableBody": "برای دیدنِ خوانش، از مسیرِ آیین وارد شو.",
+  "errorReassurance": "اطلاعاتت محفوظ است.",
+  "savedToHistory": "در تاریخچه‌ات ماند.",
+  "historyTitle": "تاریخچه",
+  "historyEmptyTitle": "هنوز فالی این‌جا نیست",
+  "historyEmptyBody": "اولین فال تو، آغازِ این دفتر است.",
+  "historyEmptyAction": "گرفتن اولین فال",
+  "historyLoadMore": "بیشتر",
+  "walletBalanceUnit": "سکه",
+  "walletDailyRewardTitle": "هدیه‌ی روزانه",
+  "walletDailyRewardBody": "هر روز، چند سکه برای یک فالِ تازه.",
+  "walletHistoryTitle": "تراکنش‌ها",
+  "walletHistoryEmpty": "هنوز تراکنشی ثبت نشده.",
+  "walletKindStarter": "اعتبار آغازین",
+  "walletKindDaily": "هدیه‌ی روزانه",
+  "walletKindSpend": "گرفتن فال",
+  "walletKindRefund": "برگشت سکه",
+  "walletSubscriptionActive": "اشتراکت فعال است؛ خوانش‌ها آزادند.",
+  "walletReadingCost": "هر خوانش {cost} سکه",
+  "@walletReadingCost": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
+  "authOutsideTelegramBody": "برای ورود، اپ را از داخل تلگرام باز کن.",
+  "authRejectedBody": "ورود تأیید نشد؛ دوباره تلاش کن.",
+  "errorInsufficientCoins": "سکه‌هایت برای این خوانش کافی نیست. اطلاعاتت محفوظ است.",
+  "errorSubscriptionRequired": "این بخش با اشتراک باز می‌شود."
+}

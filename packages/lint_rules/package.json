@@ -1,0 +1,6 @@
+{
+  "name": "@fortune/lint-rules",
+  "version": "0.1.0",
+  "private": true,
+  "main": "eslint-base.cjs"
+}
