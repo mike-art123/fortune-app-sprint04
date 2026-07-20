@@ -308,3 +308,26 @@ as-is for now — warning only, does not affect gate outcomes.
 Both fixes pushed; awaiting the next CI run for the verdict. All remaining
 gates past `npm ci` / `pub get` have still never produced output — they are
 PENDING, not passed.
+
+---
+
+# Sprint 04B — CI run #4 progress + formatter normalization (2026-07-20)
+
+CI #4 (after the two fixes above): both prior failures are RESOLVED —
+- api advanced past the drift gate (step 11 ✓) and now fails at step 12,
+  `npm run api:format:check` (prettier).
+- mobile advanced past `pub get` and `gen-l10n` (steps 4–5 ✓) and now fails
+  at step 6, `dart format --set-exit-if-changed`.
+
+Classification of both new failures: **pre-existing environment artifact**,
+exactly as pre-classified in the original evidence ("a `dart format` diff —
+pre-existing — the formatter never ran on this tree"; the same applies to
+prettier). Neither formatter was ever runnable in the authoring sandbox.
+
+Fix applied: `.github/workflows/auto-format.yml` — a self-neutralizing
+workflow that runs the real prettier (`npm --workspace apps/api run format`)
+and real `dart format .` on a runner and commits the result as
+github-actions[bot] (same pattern as bootstrap-lockfile.yml). Hand-guessing
+formatter output file-by-file was rejected as unprofessional and
+unverifiable. After the bot commit lands, the next trigger push runs the
+full CI against the normalized tree.
