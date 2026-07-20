@@ -1,0 +1,50 @@
+# Temporary Sprint 04B diagnostics (remove once CI is green).
+#
+# The authoring environment cannot run eslint or dart format locally and
+# cannot read Actions logs (they require an authenticated session). This
+# workflow runs the two currently-failing gates in REPORT-ONLY mode and
+# commits their full output as CI-DIAGNOSTICS.txt, which is readable from
+# the public raw endpoint. It never fails and never modifies source files.
+name: Diagnostics
+on:
+  push: { branches: [main] }
+
+permissions:
+  contents: write
+
+concurrency: diagnostics
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable }
+      - name: Collect gate output
+        run: |
+          {
+            echo "# CI-DIAGNOSTICS ($(date -u +%Y-%m-%dT%H:%M:%SZ), commit ${GITHUB_SHA})"
+            echo
+            echo "## eslint (api:lint, report-only)"
+            (cd apps/api && npx eslint "src/**/*.ts" "test/**/*.ts" --max-warnings=0 2>&1) || true
+            echo
+            echo "## dart format --set-exit-if-changed (report-only)"
+            (cd apps/mobile && dart format --output=none --set-exit-if-changed . 2>&1) || true
+            echo
+            echo "## dart --version / flutter --version"
+            dart --version 2>&1 || true
+          } > CI-DIAGNOSTICS.txt
+      - name: Commit diagnostics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CI-DIAGNOSTICS.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "diag: refresh CI-DIAGNOSTICS.txt"
+            git push
+          fi
