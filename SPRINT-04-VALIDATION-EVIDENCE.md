@@ -261,3 +261,50 @@ latency remains). These will be rechecked periodically. Sprint 04B
 verification (a real green run of every gate) is still open and will be
 completed once a runner picks up a queued run — this does not block
 further development work per the user's instruction above.
+
+---
+
+# Sprint 04B — First real CI run + failure classification (2026-07-20)
+
+Runner queue drained after the GitHub Pro upgrade. Real runs at last:
+
+- **Bootstrap lockfile #1** — SUCCESS: generated and committed
+  `package-lock.json` on a runner (commit pulled back into main). Gate #1
+  (lockfile) is now CLOSED.
+- **CI #3** (commit 4ae67bd, lockfile + polish present) — **FAILURE**, two
+  gates, both classified per the 04B protocol from the actual step logs:
+
+## Failure 1 — api job, step "prisma migrate diff" (drift gate)
+```
+Error: Could not load `--to-schema-datamodel` from provided path
+`apps/api/prisma/schema.prisma`: file or directory not found
+```
+Classification: **CONFIGURATION issue** (in ci.yml itself), not an
+implementation defect. `npx --workspace apps/api` runs with the workspace
+directory as cwd, so the explicit `apps/api/...` paths resolved to
+`apps/api/apps/api/...`. Every earlier prisma step passed because they rely
+on default schema discovery relative to the same cwd. The drift gate itself
+never actually executed — no drift has been observed yet.
+Fix applied (minimal): drop the doubled `apps/api/` prefix in ci.yml and in
+scripts/validate-sprint-04.sh (`prisma/migrations`, `prisma/schema.prisma`).
+
+## Failure 2 — mobile job, step "flutter pub get"
+```
+Note: intl is pinned to version 0.20.2 by flutter_localizations from the
+flutter SDK. ... fortune_app depends on intl ^0.19.0, version solving failed.
+```
+Classification: **ENVIRONMENT/dependency-constraint issue**, not an
+implementation defect. The current stable Flutter SDK pins intl to 0.20.2
+via flutter_localizations; the pubspec constraint (^0.19.0) predates that.
+`package:intl` is not imported directly anywhere in apps/mobile/lib, so the
+bump is behavior-neutral for our code.
+Fix applied (minimal, exactly pub's own suggestion): `intl: ^0.20.2`.
+
+## Also fixed in the same pass
+Non-blocking runner warning: actions pinned to Node 20 are being force-run
+on Node 24 (Node 20 deprecated on GitHub runners, Sep 2025 changelog). Left
+as-is for now — warning only, does not affect gate outcomes.
+
+Both fixes pushed; awaiting the next CI run for the verdict. All remaining
+gates past `npm ci` / `pub get` have still never produced output — they are
+PENDING, not passed.

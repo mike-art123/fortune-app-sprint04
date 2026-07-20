@@ -85,9 +85,11 @@ if [ "${SKIP_E2E:-0}" != "1" ]; then
 
   # No drift: replaying the committed migrations onto a REAL empty shadow
   # database must reproduce schema.prisma exactly (exit code 0).
+  # Paths relative to apps/api: `npx --workspace apps/api` runs with the
+  # workspace directory as cwd.
   step "migration drift check" npx --workspace apps/api prisma migrate diff \
-    --from-migrations apps/api/prisma/migrations \
-    --to-schema-datamodel apps/api/prisma/schema.prisma \
+    --from-migrations prisma/migrations \
+    --to-schema-datamodel prisma/schema.prisma \
     --shadow-database-url "$SHADOW_DATABASE_URL" \
     --exit-code
 

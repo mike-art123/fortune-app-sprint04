@@ -36,10 +36,13 @@ jobs:
       # Sprint 04B: migrations replayed onto a REAL empty shadow database must
       # reproduce schema.prisma exactly (exit code 0 = no drift).
       - run: PGPASSWORD=fortune psql -h localhost -U fortune -d fortune_test -c 'CREATE DATABASE fortune_shadow'
+      # Paths are relative to apps/api because `npx --workspace apps/api`
+      # runs with the workspace directory as cwd (same reason the plain
+      # `prisma validate` / `migrate deploy` steps above need no paths).
       - run: >-
           npx --workspace apps/api prisma migrate diff
-          --from-migrations apps/api/prisma/migrations
-          --to-schema-datamodel apps/api/prisma/schema.prisma
+          --from-migrations prisma/migrations
+          --to-schema-datamodel prisma/schema.prisma
           --shadow-database-url "postgresql://fortune:fortune@localhost:5432/fortune_shadow"
           --exit-code
       - run: npm run api:format:check
