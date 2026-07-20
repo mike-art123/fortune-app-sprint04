@@ -13,7 +13,9 @@ Trigger sequence:
    diagnosing account/billing vs service outage). This commit retriggers both
    workflows after the visibility change.
 
+5. Account upgraded to GitHub Pro (2026-07-19). Retriggering both workflows
+   to test whether the account-level Actions restriction is lifted.
 
-5. Account upgraded to GitHub Pro (2026-07-19). Retriggering both workflows to test whether the account-level Actions restriction is lifted now that the account is on a paid plan.
-
-6. Previous two queued runs got permanently stuck in "Queued" (never started, 18+ minutes) and were cancelled. Retriggering with a fresh push per GitHub's own stuck-queue guidance.
+7. Auto-format #1 succeeded (prettier + dart format applied on a runner,
+   committed by github-actions[bot]). This human-authored push triggers the
+   full CI against the normalized tree.
