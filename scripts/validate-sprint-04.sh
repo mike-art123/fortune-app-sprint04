@@ -9,7 +9,7 @@
 #   infra   : postgres+redis up → prisma migrate deploy
 #             → migration drift check against a real shadow database
 #             → e2e tests
-#   flutter : pub get → gen-l10n → dart format check → analyze → test
+#   flutter : pub get → dart format check → gen-l10n → analyze → test
 #
 # Environment knobs (each skip is REPORTED, never silent):
 #   SKIP_E2E=1      skip infra + migrate + drift + e2e
@@ -108,8 +108,10 @@ if [ "${SKIP_MOBILE:-0}" != "1" ]; then
   pushd apps/mobile >/dev/null
   step "flutter doctor"     flutter doctor
   step "flutter pub get"    flutter pub get
-  step "flutter gen-l10n"   flutter gen-l10n
+  # format gate BEFORE gen-l10n: judge committed sources only, not the
+  # generated app_localizations*.dart
   step "dart format check"  dart format --output=none --set-exit-if-changed .
+  step "flutter gen-l10n"   flutter gen-l10n
   step "flutter analyze"    flutter analyze
   step "flutter test"       flutter test
   popd >/dev/null

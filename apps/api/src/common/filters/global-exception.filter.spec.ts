@@ -7,7 +7,7 @@ const logger = { error: jest.fn(), info: jest.fn(), warn: jest.fn(), debug: jest
 
 function invoke(exception: unknown): { status: number; body: ApiErrorBody } {
   const filter = new GlobalExceptionFilter(logger as never);
-  let captured: { status: number; body: ApiErrorBody } = { status: 0, body: {} as ApiErrorBody };
+  const captured: { status: number; body: ApiErrorBody } = { status: 0, body: {} as ApiErrorBody };
   const res = {
     status(code: number) {
       captured.status = code;
