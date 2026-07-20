@@ -169,3 +169,95 @@ Nothing here is fabricated to look like a run.
   the formatter never ran on this tree) and any `migrate diff` drift
   (implementation defect in the hand-written migration — regenerate via
   `prisma migrate diff --from-empty --to-schema-datamodel`).
+
+---
+
+# Sprint 04B — GitHub Actions execution attempt (2026-07-19, live run)
+
+## What was actually done (real actions, not simulated)
+
+1. Created private GitHub repo `mike-art123/fortune-app-sprint04`, pushed the
+   full tree (313+ files, verified via GitHub's own file browser and commit
+   count: 1 → 4 commits over the session).
+2. Added `.github/workflows/bootstrap-lockfile.yml` (auto-generates
+   `package-lock.json` on a runner, since no local/sandbox venue has npm
+   registry access — see prior section) and confirmed `ci.yml` is the full
+   15-gate backend+Flutter pipeline described above.
+3. Pushed 4 separate commits, each intended to trigger the workflows via
+   `on: push`. Checked run status after every push via GitHub's own pages
+   (fetched directly, not guessed):
+   - Run #1 (Initial commit) → **Startup failure**, 0 jobs, listed as
+     "(Unnamed workflow)"
+   - Run #2 (Create bootstrap-lockfile.yml) → **Startup failure**, same signature
+   - Run #3 (Create SPRINT-04B-TRIGGER.md) → **Startup failure**, same signature
+4. Hypothesis tested: private-repo Actions billing/startup quirk. Repo was
+   switched from private → **public** by the repo owner as a diagnostic step.
+5. Pushed a 4th commit after the visibility change. Result: **Startup
+   failure again**, same "(Unnamed workflow)" signature, 0 jobs — ruling out
+   the private-repo hypothesis.
+6. Checked each named workflow's own run history directly
+   (`/actions/workflows/ci.yml` and `/actions/workflows/bootstrap-lockfile.yml`):
+   both report **"This workflow has no runs yet" / 0 workflow runs** — i.e.
+   none of the 4 "Startup failure" runs are attributed to either workflow
+   file GitHub can identify. This means GitHub's control plane is rejecting
+   the run before it gets far enough to parse/associate the triggering
+   workflow YAML at all.
+7. Checked `githubstatus.com` API (`/api/v2/status.json`) at the time of
+   failure: `"indicator":"none"`, `"description":"All Systems Operational"` —
+   not a GitHub-wide outage.
+8. Checked repo Settings → Actions → General (screenshot confirmed by repo
+   owner): **"Allow all actions and reusable workflows"** is selected (the
+   most permissive setting), "Require actions to be pinned to a full-length
+   commit SHA" is unchecked. Repo-level Actions permissions are not the
+   cause.
+
+## Root-cause classification: **INFRASTRUCTURE (GitHub account-level), not a Sprint 04 defect**
+
+The exact signature observed — `startup_failure` with zero jobs, workflow
+run unattributed to any named workflow file, occurring on every push
+regardless of repo visibility or workflow content — matches a
+well-documented GitHub anti-abuse pattern: **GitHub Actions being
+automatically restricted at the account level for new/low-activity
+accounts**, to prevent abuse (e.g. crypto-mining via free CI minutes). This
+is applied before the workflow file is even read, which is why it doesn't
+matter that `ci.yml` and `bootstrap-lockfile.yml` are both valid,
+both correctly configured, and Actions permissions are set to "allow all."
+
+This is a control-plane decision on GitHub's side tied to the `mike-art123`
+account, not to this repository's code, workflow YAML, or configuration.
+None of the Sprint 04 or 04B code is implicated.
+
+## What resolves this (outside this session's control)
+
+- GitHub Support can lift the restriction manually (repo owner needs to
+  open a support ticket referencing the account and repo).
+- It sometimes self-resolves after a period of ordinary account activity
+  (no fixed SLA published by GitHub).
+- Verifying a payment method / phone number on the account is reported by
+  other users to sometimes trigger auto-approval.
+
+## Sprint 04B status
+
+**Still open.** Every gate remains PENDING — not fabricated as passing.
+The implementation is code-complete (backend + Flutter) and the CI
+pipeline is fully authored and would run all 15 gates the moment GitHub
+allows a job to actually start on this account. The only remaining blocker
+is the GitHub account-level Actions restriction described above, which
+requires the repo owner's direct action with GitHub (this cannot be done
+by an agent — it requires GitHub Support / account verification on the
+owner's side).
+
+---
+
+# Policy update (2026-07-20)
+
+Per explicit user instruction, development is no longer blocked on GitHub
+Actions completing. Two runs (Bootstrap lockfile #2, CI #2 — commit
+299226b) remain **Queued** on GitHub's side (account-level runner
+provisioning delay following the GitHub Pro upgrade; workflow attribution
+and job-graph parsing now work correctly, confirming the earlier
+account-level Actions restriction is resolved — only runner allocation
+latency remains). These will be rechecked periodically. Sprint 04B
+verification (a real green run of every gate) is still open and will be
+completed once a runner picks up a queued run — this does not block
+further development work per the user's instruction above.

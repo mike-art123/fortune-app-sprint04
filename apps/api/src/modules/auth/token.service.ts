@@ -57,7 +57,7 @@ export class TokenService {
     private readonly authConfig: AuthConfig,
     private readonly securityConfig: SecurityConfig,
     appConfig: AppConfig,
-    logger: AppLoggerService,
+    private readonly logger: AppLoggerService,
   ) {
     const privatePem = authConfig.jwtPrivateKey;
     const publicPem = authConfig.jwtPublicKey;
@@ -66,7 +66,7 @@ export class TokenService {
       this.privateKey = createPrivateKey(privatePem);
       this.publicKey = createPublicKey(publicPem);
       this.alg = TokenService.algorithmFor(this.privateKey);
-      logger.info('auth.keys.loaded', { alg: this.alg });
+      this.logger.info('auth.keys.loaded', { alg: this.alg });
       return;
     }
 
@@ -79,7 +79,7 @@ export class TokenService {
     this.privateKey = pair.privateKey;
     this.publicKey = pair.publicKey;
     this.alg = 'EdDSA';
-    logger.warn('auth.keys.ephemeral', {
+    this.logger.warn('auth.keys.ephemeral', {
       alg: this.alg,
       note: 'JWT keypair not configured; tokens will not survive a restart',
     });
@@ -103,6 +103,7 @@ export class TokenService {
     return this.alg === 'RS256' ? 'sha256' : null;
   }
 
+  /** Signs a new access token for `subject` (the internal user id). */
   sign(
     subject: string,
     details: { telegramId: string; roles: readonly string[] },
@@ -165,7 +166,14 @@ export class TokenService {
       if (typeof claims.iat !== 'number' || claims.iat > now + CLOCK_SKEW_SECONDS) return null;
 
       return claims as AccessTokenClaims;
-    } catch {
+    } catch (error) {
+      // Any failure here — malformed input or a genuine verifier bug — is
+      // treated as "invalid token" to callers (never throws), but is still
+      // logged at debug level so the two cases stay distinguishable in
+      // telemetry instead of silently collapsing into the same signal.
+      this.logger.debug('auth.token.verify.rejected', {
+        reason: error instanceof Error ? error.message : 'unknown',
+      });
       return null;
     }
   }

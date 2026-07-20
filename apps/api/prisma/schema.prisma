@@ -19,6 +19,7 @@ model User {
 
   idempotencyKeys IdempotencyKey[]
   subscription    Subscription?
+  wallet          Wallet?
 
   @@map("users")
 }
@@ -103,6 +104,11 @@ model Wallet {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  // onDelete: Restrict (not Cascade, unlike IdempotencyKey/Subscription):
+  // a wallet's CoinTransaction ledger must never be silently orphaned or
+  // deleted alongside its owner. Deleting a User with a wallet fails the FK
+  // check until the wallet (and its ledger) is explicitly handled.
+  user         User?             @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   transactions CoinTransaction[]
 
   @@map("wallets")

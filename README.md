@@ -1,4 +1,4 @@
-# Fortune App — Monorepo (Foundation Phase 1)
+# Fortune App — Monorepo (Foundation + Sprint 04: Identity, Entitlements, Wallet)
 
 Premium Persian fortune experience. Flutter client + NestJS backend, per approved docs 01–50.
 
@@ -59,8 +59,11 @@ npm run api:build
 `{ success, data, meta: { requestId } }`; error envelope
 `{ success:false, error:{ code, message, details?, retryable? }, requestId }`;
 UTC ISO-8601 timestamps; opaque cursors; every request carries `x-request-id`.
-The auth guard is global — routes opt out with `@Public()`. The foundation
-verifier denies all tokens by design until Document 53 lands.
+The auth guard is global — routes opt out with `@Public()`. As of Sprint 04
+(doc 53), `TelegramTokenVerifier` is the live verifier: it validates a signed
+access token issued from a verified Telegram `initData` login. The earlier
+deny-all verifier (`DenyAllTokenVerifier`) still exists, but only as an
+explicit test/dev seam — it is not wired into `AuthModule` anymore.
 
 ## 3. Mobile (apps/mobile)
 
@@ -125,8 +128,8 @@ lib/
   the project compiles before `flutter gen-l10n` runs. Swap to the generated
   `AppLocalizations` in one file; call sites (`context.strings`) stay unchanged.
 - Analytics and crash reporting are no-op implementations by design.
-- The Telegram bridge is the "unavailable" implementation; the real one lands
-  with the auth phase.
+- The Telegram bridge is implemented (Sprint 04): `features/auth/` handles
+  the login → session → Bearer-token bootstrap end to end.
 - Placeholder pages are intentionally minimal and are NOT the final feature UI.
 
 ## Root commands

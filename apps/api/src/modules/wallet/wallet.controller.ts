@@ -5,6 +5,11 @@ import { InfrastructureException } from '../../common/exceptions/infrastructure.
 import type { AuthenticatedPrincipal } from '../../common/types/authenticated-principal';
 import { WalletService, type WalletResponse } from './wallet.service';
 
+/**
+ * Read-only wallet surface (Sprint 04 / doc 53): the client asks for the
+ * current authenticated user's coin balance. Balance mutations only ever
+ * happen server-side (debit-for-reading, refund) — there is no write route.
+ */
 @ApiTags('wallet')
 @ApiBearerAuth()
 @Controller('wallet')

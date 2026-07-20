@@ -49,6 +49,14 @@ export class ReadingsService {
     private readonly logger: AppLoggerService,
   ) {}
 
+  /**
+   * Orchestrates a full paid-reading request: resolve the fortune, check
+   * entitlement (subscription covers it, or debit the wallet), generate the
+   * reading via the configured provider, then persist it. If generation or
+   * persistence fails after a debit was taken, the debit is compensated
+   * (refunded) before the error propagates — the caller never pays for a
+   * reading they didn't receive.
+   */
   async create(
     dto: CreateReadingDto,
     requestId: string | null,

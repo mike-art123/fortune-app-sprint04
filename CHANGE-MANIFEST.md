@@ -119,3 +119,63 @@ package-lock.json — npm registry unreachable from the authoring sandbox
     npm install --package-lock-only
 The validation script hard-stops without it.
 ```
+
+## Sprint 04 Polish (2026-07-20)
+
+Cleanup pass only — no new features, no API changes. Triggered by an
+independent audit (see "Sprint 04 Polish Audit" findings) while Sprint 04B
+CI verification is pending on GitHub's side.
+
+```
+Modified: apps/api/prisma/schema.prisma
+    Wallet.userId had no @relation to User, unlike IdempotencyKey.userId and
+    Subscription.userId which both carry FKs. Added `user User? @relation(...,
+    onDelete: Restrict, onUpdate: Cascade)` — Restrict (not Cascade) so a
+    user with a wallet can't be deleted out from under its CoinTransaction
+    ledger. Added the matching back-relation on User.wallet.
+Added:    apps/api/prisma/migrations/20260720000000_wallet_user_fk/migration.sql
+    Adds the wallets.user_id -> users.id FK. Follow-up migration; the landed
+    20260719000000 migration was not edited.
+
+Modified: apps/api/src/modules/auth/token.service.ts
+    - sign() gained a doc comment (verify() already had one).
+    - Constructor's `logger` param is now `private readonly logger` so it can
+      be used inside verify(), not just the constructor.
+    - verify()'s catch block now logs the caught error at debug level before
+      returning null, so "bad token" and "verifier bug" stay distinguishable
+      in telemetry. Still never throws; behavior unchanged.
+Modified: apps/api/src/modules/readings/readings.service.ts
+    create() gained a doc comment describing the entitlement-check -> debit
+    -> generate -> compensate-on-failure flow (the other public methods
+    already had one).
+Modified: apps/api/src/modules/wallet/wallet.controller.ts
+Modified: apps/api/src/modules/wallet/wallet.module.ts
+Modified: apps/api/src/modules/auth/auth.controller.ts
+    Added class-level doc comments matching the existing style used by
+    EntitlementsController/EntitlementsModule/AuthModule. No behavior change.
+Added:    apps/api/src/modules/auth/telegram-token.verifier.spec.ts
+    TelegramTokenVerifier's claims -> AuthenticatedPrincipal mapping had zero
+    direct unit coverage (only exercised indirectly via e2e). Added 4 tests:
+    valid-claims mapping, null-passthrough on rejection, multi-role
+    preservation, and per-call TokenService.verify() invocation counting.
+
+Modified: README.md
+    - Title updated from "(Foundation Phase 1)" to reflect Sprint 04 landing.
+    - Removed the stale claim that "the foundation verifier denies all
+      tokens by design until Document 53 lands" — Document 53 has landed;
+      TelegramTokenVerifier is now the live verifier, DenyAllTokenVerifier
+      is an explicit test/dev seam only.
+    - Removed the stale "Telegram bridge is the unavailable implementation"
+      known-limitation line — the real bridge (features/auth/) has landed.
+Modified: SPRINT-04-VALIDATION-EVIDENCE.md
+    Logged the GitHub Actions investigation end-to-end: account-level
+    Actions restriction diagnosis, the GitHub Pro upgrade that resolved
+    workflow attribution/job-graph parsing, and the runner-queue delay that
+    is still pending as of this pass. Logged the policy change: development
+    continues without blocking on Actions per explicit instruction; Sprint
+    04B verification itself remains open until a real green run happens.
+```
+
+Everything above is polish within the already-approved Sprint 04 scope —
+no new endpoints, no schema fields beyond the one missing FK, no behavior
+changes to any existing gate. Nothing here should be interpreted as Sprint 05.
