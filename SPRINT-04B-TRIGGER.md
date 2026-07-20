@@ -12,3 +12,6 @@ Trigger sequence:
 4. Repository switched to public (Actions startup failures on private repo —
    diagnosing account/billing vs service outage). This commit retriggers both
    workflows after the visibility change.
+
+
+5. Account upgraded to GitHub Pro (2026-07-19). Retriggering both workflows to test whether the account-level Actions restriction is lifted now that the account is on a paid plan.
