@@ -8,7 +8,7 @@ class MinimumTouchTarget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
-    constraints: BoxConstraints(minWidth: size, minHeight: size),
-    child: Center(child: child),
-  );
+        constraints: BoxConstraints(minWidth: size, minHeight: size),
+        child: Center(child: child),
+      );
 }

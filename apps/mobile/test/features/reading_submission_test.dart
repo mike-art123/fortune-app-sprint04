@@ -26,12 +26,12 @@ class _FakeRepo implements ReadingRepository {
 }
 
 Reading _reading() => Reading(
-  id: 'clx1',
-  fortuneId: 'hafez',
-  title: 'پیامی از دیوان',
-  text: 'متن',
-  createdAt: DateTime(2026),
-);
+      id: 'clx1',
+      fortuneId: 'hafez',
+      title: 'پیامی از دیوان',
+      text: 'متن',
+      createdAt: DateTime(2026),
+    );
 
 void main() {
   test('success path: idle → inflight → succeeded', () async {

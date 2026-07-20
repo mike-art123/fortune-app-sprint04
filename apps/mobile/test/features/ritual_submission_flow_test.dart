@@ -17,15 +17,16 @@ class _FakeRepo implements ReadingRepository {
   Future<Result<Reading>> create(
     FalInput input, {
     String? idempotencyKey,
-  }) async => Success(
-    Reading(
-      id: 'clx-flow',
-      fortuneId: input.fortuneId,
-      title: 'پیامی از دیوان',
-      text: 'متنِ خوانش برای تست.',
-      createdAt: DateTime(2026),
-    ),
-  );
+  }) async =>
+      Success(
+        Reading(
+          id: 'clx-flow',
+          fortuneId: input.fortuneId,
+          title: 'پیامی از دیوان',
+          text: 'متنِ خوانش برای تست.',
+          createdAt: DateTime(2026),
+        ),
+      );
 }
 
 Widget host() {
@@ -34,8 +35,7 @@ Widget host() {
     routes: [
       GoRoute(
         path: '/ritual/:fortuneId',
-        builder: (_, state) =>
-            RitualEntryPage(fortuneId: state.pathParameters['fortuneId']!),
+        builder: (_, state) => RitualEntryPage(fortuneId: state.pathParameters['fortuneId']!),
       ),
       GoRoute(
         path: '/reading/:readingId',

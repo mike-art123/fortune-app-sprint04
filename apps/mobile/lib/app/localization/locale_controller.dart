@@ -8,8 +8,7 @@ class LocaleController extends Notifier<Locale> {
   @override
   Locale build() {
     final repo = ref.watch(localeRepositoryProvider);
-    final system =
-        WidgetsBinding.instance.platformDispatcher.locales.firstOrNull;
+    final system = WidgetsBinding.instance.platformDispatcher.locales.firstOrNull;
     return SupportedLocales.resolve(repo.read(), system);
   }
 
@@ -20,8 +19,7 @@ class LocaleController extends Notifier<Locale> {
 
   Future<void> resetToSystem() async {
     await ref.read(localeRepositoryProvider).reset();
-    final system =
-        WidgetsBinding.instance.platformDispatcher.locales.firstOrNull;
+    final system = WidgetsBinding.instance.platformDispatcher.locales.firstOrNull;
     state = SupportedLocales.resolve(null, system);
   }
 }

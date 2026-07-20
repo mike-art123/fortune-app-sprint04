@@ -22,8 +22,7 @@ void main() {
 
   test('required-input fortunes carry gentle guidance', () {
     for (final f in FortuneRegistry.all) {
-      if (f.inputKind == FortuneInputKind.longText ||
-          f.inputKind == FortuneInputKind.twoNames) {
+      if (f.inputKind == FortuneInputKind.longText || f.inputKind == FortuneInputKind.twoNames) {
         expect(f.guide, isNotNull, reason: '${f.id} needs guidance copy');
       }
     }

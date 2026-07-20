@@ -11,7 +11,8 @@ abstract final class ErrorMapper {
     final kind = switch (e.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
-      DioExceptionType.receiveTimeout => FailureKind.timeout,
+      DioExceptionType.receiveTimeout =>
+        FailureKind.timeout,
       DioExceptionType.connectionError => FailureKind.networkUnavailable,
       DioExceptionType.cancel => FailureKind.unknown,
       DioExceptionType.badResponse => _fromStatus(status),
@@ -53,35 +54,33 @@ abstract final class ErrorMapper {
   }
 
   static AppFailure parsing(Object error) => AppFailure(
-    kind: FailureKind.parsing,
-    messageKey: messageKeyFor(FailureKind.parsing),
-    developerMessage: error.toString(),
-  );
+        kind: FailureKind.parsing,
+        messageKey: messageKeyFor(FailureKind.parsing),
+        developerMessage: error.toString(),
+      );
 
   static FailureKind _fromStatus(int? status) => switch (status) {
-    400 || 422 => FailureKind.validation,
-    401 => FailureKind.unauthorized,
-    402 => FailureKind.insufficientCoins,
-    403 => FailureKind.forbidden,
-    404 => FailureKind.notFound,
-    409 => FailureKind.conflict,
-    429 => FailureKind.rateLimited,
-    _ => FailureKind.server,
-  };
+        400 || 422 => FailureKind.validation,
+        401 => FailureKind.unauthorized,
+        402 => FailureKind.insufficientCoins,
+        403 => FailureKind.forbidden,
+        404 => FailureKind.notFound,
+        409 => FailureKind.conflict,
+        429 => FailureKind.rateLimited,
+        _ => FailureKind.server,
+      };
 
   static String messageKeyFor(FailureKind kind) => switch (kind) {
-    FailureKind.networkUnavailable => 'errorNetworkUnavailable',
-    FailureKind.timeout => 'errorTimeout',
-    FailureKind.unauthorized || FailureKind.forbidden => 'errorUnauthorized',
-    FailureKind.notFound => 'errorNotFound',
-    FailureKind.validation => 'errorValidation',
-    FailureKind.conflict => 'errorConflict',
-    FailureKind.rateLimited => 'errorRateLimited',
-    FailureKind.insufficientCoins => 'errorInsufficientCoins',
-    FailureKind.subscriptionRequired => 'errorSubscriptionRequired',
-    FailureKind.storage => 'errorStorage',
-    FailureKind.parsing ||
-    FailureKind.server ||
-    FailureKind.unknown => 'errorGeneric',
-  };
+        FailureKind.networkUnavailable => 'errorNetworkUnavailable',
+        FailureKind.timeout => 'errorTimeout',
+        FailureKind.unauthorized || FailureKind.forbidden => 'errorUnauthorized',
+        FailureKind.notFound => 'errorNotFound',
+        FailureKind.validation => 'errorValidation',
+        FailureKind.conflict => 'errorConflict',
+        FailureKind.rateLimited => 'errorRateLimited',
+        FailureKind.insufficientCoins => 'errorInsufficientCoins',
+        FailureKind.subscriptionRequired => 'errorSubscriptionRequired',
+        FailureKind.storage => 'errorStorage',
+        FailureKind.parsing || FailureKind.server || FailureKind.unknown => 'errorGeneric',
+      };
 }

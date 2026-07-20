@@ -9,9 +9,9 @@ class FortuneAnimatedPresence extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedSwitcher(
-    duration: AppDuration.standard,
-    switchInCurve: AppCurves.premium,
-    switchOutCurve: AppCurves.premium,
-    child: child,
-  );
+        duration: AppDuration.standard,
+        switchInCurve: AppCurves.premium,
+        switchOutCurve: AppCurves.premium,
+        child: child,
+      );
 }

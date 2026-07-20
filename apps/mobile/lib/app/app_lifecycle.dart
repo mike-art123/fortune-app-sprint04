@@ -10,6 +10,5 @@ class AppLifecycleObserver with WidgetsBindingObserver {
   void detach() => WidgetsBinding.instance.removeObserver(this);
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) =>
-      onStateChanged(state);
+  void didChangeAppLifecycleState(AppLifecycleState state) => onStateChanged(state);
 }

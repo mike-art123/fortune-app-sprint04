@@ -7,10 +7,10 @@ class FortuneDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Divider(
-    height: 1,
-    thickness: 1,
-    color: context.fortuneColors.borderSubtle.withValues(
-      alpha: AppOpacity.hairline,
-    ),
-  );
+        height: 1,
+        thickness: 1,
+        color: context.fortuneColors.borderSubtle.withValues(
+          alpha: AppOpacity.hairline,
+        ),
+      );
 }

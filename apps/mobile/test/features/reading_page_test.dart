@@ -37,12 +37,12 @@ Widget host(Reading? reading, {List<Override> overrides = const []}) {
 }
 
 Reading _reading() => Reading(
-  id: 'clx1',
-  fortuneId: 'hafez',
-  title: 'پیامی از دیوان',
-  text: 'این روزها آرام‌تر از آن‌اند که به چشم می‌آیند.',
-  createdAt: DateTime(2026, 1, 7),
-);
+      id: 'clx1',
+      fortuneId: 'hafez',
+      title: 'پیامی از دیوان',
+      text: 'این روزها آرام‌تر از آن‌اند که به چشم می‌آیند.',
+      createdAt: DateTime(2026, 1, 7),
+    );
 
 void main() {
   testWidgets('renders title, reading text, and Persian date', (tester) async {

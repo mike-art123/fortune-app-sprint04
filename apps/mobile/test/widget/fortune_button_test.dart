@@ -4,12 +4,12 @@ import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/design_system/components/fortune_button.dart';
 
 Widget _host(Widget child) => MaterialApp(
-  theme: AppTheme.dark(),
-  home: Directionality(
-    textDirection: TextDirection.rtl,
-    child: Scaffold(body: child),
-  ),
-);
+      theme: AppTheme.dark(),
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(body: child),
+      ),
+    );
 
 void main() {
   testWidgets('renders label and fires onPressed', (tester) async {

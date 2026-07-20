@@ -95,9 +95,7 @@ class AuthController extends Notifier<AuthState> {
       return;
     }
 
-    final result = await ref
-        .read(authRepositoryProvider)
-        .loginWithTelegram(initData);
+    final result = await ref.read(authRepositoryProvider).loginWithTelegram(initData);
     state = await result.fold(
       onSuccess: (login) async {
         await ref.read(tokenStoreProvider).saveAccessToken(login.accessToken);
@@ -131,12 +129,12 @@ class AuthController extends Notifier<AuthState> {
     return null;
   }
 
-  UnauthenticatedReason _reasonFor(AppFailure failure) =>
-      switch (failure.kind) {
+  UnauthenticatedReason _reasonFor(AppFailure failure) => switch (failure.kind) {
         FailureKind.networkUnavailable ||
         FailureKind.timeout ||
         FailureKind.server ||
-        FailureKind.rateLimited => UnauthenticatedReason.network,
+        FailureKind.rateLimited =>
+          UnauthenticatedReason.network,
         _ => UnauthenticatedReason.rejected,
       };
 }

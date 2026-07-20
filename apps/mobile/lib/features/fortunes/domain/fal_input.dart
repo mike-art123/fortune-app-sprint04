@@ -101,9 +101,8 @@ abstract final class FalInputFactory {
 /// Debug-friendly description without leaking personal content into logs.
 extension FalInputRedacted on FalInput {
   String get redactedDescription => switch (this) {
-    IntentionInput(intention: final i) =>
-      'IntentionInput(${i == null ? 'silent' : 'written'})',
-    DreamInput() => 'DreamInput([redacted])',
-    LoveInput() => 'LoveInput([redacted])',
-  };
+        IntentionInput(intention: final i) => 'IntentionInput(${i == null ? 'silent' : 'written'})',
+        DreamInput() => 'DreamInput([redacted])',
+        LoveInput() => 'LoveInput([redacted])',
+      };
 }

@@ -7,7 +7,6 @@ class LocaleRepository {
   final LocalStorage _storage;
 
   String? read() => _storage.getString(PrefKeys.locale);
-  Future<void> save(String localeCode) =>
-      _storage.setString(PrefKeys.locale, localeCode);
+  Future<void> save(String localeCode) => _storage.setString(PrefKeys.locale, localeCode);
   Future<void> reset() => _storage.remove(PrefKeys.locale);
 }

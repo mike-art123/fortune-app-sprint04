@@ -31,11 +31,12 @@ final class HistoryLoaded extends HistoryState {
     List<Reading>? items,
     String? Function()? nextCursor,
     bool? isLoadingMore,
-  }) => HistoryLoaded(
-    items: items ?? this.items,
-    nextCursor: nextCursor == null ? this.nextCursor : nextCursor(),
-    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-  );
+  }) =>
+      HistoryLoaded(
+        items: items ?? this.items,
+        nextCursor: nextCursor == null ? this.nextCursor : nextCursor(),
+        isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      );
 }
 
 final class HistoryFailed extends HistoryState {
@@ -54,8 +55,7 @@ class HistoryController extends AutoDisposeNotifier<HistoryState> {
   Future<void> _loadFirstPage() async {
     final result = await ref.read(historyRepositoryProvider).list();
     state = result.fold(
-      onSuccess: (page) =>
-          HistoryLoaded(items: page.items, nextCursor: page.nextCursor),
+      onSuccess: (page) => HistoryLoaded(items: page.items, nextCursor: page.nextCursor),
       onFailure: HistoryFailed.new,
     );
   }
@@ -69,16 +69,12 @@ class HistoryController extends AutoDisposeNotifier<HistoryState> {
   /// losing a loaded list over a pagination hiccup would be needlessly harsh.
   Future<void> loadMore() async {
     final current = state;
-    if (current is! HistoryLoaded ||
-        !current.hasMore ||
-        current.isLoadingMore) {
+    if (current is! HistoryLoaded || !current.hasMore || current.isLoadingMore) {
       return;
     }
 
     state = current.copyWith(isLoadingMore: true);
-    final result = await ref
-        .read(historyRepositoryProvider)
-        .list(cursor: current.nextCursor);
+    final result = await ref.read(historyRepositoryProvider).list(cursor: current.nextCursor);
 
     state = result.fold(
       onSuccess: (page) => HistoryLoaded(
@@ -94,10 +90,9 @@ final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
   return HistoryRepositoryImpl(ref.watch(apiClientProvider));
 });
 
-final historyControllerProvider =
-    NotifierProvider.autoDispose<HistoryController, HistoryState>(
-      HistoryController.new,
-    );
+final historyControllerProvider = NotifierProvider.autoDispose<HistoryController, HistoryState>(
+  HistoryController.new,
+);
 
 /// One reading by id — powers cold deep links into the reading page.
 final readingByIdProvider = FutureProvider.autoDispose.family<Reading, String>((

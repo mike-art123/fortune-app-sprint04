@@ -9,8 +9,8 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor({
     required TokenStore tokenStore,
     required Future<void> Function() onUnauthorized,
-  }) : _tokens = tokenStore,
-       _onUnauthorized = onUnauthorized;
+  })  : _tokens = tokenStore,
+        _onUnauthorized = onUnauthorized;
 
   final TokenStore _tokens;
   final Future<void> Function() _onUnauthorized;

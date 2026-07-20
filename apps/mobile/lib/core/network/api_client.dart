@@ -14,41 +14,45 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, String>? headers,
     CancelToken? cancelToken,
-  }) => _request(
-    () => _dio.get<dynamic>(
-      path,
-      queryParameters: query,
-      cancelToken: cancelToken,
-      options: headers == null ? null : Options(headers: headers),
-    ),
-  );
+  }) =>
+      _request(
+        () => _dio.get<dynamic>(
+          path,
+          queryParameters: query,
+          cancelToken: cancelToken,
+          options: headers == null ? null : Options(headers: headers),
+        ),
+      );
 
   Future<Result<Map<String, dynamic>>> post(
     String path, {
     Object? body,
     Map<String, String>? headers,
     CancelToken? cancelToken,
-  }) => _request(
-    () => _dio.post<dynamic>(
-      path,
-      data: body,
-      cancelToken: cancelToken,
-      options: headers == null ? null : Options(headers: headers),
-    ),
-  );
+  }) =>
+      _request(
+        () => _dio.post<dynamic>(
+          path,
+          data: body,
+          cancelToken: cancelToken,
+          options: headers == null ? null : Options(headers: headers),
+        ),
+      );
 
   Future<Result<Map<String, dynamic>>> patch(
     String path, {
     Object? body,
     CancelToken? cancelToken,
-  }) => _request(
-    () => _dio.patch<dynamic>(path, data: body, cancelToken: cancelToken),
-  );
+  }) =>
+      _request(
+        () => _dio.patch<dynamic>(path, data: body, cancelToken: cancelToken),
+      );
 
   Future<Result<Map<String, dynamic>>> delete(
     String path, {
     CancelToken? cancelToken,
-  }) => _request(() => _dio.delete<dynamic>(path, cancelToken: cancelToken));
+  }) =>
+      _request(() => _dio.delete<dynamic>(path, cancelToken: cancelToken));
 
   Future<Result<Map<String, dynamic>>> _request(
     Future<Response<dynamic>> Function() send,

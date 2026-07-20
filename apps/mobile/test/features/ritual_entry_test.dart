@@ -7,14 +7,14 @@ import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entr
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
 
 Widget host(String fortuneId) => ProviderScope(
-  child: MaterialApp(
-    locale: SupportedLocales.fa,
-    supportedLocales: SupportedLocales.all,
-    localizationsDelegates: SupportedLocales.delegates,
-    theme: AppTheme.dark(),
-    home: RitualEntryPage(fortuneId: fortuneId),
-  ),
-);
+      child: MaterialApp(
+        locale: SupportedLocales.fa,
+        supportedLocales: SupportedLocales.all,
+        localizationsDelegates: SupportedLocales.delegates,
+        theme: AppTheme.dark(),
+        home: RitualEntryPage(fortuneId: fortuneId),
+      ),
+    );
 
 void main() {
   testWidgets('hafez entry shows ritual line, whisper, and CTA', (
