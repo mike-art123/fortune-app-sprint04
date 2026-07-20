@@ -1,65 +1,6 @@
-# CI-DIAGNOSTICS (2026-07-20T05:10:56Z, commit 28fee96c1e9b5beaf1f1a19267cd46e44e8a0146)
+# CI-DIAGNOSTICS (2026-07-20T05:29:32Z, commit 8647aaa5fb8045355d29e4b037970c6a68d65298)
 
 ## eslint (api:lint, report-only)
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/app.e2e-spec.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/app.e2e-spec.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/auth.e2e-spec.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/auth.e2e-spec.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/entitlements.e2e-spec.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/entitlements.e2e-spec.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/health.e2e-spec.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/health.e2e-spec.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/readings.e2e-spec.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/readings.e2e-spec.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/support/telegram-auth.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/support/telegram-auth.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/test/wallet.e2e-spec.ts
-  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/test/wallet.e2e-spec.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
-However, that TSConfig does not include this file. Either:
-- Change ESLint's list of included files to not include this file
-- Change that TSConfig to include this file
-- Create a new TSConfig that includes this file and include it in your parserOptions.project
-See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
-
-✖ 7 problems (7 errors, 0 warnings)
-
 
 ## dart format --set-exit-if-changed (report-only)
 Warning: Package resolution error when reading "analysis_options.yaml" file:
@@ -176,7 +117,7 @@ Warning: Package resolution error when reading "analysis_options.yaml" file:
 Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
 Warning: Package resolution error when reading "analysis_options.yaml" file:
 Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Formatted 151 files (0 changed) in 0.20 seconds.
+Formatted 151 files (0 changed) in 0.14 seconds.
 
 ## dart --version / flutter --version
 Dart SDK version: 3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on "linux_x64"
