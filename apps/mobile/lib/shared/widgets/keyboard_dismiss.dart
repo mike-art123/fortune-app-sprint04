@@ -6,8 +6,8 @@ class KeyboardDismiss extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    behavior: HitTestBehavior.opaque,
-    onTap: () => FocusScope.of(context).unfocus(),
-    child: child,
-  );
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: child,
+      );
 }

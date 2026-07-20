@@ -17,10 +17,7 @@ abstract final class AuthDto {
 
     final id = user['id'];
     final telegramId = user['telegramId'];
-    if (id is! String ||
-        id.isEmpty ||
-        telegramId is! String ||
-        telegramId.isEmpty) {
+    if (id is! String || id.isEmpty || telegramId is! String || telegramId.isEmpty) {
       throw const FormatException('auth user missing required fields');
     }
 

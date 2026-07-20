@@ -59,13 +59,11 @@ void main() {
   });
 
   test('redacted description never leaks personal content', () {
-    final input =
-        (FalInputFactory.build(
-                  fortune: dream,
-                  primary: 'رازِ خیلی شخصی درباره‌ی خواب',
-                )
-                as OfferingReady)
-            .input;
+    final input = (FalInputFactory.build(
+      fortune: dream,
+      primary: 'رازِ خیلی شخصی درباره‌ی خواب',
+    ) as OfferingReady)
+        .input;
     expect(input.redactedDescription.contains('راز'), isFalse);
   });
 }

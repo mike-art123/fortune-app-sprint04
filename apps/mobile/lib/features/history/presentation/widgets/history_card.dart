@@ -16,8 +16,7 @@ class HistoryCard extends StatelessWidget {
 
   String _date(BuildContext context) {
     final d = reading.createdAt;
-    final formatted =
-        '${d.year.toString().padLeft(4, '0')}/'
+    final formatted = '${d.year.toString().padLeft(4, '0')}/'
         '${d.month.toString().padLeft(2, '0')}/'
         '${d.day.toString().padLeft(2, '0')}';
     return Localizations.localeOf(context).languageCode == 'fa'

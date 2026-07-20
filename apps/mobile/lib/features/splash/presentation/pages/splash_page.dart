@@ -28,11 +28,11 @@ class SplashPage extends ConsumerWidget {
         ),
         data: (state) => switch (state) {
           StartupFailed() => FortuneErrorState(
-            message: s.startupFailedTitle,
-            reassurance: s.startupFailedBody,
-            retryLabel: s.actionRetry,
-            onRetry: () => ref.read(startupControllerProvider.notifier).retry(),
-          ),
+              message: s.startupFailedTitle,
+              reassurance: s.startupFailedBody,
+              retryLabel: s.actionRetry,
+              onRetry: () => ref.read(startupControllerProvider.notifier).retry(),
+            ),
           _ => FortuneLoading(message: s.splashPreparing),
         },
       ),

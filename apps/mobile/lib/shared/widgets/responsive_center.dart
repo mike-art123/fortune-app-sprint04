@@ -9,11 +9,11 @@ class ResponsiveCenter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-    child: ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: maxWidth ?? AppBreakpoints.maxReadableWidth,
-      ),
-      child: child,
-    ),
-  );
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxWidth ?? AppBreakpoints.maxReadableWidth,
+          ),
+          child: child,
+        ),
+      );
 }

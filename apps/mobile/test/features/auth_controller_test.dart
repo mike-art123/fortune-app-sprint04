@@ -23,8 +23,7 @@ String fakeJwt({required String sub, required String tid, required int exp}) {
   return '${b64({'alg': 'EdDSA', 'typ': 'JWT'})}.${b64({'sub': sub, 'tid': tid, 'exp': exp})}.sig';
 }
 
-int inOneHour() =>
-    DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000;
+int inOneHour() => DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000;
 
 class _MemorySecureStorage implements SecureStorage {
   final Map<String, String> map = {};
@@ -70,23 +69,23 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 AuthLogin _login({String userId = 'u1'}) => AuthLogin(
-  accessToken: fakeJwt(sub: userId, tid: '42', exp: inOneHour()),
-  expiresInSeconds: 3600,
-  session: AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
-);
+      accessToken: fakeJwt(sub: userId, tid: '42', exp: inOneHour()),
+      expiresInSeconds: 3600,
+      session: AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
+    );
 
 AppConfig _config({String? devInitData}) => AppConfig(
-  flavor: AppFlavor.development,
-  apiBaseUrl: 'http://localhost:3000/api/v1',
-  connectTimeout: const Duration(seconds: 1),
-  receiveTimeout: const Duration(seconds: 1),
-  devTelegramInitData: devInitData,
-  flags: const FeatureFlags(
-    analyticsEnabled: false,
-    crashReportingEnabled: false,
-    debugMenuEnabled: false,
-  ),
-);
+      flavor: AppFlavor.development,
+      apiBaseUrl: 'http://localhost:3000/api/v1',
+      connectTimeout: const Duration(seconds: 1),
+      receiveTimeout: const Duration(seconds: 1),
+      devTelegramInitData: devInitData,
+      flags: const FeatureFlags(
+        analyticsEnabled: false,
+        crashReportingEnabled: false,
+        debugMenuEnabled: false,
+      ),
+    );
 
 void main() {
   ProviderContainer make({
@@ -172,11 +171,7 @@ void main() {
       storage.map['auth.access_token'] = fakeJwt(
         sub: 'u-old',
         tid: '11',
-        exp:
-            DateTime.now()
-                .subtract(const Duration(hours: 1))
-                .millisecondsSinceEpoch ~/
-            1000,
+        exp: DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
       );
       final c = make(
         repo: repo,

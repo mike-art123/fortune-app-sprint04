@@ -10,8 +10,7 @@ class AppMetadataInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers[HeaderKeys.clientVersion] =
-        '${_config.appVersion}+${_config.buildNumber}';
+    options.headers[HeaderKeys.clientVersion] = '${_config.appVersion}+${_config.buildNumber}';
     options.headers[HeaderKeys.platform] = PlatformInfo.name;
     handler.next(options);
   }

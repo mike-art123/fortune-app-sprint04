@@ -23,18 +23,12 @@ class StartupController extends AsyncNotifier<AppStartupState> {
 
       return const StartupReady();
     } catch (e, st) {
-      ref
-          .read(appLoggerProvider)
-          .error('startup failed', error: e, stackTrace: st);
+      ref.read(appLoggerProvider).error('startup failed', error: e, stackTrace: st);
       unawaited(
-        ref
-            .read(crashReportingServiceProvider)
-            .recordError(e, st, fatal: false),
+        ref.read(crashReportingServiceProvider).recordError(e, st, fatal: false),
       );
       unawaited(
-        ref
-            .read(analyticsServiceProvider)
-            .track(BootstrapFailed(e.runtimeType.toString())),
+        ref.read(analyticsServiceProvider).track(BootstrapFailed(e.runtimeType.toString())),
       );
       return StartupFailed(e.runtimeType.toString());
     }
@@ -50,10 +44,9 @@ class StartupController extends AsyncNotifier<AppStartupState> {
   }
 }
 
-final startupControllerProvider =
-    AsyncNotifierProvider<StartupController, AppStartupState>(
-      StartupController.new,
-    );
+final startupControllerProvider = AsyncNotifierProvider<StartupController, AppStartupState>(
+  StartupController.new,
+);
 
 /// Local helper so we don't pull in dart:async just for this.
 void unawaited(Future<void> future) {

@@ -41,9 +41,7 @@ Future<void> bootstrap({
       runApp(
         ProviderScope(
           overrides: deps.overrides,
-          observers: deps.config.verboseLogging
-              ? [LoggingProviderObserver(logger)]
-              : const [],
+          observers: deps.config.verboseLogging ? [LoggingProviderObserver(logger)] : const [],
           child: builder(),
         ),
       );

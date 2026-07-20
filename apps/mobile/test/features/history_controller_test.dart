@@ -7,12 +7,12 @@ import 'package:fortune_app/features/history/domain/history_repository.dart';
 import 'package:fortune_app/features/reading/domain/reading.dart';
 
 Reading _reading(String id) => Reading(
-  id: id,
-  fortuneId: 'hafez',
-  title: 'عنوان $id',
-  text: 'متنِ خوانش',
-  createdAt: DateTime(2026, 1, 7),
-);
+      id: id,
+      fortuneId: 'hafez',
+      title: 'عنوان $id',
+      text: 'متنِ خوانش',
+      createdAt: DateTime(2026, 1, 7),
+    );
 
 class _FakeHistoryRepository implements HistoryRepository {
   _FakeHistoryRepository(this._pages);

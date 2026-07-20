@@ -9,10 +9,7 @@ abstract final class ReadingDto {
     final reading = json['reading'];
     final createdAt = json['createdAt'];
 
-    if (id is! String ||
-        fortune is! String ||
-        title is! String ||
-        reading is! String) {
+    if (id is! String || fortune is! String || title is! String || reading is! String) {
       throw const FormatException('reading payload missing required fields');
     }
 

@@ -34,21 +34,21 @@ class FortuneButton extends StatelessWidget {
     final (bg, fg, border) = switch (variant) {
       FortuneButtonVariant.primary => (c.accentPrimary, c.textPrimary, null),
       FortuneButtonVariant.secondary => (
-        c.surfaceElevated,
-        c.textPrimary,
-        c.borderSubtle,
-      ),
+          c.surfaceElevated,
+          c.textPrimary,
+          c.borderSubtle,
+        ),
       FortuneButtonVariant.tertiary => (
-        Colors.transparent,
-        c.textPrimary,
-        c.borderSubtle,
-      ),
+          Colors.transparent,
+          c.textPrimary,
+          c.borderSubtle,
+        ),
       FortuneButtonVariant.destructive => (c.error, Colors.white, null),
       FortuneButtonVariant.text => (
-        Colors.transparent,
-        c.accentSecondary,
-        null,
-      ),
+          Colors.transparent,
+          c.accentSecondary,
+          null,
+        ),
     };
 
     return Semantics(
