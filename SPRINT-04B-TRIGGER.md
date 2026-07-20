@@ -8,3 +8,7 @@ Trigger sequence:
 1. Initial push — CI failed at `npm ci` (no lockfile; expected, documented).
 2. `bootstrap-lockfile.yml` generated and committed the lockfile on a runner.
 3. This commit — full gate run with the lockfile present.
+
+4. Repository switched to public (Actions startup failures on private repo —
+   diagnosing account/billing vs service outage). This commit retriggers both
+   workflows after the visibility change.
