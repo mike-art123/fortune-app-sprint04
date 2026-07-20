@@ -31,7 +31,8 @@ class SplashPage extends ConsumerWidget {
               message: s.startupFailedTitle,
               reassurance: s.startupFailedBody,
               retryLabel: s.actionRetry,
-              onRetry: () => ref.read(startupControllerProvider.notifier).retry(),
+              onRetry: () =>
+                  ref.read(startupControllerProvider.notifier).retry(),
             ),
           _ => FortuneLoading(message: s.splashPreparing),
         },

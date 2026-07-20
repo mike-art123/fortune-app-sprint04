@@ -36,7 +36,8 @@ class AppLocalizationsFa extends AppLocalizations {
   String get routeNotFoundTitle => 'این صفحه پیدا نشد';
 
   @override
-  String get routeNotFoundBody => 'شاید نشانی تغییر کرده باشد. می‌توانی به کاوش برگردی.';
+  String get routeNotFoundBody =>
+      'شاید نشانی تغییر کرده باشد. می‌توانی به کاوش برگردی.';
 
   @override
   String get actionBackToExplore => 'بازگشت به کاوش';
@@ -63,7 +64,8 @@ class AppLocalizationsFa extends AppLocalizations {
   String get readingSealedTitle => 'نیتت سپرده شد.';
 
   @override
-  String get readingSealedBody => 'خوانشِ کامل در مرحله‌ی بعدِ ساخت به این‌جا می‌آید.';
+  String get readingSealedBody =>
+      'خوانشِ کامل در مرحله‌ی بعدِ ساخت به این‌جا می‌آید.';
 
   @override
   String get actionSave => 'ذخیره';
@@ -75,7 +77,8 @@ class AppLocalizationsFa extends AppLocalizations {
   String get readingUnavailableTitle => 'این خوانش در دسترس نیست';
 
   @override
-  String get readingUnavailableBody => 'برای دیدنِ خوانش، از مسیرِ آیین وارد شو.';
+  String get readingUnavailableBody =>
+      'برای دیدنِ خوانش، از مسیرِ آیین وارد شو.';
 
   @override
   String get errorReassurance => 'اطلاعاتت محفوظ است.';
@@ -134,13 +137,15 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get authOutsideTelegramBody => 'برای ورود، اپ را از داخل تلگرام باز کن.';
+  String get authOutsideTelegramBody =>
+      'برای ورود، اپ را از داخل تلگرام باز کن.';
 
   @override
   String get authRejectedBody => 'ورود تأیید نشد؛ دوباره تلاش کن.';
 
   @override
-  String get errorInsufficientCoins => 'سکه‌هایت برای این خوانش کافی نیست. اطلاعاتت محفوظ است.';
+  String get errorInsufficientCoins =>
+      'سکه‌هایت برای این خوانش کافی نیست. اطلاعاتت محفوظ است.';
 
   @override
   String get errorSubscriptionRequired => 'این بخش با اشتراک باز می‌شود.';

@@ -29,7 +29,8 @@ class BootstrapDependencies {
         appConfigProvider.overrideWithValue(config),
         localStorageProvider.overrideWithValue(localStorage),
         secureStorageProvider.overrideWithValue(secureStorage),
-        localeRepositoryProvider.overrideWithValue(LocaleRepository(localStorage)),
+        localeRepositoryProvider
+            .overrideWithValue(LocaleRepository(localStorage)),
         themeModeRepositoryProvider.overrideWithValue(
           ThemeModeRepository(localStorage),
         ),

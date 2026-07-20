@@ -16,8 +16,10 @@ class ConnectivityNetworkInfo implements NetworkInfo {
       r.isNotEmpty && !r.every((e) => e == ConnectivityResult.none);
 
   @override
-  Future<bool> get isLikelyOnline async => _online(await _connectivity.checkConnectivity());
+  Future<bool> get isLikelyOnline async =>
+      _online(await _connectivity.checkConnectivity());
 
   @override
-  Stream<bool> get onLikelyOnlineChanged => _connectivity.onConnectivityChanged.map(_online);
+  Stream<bool> get onLikelyOnlineChanged =>
+      _connectivity.onConnectivityChanged.map(_online);
 }

@@ -73,7 +73,9 @@ abstract final class ErrorMapper {
   static String messageKeyFor(FailureKind kind) => switch (kind) {
         FailureKind.networkUnavailable => 'errorNetworkUnavailable',
         FailureKind.timeout => 'errorTimeout',
-        FailureKind.unauthorized || FailureKind.forbidden => 'errorUnauthorized',
+        FailureKind.unauthorized ||
+        FailureKind.forbidden =>
+          'errorUnauthorized',
         FailureKind.notFound => 'errorNotFound',
         FailureKind.validation => 'errorValidation',
         FailureKind.conflict => 'errorConflict',
@@ -81,6 +83,9 @@ abstract final class ErrorMapper {
         FailureKind.insufficientCoins => 'errorInsufficientCoins',
         FailureKind.subscriptionRequired => 'errorSubscriptionRequired',
         FailureKind.storage => 'errorStorage',
-        FailureKind.parsing || FailureKind.server || FailureKind.unknown => 'errorGeneric',
+        FailureKind.parsing ||
+        FailureKind.server ||
+        FailureKind.unknown =>
+          'errorGeneric',
       };
 }

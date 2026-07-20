@@ -24,7 +24,9 @@ abstract final class SupportedLocales {
       if (match != null) return match;
     }
     if (systemLocale != null) {
-      final match = all.where((l) => l.languageCode == systemLocale.languageCode).firstOrNull;
+      final match = all
+          .where((l) => l.languageCode == systemLocale.languageCode)
+          .firstOrNull;
       if (match != null) return match;
     }
     return fallback;

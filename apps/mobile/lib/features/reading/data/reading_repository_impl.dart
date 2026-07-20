@@ -20,7 +20,9 @@ class ReadingRepositoryImpl implements ReadingRepository {
     final result = await _api.post(
       '/readings',
       body: FalInputPayload.toJson(input),
-      headers: idempotencyKey == null ? null : {HeaderKeys.idempotencyKey: idempotencyKey},
+      headers: idempotencyKey == null
+          ? null
+          : {HeaderKeys.idempotencyKey: idempotencyKey},
     );
     return result.fold(
       onSuccess: (data) {

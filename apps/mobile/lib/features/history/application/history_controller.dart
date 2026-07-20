@@ -55,7 +55,8 @@ class HistoryController extends AutoDisposeNotifier<HistoryState> {
   Future<void> _loadFirstPage() async {
     final result = await ref.read(historyRepositoryProvider).list();
     state = result.fold(
-      onSuccess: (page) => HistoryLoaded(items: page.items, nextCursor: page.nextCursor),
+      onSuccess: (page) =>
+          HistoryLoaded(items: page.items, nextCursor: page.nextCursor),
       onFailure: HistoryFailed.new,
     );
   }
@@ -69,12 +70,16 @@ class HistoryController extends AutoDisposeNotifier<HistoryState> {
   /// losing a loaded list over a pagination hiccup would be needlessly harsh.
   Future<void> loadMore() async {
     final current = state;
-    if (current is! HistoryLoaded || !current.hasMore || current.isLoadingMore) {
+    if (current is! HistoryLoaded ||
+        !current.hasMore ||
+        current.isLoadingMore) {
       return;
     }
 
     state = current.copyWith(isLoadingMore: true);
-    final result = await ref.read(historyRepositoryProvider).list(cursor: current.nextCursor);
+    final result = await ref
+        .read(historyRepositoryProvider)
+        .list(cursor: current.nextCursor);
 
     state = result.fold(
       onSuccess: (page) => HistoryLoaded(
@@ -90,7 +95,8 @@ final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
   return HistoryRepositoryImpl(ref.watch(apiClientProvider));
 });
 
-final historyControllerProvider = NotifierProvider.autoDispose<HistoryController, HistoryState>(
+final historyControllerProvider =
+    NotifierProvider.autoDispose<HistoryController, HistoryState>(
   HistoryController.new,
 );
 

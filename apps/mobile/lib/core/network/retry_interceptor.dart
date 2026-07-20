@@ -40,7 +40,8 @@ class RetryInterceptor extends Interceptor {
 
   bool _isRetryable(DioException err) {
     final method = err.requestOptions.method.toUpperCase();
-    if (method != 'GET') return false; // side-effecting requests are never retried
+    if (method != 'GET')
+      return false; // side-effecting requests are never retried
     final status = err.response?.statusCode;
     final transient = err.type == DioExceptionType.connectionTimeout ||
         err.type == DioExceptionType.receiveTimeout ||

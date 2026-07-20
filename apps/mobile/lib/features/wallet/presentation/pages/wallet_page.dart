@@ -58,7 +58,8 @@ class _WalletView extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final fa = Localizations.localeOf(context).languageCode == 'fa';
 
-    final balanceText = fa ? summary.balance.toPersianDigits : summary.balance.toString();
+    final balanceText =
+        fa ? summary.balance.toPersianDigits : summary.balance.toString();
 
     return ListView(
       padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.xl),
@@ -185,7 +186,8 @@ class _CoinEntryRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final fa = Localizations.localeOf(context).languageCode == 'fa';
 
-    final magnitude = fa ? entry.amount.abs().toPersianDigits : entry.amount.abs().toString();
+    final magnitude =
+        fa ? entry.amount.abs().toPersianDigits : entry.amount.abs().toString();
     // Direction sign placed for RTL readability: «+۳۰» / «−۲».
     final amountText = entry.isCredit ? '+$magnitude' : '−$magnitude';
 

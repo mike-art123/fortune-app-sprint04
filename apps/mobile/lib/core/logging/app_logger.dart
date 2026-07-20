@@ -52,7 +52,8 @@ class ConsoleLogger implements AppLogger {
   @override
   void info(String message) => log(LogLevel.info, message);
   @override
-  void warning(String message, {Object? error}) => log(LogLevel.warning, message, error: error);
+  void warning(String message, {Object? error}) =>
+      log(LogLevel.warning, message, error: error);
   @override
   void error(String message, {Object? error, StackTrace? stackTrace}) =>
       log(LogLevel.error, message, error: error, stackTrace: stackTrace);
