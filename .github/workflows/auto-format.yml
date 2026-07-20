@@ -32,7 +32,11 @@ jobs:
       - run: npm --workspace apps/api run format
       - uses: subosito/flutter-action@v2
         with: { channel: stable }
-      # Same page_width config the CI gate uses (analysis_options.yaml).
+      # pub get FIRST: without it the analysis_options include fails to
+      # resolve and the formatter silently falls back to the default 80-col
+      # page width instead of the repo's page_width: 100 — producing output
+      # that the CI gate (which runs after pub get) rejects.
+      - run: cd apps/mobile && flutter pub get
       - run: cd apps/mobile && dart format .
       - name: Commit formatter output (if any)
         run: |
