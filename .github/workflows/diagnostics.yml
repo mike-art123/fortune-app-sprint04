@@ -33,10 +33,13 @@ jobs:
             echo "## eslint (api:lint, report-only)"
             (cd apps/api && npx eslint "src/**/*.ts" "test/**/*.ts" --max-warnings=0 2>&1) || true
             echo
-            echo "## dart format --set-exit-if-changed (report-only)"
-            (cd apps/mobile && dart format --output=none --set-exit-if-changed . 2>&1) || true
+            echo "## jest unit tests (api:test, report-only, failures only)"
+            (npm run api:test 2>&1 | grep -v "^\s*at " | tail -n 200) || true
             echo
-            echo "## dart --version / flutter --version"
+            echo "## dart format AFTER pub get (report-only)"
+            (cd apps/mobile && flutter pub get > /dev/null 2>&1; dart format --output=none --set-exit-if-changed . 2>&1 | tail -n 80) || true
+            echo
+            echo "## dart --version"
             dart --version 2>&1 || true
           } > CI-DIAGNOSTICS.txt
       - name: Commit diagnostics
