@@ -7,17 +7,19 @@ import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entr
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
 
 Widget host(String fortuneId) => ProviderScope(
-      child: MaterialApp(
-        locale: SupportedLocales.fa,
-        supportedLocales: SupportedLocales.all,
-        localizationsDelegates: SupportedLocales.delegates,
-        theme: AppTheme.dark(),
-        home: RitualEntryPage(fortuneId: fortuneId),
-      ),
-    );
+  child: MaterialApp(
+    locale: SupportedLocales.fa,
+    supportedLocales: SupportedLocales.all,
+    localizationsDelegates: SupportedLocales.delegates,
+    theme: AppTheme.dark(),
+    home: RitualEntryPage(fortuneId: fortuneId),
+  ),
+);
 
 void main() {
-  testWidgets('hafez entry shows ritual line, whisper, and CTA', (tester) async {
+  testWidgets('hafez entry shows ritual line, whisper, and CTA', (
+    tester,
+  ) async {
     await tester.pumpWidget(host('hafez'));
     await tester.pumpAndSettle();
 
@@ -34,7 +36,9 @@ void main() {
     expect(find.text('و'), findsOneWidget);
   });
 
-  testWidgets('love: sealing with one name shows gentle guidance', (tester) async {
+  testWidgets('love: sealing with one name shows gentle guidance', (
+    tester,
+  ) async {
     await tester.pumpWidget(host('love'));
     await tester.pumpAndSettle();
 
@@ -42,7 +46,10 @@ void main() {
     await tester.tap(find.text('سازگاری را ببین'));
     await tester.pumpAndSettle();
 
-    expect(find.text('برای دیدنِ سازگاری، هر دو نام را بنویس.'), findsOneWidget);
+    expect(
+      find.text('برای دیدنِ سازگاری، هر دو نام را بنویس.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('unknown fortune id shows branded recovery', (tester) async {
@@ -52,7 +59,9 @@ void main() {
     expect(find.text('این صفحه پیدا نشد'), findsOneWidget);
   });
 
-  testWidgets('entry renders right-to-left under Persian locale', (tester) async {
+  testWidgets('entry renders right-to-left under Persian locale', (
+    tester,
+  ) async {
     await tester.pumpWidget(host('hafez'));
     await tester.pumpAndSettle();
 

@@ -29,5 +29,6 @@ abstract final class AppRoutes {
 /// or reach the backend (doc 51 §12.5, §33).
 abstract final class RouteParams {
   static final _safeId = RegExp(r'^[A-Za-z0-9_-]{1,64}$');
-  static bool isValidId(String? value) => value != null && _safeId.hasMatch(value);
+  static bool isValidId(String? value) =>
+      value != null && _safeId.hasMatch(value);
 }

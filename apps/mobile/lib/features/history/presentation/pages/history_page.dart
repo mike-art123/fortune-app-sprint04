@@ -29,17 +29,17 @@ class HistoryPage extends ConsumerWidget {
       child: switch (state) {
         HistoryLoading() => const Center(child: FortuneLoading()),
         HistoryFailed(:final failure) => FortuneErrorState(
-            message: FailureMessageResolver.resolve(failure),
-            reassurance: s.errorReassurance,
-            retryLabel: s.actionRetry,
-            onRetry: () => ref.read(historyControllerProvider.notifier).retry(),
-          ),
+          message: FailureMessageResolver.resolve(failure),
+          reassurance: s.errorReassurance,
+          retryLabel: s.actionRetry,
+          onRetry: () => ref.read(historyControllerProvider.notifier).retry(),
+        ),
         HistoryLoaded(:final items) when items.isEmpty => FortuneEmptyState(
-            title: s.historyEmptyTitle,
-            description: s.historyEmptyBody,
-            actionLabel: s.historyEmptyAction,
-            onAction: () => context.go(AppRoutes.explorePath),
-          ),
+          title: s.historyEmptyTitle,
+          description: s.historyEmptyBody,
+          actionLabel: s.historyEmptyAction,
+          onAction: () => context.go(AppRoutes.explorePath),
+        ),
         HistoryLoaded() => _HistoryList(state: state),
       },
     );
@@ -86,7 +86,8 @@ class _HistoryList extends ConsumerWidget {
           duration: Duration(milliseconds: 220 + (index % 8) * 50),
           child: HistoryCard(
             reading: reading,
-            onOpen: () => context.push(AppRoutes.reading(reading.id), extra: reading),
+            onOpen: () =>
+                context.push(AppRoutes.reading(reading.id), extra: reading),
           ),
         );
       },

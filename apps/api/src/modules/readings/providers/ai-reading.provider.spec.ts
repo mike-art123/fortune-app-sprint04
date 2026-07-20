@@ -87,9 +87,7 @@ describe('parseGeneratedReading', () => {
 
   it('clamps an overlong title', () => {
     const long = 'ک'.repeat(200);
-    const out = parseGeneratedReading(
-      JSON.stringify({ title: long, reading: 'متن '.repeat(30) }),
-    );
+    const out = parseGeneratedReading(JSON.stringify({ title: long, reading: 'متن '.repeat(30) }));
     expect(out.title.length).toBeLessThanOrEqual(80);
   });
 });

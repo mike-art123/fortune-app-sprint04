@@ -10,7 +10,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<AuthLogin>> loginWithTelegram(String initData) async {
-    final result = await _api.post('/auth/telegram', body: {'initData': initData});
+    final result = await _api.post(
+      '/auth/telegram',
+      body: {'initData': initData},
+    );
     return result.fold(
       onSuccess: (data) {
         try {

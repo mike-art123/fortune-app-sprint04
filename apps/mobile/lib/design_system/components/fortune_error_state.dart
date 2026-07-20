@@ -26,12 +26,18 @@ class FortuneErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message,
-                style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
             if (reassurance != null) ...[
               const SizedBox(height: AppSpacing.xs),
-              Text(reassurance!,
-                  style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+              Text(
+                reassurance!,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
             ],
             if (onRetry != null && retryLabel != null) ...[
               const SizedBox(height: AppSpacing.lg),

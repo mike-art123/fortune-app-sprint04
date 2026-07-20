@@ -18,11 +18,18 @@ class FortuneLoading extends StatelessWidget {
           SizedBox(
             width: 22,
             height: 22,
-            child: CircularProgressIndicator(strokeWidth: 2, color: c.accentSecondary),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: c.accentSecondary,
+            ),
           ),
           if (message != null) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(message!, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+            Text(
+              message!,
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
           ],
         ],
       ),

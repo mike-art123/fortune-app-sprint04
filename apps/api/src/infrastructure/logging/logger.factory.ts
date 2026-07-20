@@ -2,10 +2,7 @@ import type { Params } from 'nestjs-pino';
 import { REDACT_PATHS } from '../../common/utils/redaction.util';
 
 /** Builds pino options (doc 52 §16): JSON in prod, pretty in dev, redaction always. */
-export function buildLoggerOptions(env: {
-  level: string;
-  pretty: boolean;
-}): Params {
+export function buildLoggerOptions(env: { level: string; pretty: boolean }): Params {
   return {
     pinoHttp: {
       level: env.level,

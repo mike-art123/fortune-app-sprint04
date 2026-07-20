@@ -15,7 +15,10 @@ void main() {
   });
 
   test('intention: text is trimmed and kept', () {
-    final outcome = FalInputFactory.build(fortune: hafez, primary: '  دلم روشن شود  ');
+    final outcome = FalInputFactory.build(
+      fortune: hafez,
+      primary: '  دلم روشن شود  ',
+    );
     final input = ((outcome as OfferingReady).input) as IntentionInput;
     expect(input.intention, 'دلم روشن شود');
   });
@@ -27,31 +30,42 @@ void main() {
   });
 
   test('dream: enough words seals a DreamInput', () {
-    final outcome =
-        FalInputFactory.build(fortune: dream, primary: 'در باغی سبز راه می‌رفتم');
+    final outcome = FalInputFactory.build(
+      fortune: dream,
+      primary: 'در باغی سبز راه می‌رفتم',
+    );
     expect(outcome, isA<OfferingReady>());
     expect((outcome as OfferingReady).input, isA<DreamInput>());
   });
 
   test('love: one missing name returns guidance', () {
-    final outcome = FalInputFactory.build(fortune: love, primary: 'سارا', secondary: '');
+    final outcome = FalInputFactory.build(
+      fortune: love,
+      primary: 'سارا',
+      secondary: '',
+    );
     expect(outcome, isA<OfferingNeedsMore>());
   });
 
   test('love: both names seal a LoveInput', () {
-    final outcome =
-        FalInputFactory.build(fortune: love, primary: 'سارا', secondary: 'امیر');
+    final outcome = FalInputFactory.build(
+      fortune: love,
+      primary: 'سارا',
+      secondary: 'امیر',
+    );
     final input = ((outcome as OfferingReady).input) as LoveInput;
     expect(input.selfName, 'سارا');
     expect(input.otherName, 'امیر');
   });
 
   test('redacted description never leaks personal content', () {
-    final input = (FalInputFactory.build(
-      fortune: dream,
-      primary: 'رازِ خیلی شخصی درباره‌ی خواب',
-    ) as OfferingReady)
-        .input;
+    final input =
+        (FalInputFactory.build(
+                  fortune: dream,
+                  primary: 'رازِ خیلی شخصی درباره‌ی خواب',
+                )
+                as OfferingReady)
+            .input;
     expect(input.redactedDescription.contains('راز'), isFalse);
   });
 }

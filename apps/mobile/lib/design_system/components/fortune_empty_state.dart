@@ -25,11 +25,18 @@ class FortuneEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
             if (description != null) ...[
               const SizedBox(height: AppSpacing.xs),
-              Text(description!,
-                  style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+              Text(
+                description!,
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.lg),

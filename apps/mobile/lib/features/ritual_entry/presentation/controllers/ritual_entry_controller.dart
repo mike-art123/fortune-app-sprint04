@@ -10,8 +10,12 @@ class RitualEntryState {
   /// Gentle guidance to show under the offering — null means all is calm.
   final LocalizedText? guidance;
 
-  RitualEntryState copyWith({LocalizedText? guidance, bool clearGuidance = false}) =>
-      RitualEntryState(guidance: clearGuidance ? null : (guidance ?? this.guidance));
+  RitualEntryState copyWith({
+    LocalizedText? guidance,
+    bool clearGuidance = false,
+  }) => RitualEntryState(
+    guidance: clearGuidance ? null : (guidance ?? this.guidance),
+  );
 }
 
 /// Holds validation state for one fortune's ritual entry. Widgets stay free of
@@ -49,5 +53,5 @@ class RitualEntryController extends FamilyNotifier<RitualEntryState, String> {
 
 final ritualEntryControllerProvider =
     NotifierProvider.family<RitualEntryController, RitualEntryState, String>(
-  RitualEntryController.new,
-);
+      RitualEntryController.new,
+    );

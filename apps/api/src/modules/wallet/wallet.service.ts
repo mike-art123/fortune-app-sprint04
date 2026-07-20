@@ -116,11 +116,9 @@ export class WalletService {
         if (this.isUniqueViolation(error)) {
           // Same Idempotency-Key already produced a debit: the whole tx
           // (including the decrement above) rolls back on this throw.
-          throw new DomainException(
-            'DUPLICATE_REQUEST',
-            'این درخواست قبلاً ثبت شده است.',
-            { status: HttpStatus.CONFLICT },
-          );
+          throw new DomainException('DUPLICATE_REQUEST', 'این درخواست قبلاً ثبت شده است.', {
+            status: HttpStatus.CONFLICT,
+          });
         }
         throw error;
       }

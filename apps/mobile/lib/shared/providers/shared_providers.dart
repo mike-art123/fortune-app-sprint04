@@ -23,11 +23,15 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 });
 
 final localStorageProvider = Provider<LocalStorage>((ref) {
-  throw UnimplementedError('localStorageProvider must be overridden at bootstrap');
+  throw UnimplementedError(
+    'localStorageProvider must be overridden at bootstrap',
+  );
 });
 
 final secureStorageProvider = Provider<SecureStorage>((ref) {
-  throw UnimplementedError('secureStorageProvider must be overridden at bootstrap');
+  throw UnimplementedError(
+    'secureStorageProvider must be overridden at bootstrap',
+  );
 });
 
 final appLoggerProvider = Provider<AppLogger>((ref) {
@@ -51,7 +55,9 @@ final storageMigrationsProvider = Provider<StorageMigrations>((ref) {
   return StorageMigrations(ref.watch(localStorageProvider));
 });
 
-final networkInfoProvider = Provider<NetworkInfo>((ref) => ConnectivityNetworkInfo());
+final networkInfoProvider = Provider<NetworkInfo>(
+  (ref) => ConnectivityNetworkInfo(),
+);
 
 /// 401 broadcast from the networking layer; the auth controller listens and
 /// re-establishes the session (Sprint 04 / doc 53).
@@ -80,5 +86,6 @@ final _dioProvider = Provider<Dio>((ref) {
   );
 });
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(_dioProvider)));
-
+final apiClientProvider = Provider<ApiClient>(
+  (ref) => ApiClient(ref.watch(_dioProvider)),
+);

@@ -14,8 +14,14 @@ Widget host(Reading? reading, {List<Override> overrides = const []}) {
   final router = GoRouter(
     initialLocation: '/reading',
     routes: [
-      GoRoute(path: '/reading', builder: (_, __) => ReadingPage(readingId: 'clx1', reading: reading)),
-      GoRoute(path: '/explore', builder: (_, __) => const Scaffold(body: SizedBox())),
+      GoRoute(
+        path: '/reading',
+        builder: (_, __) => ReadingPage(readingId: 'clx1', reading: reading),
+      ),
+      GoRoute(
+        path: '/explore',
+        builder: (_, __) => const Scaffold(body: SizedBox()),
+      ),
     ],
   );
   return ProviderScope(
@@ -31,12 +37,12 @@ Widget host(Reading? reading, {List<Override> overrides = const []}) {
 }
 
 Reading _reading() => Reading(
-      id: 'clx1',
-      fortuneId: 'hafez',
-      title: 'پیامی از دیوان',
-      text: 'این روزها آرام‌تر از آن‌اند که به چشم می‌آیند.',
-      createdAt: DateTime(2026, 1, 7),
-    );
+  id: 'clx1',
+  fortuneId: 'hafez',
+  title: 'پیامی از دیوان',
+  text: 'این روزها آرام‌تر از آن‌اند که به چشم می‌آیند.',
+  createdAt: DateTime(2026, 1, 7),
+);
 
 void main() {
   testWidgets('renders title, reading text, and Persian date', (tester) async {
@@ -67,30 +73,38 @@ void main() {
   });
 
   testWidgets('cold deep link fetches the reading by id', (tester) async {
-    await tester.pumpWidget(host(
-      null,
-      overrides: [
-        readingByIdProvider('clx1').overrideWith((ref) async => _reading()),
-      ],
-    ));
+    await tester.pumpWidget(
+      host(
+        null,
+        overrides: [
+          readingByIdProvider('clx1').overrideWith((ref) async => _reading()),
+        ],
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('پیامی از دیوان'), findsOneWidget);
   });
 
-  testWidgets('a failed fetch shows honest recovery, never a blank page',
-      (tester) async {
-    await tester.pumpWidget(host(
-      null,
-      overrides: [
-        readingByIdProvider('clx1').overrideWith(
-          (ref) async => throw const AppFailure(
-            kind: FailureKind.notFound,
-            messageKey: 'failure.notFound',
+  testWidgets('a failed fetch shows honest recovery, never a blank page', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      host(
+        null,
+        overrides: [
+          readingByIdProvider('clx1').overrideWith(
+            (ref) async => throw const AppFailure(
+              kind: FailureKind.notFound,
+              messageKey: 'failure.notFound',
+            ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('برای دیدنِ خوانش، از مسیرِ آیین وارد شو.'), findsOneWidget);
+    expect(
+      find.text('برای دیدنِ خوانش، از مسیرِ آیین وارد شو.'),
+      findsOneWidget,
+    );
   });
 }

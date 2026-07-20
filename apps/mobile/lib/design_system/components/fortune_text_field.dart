@@ -71,15 +71,22 @@ class FortuneTextField extends StatelessWidget {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                borderSide: BorderSide(color: c.borderSubtle.withValues(alpha: AppOpacity.hairline)),
+                borderSide: BorderSide(
+                  color: c.borderSubtle.withValues(alpha: AppOpacity.hairline),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                borderSide: BorderSide(color: c.borderSubtle.withValues(alpha: AppOpacity.hairline)),
+                borderSide: BorderSide(
+                  color: c.borderSubtle.withValues(alpha: AppOpacity.hairline),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                borderSide: BorderSide(color: accent.withValues(alpha: 0.5), width: 1.5),
+                borderSide: BorderSide(
+                  color: accent.withValues(alpha: 0.5),
+                  width: 1.5,
+                ),
               ),
             ),
           ),
@@ -88,7 +95,9 @@ class FortuneTextField extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             guidance!,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.textSecondary),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: c.textSecondary),
           ),
         ],
       ],

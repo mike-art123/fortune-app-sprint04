@@ -34,7 +34,8 @@ final class SubmissionFailed extends ReadingSubmissionState {
 /// (Sprint 04): the in-flight guard blocks double submits, and one
 /// Idempotency-Key per attempt-cycle makes ambiguous retries safe — a retry
 /// after a timeout replays the same reading instead of paying twice.
-class ReadingSubmissionController extends AutoDisposeNotifier<ReadingSubmissionState> {
+class ReadingSubmissionController
+    extends AutoDisposeNotifier<ReadingSubmissionState> {
   /// Kept across retryable failures, discarded on success/reset/final failure.
   String? _pendingIdempotencyKey;
 
@@ -46,8 +47,9 @@ class ReadingSubmissionController extends AutoDisposeNotifier<ReadingSubmissionS
     final key = _pendingIdempotencyKey ??= const Uuid().v4();
     state = const SubmissionInFlight();
 
-    final result =
-        await ref.read(readingRepositoryProvider).create(input, idempotencyKey: key);
+    final result = await ref
+        .read(readingRepositoryProvider)
+        .create(input, idempotencyKey: key);
     state = result.fold(
       onSuccess: (reading) {
         _pendingIdempotencyKey = null;
@@ -73,5 +75,8 @@ final readingRepositoryProvider = Provider<ReadingRepository>((ref) {
   return ReadingRepositoryImpl(ref.watch(apiClientProvider));
 });
 
-final readingSubmissionControllerProvider = NotifierProvider.autoDispose<
-    ReadingSubmissionController, ReadingSubmissionState>(ReadingSubmissionController.new);
+final readingSubmissionControllerProvider =
+    NotifierProvider.autoDispose<
+      ReadingSubmissionController,
+      ReadingSubmissionState
+    >(ReadingSubmissionController.new);

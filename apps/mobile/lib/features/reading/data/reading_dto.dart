@@ -9,7 +9,10 @@ abstract final class ReadingDto {
     final reading = json['reading'];
     final createdAt = json['createdAt'];
 
-    if (id is! String || fortune is! String || title is! String || reading is! String) {
+    if (id is! String ||
+        fortune is! String ||
+        title is! String ||
+        reading is! String) {
       throw const FormatException('reading payload missing required fields');
     }
 
@@ -18,8 +21,9 @@ abstract final class ReadingDto {
       fortuneId: fortune,
       title: title,
       text: reading,
-      createdAt:
-          createdAt is String ? (DateTime.tryParse(createdAt)?.toLocal() ?? DateTime.now()) : DateTime.now(),
+      createdAt: createdAt is String
+          ? (DateTime.tryParse(createdAt)?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
     );
   }
 }

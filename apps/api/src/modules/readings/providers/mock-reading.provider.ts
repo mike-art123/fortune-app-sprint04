@@ -11,10 +11,7 @@ import type { GeneratedReading, ReadingProvider } from './reading-provider.inter
  */
 @Injectable()
 export class MockReadingProvider implements ReadingProvider {
-  async generate(
-    fortune: FortuneCatalogEntry,
-    input: ReadingInputDto,
-  ): Promise<GeneratedReading> {
+  async generate(fortune: FortuneCatalogEntry, input: ReadingInputDto): Promise<GeneratedReading> {
     switch (fortune.inputKind) {
       case 'intention':
         return {

@@ -9,7 +9,11 @@ import '../../../fortunes/domain/fortune_definition.dart';
 /// One fortune family in the Explore grid. Restrained: a soft accent-tinted
 /// emblem, the name, one quiet line. Gold never fills — accents stay thin.
 class FortuneGridCard extends StatelessWidget {
-  const FortuneGridCard({super.key, required this.fortune, required this.onOpen});
+  const FortuneGridCard({
+    super.key,
+    required this.fortune,
+    required this.onOpen,
+  });
 
   final FortuneDefinition fortune;
   final VoidCallback onOpen;
@@ -54,7 +58,10 @@ class FortuneGridCard extends StatelessWidget {
                   child: Container(
                     width: 10,
                     height: 10,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: fortune.accent),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: fortune.accent,
+                    ),
                   ),
                 ),
                 const Spacer(),
@@ -70,10 +77,9 @@ class FortuneGridCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     context.strings.comingSoon,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(color: c.textMuted),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelMedium?.copyWith(color: c.textMuted),
                   ),
                 ],
               ],

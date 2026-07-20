@@ -8,11 +8,12 @@ class ThemeModeRepository {
   final LocalStorage _storage;
 
   ThemeMode read() => switch (_storage.getString(PrefKeys.themeMode)) {
-        'light' => ThemeMode.light,
-        'dark' => ThemeMode.dark,
-        'system' => ThemeMode.system,
-        _ => ThemeMode.dark, // product launches dark-first
-      };
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    'system' => ThemeMode.system,
+    _ => ThemeMode.dark, // product launches dark-first
+  };
 
-  Future<void> save(ThemeMode mode) => _storage.setString(PrefKeys.themeMode, mode.name);
+  Future<void> save(ThemeMode mode) =>
+      _storage.setString(PrefKeys.themeMode, mode.name);
 }

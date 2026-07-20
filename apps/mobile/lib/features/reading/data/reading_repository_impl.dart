@@ -13,7 +13,10 @@ class ReadingRepositoryImpl implements ReadingRepository {
   final ApiClient _api;
 
   @override
-  Future<Result<Reading>> create(FalInput input, {String? idempotencyKey}) async {
+  Future<Result<Reading>> create(
+    FalInput input, {
+    String? idempotencyKey,
+  }) async {
     final result = await _api.post(
       '/readings',
       body: FalInputPayload.toJson(input),

@@ -41,7 +41,9 @@ class FortuneCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: borderColor == null
             ? null
-            : Border.all(color: borderColor.withValues(alpha: AppOpacity.hairline * 2.5)),
+            : Border.all(
+                color: borderColor.withValues(alpha: AppOpacity.hairline * 2.5),
+              ),
       ),
       child: child,
     );

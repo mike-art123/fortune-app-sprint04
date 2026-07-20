@@ -118,9 +118,9 @@ describe('TokenService', () => {
     });
 
     const token = service.sign('user-r', { telegramId: '1', roles: ['user'] }).accessToken;
-    const header = JSON.parse(
-      Buffer.from(token.split('.')[0], 'base64url').toString('utf8'),
-    ) as { alg: string };
+    const header = JSON.parse(Buffer.from(token.split('.')[0], 'base64url').toString('utf8')) as {
+      alg: string;
+    };
     expect(header.alg).toBe('RS256');
     expect(service.verify(token)?.sub).toBe('user-r');
   });

@@ -33,10 +33,22 @@ class FortuneButton extends StatelessWidget {
     final c = context.fortuneColors;
     final (bg, fg, border) = switch (variant) {
       FortuneButtonVariant.primary => (c.accentPrimary, c.textPrimary, null),
-      FortuneButtonVariant.secondary => (c.surfaceElevated, c.textPrimary, c.borderSubtle),
-      FortuneButtonVariant.tertiary => (Colors.transparent, c.textPrimary, c.borderSubtle),
+      FortuneButtonVariant.secondary => (
+        c.surfaceElevated,
+        c.textPrimary,
+        c.borderSubtle,
+      ),
+      FortuneButtonVariant.tertiary => (
+        Colors.transparent,
+        c.textPrimary,
+        c.borderSubtle,
+      ),
       FortuneButtonVariant.destructive => (c.error, Colors.white, null),
-      FortuneButtonVariant.text => (Colors.transparent, c.accentSecondary, null),
+      FortuneButtonVariant.text => (
+        Colors.transparent,
+        c.accentSecondary,
+        null,
+      ),
     };
 
     return Semantics(
@@ -59,10 +71,16 @@ class FortuneButton extends StatelessWidget {
                     ? null
                     : BoxDecoration(
                         borderRadius: BorderRadius.circular(AppRadius.lg),
-                        border: Border.all(color: border.withValues(alpha: AppOpacity.hairline * 2)),
+                        border: Border.all(
+                          color: border.withValues(
+                            alpha: AppOpacity.hairline * 2,
+                          ),
+                        ),
                       ),
                 alignment: Alignment.center,
-                padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.md),
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: AppSpacing.md,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -70,14 +88,19 @@ class FortuneButton extends StatelessWidget {
                       SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: fg),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: fg,
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.xs),
                     ],
                     Flexible(
                       child: Text(
                         label,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: fg),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelLarge?.copyWith(color: fg),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

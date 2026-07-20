@@ -16,7 +16,8 @@ class FlutterSecureStorageAdapter implements SecureStorage {
   @override
   Future<String?> read(String key) => _storage.read(key: key);
   @override
-  Future<void> write(String key, String value) => _storage.write(key: key, value: value);
+  Future<void> write(String key, String value) =>
+      _storage.write(key: key, value: value);
   @override
   Future<void> delete(String key) => _storage.delete(key: key);
   @override
@@ -31,7 +32,10 @@ class TokenStore {
   Future<String?> readAccessToken() => _storage.read(SecureKeys.accessToken);
   Future<String?> readRefreshToken() => _storage.read(SecureKeys.refreshToken);
 
-  Future<void> saveTokens({required String access, required String refresh}) async {
+  Future<void> saveTokens({
+    required String access,
+    required String refresh,
+  }) async {
     await _storage.write(SecureKeys.accessToken, access);
     await _storage.write(SecureKeys.refreshToken, refresh);
   }

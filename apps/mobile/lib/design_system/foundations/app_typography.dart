@@ -11,15 +11,20 @@ abstract final class AppTypography {
   static const String accentFamily = 'Vazirmatn';
 
   static TextTheme textTheme(Color primary, Color secondary) {
-    TextStyle s(double size, FontWeight w, double height, {double? spacing, Color? color}) =>
-        TextStyle(
-          fontFamily: primaryFamily,
-          fontSize: size,
-          fontWeight: w,
-          height: height,
-          letterSpacing: spacing,
-          color: color ?? primary,
-        );
+    TextStyle s(
+      double size,
+      FontWeight w,
+      double height, {
+      double? spacing,
+      Color? color,
+    }) => TextStyle(
+      fontFamily: primaryFamily,
+      fontSize: size,
+      fontWeight: w,
+      height: height,
+      letterSpacing: spacing,
+      color: color ?? primary,
+    );
 
     return TextTheme(
       displayLarge: s(40, FontWeight.w700, 1.25),

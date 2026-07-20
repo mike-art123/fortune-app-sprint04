@@ -16,7 +16,8 @@ class HistoryCard extends StatelessWidget {
 
   String _date(BuildContext context) {
     final d = reading.createdAt;
-    final formatted = '${d.year.toString().padLeft(4, '0')}/'
+    final formatted =
+        '${d.year.toString().padLeft(4, '0')}/'
         '${d.month.toString().padLeft(2, '0')}/'
         '${d.day.toString().padLeft(2, '0')}';
     return Localizations.localeOf(context).languageCode == 'fa'
@@ -72,7 +73,10 @@ class HistoryCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxs),
           Text(
             reading.text,
-            style: textTheme.bodySmall?.copyWith(color: c.textMuted, height: 1.9),
+            style: textTheme.bodySmall?.copyWith(
+              color: c.textMuted,
+              height: 1.9,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),

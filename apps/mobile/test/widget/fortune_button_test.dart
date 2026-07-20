@@ -4,17 +4,19 @@ import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/design_system/components/fortune_button.dart';
 
 Widget _host(Widget child) => MaterialApp(
-      theme: AppTheme.dark(),
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(body: child),
-      ),
-    );
+  theme: AppTheme.dark(),
+  home: Directionality(
+    textDirection: TextDirection.rtl,
+    child: Scaffold(body: child),
+  ),
+);
 
 void main() {
   testWidgets('renders label and fires onPressed', (tester) async {
     var taps = 0;
-    await tester.pumpWidget(_host(FortuneButton(label: 'ادامه', onPressed: () => taps++)));
+    await tester.pumpWidget(
+      _host(FortuneButton(label: 'ادامه', onPressed: () => taps++)),
+    );
 
     expect(find.text('ادامه'), findsOneWidget);
     await tester.tap(find.byType(FortuneButton));

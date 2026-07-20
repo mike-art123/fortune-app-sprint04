@@ -25,9 +25,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: false,
     observers: [AnalyticsRouteObserver(ref.watch(analyticsServiceProvider))],
     redirect: (context, state) {
-      final startup = ref.read(startupControllerProvider).valueOrNull ??
+      final startup =
+          ref.read(startupControllerProvider).valueOrNull ??
           const StartupInProgress();
-      return RouteGuards.redirect(startup: startup, location: state.matchedLocation);
+      return RouteGuards.redirect(
+        startup: startup,
+        location: state.matchedLocation,
+      );
     },
     routes: [
       GoRoute(
@@ -59,7 +63,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           final child = RouteParams.isValidId(id)
               ? ReadingPage(
                   readingId: id!,
-                  reading: state.extra is Reading ? state.extra as Reading : null,
+                  reading: state.extra is Reading
+                      ? state.extra as Reading
+                      : null,
                 )
               : const _NotFoundPage();
           return _fadePage(state, child);
@@ -94,9 +100,9 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
     transitionDuration: const Duration(milliseconds: 260),
     transitionsBuilder: (context, animation, secondaryAnimation, child) =>
         FadeTransition(
-      opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-      child: child,
-    ),
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+          child: child,
+        ),
   );
 }
 
@@ -115,11 +121,17 @@ class _NotFoundPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(s.routeNotFoundTitle,
-                    style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+                Text(
+                  s.routeNotFoundTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 8),
-                Text(s.routeNotFoundBody,
-                    style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
+                Text(
+                  s.routeNotFoundBody,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 24),
                 TextButton(
                   onPressed: () => context.go(AppRoutes.explorePath),

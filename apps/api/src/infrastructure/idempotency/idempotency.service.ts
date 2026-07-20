@@ -13,7 +13,9 @@ export class IdempotencyService {
   constructor(private readonly prisma: PrismaService) {}
 
   static fingerprint(payload: unknown): string {
-    return createHash('sha256').update(JSON.stringify(payload ?? null)).digest('hex');
+    return createHash('sha256')
+      .update(JSON.stringify(payload ?? null))
+      .digest('hex');
   }
 
   /**
@@ -34,9 +36,13 @@ export class IdempotencyService {
     });
     if (!existing) return null;
     if (existing.fingerprint !== fingerprint) {
-      throw new DomainException('DUPLICATE_REQUEST', 'این درخواست قبلاً با محتوای دیگری ثبت شده است.', {
-        status: HttpStatus.CONFLICT,
-      });
+      throw new DomainException(
+        'DUPLICATE_REQUEST',
+        'این درخواست قبلاً با محتوای دیگری ثبت شده است.',
+        {
+          status: HttpStatus.CONFLICT,
+        },
+      );
     }
     return existing.result;
   }

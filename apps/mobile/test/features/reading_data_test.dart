@@ -6,7 +6,9 @@ import 'package:fortune_app/features/reading/data/reading_dto.dart';
 void main() {
   group('FalInputPayload', () {
     test('hafez silent intention omits the field', () {
-      final json = FalInputPayload.toJson(const IntentionInput(fortuneId: 'hafez'));
+      final json = FalInputPayload.toJson(
+        const IntentionInput(fortuneId: 'hafez'),
+      );
       expect(json['fortuneId'], 'hafez');
       expect((json['input'] as Map).containsKey('intention'), isFalse);
     });

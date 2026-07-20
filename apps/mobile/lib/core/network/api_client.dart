@@ -14,36 +14,41 @@ class ApiClient {
     Map<String, dynamic>? query,
     Map<String, String>? headers,
     CancelToken? cancelToken,
-  }) =>
-      _request(() => _dio.get<dynamic>(
-            path,
-            queryParameters: query,
-            cancelToken: cancelToken,
-            options: headers == null ? null : Options(headers: headers),
-          ));
+  }) => _request(
+    () => _dio.get<dynamic>(
+      path,
+      queryParameters: query,
+      cancelToken: cancelToken,
+      options: headers == null ? null : Options(headers: headers),
+    ),
+  );
 
   Future<Result<Map<String, dynamic>>> post(
     String path, {
     Object? body,
     Map<String, String>? headers,
     CancelToken? cancelToken,
-  }) =>
-      _request(() => _dio.post<dynamic>(
-            path,
-            data: body,
-            cancelToken: cancelToken,
-            options: headers == null ? null : Options(headers: headers),
-          ));
+  }) => _request(
+    () => _dio.post<dynamic>(
+      path,
+      data: body,
+      cancelToken: cancelToken,
+      options: headers == null ? null : Options(headers: headers),
+    ),
+  );
 
   Future<Result<Map<String, dynamic>>> patch(
     String path, {
     Object? body,
     CancelToken? cancelToken,
-  }) =>
-      _request(() => _dio.patch<dynamic>(path, data: body, cancelToken: cancelToken));
+  }) => _request(
+    () => _dio.patch<dynamic>(path, data: body, cancelToken: cancelToken),
+  );
 
-  Future<Result<Map<String, dynamic>>> delete(String path, {CancelToken? cancelToken}) =>
-      _request(() => _dio.delete<dynamic>(path, cancelToken: cancelToken));
+  Future<Result<Map<String, dynamic>>> delete(
+    String path, {
+    CancelToken? cancelToken,
+  }) => _request(() => _dio.delete<dynamic>(path, cancelToken: cancelToken));
 
   Future<Result<Map<String, dynamic>>> _request(
     Future<Response<dynamic>> Function() send,
@@ -52,12 +57,18 @@ class ApiClient {
       final response = await send();
       final raw = response.data;
       if (raw is! Map<String, dynamic>) {
-        return ResultFailure(ErrorMapper.parsing('Expected JSON object, got ${raw.runtimeType}'));
+        return ResultFailure(
+          ErrorMapper.parsing('Expected JSON object, got ${raw.runtimeType}'),
+        );
       }
       final envelope = ApiEnvelope.fromJson(raw);
       if (!envelope.success) {
         return ResultFailure(
-          ErrorMapper.fromEnvelope(envelope.errorCode, envelope.errorMessage, envelope.requestId),
+          ErrorMapper.fromEnvelope(
+            envelope.errorCode,
+            envelope.errorMessage,
+            envelope.requestId,
+          ),
         );
       }
       return Success(envelope.data ?? const <String, dynamic>{});

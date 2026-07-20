@@ -28,7 +28,10 @@ class HistoryRepositoryImpl implements HistoryRepository {
               .toList(growable: false);
           final next = data['nextCursor'];
           return Success(
-            ReadingListPage(items: items, nextCursor: next is String ? next : null),
+            ReadingListPage(
+              items: items,
+              nextCursor: next is String ? next : null,
+            ),
           );
         } catch (e) {
           return ResultFailure(ErrorMapper.parsing(e));

@@ -28,11 +28,7 @@ export class WalletRepository {
    * write — atomic even outside an explicit transaction. The starter credit
    * is a REAL transaction, not a conjured balance.
    */
-  createWithStarter(
-    userId: string,
-    starterCoins: number,
-    tx?: TransactionClient,
-  ): Promise<Wallet> {
+  createWithStarter(userId: string, starterCoins: number, tx?: TransactionClient): Promise<Wallet> {
     return this.client(tx).wallet.create({
       data: {
         userId,

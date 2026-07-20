@@ -15,7 +15,10 @@ class _FakeRepo implements ReadingRepository {
   final List<String?> keys = [];
 
   @override
-  Future<Result<Reading>> create(FalInput input, {String? idempotencyKey}) async {
+  Future<Result<Reading>> create(
+    FalInput input, {
+    String? idempotencyKey,
+  }) async {
     calls++;
     keys.add(idempotencyKey);
     return result;
@@ -23,12 +26,12 @@ class _FakeRepo implements ReadingRepository {
 }
 
 Reading _reading() => Reading(
-      id: 'clx1',
-      fortuneId: 'hafez',
-      title: 'پیامی از دیوان',
-      text: 'متن',
-      createdAt: DateTime(2026),
-    );
+  id: 'clx1',
+  fortuneId: 'hafez',
+  title: 'پیامی از دیوان',
+  text: 'متن',
+  createdAt: DateTime(2026),
+);
 
 void main() {
   test('success path: idle → inflight → succeeded', () async {
@@ -38,7 +41,10 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final sub = container.listen(readingSubmissionControllerProvider, (_, __) {});
+    final sub = container.listen(
+      readingSubmissionControllerProvider,
+      (_, __) {},
+    );
     expect(sub.read(), isA<SubmissionIdle>());
 
     await container
@@ -50,22 +56,32 @@ void main() {
   });
 
   test('failure path resolves a friendly Persian message', () async {
-    const failure = AppFailure(kind: FailureKind.timeout, messageKey: 'errorTimeout');
+    const failure = AppFailure(
+      kind: FailureKind.timeout,
+      messageKey: 'errorTimeout',
+    );
     final container = ProviderContainer(
       overrides: [
-        readingRepositoryProvider.overrideWithValue(_FakeRepo(const ResultFailure(failure))),
+        readingRepositoryProvider.overrideWithValue(
+          _FakeRepo(const ResultFailure(failure)),
+        ),
       ],
     );
     addTearDown(container.dispose);
 
-    final sub = container.listen(readingSubmissionControllerProvider, (_, __) {});
+    final sub = container.listen(
+      readingSubmissionControllerProvider,
+      (_, __) {},
+    );
     await container
         .read(readingSubmissionControllerProvider.notifier)
         .submit(const IntentionInput(fortuneId: 'hafez'));
 
     final state = sub.read();
     expect(state, isA<SubmissionFailed>());
-    final message = FailureMessageResolver.resolve((state as SubmissionFailed).failure);
+    final message = FailureMessageResolver.resolve(
+      (state as SubmissionFailed).failure,
+    );
     expect(message, contains('دوباره تلاش کن'));
   });
 
@@ -75,9 +91,14 @@ void main() {
       overrides: [readingRepositoryProvider.overrideWithValue(repo)],
     );
     addTearDown(container.dispose);
-    final sub = container.listen(readingSubmissionControllerProvider, (_, __) {});
+    final sub = container.listen(
+      readingSubmissionControllerProvider,
+      (_, __) {},
+    );
 
-    final notifier = container.read(readingSubmissionControllerProvider.notifier);
+    final notifier = container.read(
+      readingSubmissionControllerProvider.notifier,
+    );
     final first = notifier.submit(const IntentionInput(fortuneId: 'hafez'));
     final second = notifier.submit(const IntentionInput(fortuneId: 'hafez'));
     await Future.wait([first, second]);
@@ -86,65 +107,81 @@ void main() {
     expect(sub.read(), isA<SubmissionSucceeded>());
   });
 
-  test('every submission carries a well-formed Idempotency-Key (Sprint 04)', () async {
-    final repo = _FakeRepo(Success(_reading()));
-    final container = ProviderContainer(
-      overrides: [readingRepositoryProvider.overrideWithValue(repo)],
-    );
-    addTearDown(container.dispose);
-    container.listen(readingSubmissionControllerProvider, (_, __) {});
+  test(
+    'every submission carries a well-formed Idempotency-Key (Sprint 04)',
+    () async {
+      final repo = _FakeRepo(Success(_reading()));
+      final container = ProviderContainer(
+        overrides: [readingRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      container.listen(readingSubmissionControllerProvider, (_, __) {});
 
-    await container
-        .read(readingSubmissionControllerProvider.notifier)
-        .submit(const IntentionInput(fortuneId: 'hafez'));
+      await container
+          .read(readingSubmissionControllerProvider.notifier)
+          .submit(const IntentionInput(fortuneId: 'hafez'));
 
-    expect(repo.keys.single, isNotNull);
-    expect(repo.keys.single, matches(RegExp(r'^[A-Za-z0-9_-]{8,128}$')));
-  });
+      expect(repo.keys.single, isNotNull);
+      expect(repo.keys.single, matches(RegExp(r'^[A-Za-z0-9_-]{8,128}$')));
+    },
+  );
 
-  test('a retry after a retryable failure reuses the SAME key — one charge slot',
-      () async {
-    const timeoutFailure =
-        AppFailure(kind: FailureKind.timeout, messageKey: 'errorTimeout');
-    final repo = _FakeRepo(const ResultFailure(timeoutFailure));
-    final container = ProviderContainer(
-      overrides: [readingRepositoryProvider.overrideWithValue(repo)],
-    );
-    addTearDown(container.dispose);
-    container.listen(readingSubmissionControllerProvider, (_, __) {});
-    final notifier = container.read(readingSubmissionControllerProvider.notifier);
+  test(
+    'a retry after a retryable failure reuses the SAME key — one charge slot',
+    () async {
+      const timeoutFailure = AppFailure(
+        kind: FailureKind.timeout,
+        messageKey: 'errorTimeout',
+      );
+      final repo = _FakeRepo(const ResultFailure(timeoutFailure));
+      final container = ProviderContainer(
+        overrides: [readingRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      container.listen(readingSubmissionControllerProvider, (_, __) {});
+      final notifier = container.read(
+        readingSubmissionControllerProvider.notifier,
+      );
 
-    await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
-    repo.result = Success(_reading());
-    await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
+      await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
+      repo.result = Success(_reading());
+      await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
 
-    expect(repo.keys, hasLength(2));
-    expect(repo.keys[0], repo.keys[1]);
-  });
+      expect(repo.keys, hasLength(2));
+      expect(repo.keys[0], repo.keys[1]);
+    },
+  );
 
-  test('after success or a definitive refusal, the next cycle gets a fresh key',
-      () async {
-    final repo = _FakeRepo(Success(_reading()));
-    final container = ProviderContainer(
-      overrides: [readingRepositoryProvider.overrideWithValue(repo)],
-    );
-    addTearDown(container.dispose);
-    container.listen(readingSubmissionControllerProvider, (_, __) {});
-    final notifier = container.read(readingSubmissionControllerProvider.notifier);
+  test(
+    'after success or a definitive refusal, the next cycle gets a fresh key',
+    () async {
+      final repo = _FakeRepo(Success(_reading()));
+      final container = ProviderContainer(
+        overrides: [readingRepositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(container.dispose);
+      container.listen(readingSubmissionControllerProvider, (_, __) {});
+      final notifier = container.read(
+        readingSubmissionControllerProvider.notifier,
+      );
 
-    await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
-    notifier.reset();
-    await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
-    expect(repo.keys[0], isNot(repo.keys[1]));
+      await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
+      notifier.reset();
+      await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
+      expect(repo.keys[0], isNot(repo.keys[1]));
 
-    // Definitive refusal (insufficient coins) also ends the cycle.
-    repo.result = const ResultFailure(
-      AppFailure(kind: FailureKind.insufficientCoins, messageKey: 'errorInsufficientCoins'),
-    );
-    notifier.reset();
-    await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
-    repo.result = Success(_reading());
-    await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
-    expect(repo.keys[2], isNot(repo.keys[3]));
-  });
+      // Definitive refusal (insufficient coins) also ends the cycle.
+      repo.result = const ResultFailure(
+        AppFailure(
+          kind: FailureKind.insufficientCoins,
+          messageKey: 'errorInsufficientCoins',
+        ),
+      );
+      notifier.reset();
+      await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
+      repo.result = Success(_reading());
+      await notifier.submit(const IntentionInput(fortuneId: 'hafez'));
+      expect(repo.keys[2], isNot(repo.keys[3]));
+    },
+  );
 }

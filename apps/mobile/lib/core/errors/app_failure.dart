@@ -9,8 +9,10 @@ enum FailureKind {
   validation,
   conflict,
   rateLimited,
+
   /// Not enough coins for a paid reading (Sprint 04 economy).
   insufficientCoins,
+
   /// The surface requires an active subscription (Sprint 04 economy).
   subscriptionRequired,
   server,
@@ -40,13 +42,12 @@ class AppFailure {
 
   /// Whether the user can meaningfully retry the same action.
   bool get isRetryable => switch (kind) {
-        FailureKind.networkUnavailable ||
-        FailureKind.timeout ||
-        FailureKind.server ||
-        FailureKind.rateLimited =>
-          true,
-        _ => false,
-      };
+    FailureKind.networkUnavailable ||
+    FailureKind.timeout ||
+    FailureKind.server ||
+    FailureKind.rateLimited => true,
+    _ => false,
+  };
 
   /// Whether the session must be re-established.
   bool get requiresReauth =>

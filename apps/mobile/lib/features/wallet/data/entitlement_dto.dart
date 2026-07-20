@@ -8,7 +8,9 @@ abstract final class EntitlementDto {
     final source = json['source'];
 
     if (covered is! bool || cost is! int) {
-      throw const FormatException('entitlement payload missing required fields');
+      throw const FormatException(
+        'entitlement payload missing required fields',
+      );
     }
 
     return EntitlementStatus(

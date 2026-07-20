@@ -14,8 +14,11 @@ class ThemeController extends Notifier<ThemeMode> {
 
 /// Overridden at bootstrap.
 final themeModeRepositoryProvider = Provider<ThemeModeRepository>((ref) {
-  throw UnimplementedError('themeModeRepositoryProvider must be overridden at bootstrap');
+  throw UnimplementedError(
+    'themeModeRepositoryProvider must be overridden at bootstrap',
+  );
 });
 
-final themeControllerProvider =
-    NotifierProvider<ThemeController, ThemeMode>(ThemeController.new);
+final themeControllerProvider = NotifierProvider<ThemeController, ThemeMode>(
+  ThemeController.new,
+);

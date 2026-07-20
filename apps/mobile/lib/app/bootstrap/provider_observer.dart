@@ -8,7 +8,11 @@ class LoggingProviderObserver extends ProviderObserver {
   final AppLogger _logger;
 
   @override
-  void didAddProvider(ProviderBase<Object?> provider, Object? value, ProviderContainer container) {
+  void didAddProvider(
+    ProviderBase<Object?> provider,
+    Object? value,
+    ProviderContainer container,
+  ) {
     _logger.debug('provider + ${provider.name ?? provider.runtimeType}');
   }
 
@@ -29,11 +33,17 @@ class LoggingProviderObserver extends ProviderObserver {
     StackTrace stackTrace,
     ProviderContainer container,
   ) {
-    _logger.error('provider ! ${provider.name ?? provider.runtimeType}', error: error);
+    _logger.error(
+      'provider ! ${provider.name ?? provider.runtimeType}',
+      error: error,
+    );
   }
 
   @override
-  void didDisposeProvider(ProviderBase<Object?> provider, ProviderContainer container) {
+  void didDisposeProvider(
+    ProviderBase<Object?> provider,
+    ProviderContainer container,
+  ) {
     _logger.debug('provider - ${provider.name ?? provider.runtimeType}');
   }
 }

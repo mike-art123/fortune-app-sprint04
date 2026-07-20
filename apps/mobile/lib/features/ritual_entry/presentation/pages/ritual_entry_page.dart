@@ -39,7 +39,9 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   }
 
   void _seal(FortuneDefinition fortune) {
-    final input = ref.read(ritualEntryControllerProvider(fortune.id).notifier).seal(
+    final input = ref
+        .read(ritualEntryControllerProvider(fortune.id).notifier)
+        .seal(
           fortune: fortune,
           primary: _primary.text,
           secondary: _secondary.text,
@@ -179,8 +181,9 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             child: FortuneButton(
               label: fortune.cta.resolve(locale),
               isLoading: submission is SubmissionInFlight,
-              onPressed:
-                  submission is SubmissionInFlight ? null : () => _seal(fortune),
+              onPressed: submission is SubmissionInFlight
+                  ? null
+                  : () => _seal(fortune),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -228,7 +231,12 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             ),
             const SizedBox(height: AppSpacing.md),
             // The bond — a single quiet word, no ornament.
-            Text('و', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.textMuted)),
+            Text(
+              'و',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: c.textMuted),
+            ),
             const SizedBox(height: AppSpacing.md),
             WhisperField(
               controller: _secondary,

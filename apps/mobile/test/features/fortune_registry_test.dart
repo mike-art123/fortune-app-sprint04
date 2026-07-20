@@ -35,7 +35,9 @@ void main() {
   });
 
   test('photo fortunes are marked soon in Sprint 01', () {
-    for (final f in FortuneRegistry.all.where((f) => f.inputKind == FortuneInputKind.photo)) {
+    for (final f in FortuneRegistry.all.where(
+      (f) => f.inputKind == FortuneInputKind.photo,
+    )) {
       expect(f.isAvailable, isFalse, reason: '${f.id} photo input lands later');
     }
   });

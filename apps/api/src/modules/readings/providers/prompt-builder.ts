@@ -99,10 +99,7 @@ function offeringFor(fortune: FortuneCatalogEntry, input: ReadingInputDto): stri
   }
 }
 
-export function buildPrompt(
-  fortune: FortuneCatalogEntry,
-  input: ReadingInputDto,
-): PromptMessage[] {
+export function buildPrompt(fortune: FortuneCatalogEntry, input: ReadingInputDto): PromptMessage[] {
   const system = [VOICE, '', framingFor(fortune), '', OUTPUT_CONTRACT].join('\n');
 
   const user = [

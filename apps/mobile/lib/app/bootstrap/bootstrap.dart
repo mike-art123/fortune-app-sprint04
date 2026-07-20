@@ -22,21 +22,28 @@ Future<void> bootstrap({
       final logger = ConsoleLogger(verbose: deps.config.verboseLogging);
 
       FlutterError.onError = (details) {
-        logger.error('flutter error', error: details.exception, stackTrace: details.stack);
+        logger.error(
+          'flutter error',
+          error: details.exception,
+          stackTrace: details.stack,
+        );
       };
       PlatformDispatcher.instance.onError = (error, stack) {
         logger.error('uncaught async error', error: error, stackTrace: stack);
         return true;
       };
 
-      final lifecycle = AppLifecycleObserver((state) => logger.debug('lifecycle: ${state.name}'))
-        ..attach();
+      final lifecycle = AppLifecycleObserver(
+        (state) => logger.debug('lifecycle: ${state.name}'),
+      )..attach();
       assert(lifecycle.hashCode != 0); // keep reference alive in debug
 
       runApp(
         ProviderScope(
           overrides: deps.overrides,
-          observers: deps.config.verboseLogging ? [LoggingProviderObserver(logger)] : const [],
+          observers: deps.config.verboseLogging
+              ? [LoggingProviderObserver(logger)]
+              : const [],
           child: builder(),
         ),
       );
@@ -84,7 +91,10 @@ class _BootstrapFailureApp extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       error.toString(),
-                      style: const TextStyle(color: Color(0xFF6E748E), fontSize: 11),
+                      style: const TextStyle(
+                        color: Color(0xFF6E748E),
+                        fontSize: 11,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],

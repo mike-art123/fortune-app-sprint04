@@ -67,17 +67,28 @@ void main() {
 
   group('EntitlementDto', () {
     test('parses coverage and cost', () {
-      final e = EntitlementDto.fromJson({'covered': true, 'source': 'subscription', 'cost': 0});
+      final e = EntitlementDto.fromJson({
+        'covered': true,
+        'source': 'subscription',
+        'cost': 0,
+      });
       expect(e.hasActiveSubscription, isTrue);
       expect(e.cost, 0);
 
-      final p = EntitlementDto.fromJson({'covered': false, 'source': null, 'cost': 5});
+      final p = EntitlementDto.fromJson({
+        'covered': false,
+        'source': null,
+        'cost': 5,
+      });
       expect(p.hasActiveSubscription, isFalse);
       expect(p.cost, 5);
     });
 
     test('rejects a malformed payload', () {
-      expect(() => EntitlementDto.fromJson({'covered': 'yes'}), throwsFormatException);
+      expect(
+        () => EntitlementDto.fromJson({'covered': 'yes'}),
+        throwsFormatException,
+      );
     });
   });
 
@@ -93,9 +104,11 @@ void main() {
     Future<void> settle() => Future<void>.delayed(Duration.zero);
 
     test('loads and exposes the backend balance untouched', () async {
-      final c = container(_FakeWalletRepository(
-        Success(const WalletSummary(balance: 30, entries: [])),
-      ));
+      final c = container(
+        _FakeWalletRepository(
+          Success(const WalletSummary(balance: 30, entries: [])),
+        ),
+      );
 
       final sub = c.listen(walletControllerProvider, (_, __) {});
       expect(sub.read(), isA<WalletLoading>());
@@ -106,40 +119,56 @@ void main() {
       expect((state as WalletLoaded).summary.balance, 30);
     });
 
-    test('exposes the backend entitlement next to the wallet (Sprint 04)', () async {
-      final c = container(_FakeWalletRepository(
-        Success(const WalletSummary(balance: 30, entries: [])),
-        entitlementResult: Success(
-          const EntitlementStatus(covered: true, source: 'subscription', cost: 0),
-        ),
-      ));
+    test(
+      'exposes the backend entitlement next to the wallet (Sprint 04)',
+      () async {
+        final c = container(
+          _FakeWalletRepository(
+            Success(const WalletSummary(balance: 30, entries: [])),
+            entitlementResult: Success(
+              const EntitlementStatus(
+                covered: true,
+                source: 'subscription',
+                cost: 0,
+              ),
+            ),
+          ),
+        );
 
-      final sub = c.listen(walletControllerProvider, (_, __) {});
-      await settle();
+        final sub = c.listen(walletControllerProvider, (_, __) {});
+        await settle();
 
-      final state = sub.read() as WalletLoaded;
-      expect(state.entitlement?.hasActiveSubscription, isTrue);
-    });
+        final state = sub.read() as WalletLoaded;
+        expect(state.entitlement?.hasActiveSubscription, isTrue);
+      },
+    );
 
-    test('a failed entitlement lookup never blocks the wallet itself', () async {
-      final c = container(_FakeWalletRepository(
-        Success(const WalletSummary(balance: 30, entries: [])),
-        entitlementResult: const ResultFailure(
-          AppFailure(kind: FailureKind.server, messageKey: 'errorGeneric'),
-        ),
-      ));
+    test(
+      'a failed entitlement lookup never blocks the wallet itself',
+      () async {
+        final c = container(
+          _FakeWalletRepository(
+            Success(const WalletSummary(balance: 30, entries: [])),
+            entitlementResult: const ResultFailure(
+              AppFailure(kind: FailureKind.server, messageKey: 'errorGeneric'),
+            ),
+          ),
+        );
 
-      final sub = c.listen(walletControllerProvider, (_, __) {});
-      await settle();
+        final sub = c.listen(walletControllerProvider, (_, __) {});
+        await settle();
 
-      final state = sub.read() as WalletLoaded;
-      expect(state.summary.balance, 30);
-      expect(state.entitlement, isNull);
-    });
+        final state = sub.read() as WalletLoaded;
+        expect(state.summary.balance, 30);
+        expect(state.entitlement, isNull);
+      },
+    );
 
     test('surfaces a typed failure and recovers on retry', () async {
       final repo = _FakeWalletRepository(
-        ResultFailure(const AppFailure(kind: FailureKind.server, messageKey: 'x')),
+        ResultFailure(
+          const AppFailure(kind: FailureKind.server, messageKey: 'x'),
+        ),
       );
       final c = container(repo);
 

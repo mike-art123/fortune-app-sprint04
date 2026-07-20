@@ -8,20 +8,23 @@ import 'package:fortune_app/features/explore/presentation/widgets/fortune_grid_c
 import 'package:fortune_app/features/fortunes/domain/fortune_registry.dart';
 
 Widget host() => ProviderScope(
-      child: MaterialApp(
-        locale: SupportedLocales.fa,
-        supportedLocales: SupportedLocales.all,
-        localizationsDelegates: SupportedLocales.delegates,
-        theme: AppTheme.dark(),
-        home: const ExplorePage(),
-      ),
-    );
+  child: MaterialApp(
+    locale: SupportedLocales.fa,
+    supportedLocales: SupportedLocales.all,
+    localizationsDelegates: SupportedLocales.delegates,
+    theme: AppTheme.dark(),
+    home: const ExplorePage(),
+  ),
+);
 
 void main() {
   testWidgets('explore renders one card per registry entry', (tester) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
-    expect(find.byType(FortuneGridCard), findsNWidgets(FortuneRegistry.all.length));
+    expect(
+      find.byType(FortuneGridCard),
+      findsNWidgets(FortuneRegistry.all.length),
+    );
   });
 
   testWidgets('explore shows Persian titles from the registry', (tester) async {

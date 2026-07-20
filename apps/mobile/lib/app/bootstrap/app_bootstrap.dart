@@ -26,12 +26,14 @@ class BootstrapDependencies {
   final SecureStorage secureStorage;
 
   List<Override> get overrides => [
-        appConfigProvider.overrideWithValue(config),
-        localStorageProvider.overrideWithValue(localStorage),
-        secureStorageProvider.overrideWithValue(secureStorage),
-        localeRepositoryProvider.overrideWithValue(LocaleRepository(localStorage)),
-        themeModeRepositoryProvider.overrideWithValue(ThemeModeRepository(localStorage)),
-      ];
+    appConfigProvider.overrideWithValue(config),
+    localStorageProvider.overrideWithValue(localStorage),
+    secureStorageProvider.overrideWithValue(secureStorage),
+    localeRepositoryProvider.overrideWithValue(LocaleRepository(localStorage)),
+    themeModeRepositoryProvider.overrideWithValue(
+      ThemeModeRepository(localStorage),
+    ),
+  ];
 }
 
 /// Initialises everything the app needs before the first frame (doc 51 §8).

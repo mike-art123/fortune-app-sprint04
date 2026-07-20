@@ -1,17 +1,16 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import type { Observable } from 'rxjs';
 import type { Request } from 'express';
-import {
-  HEADER_CLIENT_VERSION,
-  HEADER_PLATFORM,
-} from '../constants/headers.constants';
+import { HEADER_CLIENT_VERSION, HEADER_PLATFORM } from '../constants/headers.constants';
 import type { ContextualRequest, RequestContext } from '../types/request-context';
 
 /** Builds the request-scoped context object (doc 52 §15). */
 @Injectable()
 export class RequestContextInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const req = context.switchToHttp().getRequest<Request & ContextualRequest & { requestId?: string }>();
+    const req = context
+      .switchToHttp()
+      .getRequest<Request & ContextualRequest & { requestId?: string }>();
 
     const header = (name: string): string | undefined => {
       const v = req.headers[name];

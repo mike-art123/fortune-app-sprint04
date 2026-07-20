@@ -7,12 +7,12 @@ import 'package:fortune_app/features/history/domain/history_repository.dart';
 import 'package:fortune_app/features/reading/domain/reading.dart';
 
 Reading _reading(String id) => Reading(
-      id: id,
-      fortuneId: 'hafez',
-      title: 'عنوان $id',
-      text: 'متنِ خوانش',
-      createdAt: DateTime(2026, 1, 7),
-    );
+  id: id,
+  fortuneId: 'hafez',
+  title: 'عنوان $id',
+  text: 'متنِ خوانش',
+  createdAt: DateTime(2026, 1, 7),
+);
 
 class _FakeHistoryRepository implements HistoryRepository {
   _FakeHistoryRepository(this._pages);
@@ -25,7 +25,9 @@ class _FakeHistoryRepository implements HistoryRepository {
   Future<Result<ReadingListPage>> list({String? cursor}) async {
     requestedCursors.add(cursor);
     return _pages[cursor] ??
-        ResultFailure(const AppFailure(kind: FailureKind.unknown, messageKey: 'x'));
+        ResultFailure(
+          const AppFailure(kind: FailureKind.unknown, messageKey: 'x'),
+        );
   }
 
   @override
@@ -45,10 +47,12 @@ Future<void> _settle() => Future<void>.delayed(Duration.zero);
 void main() {
   test('loads the first page newest-first and exposes it', () async {
     final repo = _FakeHistoryRepository({
-      null: Success(ReadingListPage(
-        items: [_reading('c2'), _reading('c1')],
-        nextCursor: null,
-      )),
+      null: Success(
+        ReadingListPage(
+          items: [_reading('c2'), _reading('c1')],
+          nextCursor: null,
+        ),
+      ),
     });
     final container = _container(repo);
 
@@ -70,8 +74,9 @@ void main() {
     await _settle();
     expect(sub.read(), isA<HistoryFailed>());
 
-    failing._pages[null] =
-        Success(ReadingListPage(items: [_reading('c1')], nextCursor: null));
+    failing._pages[null] = Success(
+      ReadingListPage(items: [_reading('c1')], nextCursor: null),
+    );
     await container.read(historyControllerProvider.notifier).retry();
 
     expect(sub.read(), isA<HistoryLoaded>());
@@ -93,8 +98,12 @@ void main() {
 
   test('loadMore appends the next page using the server cursor', () async {
     final repo = _FakeHistoryRepository({
-      null: Success(ReadingListPage(items: [_reading('c3')], nextCursor: 'cur-1')),
-      'cur-1': Success(ReadingListPage(items: [_reading('c2')], nextCursor: null)),
+      null: Success(
+        ReadingListPage(items: [_reading('c3')], nextCursor: 'cur-1'),
+      ),
+      'cur-1': Success(
+        ReadingListPage(items: [_reading('c2')], nextCursor: null),
+      ),
     });
     final container = _container(repo);
 
@@ -110,7 +119,9 @@ void main() {
 
   test('a failed loadMore keeps the already-loaded items', () async {
     final repo = _FakeHistoryRepository({
-      null: Success(ReadingListPage(items: [_reading('c3')], nextCursor: 'cur-1')),
+      null: Success(
+        ReadingListPage(items: [_reading('c3')], nextCursor: 'cur-1'),
+      ),
       // no entry for 'cur-1' → failure
     });
     final container = _container(repo);

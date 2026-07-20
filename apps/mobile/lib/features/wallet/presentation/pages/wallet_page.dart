@@ -31,13 +31,15 @@ class WalletPage extends ConsumerWidget {
       child: switch (state) {
         WalletLoading() => const Center(child: FortuneLoading()),
         WalletFailed(:final failure) => FortuneErrorState(
-            message: FailureMessageResolver.resolve(failure),
-            reassurance: s.errorReassurance,
-            retryLabel: s.actionRetry,
-            onRetry: () => ref.read(walletControllerProvider.notifier).retry(),
-          ),
-        WalletLoaded(:final summary, :final entitlement) =>
-          _WalletView(summary: summary, entitlement: entitlement),
+          message: FailureMessageResolver.resolve(failure),
+          reassurance: s.errorReassurance,
+          retryLabel: s.actionRetry,
+          onRetry: () => ref.read(walletControllerProvider.notifier).retry(),
+        ),
+        WalletLoaded(:final summary, :final entitlement) => _WalletView(
+          summary: summary,
+          entitlement: entitlement,
+        ),
       },
     );
   }
@@ -56,8 +58,9 @@ class _WalletView extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final fa = Localizations.localeOf(context).languageCode == 'fa';
 
-    final balanceText =
-        fa ? summary.balance.toPersianDigits : summary.balance.toString();
+    final balanceText = fa
+        ? summary.balance.toPersianDigits
+        : summary.balance.toString();
 
     return ListView(
       padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.xl),
@@ -96,7 +99,8 @@ class _WalletView extends StatelessWidget {
                   e.hasActiveSubscription
                       ? s.walletSubscriptionActive
                       : s.walletReadingCost(
-                          fa ? e.cost.toPersianDigits : e.cost.toString()),
+                          fa ? e.cost.toPersianDigits : e.cost.toString(),
+                        ),
                   textAlign: TextAlign.center,
                   style: textTheme.bodySmall?.copyWith(color: c.textMuted),
                 ),
@@ -116,11 +120,17 @@ class _WalletView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.walletDailyRewardTitle, style: textTheme.titleSmall),
+                      Text(
+                        s.walletDailyRewardTitle,
+                        style: textTheme.titleSmall,
+                      ),
                       const SizedBox(height: AppSpacing.xxs),
                       Text(
                         s.walletDailyRewardBody,
-                        style: textTheme.bodySmall?.copyWith(color: c.textMuted, height: 1.8),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: c.textMuted,
+                          height: 1.8,
+                        ),
                       ),
                     ],
                   ),
@@ -177,8 +187,9 @@ class _CoinEntryRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final fa = Localizations.localeOf(context).languageCode == 'fa';
 
-    final magnitude =
-        fa ? entry.amount.abs().toPersianDigits : entry.amount.abs().toString();
+    final magnitude = fa
+        ? entry.amount.abs().toPersianDigits
+        : entry.amount.abs().toString();
     // Direction sign placed for RTL readability: «+۳۰» / «−۲».
     final amountText = entry.isCredit ? '+$magnitude' : '−$magnitude';
 

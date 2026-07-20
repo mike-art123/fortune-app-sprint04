@@ -29,7 +29,11 @@ describe('readings (e2e) — Sprint 04 authenticated flow', () => {
     await app.close();
   });
 
-  const authed = { get authorization() { return `Bearer ${session.accessToken}`; } };
+  const authed = {
+    get authorization() {
+      return `Bearer ${session.accessToken}`;
+    },
+  };
 
   it('POST /api/v1/readings creates a hafez reading for the caller', async () => {
     const res = await request(app.getHttpServer())
@@ -119,9 +123,7 @@ describe('readings (e2e) — Sprint 04 authenticated flow', () => {
         .get('/api/v1/readings')
         .set(strangerAuth)
         .expect(200);
-      expect(
-        list.body.data.items.some((i: { id: string }) => i.id === myReadingId),
-      ).toBe(false);
+      expect(list.body.data.items.some((i: { id: string }) => i.id === myReadingId)).toBe(false);
 
       const detail = await request(app.getHttpServer())
         .get(`/api/v1/readings/${myReadingId}`)

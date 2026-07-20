@@ -39,8 +39,10 @@ class ExplorePage extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(s.exploreTitle,
-                      style: Theme.of(context).textTheme.headlineMedium),
+                  child: Text(
+                    s.exploreTitle,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
                 IconButton(
                   onPressed: () => context.push(AppRoutes.historyPath),
@@ -58,7 +60,10 @@ class ExplorePage extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxs),
           FortuneFadeIn(
             duration: const Duration(milliseconds: 360),
-            child: Text(s.exploreSubtitle, style: Theme.of(context).textTheme.bodyMedium),
+            child: Text(
+              s.exploreSubtitle,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           GridView.builder(

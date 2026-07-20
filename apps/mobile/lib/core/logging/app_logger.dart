@@ -3,7 +3,12 @@ import 'log_event.dart';
 /// Logging abstraction (doc 51 §26). Implementations MUST redact secrets and
 /// personal content: tokens, ritual input, reading text, Telegram payloads.
 abstract interface class AppLogger {
-  void log(LogLevel level, String message, {Object? error, StackTrace? stackTrace});
+  void log(
+    LogLevel level,
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  });
   void debug(String message);
   void info(String message);
   void warning(String message, {Object? error});
@@ -30,7 +35,12 @@ class ConsoleLogger implements AppLogger {
   }
 
   @override
-  void log(LogLevel level, String message, {Object? error, StackTrace? stackTrace}) {
+  void log(
+    LogLevel level,
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (!verbose && (level == LogLevel.debug || level == LogLevel.info)) return;
     final line = '[${level.name}] ${redact(message)}';
     // ignore: avoid_print

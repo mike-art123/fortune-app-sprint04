@@ -23,7 +23,8 @@ String fakeJwt({required String sub, required String tid, required int exp}) {
   return '${b64({'alg': 'EdDSA', 'typ': 'JWT'})}.${b64({'sub': sub, 'tid': tid, 'exp': exp})}.sig';
 }
 
-int inOneHour() => DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000;
+int inOneHour() =>
+    DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000;
 
 class _MemorySecureStorage implements SecureStorage {
   final Map<String, String> map = {};
@@ -69,23 +70,23 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 AuthLogin _login({String userId = 'u1'}) => AuthLogin(
-      accessToken: fakeJwt(sub: userId, tid: '42', exp: inOneHour()),
-      expiresInSeconds: 3600,
-      session: AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
-    );
+  accessToken: fakeJwt(sub: userId, tid: '42', exp: inOneHour()),
+  expiresInSeconds: 3600,
+  session: AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
+);
 
 AppConfig _config({String? devInitData}) => AppConfig(
-      flavor: AppFlavor.development,
-      apiBaseUrl: 'http://localhost:3000/api/v1',
-      connectTimeout: const Duration(seconds: 1),
-      receiveTimeout: const Duration(seconds: 1),
-      devTelegramInitData: devInitData,
-      flags: const FeatureFlags(
-        analyticsEnabled: false,
-        crashReportingEnabled: false,
-        debugMenuEnabled: false,
-      ),
-    );
+  flavor: AppFlavor.development,
+  apiBaseUrl: 'http://localhost:3000/api/v1',
+  connectTimeout: const Duration(seconds: 1),
+  receiveTimeout: const Duration(seconds: 1),
+  devTelegramInitData: devInitData,
+  flags: const FeatureFlags(
+    analyticsEnabled: false,
+    crashReportingEnabled: false,
+    debugMenuEnabled: false,
+  ),
+);
 
 void main() {
   ProviderContainer make({
@@ -120,133 +121,210 @@ void main() {
     expect(AccessTokenClaims.decode('a.!!!.c'), isNull);
   });
 
-  test('bootstrap inside Telegram: verifies via backend and stores the token', () async {
-    final repo = _FakeAuthRepository(Success(_login()));
-    final storage = _MemorySecureStorage();
-    final c = make(repo: repo, bridge: _FakeBridge('query_id=AA&hash=xx'), storage: storage);
+  test(
+    'bootstrap inside Telegram: verifies via backend and stores the token',
+    () async {
+      final repo = _FakeAuthRepository(Success(_login()));
+      final storage = _MemorySecureStorage();
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge('query_id=AA&hash=xx'),
+        storage: storage,
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    final state = c.read(authControllerProvider);
-    expect(state, isA<Authenticated>());
-    expect((state as Authenticated).session.userId, 'u1');
-    expect(repo.calls, 1);
-    expect(repo.lastInitData, 'query_id=AA&hash=xx');
-    expect(storage.map['auth.access_token'], isNotEmpty);
-  });
+      final state = c.read(authControllerProvider);
+      expect(state, isA<Authenticated>());
+      expect((state as Authenticated).session.userId, 'u1');
+      expect(repo.calls, 1);
+      expect(repo.lastInitData, 'query_id=AA&hash=xx');
+      expect(storage.map['auth.access_token'], isNotEmpty);
+    },
+  );
 
-  test('bootstrap reuses a stored fresh token without a network call', () async {
-    final repo = _FakeAuthRepository(Success(_login()));
-    final storage = _MemorySecureStorage();
-    storage.map['auth.access_token'] = fakeJwt(sub: 'u5', tid: '55', exp: inOneHour());
-    final c = make(repo: repo, bridge: _FakeBridge(null), storage: storage);
+  test(
+    'bootstrap reuses a stored fresh token without a network call',
+    () async {
+      final repo = _FakeAuthRepository(Success(_login()));
+      final storage = _MemorySecureStorage();
+      storage.map['auth.access_token'] = fakeJwt(
+        sub: 'u5',
+        tid: '55',
+        exp: inOneHour(),
+      );
+      final c = make(repo: repo, bridge: _FakeBridge(null), storage: storage);
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    final state = c.read(authControllerProvider);
-    expect(state, isA<Authenticated>());
-    expect((state as Authenticated).session.userId, 'u5');
-    expect(repo.calls, 0);
-  });
+      final state = c.read(authControllerProvider);
+      expect(state, isA<Authenticated>());
+      expect((state as Authenticated).session.userId, 'u5');
+      expect(repo.calls, 0);
+    },
+  );
 
-  test('an expired stored token is discarded and a fresh login attempted', () async {
-    final repo = _FakeAuthRepository(Success(_login(userId: 'u-new')));
-    final storage = _MemorySecureStorage();
-    storage.map['auth.access_token'] = fakeJwt(
-      sub: 'u-old',
-      tid: '11',
-      exp: DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
-    );
-    final c = make(repo: repo, bridge: _FakeBridge('fresh=1&hash=xx'), storage: storage);
+  test(
+    'an expired stored token is discarded and a fresh login attempted',
+    () async {
+      final repo = _FakeAuthRepository(Success(_login(userId: 'u-new')));
+      final storage = _MemorySecureStorage();
+      storage.map['auth.access_token'] = fakeJwt(
+        sub: 'u-old',
+        tid: '11',
+        exp:
+            DateTime.now()
+                .subtract(const Duration(hours: 1))
+                .millisecondsSinceEpoch ~/
+            1000,
+      );
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge('fresh=1&hash=xx'),
+        storage: storage,
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    expect(repo.calls, 1);
-    expect((c.read(authControllerProvider) as Authenticated).session.userId, 'u-new');
-  });
+      expect(repo.calls, 1);
+      expect(
+        (c.read(authControllerProvider) as Authenticated).session.userId,
+        'u-new',
+      );
+    },
+  );
 
-  test('outside Telegram with no seam: calm Unauthenticated, zero requests', () async {
-    final repo = _FakeAuthRepository(Success(_login()));
-    final c = make(repo: repo, bridge: _FakeBridge(null), storage: _MemorySecureStorage());
+  test(
+    'outside Telegram with no seam: calm Unauthenticated, zero requests',
+    () async {
+      final repo = _FakeAuthRepository(Success(_login()));
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge(null),
+        storage: _MemorySecureStorage(),
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    final state = c.read(authControllerProvider);
-    expect(state, isA<Unauthenticated>());
-    expect((state as Unauthenticated).reason, UnauthenticatedReason.outsideTelegram);
-    expect(repo.calls, 0);
-  });
+      final state = c.read(authControllerProvider);
+      expect(state, isA<Unauthenticated>());
+      expect(
+        (state as Unauthenticated).reason,
+        UnauthenticatedReason.outsideTelegram,
+      );
+      expect(repo.calls, 0);
+    },
+  );
 
-  test('the development seam supplies initData outside Telegram — still backend-verified',
-      () async {
-    final repo = _FakeAuthRepository(Success(_login()));
-    final c = make(
-      repo: repo,
-      bridge: _FakeBridge(null),
-      storage: _MemorySecureStorage(),
-      devInitData: 'dev=1&hash=xx',
-    );
+  test(
+    'the development seam supplies initData outside Telegram — still backend-verified',
+    () async {
+      final repo = _FakeAuthRepository(Success(_login()));
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge(null),
+        storage: _MemorySecureStorage(),
+        devInitData: 'dev=1&hash=xx',
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    expect(repo.lastInitData, 'dev=1&hash=xx');
-    expect(c.read(authControllerProvider), isA<Authenticated>());
-  });
+      expect(repo.lastInitData, 'dev=1&hash=xx');
+      expect(c.read(authControllerProvider), isA<Authenticated>());
+    },
+  );
 
-  test('a rejected login maps to Unauthenticated(rejected) and stores nothing', () async {
-    final repo = _FakeAuthRepository(const ResultFailure(
-      AppFailure(kind: FailureKind.unauthorized, messageKey: 'errorUnauthorized'),
-    ));
-    final storage = _MemorySecureStorage();
-    final c = make(repo: repo, bridge: _FakeBridge('stale=1&hash=xx'), storage: storage);
+  test(
+    'a rejected login maps to Unauthenticated(rejected) and stores nothing',
+    () async {
+      final repo = _FakeAuthRepository(
+        const ResultFailure(
+          AppFailure(
+            kind: FailureKind.unauthorized,
+            messageKey: 'errorUnauthorized',
+          ),
+        ),
+      );
+      final storage = _MemorySecureStorage();
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge('stale=1&hash=xx'),
+        storage: storage,
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    final state = c.read(authControllerProvider);
-    expect((state as Unauthenticated).reason, UnauthenticatedReason.rejected);
-    expect(storage.map, isEmpty);
-  });
+      final state = c.read(authControllerProvider);
+      expect((state as Unauthenticated).reason, UnauthenticatedReason.rejected);
+      expect(storage.map, isEmpty);
+    },
+  );
 
-  test('a network failure maps to Unauthenticated(network) — retry meaningful', () async {
-    final repo = _FakeAuthRepository(const ResultFailure(
-      AppFailure(kind: FailureKind.networkUnavailable, messageKey: 'errorNetworkUnavailable'),
-    ));
-    final c = make(
-        repo: repo, bridge: _FakeBridge('x=1&hash=xx'), storage: _MemorySecureStorage());
+  test(
+    'a network failure maps to Unauthenticated(network) — retry meaningful',
+    () async {
+      final repo = _FakeAuthRepository(
+        const ResultFailure(
+          AppFailure(
+            kind: FailureKind.networkUnavailable,
+            messageKey: 'errorNetworkUnavailable',
+          ),
+        ),
+      );
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge('x=1&hash=xx'),
+        storage: _MemorySecureStorage(),
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
+      await c.read(authControllerProvider.notifier).bootstrap();
 
-    expect(
-      (c.read(authControllerProvider) as Unauthenticated).reason,
-      UnauthenticatedReason.network,
-    );
+      expect(
+        (c.read(authControllerProvider) as Unauthenticated).reason,
+        UnauthenticatedReason.network,
+      );
 
-    repo.result = Success(_login());
-    await c.read(authControllerProvider.notifier).retry();
-    expect(c.read(authControllerProvider), isA<Authenticated>());
-  });
+      repo.result = Success(_login());
+      await c.read(authControllerProvider.notifier).retry();
+      expect(c.read(authControllerProvider), isA<Authenticated>());
+    },
+  );
 
-  test('a backend 401 signal drops the token and re-establishes the session', () async {
-    final repo = _FakeAuthRepository(Success(_login()));
-    final storage = _MemorySecureStorage();
-    final c = make(repo: repo, bridge: _FakeBridge('x=1&hash=xx'), storage: storage);
+  test(
+    'a backend 401 signal drops the token and re-establishes the session',
+    () async {
+      final repo = _FakeAuthRepository(Success(_login()));
+      final storage = _MemorySecureStorage();
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge('x=1&hash=xx'),
+        storage: storage,
+      );
 
-    await c.read(authControllerProvider.notifier).bootstrap();
-    expect(repo.calls, 1);
+      await c.read(authControllerProvider.notifier).bootstrap();
+      expect(repo.calls, 1);
 
-    repo.result = Success(_login(userId: 'u-again'));
-    c.read(sessionEventsProvider).notifyUnauthorized();
-    await Future<void>.delayed(Duration.zero);
-    await Future<void>.delayed(Duration.zero);
+      repo.result = Success(_login(userId: 'u-again'));
+      c.read(sessionEventsProvider).notifyUnauthorized();
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(repo.calls, 2);
-    expect((c.read(authControllerProvider) as Authenticated).session.userId, 'u-again');
-  });
+      expect(repo.calls, 2);
+      expect(
+        (c.read(authControllerProvider) as Authenticated).session.userId,
+        'u-again',
+      );
+    },
+  );
 
   test('signOut clears the stored token and ends the session', () async {
     final repo = _FakeAuthRepository(Success(_login()));
     final storage = _MemorySecureStorage();
-    final c = make(repo: repo, bridge: _FakeBridge('x=1&hash=xx'), storage: storage);
+    final c = make(
+      repo: repo,
+      bridge: _FakeBridge('x=1&hash=xx'),
+      storage: storage,
+    );
 
     await c.read(authControllerProvider.notifier).bootstrap();
     expect(storage.map, isNotEmpty);

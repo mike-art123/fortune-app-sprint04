@@ -13,9 +13,13 @@ abstract final class AppTheme {
     final scheme = ColorScheme(
       brightness: brightness,
       primary: c.accentPrimary,
-      onPrimary: brightness == Brightness.dark ? AppPalette.parchmentInk : Colors.white,
+      onPrimary: brightness == Brightness.dark
+          ? AppPalette.parchmentInk
+          : Colors.white,
       secondary: c.accentSecondary,
-      onSecondary: brightness == Brightness.dark ? AppPalette.shab : Colors.white,
+      onSecondary: brightness == Brightness.dark
+          ? AppPalette.shab
+          : Colors.white,
       error: c.error,
       onError: Colors.white,
       surface: c.surfacePrimary,
@@ -30,7 +34,10 @@ abstract final class AppTheme {
       canvasColor: c.backgroundPrimary,
       fontFamily: AppTypography.primaryFamily,
       textTheme: AppTypography.textTheme(c.textPrimary, c.textSecondary),
-      dividerTheme: DividerThemeData(color: c.borderSubtle.withValues(alpha: 0.2), thickness: 1),
+      dividerTheme: DividerThemeData(
+        color: c.borderSubtle.withValues(alpha: 0.2),
+        thickness: 1,
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: c.backgroundPrimary,
         foregroundColor: c.textPrimary,

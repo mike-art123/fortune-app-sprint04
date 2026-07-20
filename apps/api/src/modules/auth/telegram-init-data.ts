@@ -22,11 +22,7 @@ export interface VerifiedInitData {
 }
 
 export type InitDataFailureReason =
-  | 'malformed'
-  | 'missing_hash'
-  | 'invalid_hash'
-  | 'expired'
-  | 'missing_user';
+  'malformed' | 'missing_hash' | 'invalid_hash' | 'expired' | 'missing_user';
 
 export interface FailedInitData {
   ok: false;

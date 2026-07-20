@@ -12,7 +12,10 @@ void main() {
     });
 
     test('ResultFailure folds to the failure', () {
-      const failure = AppFailure(kind: FailureKind.timeout, messageKey: 'errorTimeout');
+      const failure = AppFailure(
+        kind: FailureKind.timeout,
+        messageKey: 'errorTimeout',
+      );
       const Result<int> r = ResultFailure(failure);
       expect(r.isSuccess, isFalse);
       expect(r.failureOrNull?.kind, FailureKind.timeout);
@@ -21,7 +24,10 @@ void main() {
 
   group('AppFailure', () {
     test('transient kinds are retryable', () {
-      const f = AppFailure(kind: FailureKind.networkUnavailable, messageKey: 'k');
+      const f = AppFailure(
+        kind: FailureKind.networkUnavailable,
+        messageKey: 'k',
+      );
       expect(f.isRetryable, isTrue);
     });
 

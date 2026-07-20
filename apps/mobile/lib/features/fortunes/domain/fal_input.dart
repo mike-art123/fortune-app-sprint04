@@ -67,7 +67,10 @@ abstract final class FalInputFactory {
     switch (fortune.inputKind) {
       case FortuneInputKind.intention:
         return OfferingReady(
-          IntentionInput(fortuneId: fortune.id, intention: first.isEmpty ? null : first),
+          IntentionInput(
+            fortuneId: fortune.id,
+            intention: first.isEmpty ? null : first,
+          ),
         );
 
       case FortuneInputKind.longText:
@@ -75,7 +78,9 @@ abstract final class FalInputFactory {
         if (words < (fortune.minWords ?? 1)) {
           return OfferingNeedsMore(fortune.guide ?? _fallbackGuide);
         }
-        return OfferingReady(DreamInput(fortuneId: fortune.id, narration: first));
+        return OfferingReady(
+          DreamInput(fortuneId: fortune.id, narration: first),
+        );
 
       case FortuneInputKind.twoNames:
         if (first.isEmpty || second.isEmpty) {
@@ -96,9 +101,9 @@ abstract final class FalInputFactory {
 /// Debug-friendly description without leaking personal content into logs.
 extension FalInputRedacted on FalInput {
   String get redactedDescription => switch (this) {
-        IntentionInput(intention: final i) =>
-          'IntentionInput(${i == null ? 'silent' : 'written'})',
-        DreamInput() => 'DreamInput([redacted])',
-        LoveInput() => 'LoveInput([redacted])',
-      };
+    IntentionInput(intention: final i) =>
+      'IntentionInput(${i == null ? 'silent' : 'written'})',
+    DreamInput() => 'DreamInput([redacted])',
+    LoveInput() => 'LoveInput([redacted])',
+  };
 }

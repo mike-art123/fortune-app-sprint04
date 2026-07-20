@@ -42,10 +42,7 @@ export class AiReadingProvider implements ReadingProvider {
     private readonly logger: AppLoggerService,
   ) {}
 
-  async generate(
-    fortune: FortuneCatalogEntry,
-    input: ReadingInputDto,
-  ): Promise<GeneratedReading> {
+  async generate(fortune: FortuneCatalogEntry, input: ReadingInputDto): Promise<GeneratedReading> {
     const startedAt = Date.now();
     const maxAttempts = this.config.maxRetries + 1;
     let lastError: unknown;
@@ -129,10 +126,7 @@ export class AiReadingProvider implements ReadingProvider {
       if (controller.signal.aborted) {
         throw new AiRequestError(`timed out after ${this.config.timeoutMs}ms`, true);
       }
-      throw new AiRequestError(
-        error instanceof Error ? error.message : 'network failure',
-        true,
-      );
+      throw new AiRequestError(error instanceof Error ? error.message : 'network failure', true);
     } finally {
       clearTimeout(timer);
     }

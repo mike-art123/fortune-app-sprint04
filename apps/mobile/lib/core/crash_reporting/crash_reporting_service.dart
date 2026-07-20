@@ -9,7 +9,11 @@ abstract interface class CrashReportingService {
 class NoopCrashReportingService implements CrashReportingService {
   const NoopCrashReportingService();
   @override
-  Future<void> recordError(Object error, StackTrace? stackTrace, {bool fatal = false}) async {}
+  Future<void> recordError(
+    Object error,
+    StackTrace? stackTrace, {
+    bool fatal = false,
+  }) async {}
   @override
   Future<void> setContext(String key, Object? value) async {}
   @override

@@ -31,7 +31,9 @@ class FortuneScaffold extends StatelessWidget {
     final bounded = constrainWidth
         ? Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: AppBreakpoints.maxReadableWidth),
+              constraints: const BoxConstraints(
+                maxWidth: AppBreakpoints.maxReadableWidth,
+              ),
               child: content,
             ),
           )

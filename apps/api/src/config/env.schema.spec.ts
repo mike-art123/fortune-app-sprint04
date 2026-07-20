@@ -18,8 +18,8 @@ describe('env schema', () => {
   });
 
   it('production requires an explicit CORS allowlist when swagger is on', () => {
-    expect(() =>
-      validateEnv({ ...base, NODE_ENV: 'production', SWAGGER_ENABLED: 'true' }),
-    ).toThrow(/CORS/);
+    expect(() => validateEnv({ ...base, NODE_ENV: 'production', SWAGGER_ENABLED: 'true' })).toThrow(
+      /CORS/,
+    );
   });
 });

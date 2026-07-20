@@ -66,4 +66,6 @@ final walletRepositoryProvider = Provider<WalletRepository>((ref) {
 });
 
 final walletControllerProvider =
-    NotifierProvider.autoDispose<WalletController, WalletState>(WalletController.new);
+    NotifierProvider.autoDispose<WalletController, WalletState>(
+      WalletController.new,
+    );

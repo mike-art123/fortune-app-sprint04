@@ -7,11 +7,7 @@ import { InfrastructureException } from '../../common/exceptions/infrastructure.
 import type { AuthenticatedPrincipal } from '../../common/types/authenticated-principal';
 import { CreateReadingDto } from './dto/create-reading.dto';
 import { ListReadingsQueryDto } from './dto/list-readings.query.dto';
-import {
-  ReadingsService,
-  type ReadingListPage,
-  type ReadingResponse,
-} from './readings.service';
+import { ReadingsService, type ReadingListPage, type ReadingResponse } from './readings.service';
 
 /** Sprint 04: every route requires the authenticated principal. */
 @ApiTags('readings')

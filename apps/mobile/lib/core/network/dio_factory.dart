@@ -24,7 +24,10 @@ abstract final class DioFactory {
         connectTimeout: config.connectTimeout,
         receiveTimeout: config.receiveTimeout,
         sendTimeout: config.connectTimeout,
-        headers: const {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        headers: const {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         // We map status codes ourselves in ErrorMapper.
         validateStatus: (status) => status != null && status < 400,
       ),
@@ -48,7 +51,9 @@ abstract final class DioFactory {
             handler.next(options);
           },
           onResponse: (response, handler) {
-            logger.debug('← ${response.statusCode} ${response.requestOptions.path}');
+            logger.debug(
+              '← ${response.statusCode} ${response.requestOptions.path}',
+            );
             handler.next(response);
           },
           onError: (error, handler) {

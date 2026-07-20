@@ -57,13 +57,8 @@ describe('entitlements (e2e) — Sprint 04', () => {
       .send({ fortuneId: 'hafez', input: {} })
       .expect(201);
 
-    const wallet = await request(app.getHttpServer())
-      .get('/api/v1/wallet')
-      .set(auth)
-      .expect(200);
-    const debit = wallet.body.data.transactions.find(
-      (t: { kind: string }) => t.kind === 'debit',
-    );
+    const wallet = await request(app.getHttpServer()).get('/api/v1/wallet').set(auth).expect(200);
+    const debit = wallet.body.data.transactions.find((t: { kind: string }) => t.kind === 'debit');
     expect(debit.amount).toBe(-cost);
   });
 });

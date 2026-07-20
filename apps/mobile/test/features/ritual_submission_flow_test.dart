@@ -14,15 +14,18 @@ import 'package:go_router/go_router.dart';
 
 class _FakeRepo implements ReadingRepository {
   @override
-  Future<Result<Reading>> create(FalInput input, {String? idempotencyKey}) async => Success(
-        Reading(
-          id: 'clx-flow',
-          fortuneId: input.fortuneId,
-          title: 'پیامی از دیوان',
-          text: 'متنِ خوانش برای تست.',
-          createdAt: DateTime(2026),
-        ),
-      );
+  Future<Result<Reading>> create(
+    FalInput input, {
+    String? idempotencyKey,
+  }) async => Success(
+    Reading(
+      id: 'clx-flow',
+      fortuneId: input.fortuneId,
+      title: 'پیامی از دیوان',
+      text: 'متنِ خوانش برای تست.',
+      createdAt: DateTime(2026),
+    ),
+  );
 }
 
 Widget host() {
@@ -41,7 +44,10 @@ Widget host() {
           reading: state.extra is Reading ? state.extra as Reading : null,
         ),
       ),
-      GoRoute(path: '/explore', builder: (_, __) => const Scaffold(body: SizedBox())),
+      GoRoute(
+        path: '/explore',
+        builder: (_, __) => const Scaffold(body: SizedBox()),
+      ),
     ],
   );
   return ProviderScope(
@@ -57,7 +63,9 @@ Widget host() {
 }
 
 void main() {
-  testWidgets('sealing a hafez intention lands on the reading screen', (tester) async {
+  testWidgets('sealing a hafez intention lands on the reading screen', (
+    tester,
+  ) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 

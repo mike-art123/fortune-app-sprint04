@@ -7,6 +7,7 @@ abstract final class SecureKeys {
 
 abstract final class PrefKeys {
   static const locale = 'pref.locale';
+
   /// LEGACY (pre-Sprint 04): the anonymous identity anchor. No longer read;
   /// kept only so the v2 storage migration can delete stored values.
   static const anonId = 'pref.anon_id';

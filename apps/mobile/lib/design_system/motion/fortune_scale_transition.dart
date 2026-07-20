@@ -16,7 +16,8 @@ class FortuneScaleIn extends StatelessWidget {
       tween: Tween(begin: from, end: 1),
       duration: AppDuration.deliberate,
       curve: AppCurves.outExpo,
-      builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+      builder: (context, scale, child) =>
+          Transform.scale(scale: scale, child: child),
       child: child,
     );
   }

@@ -8,7 +8,10 @@ void main() {
 
   test('connection timeout maps to timeout', () {
     final f = ErrorMapper.fromDio(
-      DioException(requestOptions: options, type: DioExceptionType.connectionTimeout),
+      DioException(
+        requestOptions: options,
+        type: DioExceptionType.connectionTimeout,
+      ),
     );
     expect(f.kind, FailureKind.timeout);
   });
@@ -25,7 +28,11 @@ void main() {
   });
 
   test('envelope INSUFFICIENT_COINS maps to its own kind (Sprint 04)', () {
-    final f = ErrorMapper.fromEnvelope('INSUFFICIENT_COINS', 'no balance', 'req-1');
+    final f = ErrorMapper.fromEnvelope(
+      'INSUFFICIENT_COINS',
+      'no balance',
+      'req-1',
+    );
     expect(f.kind, FailureKind.insufficientCoins);
     expect(f.requestId, 'req-1');
     expect(f.isRetryable, isFalse);

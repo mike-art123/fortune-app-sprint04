@@ -20,7 +20,11 @@ class PlaceholderView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 context.strings.placeholderNotice,
@@ -29,8 +33,11 @@ class PlaceholderView extends StatelessWidget {
               ),
               if (detail != null) ...[
                 const SizedBox(height: AppSpacing.xs),
-                Text(detail!,
-                    style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+                Text(
+                  detail!,
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
               ],
             ],
           ),

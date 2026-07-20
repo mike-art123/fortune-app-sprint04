@@ -25,7 +25,12 @@ class FortuneFadeIn extends StatelessWidget {
       curve: AppCurves.premium,
       builder: (context, t, child) => Opacity(
         opacity: t.clamp(0, 1),
-        child: reduce ? child : Transform.translate(offset: Offset(0, offset * (1 - t)), child: child),
+        child: reduce
+            ? child
+            : Transform.translate(
+                offset: Offset(0, offset * (1 - t)),
+                child: child,
+              ),
       ),
       child: child,
     );

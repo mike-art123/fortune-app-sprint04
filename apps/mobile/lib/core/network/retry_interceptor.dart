@@ -18,7 +18,10 @@ class RetryInterceptor extends Interceptor {
   static const _attemptKey = 'retry_attempt';
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     if (!_isRetryable(err)) return handler.next(err);
 
     final attempt = (err.requestOptions.extra[_attemptKey] as int? ?? 0) + 1;
@@ -37,9 +40,11 @@ class RetryInterceptor extends Interceptor {
 
   bool _isRetryable(DioException err) {
     final method = err.requestOptions.method.toUpperCase();
-    if (method != 'GET') return false; // side-effecting requests are never retried
+    if (method != 'GET')
+      return false; // side-effecting requests are never retried
     final status = err.response?.statusCode;
-    final transient = err.type == DioExceptionType.connectionTimeout ||
+    final transient =
+        err.type == DioExceptionType.connectionTimeout ||
         err.type == DioExceptionType.receiveTimeout ||
         err.type == DioExceptionType.connectionError;
     final serverSide = status != null && status >= 500 && status != 501;

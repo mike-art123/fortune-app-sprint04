@@ -64,7 +64,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     res.status(status).json(body);
   }
 
-  private normalize(exception: unknown, requestId: string | null): { status: number; body: ApiErrorBody } {
+  private normalize(
+    exception: unknown,
+    requestId: string | null,
+  ): { status: number; body: ApiErrorBody } {
     // 1) Our own exception hierarchy
     if (exception instanceof AppException) {
       return this.body(exception.status, exception.code, exception.safeMessage, requestId, {
@@ -76,17 +79,26 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof BadRequestException) {
       const response = exception.getResponse();
       const details =
-        typeof response === 'object' && response !== null && Array.isArray((response as { message?: unknown }).message)
-          ? ((response as { message: unknown[] }).message)
+        typeof response === 'object' &&
+        response !== null &&
+        Array.isArray((response as { message?: unknown }).message)
+          ? (response as { message: unknown[] }).message
           : undefined;
-      return this.body(400, 'VALIDATION_FAILED', SAFE_MESSAGES.VALIDATION_FAILED ?? '', requestId, { details });
+      return this.body(400, 'VALIDATION_FAILED', SAFE_MESSAGES.VALIDATION_FAILED ?? '', requestId, {
+        details,
+      });
     }
 
     // 3) Other Nest HTTP exceptions
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const code = STATUS_TO_CODE[status] ?? 'INTERNAL';
-      return this.body(status, code, SAFE_MESSAGES[code] ?? SAFE_MESSAGES.INTERNAL ?? '', requestId);
+      return this.body(
+        status,
+        code,
+        SAFE_MESSAGES[code] ?? SAFE_MESSAGES.INTERNAL ?? '',
+        requestId,
+      );
     }
 
     // 4) Prisma known errors — never leak SQL or model internals
@@ -97,13 +109,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       if (exception.code === 'P2025') {
         return this.body(404, 'NOT_FOUND', SAFE_MESSAGES.NOT_FOUND ?? '', requestId);
       }
-      return this.body(500, 'INTERNAL', SAFE_MESSAGES.INTERNAL ?? '', requestId, { retryable: true });
+      return this.body(500, 'INTERNAL', SAFE_MESSAGES.INTERNAL ?? '', requestId, {
+        retryable: true,
+      });
     }
 
     // 5) Unknown — generic internal error, details stay in logs only
-    return this.body(HttpStatus.INTERNAL_SERVER_ERROR, 'INTERNAL', SAFE_MESSAGES.INTERNAL ?? '', requestId, {
-      retryable: true,
-    });
+    return this.body(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      'INTERNAL',
+      SAFE_MESSAGES.INTERNAL ?? '',
+      requestId,
+      {
+        retryable: true,
+      },
+    );
   }
 
   private body(
