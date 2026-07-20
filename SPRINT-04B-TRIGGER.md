@@ -15,3 +15,5 @@ Trigger sequence:
 
 
 5. Account upgraded to GitHub Pro (2026-07-19). Retriggering both workflows to test whether the account-level Actions restriction is lifted now that the account is on a paid plan.
+
+6. Previous two queued runs got permanently stuck in "Queued" (never started, 18+ minutes) and were cancelled. Retriggering with a fresh push per GitHub's own stuck-queue guidance.
