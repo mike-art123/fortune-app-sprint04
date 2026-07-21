@@ -152,9 +152,10 @@ export class ReadingsService {
     const hasMore = rows.length > limit;
     const pageRows = hasMore ? rows.slice(0, limit) : rows;
 
+    const last = pageRows.at(-1);
     return {
       items: pageRows.map((row) => this.shape(row)),
-      nextCursor: hasMore ? encodeCursor(pageRows[pageRows.length - 1].id) : null,
+      nextCursor: hasMore && last ? encodeCursor(last.id) : null,
     };
   }
 

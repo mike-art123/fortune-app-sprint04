@@ -42,7 +42,7 @@ jobs:
           for step in api:format:check api:lint api:test api:e2e api:build; do
             echo ""
             echo "=== $step ==="
-            if npm run "$step" > /tmp/s.log 2>&1; then echo "PASS $step"; else echo "FAIL $step"; tail -50 /tmp/s.log; fi
+            if npm run "$step" > /tmp/s.log 2>&1; then echo "PASS $step"; else echo "FAIL $step"; echo "--- error-level app logs ---"; grep -iE '"level":(50|60)|"err"|stack|ERROR \[|Exception|instanceof' /tmp/s.log | head -40; echo "--- tail ---"; tail -70 /tmp/s.log; fi
           done
           echo ""
           echo "## MOBILE"

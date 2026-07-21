@@ -137,6 +137,7 @@ export class TokenService {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
       const [headerB64, payloadB64, signatureB64] = parts;
+      if (!headerB64 || !payloadB64 || !signatureB64) return null;
 
       const header = JSON.parse(Buffer.from(headerB64, 'base64url').toString('utf8')) as {
         alg?: unknown;
