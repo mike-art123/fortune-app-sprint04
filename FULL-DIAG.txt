@@ -1,0 +1,184 @@
+# FULL-DIAG (2026-07-21T06:13:06Z 114ee2ac5f0629b91db009f1e1003ba61c65094a)
+
+## API
+npm ci: ok
+prisma generate: ok
+migrate deploy: ok
+
+=== api:format:check ===
+PASS api:format:check
+
+=== api:lint ===
+PASS api:lint
+
+=== api:test ===
+PASS api:test
+
+=== api:e2e ===
+FAIL api:e2e
+     [90m    |[39m        [31m[1m^[22m[39m
+     [90m 37 |[39m
+     [90m 38 |[39m     expect(res[33m.[39mbody[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 39 |[39m     expect(res[33m.[39mbody[33m.[39mdata[33m.[39mcovered)[33m.[39mtoBe([36mfalse[39m)[33m;[39m[0m
+
+      at Object.<anonymous> (entitlements.e2e-spec.ts:36:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● entitlements (e2e) — Sprint 04 › matches the price actually debited for a reading
+
+    expected 200 "OK", got 500 "Internal Server Error"
+
+    [0m [90m 49 |[39m       [33m.[39m[36mget[39m([32m'/api/v1/entitlements/me'[39m)
+     [90m 50 |[39m       [33m.[39m[36mset[39m(auth)
+    [31m[1m>[22m[39m[90m 51 |[39m       [33m.[39mexpect([35m200[39m)[33m;[39m
+     [90m    |[39m        [31m[1m^[22m[39m
+     [90m 52 |[39m     [36mconst[39m cost [33m=[39m ent[33m.[39mbody[33m.[39mdata[33m.[39mcost [36mas[39m number[33m;[39m
+     [90m 53 |[39m
+     [90m 54 |[39m     [36mawait[39m request(app[33m.[39mgetHttpServer())[0m
+
+      at Object.<anonymous> (entitlements.e2e-spec.ts:51:8)
+      ----
+      at Test._assertStatus (../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../node_modules/supertest/lib/test.js:152:11)
+
+PASS test/health.e2e-spec.ts
+
+Test Suites: 4 failed, 2 passed, 6 total
+Tests:       18 failed, 18 passed, 36 total
+Snapshots:   0 total
+Time:        4.703 s
+Ran all test suites.
+{"level":30,"time":1784614410490,"pid":4205,"hostname":"runnervm3jd5f","req":{"id":2,"method":"GET","url":"/api/v1/health/ready","query":{},"params":{"0":"v1/health/ready"},"headers":{"host":"127.0.0.1:37589","accept-encoding":"gzip, deflate","connection":"close"},"remoteAddress":"::ffff:127.0.0.1","remotePort":43086},"context":"app","method":"GET","path":"/api/v1/health/ready","status":200,"durationMs":17,"requestId":"4b2fa230-d33f-41bc-b0d4-96e75ab60e28","msg":"http_request"}
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api
+npm error workspace @fortune/api@0.1.0
+npm error location /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api
+npm error command failed
+npm error command sh -c jest --config test/jest-e2e.json
+
+=== api:build ===
+FAIL api:build
+> @fortune/api@0.1.0 build
+> nest build
+
+[96msrc/modules/auth/token.service.ts[0m:[93m141[0m:[93m45[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(arrayBuffer: WithImplicitCoercion<ArrayBufferLike>, byteOffset?: number | undefined, length?: number | undefined): Buffer<ArrayBufferLike>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'WithImplicitCoercion<ArrayBufferLike>'.
+      Type 'undefined' is not assignable to type 'WithImplicitCoercion<ArrayBufferLike>'.
+  Overload 2 of 4, '(string: WithImplicitCoercion<string>, encoding?: BufferEncoding | undefined): Buffer<ArrayBuffer>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'WithImplicitCoercion<string>'.
+      Type 'undefined' is not assignable to type 'WithImplicitCoercion<string>'.
+
+[7m141[0m       const header = JSON.parse(Buffer.from(headerB64, 'base64url').toString('utf8')) as {
+[7m   [0m [91m                                            ~~~~~~~~~[0m
+
+[96msrc/modules/auth/token.service.ts[0m:[93m151[0m:[93m21[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(arrayBuffer: WithImplicitCoercion<ArrayBufferLike>, byteOffset?: number | undefined, length?: number | undefined): Buffer<ArrayBufferLike>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'WithImplicitCoercion<ArrayBufferLike>'.
+      Type 'undefined' is not assignable to type 'WithImplicitCoercion<ArrayBufferLike>'.
+  Overload 2 of 4, '(string: WithImplicitCoercion<string>, encoding?: BufferEncoding | undefined): Buffer<ArrayBuffer>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'WithImplicitCoercion<string>'.
+      Type 'undefined' is not assignable to type 'WithImplicitCoercion<string>'.
+
+[7m151[0m         Buffer.from(signatureB64, 'base64url'),
+[7m   [0m [91m                    ~~~~~~~~~~~~[0m
+
+[96msrc/modules/auth/token.service.ts[0m:[93m156[0m:[93m21[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(arrayBuffer: WithImplicitCoercion<ArrayBufferLike>, byteOffset?: number | undefined, length?: number | undefined): Buffer<ArrayBufferLike>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'WithImplicitCoercion<ArrayBufferLike>'.
+      Type 'undefined' is not assignable to type 'WithImplicitCoercion<ArrayBufferLike>'.
+  Overload 2 of 4, '(string: WithImplicitCoercion<string>, encoding?: BufferEncoding | undefined): Buffer<ArrayBuffer>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'WithImplicitCoercion<string>'.
+      Type 'undefined' is not assignable to type 'WithImplicitCoercion<string>'.
+
+[7m156[0m         Buffer.from(payloadB64, 'base64url').toString('utf8'),
+[7m   [0m [91m                    ~~~~~~~~~~[0m
+
+[96msrc/modules/readings/readings.service.ts[0m:[93m157[0m:[93m42[0m - [91merror[0m[90m TS2532: [0mObject is possibly 'undefined'.
+
+[7m157[0m       nextCursor: hasMore ? encodeCursor(pageRows[pageRows.length - 1].id) : null,
+[7m   [0m [91m                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+Found 4 error(s).
+
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api
+npm error workspace @fortune/api@0.1.0
+npm error location /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api
+npm error command failed
+npm error command sh -c nest build
+
+## MOBILE
+pub get: ok
+
+=== dart format check ===
+PASS format
+gen-l10n: ok
+
+=== flutter analyze ===
+PASS analyze
+
+=== flutter test ===
+FAIL test
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/ritual_submission_flow_test.dart: sealing a hafez intention lands on the reading screen
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/ritual_entry_test.dart: hafez entry shows ritual line, whisper, and CTA
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/ritual_entry_test.dart: love entry renders two whispers joined by و
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_submission_test.dart: success path: idle → inflight → succeeded
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_submission_test.dart: failure path resolves a friendly Persian message
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_submission_test.dart: double submit is guarded while in flight
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_submission_test.dart: every submission carries a well-formed Idempotency-Key (Sprint 04)
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_submission_test.dart: a retry after a retryable failure reuses the SAME key — one charge slot
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_submission_test.dart: after success or a definitive refusal, the next cycle gets a fresh key
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/ritual_entry_test.dart: love: sealing with one name shows gentle guidance
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/ritual_entry_test.dart: unknown fortune id shows branded recovery
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/ritual_entry_test.dart: entry renders right-to-left under Persian locale
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/route_params_test.dart: accepts well-formed ids
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/route_params_test.dart: rejects malformed or hostile ids
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/route_params_test.dart: builds paths
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/locale_resolution_test.dart: stored preference wins
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/locale_resolution_test.dart: system locale is used when nothing is stored
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/locale_resolution_test.dart: unsupported system locale falls back to Persian
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/app/locale_resolution_test.dart: Persian is the default with no signals
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_page_test.dart: renders title, reading text, and Persian date
+::group::❌ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_page_test.dart: save confirms history; share shows coming-soon (failed)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "این آیین به‌زودی آماده می‌شود.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_page_test.dart:72:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_page_test.dart line 72
+The test description was:
+  save confirms history; share shows coming-soon
+════════════════════════════════════════════════════════════════════════════════════════════════════
+Test failed. See exception logs above.
+The test description was: save confirms history; share shows coming-soon
+
+::endgroup::
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_page_test.dart: cold deep link fetches the reading by id
+✅ /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/test/features/reading_page_test.dart: a failed fetch shows honest recovery, never a blank page
+
+::error::89 tests passed, 1 failed.
