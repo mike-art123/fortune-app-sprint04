@@ -33,7 +33,6 @@ class ReadingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = context.strings;
-    final c = context.fortuneColors;
 
     final current = reading;
     if (current == null) {

@@ -25,8 +25,8 @@ class _FakeHistoryRepository implements HistoryRepository {
   Future<Result<ReadingListPage>> list({String? cursor}) async {
     requestedCursors.add(cursor);
     return _pages[cursor] ??
-        ResultFailure(
-          const AppFailure(kind: FailureKind.unknown, messageKey: 'x'),
+        const ResultFailure(
+          AppFailure(kind: FailureKind.unknown, messageKey: 'x'),
         );
   }
 
@@ -84,7 +84,7 @@ void main() {
 
   test('empty page is a loaded state, not an error', () async {
     final repo = _FakeHistoryRepository({
-      null: Success(const ReadingListPage(items: [], nextCursor: null)),
+      null: const Success(ReadingListPage(items: [], nextCursor: null)),
     });
     final container = _container(repo);
 

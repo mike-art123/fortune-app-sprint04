@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../../shared/models/localized_text.dart';
 import 'fortune_definition.dart';
 
@@ -93,7 +92,7 @@ abstract final class FalInputFactory {
       case FortuneInputKind.photo:
         // Photo offerings arrive in a later sprint; the registry keeps these
         // families marked `soon`, so entry never reaches this branch.
-        return OfferingNeedsMore(_fallbackGuide);
+        return const OfferingNeedsMore(_fallbackGuide);
     }
   }
 }

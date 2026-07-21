@@ -106,7 +106,7 @@ void main() {
     test('loads and exposes the backend balance untouched', () async {
       final c = container(
         _FakeWalletRepository(
-          Success(const WalletSummary(balance: 30, entries: [])),
+          const Success(WalletSummary(balance: 30, entries: [])),
         ),
       );
 
@@ -124,13 +124,9 @@ void main() {
       () async {
         final c = container(
           _FakeWalletRepository(
-            Success(const WalletSummary(balance: 30, entries: [])),
-            entitlementResult: Success(
-              const EntitlementStatus(
-                covered: true,
-                source: 'subscription',
-                cost: 0,
-              ),
+            const Success(WalletSummary(balance: 30, entries: [])),
+            entitlementResult: const Success(
+              EntitlementStatus(covered: true, source: 'subscription', cost: 0),
             ),
           ),
         );
@@ -148,7 +144,7 @@ void main() {
       () async {
         final c = container(
           _FakeWalletRepository(
-            Success(const WalletSummary(balance: 30, entries: [])),
+            const Success(WalletSummary(balance: 30, entries: [])),
             entitlementResult: const ResultFailure(
               AppFailure(kind: FailureKind.server, messageKey: 'errorGeneric'),
             ),
@@ -166,8 +162,8 @@ void main() {
 
     test('surfaces a typed failure and recovers on retry', () async {
       final repo = _FakeWalletRepository(
-        ResultFailure(
-          const AppFailure(kind: FailureKind.server, messageKey: 'x'),
+        const ResultFailure(
+          AppFailure(kind: FailureKind.server, messageKey: 'x'),
         ),
       );
       final c = container(repo);
@@ -176,7 +172,7 @@ void main() {
       await settle();
       expect(sub.read(), isA<WalletFailed>());
 
-      repo.result = Success(const WalletSummary(balance: 30, entries: []));
+      repo.result = const Success(WalletSummary(balance: 30, entries: []));
       await c.read(walletControllerProvider.notifier).retry();
 
       expect(sub.read(), isA<WalletLoaded>());
@@ -195,5 +191,5 @@ class _FakeWalletRepository implements WalletRepository {
   @override
   Future<Result<EntitlementStatus>> entitlement() async =>
       entitlementResult ??
-      Success(const EntitlementStatus(covered: false, source: null, cost: 5));
+      const Success(EntitlementStatus(covered: false, source: null, cost: 5));
 }

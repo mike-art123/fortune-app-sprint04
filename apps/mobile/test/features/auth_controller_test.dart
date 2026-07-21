@@ -20,11 +20,9 @@ import 'package:fortune_app/shared/providers/shared_providers.dart';
 String fakeJwt({required String sub, required String tid, required int exp}) {
   String b64(Map<String, Object> m) =>
       base64Url.encode(utf8.encode(json.encode(m))).replaceAll('=', '');
-  return '${b64({'alg': 'EdDSA', 'typ': 'JWT'})}.${b64({
-        'sub': sub,
-        'tid': tid,
-        'exp': exp
-      })}.sig';
+  final header = b64({'alg': 'EdDSA', 'typ': 'JWT'});
+  final payload = b64({'sub': sub, 'tid': tid, 'exp': exp});
+  return '$header.$payload.sig';
 }
 
 int inOneHour() =>
