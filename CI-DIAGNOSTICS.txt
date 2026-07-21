@@ -1,123 +1,70 @@
-# CI-DIAGNOSTICS (2026-07-20T05:29:32Z, commit 8647aaa5fb8045355d29e4b037970c6a68d65298)
+# CI-DIAGNOSTICS (2026-07-21T03:07:36Z, commit a652fd878e912ca7f0994834142676ea74c7af7e)
 
 ## eslint (api:lint, report-only)
 
-## dart format --set-exit-if-changed (report-only)
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Warning: Package resolution error when reading "analysis_options.yaml" file:
-Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/mobile/analysis_options.yaml".
-Formatted 151 files (0 changed) in 0.14 seconds.
+## jest unit tests (api:test, report-only, failures only)
 
-## dart --version / flutter --version
+> fortune_app@0.1.0 api:test
+> npm --workspace apps/api run test
+
+
+> @fortune/api@0.1.0 test
+> jest
+
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+PASS src/modules/readings/readings.service.spec.ts
+PASS src/modules/wallet/wallet.service.spec.ts
+PASS src/modules/readings/providers/ai-reading.provider.spec.ts
+PASS src/modules/auth/telegram-init-data.spec.ts
+PASS src/modules/readings/providers/prompt-builder.spec.ts
+PASS src/modules/auth/auth.service.spec.ts
+PASS src/modules/entitlements/entitlements.service.spec.ts
+PASS src/modules/auth/telegram-token.verifier.spec.ts
+FAIL src/common/filters/global-exception.filter.spec.ts
+  ● global exception filter › turns unknown errors into a safe INTERNAL error
+
+    TypeError: Right-hand side of 'instanceof' is not an object
+
+    [0m [90m 103 |[39m
+     [90m 104 |[39m     [90m// 4) Prisma known errors — never leak SQL or model internals[39m
+    [31m[1m>[22m[39m[90m 105 |[39m     [36mif[39m (exception [36minstanceof[39m [33mPrisma[39m[33m.[39m[33mPrismaClientKnownRequestError[39m) {
+     [90m     |[39m                  [31m[1m^[22m[39m
+     [90m 106 |[39m       [36mif[39m (exception[33m.[39mcode [33m===[39m [32m'P2002'[39m) {
+     [90m 107 |[39m         [36mreturn[39m [36mthis[39m[33m.[39mbody([35m409[39m[33m,[39m [32m'CONFLICT'[39m[33m,[39m [33mSAFE_MESSAGES[39m[33m.[39m[33mCONFLICT[39m [33m?[39m[33m?[39m [32m''[39m[33m,[39m requestId)[33m;[39m
+     [90m 108 |[39m       }[0m
+
+
+PASS src/common/middleware/request-id.middleware.spec.ts
+PASS src/modules/auth/token.service.spec.ts
+PASS src/common/utils/pagination.util.spec.ts
+PASS src/modules/readings/providers/mock-reading.provider.spec.ts
+PASS src/config/env.schema.spec.ts
+PASS src/common/utils/redaction.util.spec.ts
+PASS src/infrastructure/idempotency/idempotency.service.spec.ts
+
+Test Suites: 1 failed, 15 passed, 16 total
+Tests:       1 failed, 114 passed, 115 total
+Snapshots:   0 total
+Time:        1.971 s
+Ran all test suites.
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api
+npm error workspace @fortune/api@0.1.0
+npm error location /home/runner/work/fortune-app-sprint04/fortune-app-sprint04/apps/api
+npm error command failed
+npm error command sh -c jest
+
+## dart format AFTER pub get (report-only)
+Formatted 154 files (0 changed) in 0.14 seconds.
+
+## dart --version
 Dart SDK version: 3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on "linux_x64"
