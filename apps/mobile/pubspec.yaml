@@ -27,7 +27,7 @@ dependencies:
 
   # Platform / utility
   connectivity_plus: ^6.0.5        # connectivity hint only
-  intl: ^0.20.2 # pinned to 0.20.2 by flutter_localizations in current stable SDK
+  intl: any # let flutter_localizations pin the version (Sprint 04B)
   uuid: ^4.4.2                     # request correlation ids
 
   # Serialization annotations (generators are dev-only)
