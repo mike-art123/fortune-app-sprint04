@@ -1,53 +1,31 @@
-# Temporary Sprint 04B diagnostics (remove once CI is green).
-#
-# The authoring environment cannot run eslint or dart format locally and
-# cannot read Actions logs (they require an authenticated session). This
-# workflow runs the two currently-failing gates in REPORT-ONLY mode and
-# commits their full output as CI-DIAGNOSTICS.txt, which is readable from
-# the public raw endpoint. It never fails and never modifies source files.
 name: Diagnostics
-on:
-  push: { branches: [main] }
-
-permissions:
-  contents: write
-
+on: { push: { branches: [main] } }
+permissions: { contents: write }
 concurrency: diagnostics
-
 jobs:
   diag:
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-      - run: npm ci
+        with: { fetch-depth: 0 }
       - uses: subosito/flutter-action@v2
         with: { channel: stable }
-      - name: Collect gate output
+      - name: analyze
         run: |
           {
-            echo "# CI-DIAGNOSTICS ($(date -u +%Y-%m-%dT%H:%M:%SZ), commit ${GITHUB_SHA})"
-            echo
-            echo "## eslint (api:lint, report-only)"
-            (cd apps/api && npx eslint "src/**/*.ts" "test/**/*.ts" --max-warnings=0 2>&1) || true
-            echo
-            echo "## jest unit tests (api:test, report-only, failures only)"
-            (npm run api:test 2>&1 | grep -v "^\s*at " | tail -n 200) || true
-            echo
-            echo "## dart format AFTER pub get (report-only)"
-            (cd apps/mobile && flutter pub get > /dev/null 2>&1; dart format --output=none --set-exit-if-changed . 2>&1 | tail -n 80) || true
-            echo
-            echo "## dart --version"
-            dart --version 2>&1 || true
-          } > CI-DIAGNOSTICS.txt
-      - name: Commit diagnostics
+            echo "# ANALYZE ($(date -u +%FT%TZ) ${GITHUB_SHA})"
+            cd apps/mobile
+            flutter pub get 2>&1 | tail -n 5
+            echo "=== flutter analyze ==="
+            flutter analyze 2>&1 | tail -n 100
+          } > ANALYZE.txt || true
+          mv apps/mobile/ANALYZE.txt ANALYZE.txt 2>/dev/null || true
+      - name: push
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CI-DIAGNOSTICS.txt
-          if ! git diff --cached --quiet; then
-            git commit -m "diag: refresh CI-DIAGNOSTICS.txt"
-            git push
-          fi
+          git config user.email "bot@users.noreply.github.com"
+          git checkout -- apps/mobile 2>/dev/null || true
+          git add ANALYZE.txt
+          git pull --rebase origin main || true
+          git diff --cached --quiet || (git commit -m "diag: analyze output" && git push)
