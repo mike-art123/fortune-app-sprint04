@@ -31,7 +31,8 @@ abstract final class EnvironmentLoader {
     const botUsername = String.fromEnvironment('TELEGRAM_BOT_USERNAME');
     const devInitData = String.fromEnvironment('DEV_TELEGRAM_INITDATA');
 
-    final baseUrl = baseUrlDefine.isNotEmpty ? baseUrlDefine : _defaultBaseUrl(flavor);
+    final baseUrl =
+        baseUrlDefine.isNotEmpty ? baseUrlDefine : _defaultBaseUrl(flavor);
 
     if (flavor.isDevelopment && baseUrlDefine.isEmpty) {
       // Visible in dev only; production never depends on this path.
@@ -45,7 +46,8 @@ abstract final class EnvironmentLoader {
       connectTimeout: const Duration(milliseconds: connectMs),
       receiveTimeout: const Duration(milliseconds: receiveMs),
       telegramBotUsername: botUsername.isEmpty ? null : botUsername,
-      devTelegramInitData: flavor.isDevelopment && devInitData.isNotEmpty ? devInitData : null,
+      devTelegramInitData:
+          flavor.isDevelopment && devInitData.isNotEmpty ? devInitData : null,
       flags: FeatureFlags(
         analyticsEnabled: analytics && flavor.isProduction,
         crashReportingEnabled: crash && !flavor.isDevelopment,

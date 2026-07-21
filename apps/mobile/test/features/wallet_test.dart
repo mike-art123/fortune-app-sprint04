@@ -194,5 +194,6 @@ class _FakeWalletRepository implements WalletRepository {
 
   @override
   Future<Result<EntitlementStatus>> entitlement() async =>
-      entitlementResult ?? Success(const EntitlementStatus(covered: false, source: null, cost: 5));
+      entitlementResult ??
+      Success(const EntitlementStatus(covered: false, source: null, cost: 5));
 }

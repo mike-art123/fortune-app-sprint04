@@ -25,7 +25,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: false,
     observers: [AnalyticsRouteObserver(ref.watch(analyticsServiceProvider))],
     redirect: (context, state) {
-      final startup = ref.read(startupControllerProvider).valueOrNull ?? const StartupInProgress();
+      final startup = ref.read(startupControllerProvider).valueOrNull ??
+          const StartupInProgress();
       return RouteGuards.redirect(
         startup: startup,
         location: state.matchedLocation,
@@ -47,8 +48,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.ritualName,
         pageBuilder: (context, state) {
           final id = state.pathParameters['fortuneId'];
-          final child =
-              RouteParams.isValidId(id) ? RitualEntryPage(fortuneId: id!) : const _NotFoundPage();
+          final child = RouteParams.isValidId(id)
+              ? RitualEntryPage(fortuneId: id!)
+              : const _NotFoundPage();
           return _fadePage(state, child);
         },
       ),
@@ -60,7 +62,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           final child = RouteParams.isValidId(id)
               ? ReadingPage(
                   readingId: id!,
-                  reading: state.extra is Reading ? state.extra as Reading : null,
+                  reading:
+                      state.extra is Reading ? state.extra as Reading : null,
                 )
               : const _NotFoundPage();
           return _fadePage(state, child);
@@ -93,7 +96,8 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
     key: state.pageKey,
     child: child,
     transitionDuration: const Duration(milliseconds: 260),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
+    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+        FadeTransition(
       opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
       child: child,
     ),

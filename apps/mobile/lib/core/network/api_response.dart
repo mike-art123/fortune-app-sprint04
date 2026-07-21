@@ -21,11 +21,15 @@ class ApiEnvelope {
     final error = json['error'];
     return ApiEnvelope(
       success: json['success'] == true,
-      data: json['data'] is Map<String, dynamic> ? json['data'] as Map<String, dynamic> : null,
+      data: json['data'] is Map<String, dynamic>
+          ? json['data'] as Map<String, dynamic>
+          : null,
       errorCode: error is Map ? error['code'] as String? : null,
       errorMessage: error is Map ? error['message'] as String? : null,
       requestId: json['requestId'] as String?,
-      meta: json['meta'] is Map<String, dynamic> ? json['meta'] as Map<String, dynamic> : null,
+      meta: json['meta'] is Map<String, dynamic>
+          ? json['meta'] as Map<String, dynamic>
+          : null,
     );
   }
 }

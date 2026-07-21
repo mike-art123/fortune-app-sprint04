@@ -86,9 +86,11 @@ class _WhisperFieldState extends State<WhisperField> {
           maxLines: widget.multiline ? null : 1,
           minLines: widget.multiline ? widget.minLines : 1,
           textAlign: widget.centered ? TextAlign.center : TextAlign.start,
-          keyboardType: widget.multiline ? TextInputType.multiline : TextInputType.text,
-          style: (widget.multiline ? textTheme.bodyLarge : textTheme.titleMedium)
-              ?.copyWith(height: 1.9),
+          keyboardType:
+              widget.multiline ? TextInputType.multiline : TextInputType.text,
+          style:
+              (widget.multiline ? textTheme.bodyLarge : textTheme.titleMedium)
+                  ?.copyWith(height: 1.9),
           cursorColor: widget.accent,
           decoration: InputDecoration(
             hintText: widget.placeholder,

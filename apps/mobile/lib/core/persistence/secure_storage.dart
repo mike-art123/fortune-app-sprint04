@@ -16,7 +16,8 @@ class FlutterSecureStorageAdapter implements SecureStorage {
   @override
   Future<String?> read(String key) => _storage.read(key: key);
   @override
-  Future<void> write(String key, String value) => _storage.write(key: key, value: value);
+  Future<void> write(String key, String value) =>
+      _storage.write(key: key, value: value);
   @override
   Future<void> delete(String key) => _storage.delete(key: key);
   @override
@@ -41,7 +42,8 @@ class TokenStore {
 
   /// Sprint 04: the backend issues a single access token (no refresh token
   /// yet) — expiry simply triggers a fresh Telegram login.
-  Future<void> saveAccessToken(String access) => _storage.write(SecureKeys.accessToken, access);
+  Future<void> saveAccessToken(String access) =>
+      _storage.write(SecureKeys.accessToken, access);
 
   Future<void> clear() async {
     await _storage.delete(SecureKeys.accessToken);

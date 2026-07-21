@@ -18,7 +18,8 @@ class AccessTokenClaims {
   final DateTime expiresAt;
 
   /// Fresh enough to be worth sending (small margin so we never race expiry).
-  bool get isFresh => expiresAt.isAfter(DateTime.now().add(const Duration(minutes: 1)));
+  bool get isFresh =>
+      expiresAt.isAfter(DateTime.now().add(const Duration(minutes: 1)));
 
   /// Returns null for anything that is not a well-formed JWT of ours.
   static AccessTokenClaims? decode(String token) {

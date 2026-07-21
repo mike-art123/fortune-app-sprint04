@@ -36,7 +36,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeNotFoundTitle => 'We couldn\'t find that page';
 
   @override
-  String get routeNotFoundBody => 'The address may have changed. You can head back to Explore.';
+  String get routeNotFoundBody =>
+      'The address may have changed. You can head back to Explore.';
 
   @override
   String get actionBackToExplore => 'Back to Explore';
@@ -63,7 +64,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingSealedTitle => 'Your intention has been received.';
 
   @override
-  String get readingSealedBody => 'The full reading arrives here in the next build stage.';
+  String get readingSealedBody =>
+      'The full reading arrives here in the next build stage.';
 
   @override
   String get actionSave => 'Save';
@@ -105,7 +107,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get walletDailyRewardTitle => 'Daily gift';
 
   @override
-  String get walletDailyRewardBody => 'A few coins each day, for a fresh reading.';
+  String get walletDailyRewardBody =>
+      'A few coins each day, for a fresh reading.';
 
   @override
   String get walletHistoryTitle => 'Transactions';
@@ -126,7 +129,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get walletKindRefund => 'Refund';
 
   @override
-  String get walletSubscriptionActive => 'Your subscription is active — readings are covered.';
+  String get walletSubscriptionActive =>
+      'Your subscription is active — readings are covered.';
 
   @override
   String walletReadingCost(String cost) {
@@ -134,14 +138,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get authOutsideTelegramBody => 'Open the app from inside Telegram to sign in.';
+  String get authOutsideTelegramBody =>
+      'Open the app from inside Telegram to sign in.';
 
   @override
   String get authRejectedBody => 'Sign-in was not confirmed; try again.';
 
   @override
-  String get errorInsufficientCoins => 'Not enough coins for this reading. Your data is safe.';
+  String get errorInsufficientCoins =>
+      'Not enough coins for this reading. Your data is safe.';
 
   @override
-  String get errorSubscriptionRequired => 'This area opens with a subscription.';
+  String get errorSubscriptionRequired =>
+      'This area opens with a subscription.';
 }

@@ -20,10 +20,15 @@ import 'package:fortune_app/shared/providers/shared_providers.dart';
 String fakeJwt({required String sub, required String tid, required int exp}) {
   String b64(Map<String, Object> m) =>
       base64Url.encode(utf8.encode(json.encode(m))).replaceAll('=', '');
-  return '${b64({'alg': 'EdDSA', 'typ': 'JWT'})}.${b64({'sub': sub, 'tid': tid, 'exp': exp})}.sig';
+  return '${b64({'alg': 'EdDSA', 'typ': 'JWT'})}.${b64({
+        'sub': sub,
+        'tid': tid,
+        'exp': exp
+      })}.sig';
 }
 
-int inOneHour() => DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000;
+int inOneHour() =>
+    DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000;
 
 class _MemorySecureStorage implements SecureStorage {
   final Map<String, String> map = {};
@@ -71,7 +76,8 @@ class _FakeAuthRepository implements AuthRepository {
 AuthLogin _login({String userId = 'u1'}) => AuthLogin(
       accessToken: fakeJwt(sub: userId, tid: '42', exp: inOneHour()),
       expiresInSeconds: 3600,
-      session: AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
+      session:
+          AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
     );
 
 AppConfig _config({String? devInitData}) => AppConfig(
@@ -171,7 +177,10 @@ void main() {
       storage.map['auth.access_token'] = fakeJwt(
         sub: 'u-old',
         tid: '11',
-        exp: DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
+        exp: DateTime.now()
+                .subtract(const Duration(hours: 1))
+                .millisecondsSinceEpoch ~/
+            1000,
       );
       final c = make(
         repo: repo,

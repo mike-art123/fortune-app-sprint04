@@ -14,5 +14,6 @@ class ThemeModeRepository {
         _ => ThemeMode.dark, // product launches dark-first
       };
 
-  Future<void> save(ThemeMode mode) => _storage.setString(PrefKeys.themeMode, mode.name);
+  Future<void> save(ThemeMode mode) =>
+      _storage.setString(PrefKeys.themeMode, mode.name);
 }

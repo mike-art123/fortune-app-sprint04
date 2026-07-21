@@ -35,7 +35,8 @@ Widget host() {
     routes: [
       GoRoute(
         path: '/ritual/:fortuneId',
-        builder: (_, state) => RitualEntryPage(fortuneId: state.pathParameters['fortuneId']!),
+        builder: (_, state) =>
+            RitualEntryPage(fortuneId: state.pathParameters['fortuneId']!),
       ),
       GoRoute(
         path: '/reading/:readingId',

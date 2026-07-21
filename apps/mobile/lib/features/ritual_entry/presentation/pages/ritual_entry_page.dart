@@ -39,11 +39,12 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   }
 
   void _seal(FortuneDefinition fortune) {
-    final input = ref.read(ritualEntryControllerProvider(fortune.id).notifier).seal(
-          fortune: fortune,
-          primary: _primary.text,
-          secondary: _secondary.text,
-        );
+    final input =
+        ref.read(ritualEntryControllerProvider(fortune.id).notifier).seal(
+              fortune: fortune,
+              primary: _primary.text,
+              secondary: _secondary.text,
+            );
     if (input != null) {
       // Real submission: Ritual → POST /readings → Reading screen.
       ref.read(readingSubmissionControllerProvider.notifier).submit(input);
@@ -179,7 +180,9 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             child: FortuneButton(
               label: fortune.cta.resolve(locale),
               isLoading: submission is SubmissionInFlight,
-              onPressed: submission is SubmissionInFlight ? null : () => _seal(fortune),
+              onPressed: submission is SubmissionInFlight
+                  ? null
+                  : () => _seal(fortune),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -189,7 +192,8 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   }
 
   Widget _buildOffering(FortuneDefinition fortune, Locale locale) {
-    void soften() => ref.read(ritualEntryControllerProvider(fortune.id).notifier).soften();
+    void soften() =>
+        ref.read(ritualEntryControllerProvider(fortune.id).notifier).soften();
 
     switch (fortune.inputKind) {
       case FortuneInputKind.intention:

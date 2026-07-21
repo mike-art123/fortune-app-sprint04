@@ -75,7 +75,8 @@ class _HistoryList extends ConsumerWidget {
                     label: s.historyLoadMore,
                     variant: FortuneButtonVariant.text,
                     fullWidth: false,
-                    onPressed: () => ref.read(historyControllerProvider.notifier).loadMore(),
+                    onPressed: () =>
+                        ref.read(historyControllerProvider.notifier).loadMore(),
                   ),
           );
         }
@@ -85,7 +86,8 @@ class _HistoryList extends ConsumerWidget {
           duration: Duration(milliseconds: 220 + (index % 8) * 50),
           child: HistoryCard(
             reading: reading,
-            onOpen: () => context.push(AppRoutes.reading(reading.id), extra: reading),
+            onOpen: () =>
+                context.push(AppRoutes.reading(reading.id), extra: reading),
           ),
         );
       },

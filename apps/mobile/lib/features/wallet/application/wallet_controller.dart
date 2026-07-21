@@ -49,7 +49,8 @@ class WalletController extends AutoDisposeNotifier<WalletState> {
     final entitlementResult = await entitlementFuture;
 
     state = walletResult.fold(
-      onSuccess: (summary) => WalletLoaded(summary, entitlement: entitlementResult.valueOrNull),
+      onSuccess: (summary) =>
+          WalletLoaded(summary, entitlement: entitlementResult.valueOrNull),
       onFailure: WalletFailed.new,
     );
   }
@@ -64,6 +65,7 @@ final walletRepositoryProvider = Provider<WalletRepository>((ref) {
   return WalletRepositoryImpl(ref.watch(apiClientProvider));
 });
 
-final walletControllerProvider = NotifierProvider.autoDispose<WalletController, WalletState>(
+final walletControllerProvider =
+    NotifierProvider.autoDispose<WalletController, WalletState>(
   WalletController.new,
 );

@@ -51,7 +51,8 @@ class AppFailure {
       };
 
   /// Whether the session must be re-established.
-  bool get requiresReauth => kind == FailureKind.unauthorized || kind == FailureKind.forbidden;
+  bool get requiresReauth =>
+      kind == FailureKind.unauthorized || kind == FailureKind.forbidden;
 
   @override
   String toString() => 'AppFailure(${kind.name}, $messageKey, req=$requestId)';
