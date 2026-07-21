@@ -6,6 +6,6 @@ import type { ContextualRequest } from '../types/request-context';
 export const CurrentUser = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): AuthenticatedPrincipal | undefined => {
     const req = ctx.switchToHttp().getRequest<ContextualRequest>();
-    return req.ctx?.principal;
+    return req.ctx?.principal ?? req.principal;
   },
 );

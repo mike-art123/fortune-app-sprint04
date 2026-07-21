@@ -35,6 +35,10 @@ export class AuthGuard implements CanActivate {
         status: HttpStatus.UNAUTHORIZED,
       });
     }
+    // The request-context interceptor has not run yet (guards precede
+    // interceptors), so `req.ctx` is usually still undefined here. Stash the
+    // principal on the request itself; the interceptor copies it into ctx.
+    req.principal = principal;
     if (req.ctx) req.ctx.principal = principal;
     return true;
   }

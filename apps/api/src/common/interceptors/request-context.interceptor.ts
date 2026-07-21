@@ -25,6 +25,7 @@ export class RequestContextInterceptor implements NestInterceptor {
       appVersion: header(HEADER_CLIENT_VERSION),
       platform: header(HEADER_PLATFORM),
       isTelegram: header(HEADER_PLATFORM) === 'telegram',
+      principal: req.principal,
       startedAt: Date.now(),
     };
     req.ctx = ctx;

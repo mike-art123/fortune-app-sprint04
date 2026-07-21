@@ -154,11 +154,11 @@ class _ReadingView extends StatelessWidget {
                   // Every reading is already persisted server-side; "save" is
                   // the emotional confirmation, not a second write.
                   onPressed: () {
-                    ScaffoldMessenger.maybeOf(context)
-                      ?..clearSnackBars()
-                      ..showSnackBar(
-                        SnackBar(content: Text(s.savedToHistory)),
-                      );
+                    final messenger = ScaffoldMessenger.maybeOf(context);
+                    messenger?.clearSnackBars();
+                    messenger?.showSnackBar(
+                      SnackBar(content: Text(s.savedToHistory)),
+                    );
                   },
                 ),
               ),
@@ -168,11 +168,11 @@ class _ReadingView extends StatelessWidget {
                   label: s.actionShare,
                   variant: FortuneButtonVariant.secondary,
                   onPressed: () {
-                    ScaffoldMessenger.maybeOf(context)
-                      ?..clearSnackBars()
-                      ..showSnackBar(
-                        SnackBar(content: Text(s.comingSoonDetail)),
-                      );
+                    final messenger = ScaffoldMessenger.maybeOf(context);
+                    messenger?.clearSnackBars();
+                    messenger?.showSnackBar(
+                      SnackBar(content: Text(s.comingSoonDetail)),
+                    );
                   },
                 ),
               ),
