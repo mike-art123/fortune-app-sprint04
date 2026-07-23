@@ -1,0 +1,61 @@
+name: Deploy Web (Cloudflare Pages)
+
+# Builds the Flutter Web PRODUCTION flavor against the real Railway API and
+# publishes apps/mobile/build/web to Cloudflare Pages via Wrangler.
+#
+# Stays GREEN (job skipped) until the deploy is configured. To enable, set:
+#   - repo variable  API_BASE_URL              = https://<railway-api-domain>/api/v1
+#   - repo variable  TELEGRAM_BOT_USERNAME     = bakhtnegarbot        (optional)
+#   - repo secret    CLOUDFLARE_API_TOKEN      = <Pages: Edit token>
+#   - repo secret    CLOUDFLARE_ACCOUNT_ID     = <Cloudflare account id>
+# and create a Cloudflare Pages project named "bakhtnegar".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ vars.API_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+
+      - name: Install deps
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Generate localizations
+        working-directory: apps/mobile
+        run: flutter gen-l10n
+
+      - name: Build web (production flavor, real API URL)
+        working-directory: apps/mobile
+        run: >
+          flutter build web --release
+          -t lib/main_production.dart
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL }}
+          --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
+
+      - name: SPA routing fallback (deep links / refresh must not 404)
+        working-directory: apps/mobile
+        run: printf '/*    /index.html    200\n' > build/web/_redirects
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/mobile/build/web --project-name=bakhtnegar --branch=main
