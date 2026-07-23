@@ -22,4 +22,27 @@ describe('env schema', () => {
       /CORS/,
     );
   });
+
+  const productionBase = {
+    ...base,
+    NODE_ENV: 'production',
+    SWAGGER_ENABLED: 'false',
+    CORS_ALLOWED_ORIGINS: 'https://t.me',
+    TELEGRAM_BOT_TOKEN: '123456:AA-token',
+    JWT_PRIVATE_KEY: 'private',
+    JWT_PUBLIC_KEY: 'public',
+  };
+
+  it('production refuses to boot without an LLM endpoint (no mock readings in prod)', () => {
+    expect(() => validateEnv({ ...productionBase })).toThrow(/LLM_BASE_URL/);
+  });
+
+  it('accepts a complete production env once the LLM endpoint is configured', () => {
+    const complete = {
+      ...productionBase,
+      LLM_BASE_URL: 'https://api.openai.com/v1',
+      LLM_API_KEY: 'sk-real-key',
+    };
+    expect(() => validateEnv(complete)).not.toThrow();
+  });
 });

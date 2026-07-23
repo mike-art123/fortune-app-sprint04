@@ -86,6 +86,17 @@ export const envSchema = z
           path: ['JWT_PRIVATE_KEY'],
         });
       }
+      // Sprint 05 (doc 56): production must serve real AI readings. The mock
+      // provider is a graceful fallback only — never the primary generator in
+      // production. Booting without an LLM endpoint is refused, not silently
+      // downgraded to canned copy.
+      if (!env.LLM_BASE_URL || !env.LLM_API_KEY) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Production requires LLM_BASE_URL and LLM_API_KEY (no mock readings in prod).',
+          path: ['LLM_BASE_URL'],
+        });
+      }
     }
   });
 
