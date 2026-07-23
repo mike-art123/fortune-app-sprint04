@@ -1,5 +1,9 @@
 # Node
 node_modules/
+
+# Local-only production secrets staged for the operator to paste into Railway.
+# NEVER commit these.
+deploy-secrets/
 dist/
 coverage/
 *.log

@@ -1,0 +1,14 @@
+# Keep the API build context small and reproducible.
+**/node_modules
+.git
+.github
+apps/mobile
+brand
+docs
+deploy-secrets
+scripts
+*.md
+*.log
+apps/api/dist
+**/.dart_tool
+**/build
