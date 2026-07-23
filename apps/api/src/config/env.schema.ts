@@ -10,6 +10,10 @@ export const envSchema = z
     APP_NAME: z.string().default('fortune-api'),
     APP_HOST: z.string().default('0.0.0.0'),
     APP_PORT: z.coerce.number().int().positive().default(3000),
+    // Platform-injected bind port (Railway/Render/Heroku set PORT). When
+    // present it takes precedence over APP_PORT so the app listens where the
+    // platform routes traffic. Optional: local/CI fall back to APP_PORT.
+    PORT: z.coerce.number().int().positive().optional(),
     API_PREFIX: z.string().default('api'),
     API_VERSION: z.string().default('1'),
 

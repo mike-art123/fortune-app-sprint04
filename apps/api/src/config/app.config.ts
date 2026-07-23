@@ -22,7 +22,9 @@ export class AppConfig {
     return this.config.getOrThrow<string>('APP_HOST');
   }
   get port(): number {
-    return this.config.getOrThrow<number>('APP_PORT');
+    // Prefer the platform-injected PORT (Railway/Render/Heroku) so the server
+    // binds the port traffic is routed to; fall back to APP_PORT locally/CI.
+    return this.config.get<number>('PORT') ?? this.config.getOrThrow<number>('APP_PORT');
   }
   get apiPrefix(): string {
     return this.config.getOrThrow<string>('API_PREFIX');
