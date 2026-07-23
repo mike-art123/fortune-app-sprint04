@@ -18,6 +18,7 @@ RUN npm ci
 
 # ---- build: generate Prisma client + compile Nest to dist ----
 FROM node:20-alpine AS build
+RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -28,6 +29,7 @@ RUN npm --workspace apps/api run prisma:generate \
 
 # ---- runtime: small non-root image; migrate then start; bind $PORT ----
 FROM node:20-alpine AS runtime
+RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S app && adduser -S app -G app
