@@ -65,3 +65,7 @@ jobs:
       - run: cd apps/mobile && flutter gen-l10n
       - run: cd apps/mobile && flutter analyze
       - run: cd apps/mobile && flutter test
+      # Sprint 05: the Telegram Mini App ships as a web build. Compiling it here
+      # validates the js_interop bridge and the web/ target (analyze/test alone
+      # run on the VM and never exercise the web-only implementation).
+      - run: cd apps/mobile && flutter build web --release

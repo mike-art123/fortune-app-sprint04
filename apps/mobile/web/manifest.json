@@ -1,0 +1,12 @@
+{
+  "name": "Fortune",
+  "short_name": "Fortune",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0E0E12",
+  "theme_color": "#0E0E12",
+  "description": "A calm Telegram Mini App for reflective fortunes.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": []
+}

@@ -23,10 +23,10 @@ apps/mobile/pubspec.lock
 **/*.g.dart
 **/*.freezed.dart
 
-# Generated native shells (created by `flutter create .`)
+# Generated native shells (created by `flutter create .`). The web/ target is
+# committed (Sprint 05) — the Telegram Mini App ships as a web build.
 apps/mobile/android/
 apps/mobile/ios/
-apps/mobile/web/
 apps/mobile/macos/
 apps/mobile/linux/
 apps/mobile/windows/

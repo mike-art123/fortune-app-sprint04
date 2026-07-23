@@ -12,6 +12,7 @@ import '../../core/persistence/local_storage.dart';
 import '../../core/persistence/secure_storage.dart';
 import '../../core/persistence/storage_migrations.dart';
 import '../../core/platform/telegram_platform_bridge.dart';
+import '../../core/platform/telegram_bridge_factory.dart';
 import '../../app/localization/locale_controller.dart';
 
 /// Core infrastructure providers. Those that require async initialisation are
@@ -68,8 +69,8 @@ final sessionEventsProvider = Provider<SessionEvents>((ref) {
 });
 
 final telegramBridgeProvider = Provider<TelegramPlatformBridge>((ref) {
-  // Non-Telegram targets degrade gracefully; the web bridge lands with auth.
-  return const UnavailableTelegramBridge();
+  // Real Telegram WebApp bridge on web; a safe no-op on every other target.
+  return createTelegramBridge();
 });
 
 /// Internal — features must not read this. Use [apiClientProvider].
