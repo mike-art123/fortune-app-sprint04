@@ -248,7 +248,11 @@ class _FeaturedCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _Emblem(icon: _iconFor(fortune.id), accent: fortune.accent),
+            _Emblem(
+              id: fortune.id,
+              icon: _iconFor(fortune.id),
+              accent: fortune.accent,
+            ),
             const SizedBox(height: AppSpacing.xs),
             Text(
               fortune.title.resolve(locale),
@@ -275,13 +279,31 @@ class _FeaturedCard extends StatelessWidget {
 }
 
 class _Emblem extends StatelessWidget {
-  const _Emblem({required this.icon, required this.accent});
+  const _Emblem({
+    required this.id,
+    required this.icon,
+    required this.accent,
+  });
 
+  final String id;
   final IconData icon;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Image.asset(
+        'assets/fortunes/$id.jpg',
+        height: 84,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stack) => _fallback(),
+      ),
+    );
+  }
+
+  Widget _fallback() {
     return Container(
       height: 84,
       alignment: Alignment.center,
