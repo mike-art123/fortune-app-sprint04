@@ -20,9 +20,22 @@ import 'route_observer.dart';
 /// Central router (doc 51 §12). Deep-link ready: parameters are validated so a
 /// malformed link can never crash the app or reach the backend.
 final routerProvider = Provider<GoRouter>((ref) {
+  // GoRouter's redirect does not observe Riverpod. Without this bridge, a
+  // change in startup state (loading -> ready) never re-runs the guard, so the
+  // app stays on the splash ("Preparing…") forever even once startup has
+  // completed. A Listenable that ticks on every startup change forces the guard
+  // to re-evaluate and navigate to /explore the moment startup is ready.
+  final refresh = ValueNotifier<int>(0);
+  ref.onDispose(refresh.dispose);
+  ref.listen<AsyncValue<AppStartupState>>(
+    startupControllerProvider,
+    (_, __) => refresh.value++,
+  );
+
   return GoRouter(
     initialLocation: AppRoutes.splashPath,
     debugLogDiagnostics: false,
+    refreshListenable: refresh,
     observers: [AnalyticsRouteObserver(ref.watch(analyticsServiceProvider))],
     redirect: (context, state) {
       final startup = ref.read(startupControllerProvider).valueOrNull ??

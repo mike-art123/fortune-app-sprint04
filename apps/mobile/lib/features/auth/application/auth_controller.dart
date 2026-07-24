@@ -59,8 +59,7 @@ class AuthController extends Notifier<AuthState> {
     if (state is AuthInProgress) return;
     state = const AuthInProgress();
 
-    final tokens = ref.read(tokenStoreProvider);
-    final stored = await tokens.readAccessToken();
+    final stored = await _readStoredTokenSafely();
     if (stored != null && stored.isNotEmpty) {
       final claims = AccessTokenClaims.decode(stored);
       if (claims != null && claims.isFresh) {
@@ -69,7 +68,7 @@ class AuthController extends Notifier<AuthState> {
         );
         return;
       }
-      await tokens.clear();
+      await _runGuarded(() => ref.read(tokenStoreProvider).clear());
     }
 
     await _loginViaTelegram();
@@ -99,7 +98,8 @@ class AuthController extends Notifier<AuthState> {
         await ref.read(authRepositoryProvider).loginWithTelegram(initData);
     state = await result.fold(
       onSuccess: (login) async {
-        await ref.read(tokenStoreProvider).saveAccessToken(login.accessToken);
+        final store = ref.read(tokenStoreProvider);
+        await _runGuarded(() => store.saveAccessToken(login.accessToken));
         return Authenticated(login.session);
       },
       onFailure: (failure) async => Unauthenticated(_reasonFor(failure)),
@@ -128,6 +128,33 @@ class AuthController extends Notifier<AuthState> {
     if (seam != null && seam.isNotEmpty) return seam;
 
     return null;
+  }
+
+  /// Secure storage can hang or reject on some web engines (e.g. the Telegram
+  /// in-app browser). A stored token is only an optimisation, so a slow or
+  /// failed read is treated as "no session" and we fall through to a fresh
+  /// Telegram login. Without this bound the whole app can hang on the splash
+  /// before any API request is ever made.
+  Future<String?> _readStoredTokenSafely() async {
+    try {
+      return await ref
+          .read(tokenStoreProvider)
+          .readAccessToken()
+          .timeout(const Duration(seconds: 4));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Best-effort secure-storage write/clear that can never block the session
+  /// flow: a hang or failure is bounded and swallowed (persistence is a
+  /// convenience, never a gate).
+  Future<void> _runGuarded(Future<void> Function() op) async {
+    try {
+      await op().timeout(const Duration(seconds: 4));
+    } catch (_) {
+      // Intentionally ignored — see doc above.
+    }
   }
 
   UnauthenticatedReason _reasonFor(AppFailure failure) =>

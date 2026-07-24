@@ -12,11 +12,20 @@ class StartupController extends AsyncNotifier<AppStartupState> {
   @override
   Future<AppStartupState> build() async {
     try {
-      await ref.read(storageMigrationsProvider).run();
+      await ref
+          .read(storageMigrationsProvider)
+          .run()
+          .timeout(const Duration(seconds: 6), onTimeout: () {});
 
       // Sprint 04: establish the session before first navigation. A failed
       // login is a calm, valid outcome (Unauthenticated) — never a crash.
-      await ref.read(authControllerProvider.notifier).bootstrap();
+      // Hard cap so a stuck platform plugin (e.g. web secure storage) can never
+      // keep the app on the splash forever: on timeout we still proceed, and
+      // auth settles to a calm Unauthenticated/Authenticated state on its own.
+      await ref
+          .read(authControllerProvider.notifier)
+          .bootstrap()
+          .timeout(const Duration(seconds: 20), onTimeout: () {});
 
       // Fire-and-forget: telemetry failures must not affect startup.
       unawaited(ref.read(analyticsServiceProvider).track(const AppStarted()));
@@ -43,8 +52,14 @@ class StartupController extends AsyncNotifier<AppStartupState> {
   Future<void> retry() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(storageMigrationsProvider).run();
-      await ref.read(authControllerProvider.notifier).bootstrap();
+      await ref
+          .read(storageMigrationsProvider)
+          .run()
+          .timeout(const Duration(seconds: 6), onTimeout: () {});
+      await ref
+          .read(authControllerProvider.notifier)
+          .bootstrap()
+          .timeout(const Duration(seconds: 20), onTimeout: () {});
       return const StartupReady();
     });
   }
