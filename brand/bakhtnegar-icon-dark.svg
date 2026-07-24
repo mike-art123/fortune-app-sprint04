@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="بخت‌نگار app icon">
+  <title>بخت‌نگار — app icon (dark)</title>
+  <defs>
+    <radialGradient id="idNavy" cx="42%" cy="34%" r="82%">
+      <stop offset="0%" stop-color="#232a55"/>
+      <stop offset="46%" stop-color="#141a3d"/>
+      <stop offset="100%" stop-color="#080b1e"/>
+    </radialGradient>
+    <linearGradient id="idGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbeebf"/>
+      <stop offset="34%" stop-color="#eacb77"/>
+      <stop offset="64%" stop-color="#d3a84e"/>
+      <stop offset="100%" stop-color="#b07f2c"/>
+    </linearGradient>
+    <linearGradient id="idGoldSoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e9c46a" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#f3d98f"/>
+      <stop offset="100%" stop-color="#c99a45" stop-opacity="0.9"/>
+    </linearGradient>
+    <radialGradient id="idPurple" cx="50%" cy="46%" r="55%">
+      <stop offset="0%" stop-color="#8163c9" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#8163c9" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="idGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="idSoft" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <mask id="idCrescent">
+      <rect x="120" y="150" width="245" height="230" fill="#000"/>
+      <circle cx="236" cy="258" r="110" fill="#fff"/>
+      <circle cx="286" cy="236" r="99" fill="#000"/>
+    </mask>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#idNavy)"/>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#idPurple)"/>
+  <rect x="18" y="18" width="476" height="476" rx="96" fill="none" stroke="url(#idGold)" stroke-width="2" opacity="0.4"/>
+
+  <g fill="#f3d98f" opacity="0.5">
+    <circle cx="150" cy="150" r="2"/><circle cx="372" cy="168" r="1.7"/>
+    <circle cx="128" cy="286" r="1.8"/><circle cx="388" cy="330" r="2"/>
+  </g>
+
+  <ellipse cx="244" cy="256" rx="98" ry="106" fill="#e9c46a" opacity="0.2" filter="url(#idSoft)"/>
+
+  <g filter="url(#idGlow)">
+    <rect x="120" y="150" width="245" height="230" fill="url(#idGold)" mask="url(#idCrescent)"/>
+  </g>
+
+  <path filter="url(#idGlow)" fill="url(#idGold)" d="M318,184 C318,207.4 324.6,214 348,214 C324.6,214 318,220.6 318,244 C318,220.6 311.4,214 288,214 C311.4,214 318,207.4 318,184 Z"/>
+  <path fill="#fbeebf" opacity="0.95" d="M250,311 C250,319.58 252.42,322 261,322 C252.42,322 250,324.42 250,333 C250,324.42 247.58,322 239,322 C247.58,322 250,319.58 250,311 Z"/>
+  <path fill="#f3d98f" opacity="0.85" d="M356,255 C356,260.46 357.54,262 363,262 C357.54,262 356,263.54 356,269 C356,263.54 354.46,262 349,262 C354.46,262 356,260.46 356,255 Z"/>
+
+  <path d="M150,346 C232,312 322,354 374,298" fill="none" stroke="url(#idGoldSoft)" stroke-width="4.4" stroke-linecap="round" opacity="0.95"/>
+  <circle cx="374" cy="298" r="4" fill="#fbeebf"/>
+</svg>

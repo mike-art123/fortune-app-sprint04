@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 780" role="img" aria-label="بخت‌نگار logo">
+  <title>بخت‌نگار — premium logo (dark)</title>
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;700&amp;display=swap');</style>
+    <radialGradient id="dNavy" cx="42%" cy="34%" r="82%">
+      <stop offset="0%" stop-color="#20264f"/>
+      <stop offset="46%" stop-color="#121737"/>
+      <stop offset="100%" stop-color="#080b1e"/>
+    </radialGradient>
+    <linearGradient id="dGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbeebf"/>
+      <stop offset="34%" stop-color="#eacb77"/>
+      <stop offset="64%" stop-color="#d3a84e"/>
+      <stop offset="100%" stop-color="#b07f2c"/>
+    </linearGradient>
+    <linearGradient id="dGoldSoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e9c46a" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#f3d98f" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#c99a45" stop-opacity="0.9"/>
+    </linearGradient>
+    <radialGradient id="dPurple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8163c9" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#8163c9" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="dGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="dSoft" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <mask id="dCrescent">
+      <rect x="200" y="150" width="230" height="210" fill="#000"/>
+      <circle cx="300" cy="252" r="80" fill="#fff"/>
+      <circle cx="336" cy="236" r="72" fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- card -->
+  <rect x="0" y="0" width="640" height="780" rx="52" fill="url(#dNavy)"/>
+  <rect x="14" y="14" width="612" height="752" rx="42" fill="none" stroke="url(#dGold)" stroke-width="1.2" opacity="0.28"/>
+
+  <!-- badge -->
+  <circle cx="320" cy="252" r="156" fill="url(#dNavy)"/>
+  <circle cx="320" cy="252" r="156" fill="url(#dPurple)" opacity="0.6"/>
+  <circle cx="320" cy="252" r="152" fill="none" stroke="url(#dGold)" stroke-width="2" opacity="0.5"/>
+  <circle cx="320" cy="252" r="140" fill="none" stroke="#e9c46a" stroke-width="1" opacity="0.16"/>
+
+  <!-- faint stars -->
+  <g fill="#f3d98f" opacity="0.5">
+    <circle cx="250" cy="180" r="1.6"/><circle cx="392" cy="196" r="1.3"/>
+    <circle cx="228" cy="300" r="1.4"/><circle cx="404" cy="322" r="1.6"/>
+    <circle cx="330" cy="360" r="1.2"/>
+  </g>
+
+  <!-- soft glow behind crescent -->
+  <ellipse cx="306" cy="250" rx="70" ry="76" fill="#e9c46a" opacity="0.22" filter="url(#dSoft)"/>
+
+  <!-- crescent -->
+  <g filter="url(#dGlow)">
+    <rect x="200" y="150" width="230" height="210" fill="url(#dGold)" mask="url(#dCrescent)"/>
+  </g>
+
+  <!-- shining star cradled by the crescent -->
+  <path filter="url(#dGlow)" fill="url(#dGold)" d="M360,220 C360,238.5 364.6,243 383,243 C364.6,243 360,247.5 360,266 C360,247.5 355.4,243 337,243 C355.4,243 360,238.5 360,220 Z"/>
+  <path fill="#fbeebf" opacity="0.95" d="M302,300 C302,306.6 303.7,308 310,308 C303.7,308 302,309.7 302,316 C302,309.7 300.3,308 294,308 C300.3,308 302,306.6 302,300 Z"/>
+  <path fill="#f3d98f" opacity="0.9" d="M396,250 C396,254 397.1,255 401,255 C397.1,255 396,256 396,260 C396,256 394.9,255 391,255 C394.9,255 396,254 396,250 Z"/>
+
+  <!-- flowing 'negar' line: a single pen stroke suggesting writing / destiny -->
+  <path d="M238,322 C296,300 372,330 410,290" fill="none" stroke="url(#dGoldSoft)" stroke-width="3.4" stroke-linecap="round" opacity="0.95"/>
+  <circle cx="410" cy="290" r="3.1" fill="#fbeebf"/>
+
+  <!-- wordmark -->
+  <text x="320" y="560" text-anchor="middle" direction="rtl"
+        font-family="Vazirmatn, Tahoma, 'Segoe UI', sans-serif" font-weight="700"
+        font-size="104" fill="url(#dGold)" letter-spacing="1">بخت‌نگار</text>
+
+  <!-- latin subline -->
+  <text x="320" y="620" text-anchor="middle"
+        font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="400"
+        font-size="20" fill="#c9a24b" letter-spacing="11" opacity="0.85">B A K H T N E G A R</text>
+
+  <!-- divider dots -->
+  <g fill="#c9a24b" opacity="0.7">
+    <circle cx="292" cy="662" r="2"/><circle cx="320" cy="662" r="2.6"/><circle cx="348" cy="662" r="2"/>
+  </g>
+</svg>

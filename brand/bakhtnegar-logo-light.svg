@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 780" role="img" aria-label="بخت‌نگار logo">
+  <title>بخت‌نگار — premium logo (light)</title>
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;700&amp;display=swap');</style>
+    <radialGradient id="lIvory" cx="42%" cy="32%" r="85%">
+      <stop offset="0%" stop-color="#fbf6ea"/>
+      <stop offset="60%" stop-color="#f4ecd9"/>
+      <stop offset="100%" stop-color="#ece1c8"/>
+    </radialGradient>
+    <linearGradient id="lNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#243069"/>
+      <stop offset="55%" stop-color="#161d44"/>
+      <stop offset="100%" stop-color="#0d1330"/>
+    </linearGradient>
+    <linearGradient id="lGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6c264"/>
+      <stop offset="50%" stop-color="#cf9f43"/>
+      <stop offset="100%" stop-color="#a9782a"/>
+    </linearGradient>
+    <linearGradient id="lGoldSoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cf9f43" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#d8ab4d" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#a9782a" stop-opacity="0.95"/>
+    </linearGradient>
+    <mask id="lCrescent">
+      <rect x="200" y="150" width="230" height="210" fill="#000"/>
+      <circle cx="300" cy="252" r="80" fill="#fff"/>
+      <circle cx="336" cy="236" r="72" fill="#000"/>
+    </mask>
+  </defs>
+
+  <rect x="0" y="0" width="640" height="780" rx="52" fill="url(#lIvory)"/>
+  <rect x="14" y="14" width="612" height="752" rx="42" fill="none" stroke="url(#lGold)" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- badge -->
+  <circle cx="320" cy="252" r="156" fill="#ffffff" opacity="0.55"/>
+  <circle cx="320" cy="252" r="152" fill="none" stroke="url(#lNavy)" stroke-width="2" opacity="0.4"/>
+  <circle cx="320" cy="252" r="140" fill="none" stroke="url(#lGold)" stroke-width="1" opacity="0.4"/>
+
+  <!-- crescent -->
+  <rect x="200" y="150" width="230" height="210" fill="url(#lNavy)" mask="url(#lCrescent)"/>
+
+  <!-- star -->
+  <path fill="url(#lGold)" d="M360,220 C360,238.5 364.6,243 383,243 C364.6,243 360,247.5 360,266 C360,247.5 355.4,243 337,243 C355.4,243 360,238.5 360,220 Z"/>
+  <path fill="url(#lGold)" opacity="0.9" d="M302,300 C302,306.6 303.7,308 310,308 C303.7,308 302,309.7 302,316 C302,309.7 300.3,308 294,308 C300.3,308 302,306.6 302,300 Z"/>
+  <path fill="url(#lGold)" opacity="0.8" d="M396,250 C396,254 397.1,255 401,255 C397.1,255 396,256 396,260 C396,256 394.9,255 391,255 C394.9,255 396,254 396,250 Z"/>
+
+  <!-- flowing 'negar' line -->
+  <path d="M238,322 C296,300 372,330 410,290" fill="none" stroke="url(#lGoldSoft)" stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="410" cy="290" r="3.1" fill="#cf9f43"/>
+
+  <!-- wordmark -->
+  <text x="320" y="560" text-anchor="middle" direction="rtl"
+        font-family="Vazirmatn, Tahoma, 'Segoe UI', sans-serif" font-weight="700"
+        font-size="104" fill="url(#lNavy)" letter-spacing="1">بخت‌نگار</text>
+
+  <text x="320" y="620" text-anchor="middle"
+        font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="400"
+        font-size="20" fill="#a9782a" letter-spacing="11" opacity="0.9">B A K H T N E G A R</text>
+
+  <g fill="#a9782a" opacity="0.75">
+    <circle cx="292" cy="662" r="2"/><circle cx="320" cy="662" r="2.6"/><circle cx="348" cy="662" r="2"/>
+  </g>
+</svg>

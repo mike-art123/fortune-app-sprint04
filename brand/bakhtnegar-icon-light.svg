@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="بخت‌نگار app icon">
+  <title>بخت‌نگار — app icon (light)</title>
+  <defs>
+    <radialGradient id="ilIvory" cx="42%" cy="32%" r="85%">
+      <stop offset="0%" stop-color="#fbf6ea"/>
+      <stop offset="60%" stop-color="#f3ebd7"/>
+      <stop offset="100%" stop-color="#e8ddc2"/>
+    </radialGradient>
+    <linearGradient id="ilNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#243069"/>
+      <stop offset="55%" stop-color="#161d44"/>
+      <stop offset="100%" stop-color="#0d1330"/>
+    </linearGradient>
+    <linearGradient id="ilGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6c264"/>
+      <stop offset="50%" stop-color="#cf9f43"/>
+      <stop offset="100%" stop-color="#a9782a"/>
+    </linearGradient>
+    <linearGradient id="ilGoldSoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cf9f43" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#d8ab4d"/>
+      <stop offset="100%" stop-color="#a9782a" stop-opacity="0.95"/>
+    </linearGradient>
+    <mask id="ilCrescent">
+      <rect x="120" y="150" width="245" height="230" fill="#000"/>
+      <circle cx="236" cy="258" r="110" fill="#fff"/>
+      <circle cx="286" cy="236" r="99" fill="#000"/>
+    </mask>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#ilIvory)"/>
+  <rect x="18" y="18" width="476" height="476" rx="96" fill="none" stroke="url(#ilGold)" stroke-width="2" opacity="0.55"/>
+  <circle cx="256" cy="256" r="188" fill="#ffffff" opacity="0.45"/>
+
+  <rect x="120" y="150" width="245" height="230" fill="url(#ilNavy)" mask="url(#ilCrescent)"/>
+
+  <path fill="url(#ilGold)" d="M318,184 C318,207.4 324.6,214 348,214 C324.6,214 318,220.6 318,244 C318,220.6 311.4,214 288,214 C311.4,214 318,207.4 318,184 Z"/>
+  <path fill="url(#ilGold)" opacity="0.9" d="M250,311 C250,319.58 252.42,322 261,322 C252.42,322 250,324.42 250,333 C250,324.42 247.58,322 239,322 C247.58,322 250,319.58 250,311 Z"/>
+  <path fill="url(#ilGold)" opacity="0.8" d="M356,255 C356,260.46 357.54,262 363,262 C357.54,262 356,263.54 356,269 C356,263.54 354.46,262 349,262 C354.46,262 356,260.46 356,255 Z"/>
+
+  <path d="M150,346 C232,312 322,354 374,298" fill="none" stroke="url(#ilGoldSoft)" stroke-width="4.4" stroke-linecap="round"/>
+  <circle cx="374" cy="298" r="4" fill="#cf9f43"/>
+</svg>
