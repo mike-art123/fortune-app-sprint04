@@ -48,3 +48,8 @@ flutter:
   generate: true
   assets:
     - assets/fortunes/
+    - assets/icons/
+    - assets/symbols/
+    - assets/tarot/
+    - assets/bg/
+    - assets/store/

@@ -110,10 +110,20 @@ class ProfilePlaceholderPage extends StatelessWidget {
       glow: true,
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: AppPalette.gemDeep,
-            child: Icon(Icons.person, color: c.goldWarm, size: 32),
+          ClipOval(
+            child: Image.asset(
+              'assets/icons/avatar_default.jpg',
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stack) => Container(
+                width: 60,
+                height: 60,
+                color: AppPalette.gemDeep,
+                alignment: Alignment.center,
+                child: Icon(Icons.person, color: c.goldWarm, size: 32),
+              ),
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(

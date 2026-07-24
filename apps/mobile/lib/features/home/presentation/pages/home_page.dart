@@ -129,10 +129,20 @@ class _ProfileChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CircleAvatar(
-          radius: 17,
-          backgroundColor: AppPalette.gemDeep,
-          child: Icon(Icons.person, size: 18, color: c.goldWarm),
+        ClipOval(
+          child: Image.asset(
+            'assets/icons/avatar_default.jpg',
+            width: 34,
+            height: 34,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stack) => Container(
+              width: 34,
+              height: 34,
+              color: AppPalette.gemDeep,
+              alignment: Alignment.center,
+              child: Icon(Icons.person, size: 18, color: c.goldWarm),
+            ),
+          ),
         ),
         const SizedBox(width: AppSpacing.xs),
         Text(
