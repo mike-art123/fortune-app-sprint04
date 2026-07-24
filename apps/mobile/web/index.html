@@ -71,8 +71,10 @@
         }
       } catch (e) {}
       recompute();
-      // Fullscreen can settle a moment after launch; catch that too.
-      setTimeout(recompute, 300);
+      // Fullscreen / safe-area settle after launch on iOS; retry a few times.
+      [150, 400, 900, 1800].forEach(function (ms) {
+        setTimeout(recompute, ms);
+      });
     })();
   </script>
 </head>

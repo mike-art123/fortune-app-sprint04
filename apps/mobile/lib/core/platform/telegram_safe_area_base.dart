@@ -18,6 +18,15 @@ abstract class TelegramSafeArea extends ChangeNotifier {
   double get leftInset => _left;
   double get rightInset => _right;
 
+  bool _fullscreen = false;
+  bool _telegram = false;
+
+  /// Whether the Mini App is currently in Telegram fullscreen.
+  bool get isFullscreen => _fullscreen;
+
+  /// Whether we're inside Telegram with the safe-area API present.
+  bool get isTelegram => _telegram;
+
   /// Begin listening to Telegram viewport / safe-area events.
   void start();
 
@@ -38,7 +47,9 @@ abstract class TelegramSafeArea extends ChangeNotifier {
       top = 0;
     } else if (fullscreen) {
       final larger = safeTop > contentTop ? safeTop : contentTop;
-      top = larger + _breathingRoom;
+      // When Telegram reports nothing (a known iOS fullscreen bug) keep this at
+      // 0 so the widget can fall back to the real physical inset instead.
+      top = larger > 0 ? larger + _breathingRoom : 0;
     } else {
       top = contentTop;
     }
@@ -51,13 +62,17 @@ abstract class TelegramSafeArea extends ChangeNotifier {
     final changed = nextTop != _top ||
         nextBottom != _bottom ||
         nextLeft != _left ||
-        nextRight != _right;
+        nextRight != _right ||
+        fullscreen != _fullscreen ||
+        available != _telegram;
     if (!changed) return;
 
     _top = nextTop;
     _bottom = nextBottom;
     _left = nextLeft;
     _right = nextRight;
+    _fullscreen = fullscreen;
+    _telegram = available;
 
     if (kDebugMode) {
       debugPrint(

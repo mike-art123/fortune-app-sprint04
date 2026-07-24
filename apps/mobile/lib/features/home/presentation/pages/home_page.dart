@@ -81,11 +81,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Telegram fullscreen can draw the top bar under the Close/top controls.
-    // SafeArea already consumes MediaQuery.padding.top, so only add the EXTRA
-    // Telegram inset beyond it — never doubled, clamped to a sane range.
+    // Telegram fullscreen can draw the top bar under the Close controls /
+    // Dynamic Island. Prefer Telegram's reported inset; but Telegram iOS
+    // fullscreen often reports 0, so fall back to the real physical inset
+    // (viewPadding.top) with an iPhone floor. SafeArea already consumes
+    // MediaQuery.padding.top, so we add only the EXTRA beyond it (never
+    // doubled), clamped to a sane range.
     final mqTop = MediaQuery.paddingOf(context).top;
-    final extraTop = (_safeArea.topInset - mqTop).clamp(0.0, 160.0).toDouble();
+    final viewTop = MediaQuery.viewPaddingOf(context).top;
+    final tgTop = _safeArea.topInset;
+    final double desiredTop;
+    if (_safeArea.isTelegram && _safeArea.isFullscreen && tgTop <= 0.5) {
+      final floor = defaultTargetPlatform == TargetPlatform.iOS ? 47.0 : 0.0;
+      final physical = viewTop > floor ? viewTop : floor;
+      desiredTop = physical + 8;
+    } else {
+      desiredTop = tgTop;
+    }
+    final extraTop = (desiredTop - mqTop).clamp(0.0, 200.0).toDouble();
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
       bottomNavigationBar: PremiumBottomNavigation(
