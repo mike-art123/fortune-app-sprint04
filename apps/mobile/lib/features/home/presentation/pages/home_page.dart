@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/hero_banner.dart';
 import '../../../../design_system/components/luxury_card.dart';
@@ -22,8 +23,31 @@ import '../../../fortunes/domain/fortune_registry.dart';
 /// quick actions, popular fortunes and a daily-reward banner over a gold-edged
 /// dark canvas with the raised central «خانه» orb. Logic-free — it drives the
 /// existing fortune registry and routes; no backend contracts change.
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final _safeArea = telegramSafeArea;
+
+  @override
+  void initState() {
+    super.initState();
+    _safeArea.addListener(_onSafeAreaChanged);
+  }
+
+  @override
+  void dispose() {
+    _safeArea.removeListener(_onSafeAreaChanged);
+    super.dispose();
+  }
+
+  void _onSafeAreaChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _open(BuildContext context, FortuneDefinition fortune) {
     if (fortune.id == 'coffee') {
@@ -57,6 +81,11 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Telegram fullscreen can draw the top bar under the Close/top controls.
+    // SafeArea already consumes MediaQuery.padding.top, so only add the EXTRA
+    // Telegram inset beyond it — never doubled, clamped to a sane range.
+    final mqTop = MediaQuery.paddingOf(context).top;
+    final extraTop = (_safeArea.topInset - mqTop).clamp(0.0, 160.0).toDouble();
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
       bottomNavigationBar: PremiumBottomNavigation(
@@ -65,36 +94,41 @@ class HomePage extends StatelessWidget {
       ),
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          children: [
-            const _TopBar(),
-            const SizedBox(height: AppSpacing.md),
-            HeroBanner(
-              title: 'فال و اسرار زندگی',
-              subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
-              backgroundAsset: 'assets/bg/bg_hero.jpg',
-              action: PremiumButton(
-                label: 'نیت کن',
-                icon: Icons.auto_awesome,
-                onPressed: () => context.push(AppRoutes.ritual('hafez')),
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(top: extraTop),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            children: [
+              const _TopBar(),
+              const SizedBox(height: AppSpacing.md),
+              HeroBanner(
+                title: 'فال و اسرار زندگی',
+                subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
+                backgroundAsset: 'assets/bg/bg_hero.jpg',
+                action: PremiumButton(
+                  label: 'نیت کن',
+                  icon: Icons.auto_awesome,
+                  onPressed: () => context.push(AppRoutes.ritual('hafez')),
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _QuickActions(onTap: () => _soon(context)),
-            SectionTitle(
-              title: 'فال‌های محبوب',
-              actionLabel: 'مشاهده همه',
-              onAction: () => context.go(AppRoutes.allFortunesPath),
-            ),
-            _FeaturedRow(onOpen: (f) => _open(context, f)),
-            const SizedBox(height: AppSpacing.md),
-            _RewardBanner(onClaim: () => _soon(context)),
-            const SizedBox(height: AppSpacing.lg),
-          ],
+              const SizedBox(height: AppSpacing.md),
+              _QuickActions(onTap: () => _soon(context)),
+              SectionTitle(
+                title: 'فال‌های محبوب',
+                actionLabel: 'مشاهده همه',
+                onAction: () => context.go(AppRoutes.allFortunesPath),
+              ),
+              _FeaturedRow(onOpen: (f) => _open(context, f)),
+              const SizedBox(height: AppSpacing.md),
+              _RewardBanner(onClaim: () => _soon(context)),
+              const SizedBox(height: AppSpacing.lg),
+            ],
+          ),
         ),
       ),
     );

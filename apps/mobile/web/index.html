@@ -38,6 +38,43 @@
       } catch (e) {}
     })();
   </script>
+
+  <!-- Publish Telegram's safe-area insets to Flutter. Flutter reads
+       window.__tgSafeArea and rebuilds on the 'tg-safearea' event, so the top
+       header never hides under Telegram's Close/top controls in fullscreen.
+       Fully guarded: outside Telegram this never runs and Flutter sees nothing. -->
+  <script>
+    (function () {
+      function num(v) { return (typeof v === 'number' && isFinite(v)) ? v : 0; }
+      function recompute() {
+        try {
+          var wa = window.Telegram && window.Telegram.WebApp;
+          if (!wa) return;
+          var s = wa.safeAreaInset || {};
+          var c = wa.contentSafeAreaInset || {};
+          window.__tgSafeArea = {
+            top: num(s.top), bottom: num(s.bottom),
+            left: num(s.left), right: num(s.right),
+            contentTop: num(c.top), contentBottom: num(c.bottom),
+            fullscreen: !!wa.isFullscreen
+          };
+          window.dispatchEvent(new Event('tg-safearea'));
+        } catch (e) {}
+      }
+      try {
+        var wa = window.Telegram && window.Telegram.WebApp;
+        if (wa && typeof wa.onEvent === 'function') {
+          ['safeAreaChanged', 'contentSafeAreaChanged',
+           'viewportChanged', 'fullscreenChanged'].forEach(function (ev) {
+            wa.onEvent(ev, recompute);
+          });
+        }
+      } catch (e) {}
+      recompute();
+      // Fullscreen can settle a moment after launch; catch that too.
+      setTimeout(recompute, 300);
+    })();
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
