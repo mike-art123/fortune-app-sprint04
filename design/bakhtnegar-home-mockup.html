@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>بخت‌نگار — نمونهٔ صفحهٔ خانه</title>
+<style>
+  :root{
+    --bg:#05070f;
+    --card:#0d1732;
+    --card-2:#0a1128;
+    --gold-1:#F6DF9A; --gold-2:#D9A83E; --gold-3:#A9782A;
+    --gold-grad:linear-gradient(135deg,#F6DF9A 0%,#E7C25E 45%,#B9882F 100%);
+    --gold-border:rgba(214,175,80,.42);
+    --gold-border-strong:rgba(230,196,106,.75);
+    --ink:#ECE6D6; --muted:#9aa2bd; --muted-2:#6f78a0;
+    --gem:#a78bfa;
+    --r-card:20px; --r-chip:16px;
+    --glow-gold:0 0 22px rgba(214,175,80,.18);
+    --font: "Vazirmatn","IRANSans",Tahoma,"Segoe UI",Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:var(--font);display:flex;justify-content:center;
+    padding:24px 12px;color:var(--ink);-webkit-font-smoothing:antialiased}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+  /* ── phone frame ─────────────────────────────── */
+  .phone{width:412px;max-width:100%;background:
+      radial-gradient(120% 60% at 50% -8%, #16204a 0%, #0a1028 42%, var(--bg) 78%);
+    border-radius:38px;padding:14px 0 0;position:relative;overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(230,196,106,.10)}
+  .scroll{height:812px;overflow-y:auto;overflow-x:hidden;padding:0 14px 96px;
+    scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ── top bar ─────────────────────────────────── */
+  .topbar{display:flex;align-items:center;gap:8px;padding:6px 2px 12px}
+  .profile{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#111a38,#0c1329);
+    border:1px solid var(--gold-border);border-radius:999px;padding:4px 12px 4px 4px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:
+      radial-gradient(circle at 40% 30%,#6b5aa0,#2a2350);border:1.5px solid var(--gold-2);
+    display:grid;place-items:center;font-size:16px}
+  .profile .nm{font-size:13px;font-weight:700}
+  .profile .lv{font-size:9.5px;color:var(--gold-1);display:flex;gap:3px;align-items:center}
+  .pill{display:flex;align-items:center;gap:6px;background:linear-gradient(180deg,#121b3a,#0b1228);
+    border:1px solid var(--gold-border);border-radius:999px;padding:5px 8px;font-size:12.5px;font-weight:700}
+  .pill .plus{width:17px;height:17px;border-radius:50%;background:var(--gold-grad);color:#2a1c05;
+    display:grid;place-items:center;font-size:13px;font-weight:900;line-height:1}
+  .coin{color:#f4d98c} .gem{color:#c9b6ff}
+  .dot{width:16px;height:16px;border-radius:50%}
+  .vip{margin-inline-start:auto;display:flex;align-items:center;gap:6px;
+    background:linear-gradient(180deg,#20182e,#140f22);border:1px solid var(--gold-border-strong);
+    border-radius:14px;padding:6px 12px;box-shadow:var(--glow-gold)}
+  .vip b{background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:13px}
+  .vip small{font-size:9px;color:var(--muted)}
+  .menu{width:38px;height:38px;border-radius:12px;background:#0c1329;border:1px solid var(--gold-border);
+    display:grid;place-items:center;color:var(--gold-1);font-size:18px}
+
+  /* ── hero ────────────────────────────────────── */
+  .hero{position:relative;border-radius:24px;overflow:hidden;padding:26px 20px 22px;text-align:center;
+    background:
+      radial-gradient(90% 70% at 50% 0%, rgba(120,110,210,.30), transparent 60%),
+      radial-gradient(60% 40% at 15% 90%, rgba(230,150,40,.18), transparent 60%),
+      radial-gradient(60% 40% at 85% 90%, rgba(230,150,40,.18), transparent 60%),
+      linear-gradient(180deg,#1a2150 0%,#111741 45%,#0a1030 100%);
+    border:1px solid rgba(230,196,106,.35);
+    box-shadow:inset 0 0 40px rgba(6,10,30,.7), var(--glow-gold)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+      radial-gradient(2px 2px at 20% 30%,#fff,transparent),
+      radial-gradient(1.5px 1.5px at 70% 20%,#ffe9b0,transparent),
+      radial-gradient(1.5px 1.5px at 85% 45%,#fff,transparent),
+      radial-gradient(1.5px 1.5px at 35% 15%,#cfe,transparent);opacity:.5}
+  .moon{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:44px;height:44px;
+    border-radius:50%;box-shadow:14px 6px 0 0 #f3e6bf, 0 0 26px rgba(243,230,191,.5);background:transparent}
+  .skyline{position:absolute;left:0;right:0;bottom:64px;height:60px;opacity:.32;
+    background:repeating-linear-gradient(90deg,transparent 0 18px,#0a1030 18px 20px);
+    -webkit-mask:radial-gradient(14px 20px at 25% 100%,#000 60%,transparent 62%) 0 100%/40px 40px repeat-x;}
+  .lantern{position:absolute;bottom:16px;width:16px;height:26px;border-radius:8px;
+    background:radial-gradient(circle,#ffcf6e,#c8721f);box-shadow:0 0 18px rgba(255,180,70,.6)}
+  .lantern.l{left:14px} .lantern.r{right:14px}
+  .hero h1{position:relative;font-size:30px;line-height:1.5;font-weight:800;letter-spacing:.5px;
+    background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 2px 18px rgba(214,175,80,.25)}
+  .hero p{position:relative;color:#cdd3ea;font-size:12.5px;margin:6px 0 18px;opacity:.9}
+  .cta{position:relative;display:inline-flex;align-items:center;gap:8px;padding:12px 40px;border-radius:999px;
+    background:var(--gold-grad);color:#2a1c05;font-weight:800;font-size:15px;border:1px solid #f6e3a6;
+    box-shadow:0 8px 22px rgba(180,130,30,.45),inset 0 1px 0 rgba(255,255,255,.5)}
+
+  /* ── quick actions ───────────────────────────── */
+  .quick{display:flex;gap:8px;margin:14px 0 4px;overflow-x:auto;scrollbar-width:none}
+  .quick::-webkit-scrollbar{display:none}
+  .qa{flex:0 0 auto;min-width:88px;background:linear-gradient(180deg,#0f1834,#0a1024);
+    border:1px solid var(--gold-border);border-radius:14px;padding:10px 8px;text-align:center}
+  .qa.active{border-color:var(--gold-border-strong);box-shadow:var(--glow-gold);
+    background:linear-gradient(180deg,#1a1533,#120e26)}
+  .qa .ic{font-size:20px;line-height:1;margin-bottom:6px}
+  .qa .t{font-size:11.5px;font-weight:700;color:var(--gold-1)}
+  .qa .s{font-size:9px;color:var(--muted);margin-top:2px}
+
+  /* ── section head ────────────────────────────── */
+  .sec{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 12px}
+  .sec h2{font-size:16px;font-weight:800;color:#f0e4c2;
+    display:flex;align-items:center;gap:8px}
+  .sec h2::before{content:"";width:4px;height:18px;border-radius:2px;background:var(--gold-grad)}
+  .sec a{font-size:11px;color:var(--gold-2)}
+
+  /* ── featured row ────────────────────────────── */
+  .feat{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .feat::-webkit-scrollbar{display:none}
+  .fcard{flex:0 0 132px;border-radius:var(--r-card);padding:10px;text-align:center;
+    background:linear-gradient(180deg,#101a38 0%,#0a1126 100%);
+    border:1px solid var(--gold-border);box-shadow:inset 0 0 22px rgba(6,10,28,.6)}
+  .fart{height:96px;border-radius:14px;display:grid;place-items:center;font-size:44px;margin-bottom:8px;
+    background:radial-gradient(circle at 50% 35%,#1c264d,#0b1228);border:1px solid rgba(230,196,106,.22)}
+  .fcard .t{font-size:13.5px;font-weight:800;color:var(--gold-1)}
+  .fcard .s{font-size:9.5px;color:var(--muted);margin-top:3px}
+
+  /* ── grid ────────────────────────────────────── */
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+  .gcell{background:linear-gradient(180deg,#0f1732,#0a1024);border:1px solid var(--gold-border);
+    border-radius:14px;padding:9px 4px 8px;text-align:center}
+  .gcell .ic{font-size:21px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+  .gcell .t{font-size:9.5px;font-weight:700;color:#e7ddc2;margin-top:5px;line-height:1.3}
+  .gcell .s{font-size:7.5px;color:var(--muted-2);margin-top:1px}
+
+  /* ── coin banner ─────────────────────────────── */
+  .banner{margin-top:18px;border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;
+    background:
+      radial-gradient(80% 120% at 15% 50%,rgba(120,90,190,.35),transparent 60%),
+      linear-gradient(120deg,#241a44 0%,#141031 60%,#1c1436 100%);
+    border:1px solid rgba(230,196,106,.4);box-shadow:var(--glow-gold)}
+  .banner .chest{font-size:44px;filter:drop-shadow(0 4px 10px rgba(255,180,60,.4))}
+  .banner .tx{flex:1;text-align:center}
+  .banner .tx b{font-size:15px;color:#f2e6c0} .banner .tx p{font-size:10.5px;color:var(--muted);margin:3px 0 8px}
+  .banner .go{display:inline-flex;gap:6px;align-items:center;font-size:11px;color:var(--gold-1);
+    border:1px solid var(--gold-border);border-radius:999px;padding:5px 14px}
+
+  /* ── bottom nav ──────────────────────────────── */
+  .nav{position:absolute;left:0;right:0;bottom:0;height:78px;
+    background:linear-gradient(180deg,rgba(10,14,30,.6),#080c1c 40%);
+    border-top:1px solid rgba(230,196,106,.22);
+    display:flex;align-items:flex-end;justify-content:space-around;padding:0 14px 14px;backdrop-filter:blur(8px)}
+  .nv{flex:1;text-align:center;color:var(--muted);font-size:10px}
+  .nv .i{font-size:19px;display:block;margin-bottom:3px;opacity:.8}
+  .nv.on{color:var(--gold-1)}
+  .home{flex:0 0 66px;position:relative}
+  .orb{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);width:60px;height:60px;border-radius:50%;
+    background:radial-gradient(circle at 50% 40%,#c9a3ff 0%,#7c5cc4 45%,#3a2a6e 100%);
+    border:2px solid rgba(246,223,154,.8);display:grid;place-items:center;font-size:24px;
+    box-shadow:0 0 26px rgba(150,110,240,.6),0 10px 22px rgba(0,0,0,.5)}
+  .home .lbl{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);font-size:10px;color:var(--gold-1)}
+</style>
+</head>
+<body>
+<div class="phone">
+  <h2 class="sr-only">نمونهٔ صفحهٔ خانهٔ اپلیکیشن بخت‌نگار با تمِ لاکچریِ فارسی</h2>
+  <div class="scroll">
+
+    <!-- top bar -->
+    <div class="topbar">
+      <div class="profile">
+        <div class="avatar">👩🏻</div>
+        <div><div class="nm">نیلوفر</div><div class="lv">★ سطح: ستاره‌دار</div></div>
+      </div>
+      <div class="pill coin">۲۴۵۰ <span class="plus">+</span></div>
+      <div class="pill gem">۸۰ <span class="plus">+</span></div>
+      <div class="vip"><span style="font-size:15px">👑</span><span><b>VIP</b><br><small>باشگاه ویژه</small></span></div>
+      <div class="menu">☰</div>
+    </div>
+
+    <!-- hero -->
+    <div class="hero">
+      <div class="moon"></div><div class="skyline"></div>
+      <div class="lantern l"></div><div class="lantern r"></div>
+      <h1>فال و اسرار زندگی</h1>
+      <p>هر نیت: راهی‌ست به سوی یک پاسخ…</p>
+      <div class="cta">🪶 نیت کن</div>
+    </div>
+
+    <!-- quick actions -->
+    <div class="quick">
+      <div class="qa active"><div class="ic">📖</div><div class="t">استخاره</div><div class="s">قرآن و تسبیح</div></div>
+      <div class="qa"><div class="ic">🗓️</div><div class="t">تقویم معنوی</div><div class="s">مناسبت‌ها</div></div>
+      <div class="qa"><div class="ic">🍀</div><div class="t">شانس امروز</div><div class="s">عدد و رنگ</div></div>
+      <div class="qa"><div class="ic">🎁</div><div class="t">جایزهٔ روزانه</div><div class="s">سکهٔ رایگان</div></div>
+      <div class="qa"><div class="ic">🌙</div><div class="t">فال روزانه</div><div class="s">ویژهٔ امروز</div></div>
+    </div>
+
+    <!-- featured -->
+    <div class="sec"><h2>فال‌های محبوب</h2><a>مشاهده همه ›</a></div>
+    <div class="feat">
+      <div class="fcard"><div class="fart">📕</div><div class="t">فال حافظ</div><div class="s">با غزل حافظ</div></div>
+      <div class="fcard"><div class="fart">☕</div><div class="t">فال قهوه</div><div class="s">با تفسیر کامل</div></div>
+      <div class="fcard"><div class="fart">📜</div><div class="t">فال ابجد</div><div class="s">حروف و اعداد</div></div>
+      <div class="fcard"><div class="fart">❤️</div><div class="t">فال عشق</div><div class="s">روابط عاطفی</div></div>
+      <div class="fcard"><div class="fart">🃏</div><div class="t">تاروت</div><div class="s">کارت‌های تاروت</div></div>
+      <div class="fcard"><div class="fart">🌛</div><div class="t">تعبیر خواب</div><div class="s">معنی رویاها</div></div>
+    </div>
+
+    <!-- other fortunes grid -->
+    <div class="sec"><h2>سایر فال‌ها</h2><a>مشاهده همه ›</a></div>
+    <div class="grid">
+      <div class="gcell"><div class="ic">🔮</div><div class="t">بله یا خیر</div><div class="s">پاسخ سریع</div></div>
+      <div class="gcell"><div class="ic">💍</div><div class="t">فال ازدواج</div><div class="s">آیندهٔ ازدواج</div></div>
+      <div class="gcell"><div class="ic">👶</div><div class="t">فال فرزند</div><div class="s">فرزند داری؟</div></div>
+      <div class="gcell"><div class="ic">💼</div><div class="t">فال شغل</div><div class="s">آیندهٔ کاری</div></div>
+      <div class="gcell"><div class="ic">💰</div><div class="t">فال مالی</div><div class="s">ثروت و پول</div></div>
+      <div class="gcell"><div class="ic">🧭</div><div class="t">فال سفر</div><div class="s">سفر در راه؟</div></div>
+      <div class="gcell"><div class="ic">🧶</div><div class="t">فال دوستی</div><div class="s">دوستان واقعی</div></div>
+      <div class="gcell"><div class="ic">💔</div><div class="t">فال جدایی</div><div class="s">پایانِ رابطه؟</div></div>
+      <div class="gcell"><div class="ic">🕊️</div><div class="t">فال آشتی</div><div class="s">بازگشت او</div></div>
+      <div class="gcell"><div class="ic">✉️</div><div class="t">فال پیام</div><div class="s">پیام در راه</div></div>
+      <div class="gcell"><div class="ic">⏳</div><div class="t">فال آینده</div><div class="s">در انتظارِ من</div></div>
+      <div class="gcell"><div class="ic">🕯️</div><div class="t">فال نیت</div><div class="s">نیتِ قلبی</div></div>
+      <div class="gcell"><div class="ic">♈</div><div class="t">ماه تولد</div><div class="s">طالع و شخصیت</div></div>
+      <div class="gcell"><div class="ic">🔢</div><div class="t">عدد شانس</div><div class="s">اعدادِ خوش‌یمن</div></div>
+      <div class="gcell"><div class="ic">🎨</div><div class="t">رنگ شانس</div><div class="s">رنگِ امروز</div></div>
+      <div class="gcell"><div class="ic">💎</div><div class="t">سنگ شانس</div><div class="s">سنگِ متولدین</div></div>
+      <div class="gcell"><div class="ic">🌸</div><div class="t">گل شانس</div><div class="s">گلِ مخصوص</div></div>
+      <div class="gcell"><div class="ic">🧿</div><div class="t">طلسم روزانه</div><div class="s">حفاظت و انرژی</div></div>
+      <div class="gcell"><div class="ic">🍵</div><div class="t">فال چای</div><div class="s">برگ‌های چای</div></div>
+      <div class="gcell"><div class="ic">🪞</div><div class="t">فال آینه</div><div class="s">آینهٔ آینده</div></div>
+    </div>
+
+    <!-- coin banner -->
+    <div class="banner">
+      <div class="chest">💰</div>
+      <div class="tx"><b>بسته‌های سکه</b><p>سکهٔ بیشتر، فال‌های بیشتر!</p><span class="go">مشاهده بسته‌ها ›</span></div>
+      <div class="chest">🪙</div>
+    </div>
+  </div>
+
+  <!-- bottom nav -->
+  <div class="nav">
+    <div class="nv"><span class="i">👤</span>پروفایل</div>
+    <div class="nv"><span class="i">🃏</span>فال‌ها</div>
+    <div class="home"><div class="orb">🔮</div><div class="lbl">خانه</div></div>
+    <div class="nv"><span class="i">📖</span>تاریخچه</div>
+    <div class="nv"><span class="i">⋯</span>بیشتر</div>
+  </div>
+</div>
+</body>
+</html>

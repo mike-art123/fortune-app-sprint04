@@ -34,6 +34,18 @@ abstract final class AppPalette {
   static const warning = Color(0xFFD9A441);
   static const error = Color(0xFFC2566A);
   static const info = Color(0xFF5A86C7);
+
+  // ── Luxury redesign primitives (BakhtNegar premium reference). Additive:
+  // existing semantic roles are unchanged so current screens keep working.
+  static const goldHi = Color(0xFFF6DF9A);
+  static const goldBright = Color(0xFFE7C25E);
+  static const goldMid = Color(0xFFD9A83E);
+  static const goldDeep = Color(0xFFA9782A);
+  static const nightDeep = Color(0xFF05070F);
+  static const nightPanel = Color(0xFF0D1732);
+  static const nightGlow = Color(0xFF16204A);
+  static const gem = Color(0xFFA78BFA);
+  static const gemDeep = Color(0xFF7C5CC4);
 }
 
 /// Per-fortune accent colours. One dominant accent per screen (Visual Report).
