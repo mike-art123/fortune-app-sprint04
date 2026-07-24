@@ -11,14 +11,31 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../domain/fortune_catalog.dart';
 
+/// Fortunes that open a real content screen (a guide) instead of a live
+/// ritual reading. These are never «به‌زودی» — they lead somewhere real.
+const _guidedIds = {'coffee', 'elements'};
+
+String? _guidePathFor(String id) {
+  switch (id) {
+    case 'coffee':
+      return AppRoutes.coffeePath;
+    case 'elements':
+      return AppRoutes.elementsPath;
+    default:
+      return null;
+  }
+}
+
 /// «همه فال‌ها» — the full browse grid. Every fortune has a real illustrated
-/// card; the four backend-backed ones open the ritual, the rest are «به‌زودی».
+/// card; live ones open the ritual, guided ones open a content screen, and the
+/// rest are honest «به‌زودی».
 class AllFortunesPage extends StatelessWidget {
   const AllFortunesPage({super.key});
 
   void _open(BuildContext context, FortuneItem item) {
-    if (item.$1 == 'coffee') {
-      context.push(AppRoutes.coffeePath);
+    final guide = _guidePathFor(item.$1);
+    if (guide != null) {
+      context.push(guide);
       return;
     }
     if (item.$4) {
@@ -92,6 +109,7 @@ class _CatalogCard extends StatelessWidget {
     final title = item.$2;
     final subtitle = item.$3;
     final live = item.$4;
+    final openable = live || _guidedIds.contains(id);
     return LuxuryCard(
       onTap: onTap,
       padding: const EdgeInsets.all(AppSpacing.xs),
@@ -120,12 +138,12 @@ class _CatalogCard extends StatelessWidget {
             ),
           ),
           Text(
-            live ? subtitle : 'به‌زودی',
+            openable ? subtitle : 'به‌زودی',
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: live ? c.textMuted : c.warning,
+              color: openable ? c.textMuted : c.warning,
               fontSize: 9,
             ),
           ),

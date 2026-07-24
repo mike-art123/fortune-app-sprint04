@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/fortunes/presentation/pages/all_fortunes_page.dart';
 import '../../features/fortunes/presentation/pages/coffee_guide_page.dart';
+import '../../features/fortunes/presentation/pages/elements_guide_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/profile/presentation/pages/profile_placeholder_page.dart';
@@ -68,6 +69,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.coffeePath,
         name: AppRoutes.coffeeName,
         builder: (_, __) => const CoffeeGuidePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.elementsPath,
+        name: AppRoutes.elementsName,
+        builder: (_, __) => const ElementsGuidePage(),
       ),
       GoRoute(
         path: AppRoutes.explorePath,
