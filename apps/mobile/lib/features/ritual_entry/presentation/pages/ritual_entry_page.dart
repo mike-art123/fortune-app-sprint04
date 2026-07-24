@@ -120,6 +120,13 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             child: _buildOffering(fortune, locale),
           ),
 
+          // Dream only: golden theme emblems that seed the whisper with a
+          // starting word — inspiration, never a dead ornament.
+          if (fortune.id == 'dream') ...[
+            const SizedBox(height: AppSpacing.md),
+            _DreamCategories(onPick: _appendTopic),
+          ],
+
           // Gentle guidance — neutral tone, no red, no blame.
           if (state.guidance != null) ...[
             const SizedBox(height: AppSpacing.md),
@@ -232,6 +239,15 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     }
   }
 
+  // Seed the dream whisper with a chosen theme word, keeping the caret at the
+  // end so the person simply keeps writing.
+  void _appendTopic(String label) {
+    final existing = _primary.text.trim();
+    final next = existing.isEmpty ? label : '$existing $label';
+    _primary.text = next;
+    _primary.selection = TextSelection.collapsed(offset: next.length);
+  }
+
   // At rest the moon holds the gaze; while the reading is sealing, the golden
   // orb takes its place. Both fall back to the moon if the art can't load.
   Widget _anchor(bool loading, FortuneDefinition fortune) {
@@ -296,6 +312,61 @@ class _RitualBackdrop extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A horizontal band of golden dream-theme emblems. Tapping one seeds the
+/// whisper with that theme word via [onPick] — decorative and useful at once.
+class _DreamCategories extends StatelessWidget {
+  const _DreamCategories({required this.onPick});
+
+  final void Function(String label) onPick;
+
+  static const _items = [
+    ('dc_nature', 'طبیعت'),
+    ('dc_objects', 'اشیا'),
+    ('dc_animals', 'حیوانات'),
+    ('dc_people', 'افراد'),
+    ('dc_emotions', 'احساسات'),
+    ('dc_events', 'حوادث'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.fortuneColors;
+    final textTheme = Theme.of(context).textTheme;
+    return SizedBox(
+      height: 84,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _items.length,
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+        itemBuilder: (context, i) {
+          final item = _items[i];
+          return GestureDetector(
+            onTap: () => onPick(item.$2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    'assets/dream/${item.$1}.jpg',
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stack) =>
+                        Icon(Icons.auto_awesome, color: c.goldWarm, size: 30),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(item.$2, style: textTheme.labelSmall),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
