@@ -1,0 +1,26 @@
+# Cloudflare Pages headers. Force the correct Content-Type at the edge so the
+# document is always RENDERED as HTML/JS, never offered as a download.
+# Flutter copies this file into build/web alongside index.html.
+
+/
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: no-store
+
+/index.html
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: no-store
+
+/flutter_bootstrap.js
+  Content-Type: text/javascript; charset=utf-8
+
+/flutter_service_worker.js
+  Content-Type: text/javascript; charset=utf-8
+
+/main.dart.js
+  Content-Type: text/javascript; charset=utf-8
+
+/manifest.json
+  Content-Type: application/manifest+json; charset=utf-8
+
+/version.json
+  Content-Type: application/json; charset=utf-8
