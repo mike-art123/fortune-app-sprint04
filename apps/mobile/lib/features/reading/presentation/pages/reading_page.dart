@@ -5,9 +5,10 @@ import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../design_system/components/fortune_button.dart';
-import '../../../../design_system/components/fortune_divider.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
+import '../../../../design_system/components/gold_border_container.dart';
+import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
@@ -85,7 +86,6 @@ class _ReadingView extends StatelessWidget {
 
     final locale = Localizations.localeOf(context);
     final fortune = FortuneRegistry.byId(current.fortuneId);
-    final accent = fortune?.accent ?? c.accentSecondary;
     final textTheme = Theme.of(context).textTheme;
 
     return FortuneScaffold(
@@ -96,18 +96,19 @@ class _ReadingView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
 
-          // A thin accent line — the illumination mark, never a gold fill.
+          // Hero illustration for this fortune (absent asset falls back away).
           FortuneFadeIn(
-            child: Center(
-              child: Container(
-                width: 56,
-                height: 2,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(1),
-                ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              child: Image.asset(
+                'assets/fortunes/${current.fortuneId}.jpg',
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) =>
+                    const SizedBox.shrink(),
               ),
             ),
           ),
@@ -130,19 +131,19 @@ class _ReadingView extends StatelessWidget {
               style: textTheme.labelMedium?.copyWith(color: c.textMuted),
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
 
-          // Long-form reading body: generous line height, reading-first.
+          // Long-form reading body in a premium gold-edged card.
           FortuneFadeIn(
             duration: const Duration(milliseconds: 640),
-            child: Text(
-              current.text,
-              style: textTheme.bodyLarge?.copyWith(height: 2.0),
+            child: GoldBorderContainer(
+              child: Text(
+                current.text,
+                style: textTheme.bodyLarge?.copyWith(height: 2.0),
+              ),
             ),
           ),
 
-          const SizedBox(height: AppSpacing.xl),
-          const FortuneDivider(),
           const SizedBox(height: AppSpacing.lg),
 
           Row(
