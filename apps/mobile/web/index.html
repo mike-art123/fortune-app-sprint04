@@ -21,6 +21,23 @@
   <!-- Telegram WebApp SDK: exposes window.Telegram.WebApp (initData, etc.).
        Loaded before Flutter so the bridge sees it at startup. -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Open at full size the instant the Mini App launches: expand to full
+       height on every client, and request true edge-to-edge fullscreen on
+       clients that support it (Bot API 8.0+). Guarded so older Telegram
+       clients — and opening the page outside Telegram — are unaffected. -->
+  <script>
+    (function () {
+      try {
+        var wa = window.Telegram && window.Telegram.WebApp;
+        if (!wa) return;
+        if (typeof wa.expand === 'function') wa.expand();
+        if (typeof wa.requestFullscreen === 'function') {
+          try { wa.requestFullscreen(); } catch (e) {}
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
