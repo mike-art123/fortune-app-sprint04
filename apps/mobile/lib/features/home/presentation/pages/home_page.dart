@@ -72,6 +72,7 @@ class HomePage extends StatelessWidget {
             HeroBanner(
               title: 'فال و اسرار زندگی',
               subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
+              backgroundAsset: 'assets/bg/bg_hero.jpg',
               action: PremiumButton(
                 label: 'نیت کن',
                 icon: Icons.auto_awesome,
