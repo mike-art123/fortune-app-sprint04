@@ -56,9 +56,15 @@ abstract final class EnvironmentLoader {
     );
   }
 
+  /// Production always talks to the live Railway API. The deploy workflow also
+  /// passes API_BASE_URL explicitly; this is the safe fallback so a production
+  /// build can never silently point at a placeholder host.
+  static const _prodBaseUrl =
+      'https://fortune-app-sprint04-production.up.railway.app/api/v1';
+
   static String _defaultBaseUrl(AppFlavor flavor) => switch (flavor) {
         AppFlavor.development => 'http://localhost:3000/api/v1',
         AppFlavor.staging => 'https://staging.api.example.com/v1',
-        AppFlavor.production => 'https://api.example.com/v1',
+        AppFlavor.production => _prodBaseUrl,
       };
 }
