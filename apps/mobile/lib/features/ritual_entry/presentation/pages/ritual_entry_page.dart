@@ -88,37 +88,17 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     return FortuneScaffold(
       appBar: AppBar(title: Text(fortune.title.resolve(locale))),
       scrollable: true,
+      background: const _RitualBackdrop(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: AppSpacing.xl),
 
-          // The moon — the shared still anchor of every ritual.
+          // The still anchor: a moon at rest, the glowing orb while sealing.
           FortuneFadeIn(
             duration: pace.enter,
             child: Center(
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      fortune.accent.withValues(alpha: 0.28),
-                      fortune.accent.withValues(alpha: 0.04),
-                    ],
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: fortune.accent.withValues(alpha: 0.85),
-                  ),
-                ),
-              ),
+              child: _anchor(submission is SubmissionInFlight, fortune),
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -250,5 +230,72 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
         // Guarded above by `isAvailable`; unreachable in Sprint 01.
         return const SizedBox.shrink();
     }
+  }
+
+  // At rest the moon holds the gaze; while the reading is sealing, the golden
+  // orb takes its place. Both fall back to the moon if the art can't load.
+  Widget _anchor(bool loading, FortuneDefinition fortune) {
+    if (loading) {
+      return Image.asset(
+        'assets/misc/loading_orb.jpg',
+        width: 72,
+        height: 72,
+        errorBuilder: (context, error, stack) => _moon(fortune),
+      );
+    }
+    return _moon(fortune);
+  }
+
+  Widget _moon(FortuneDefinition fortune) {
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            fortune.accent.withValues(alpha: 0.28),
+            fortune.accent.withValues(alpha: 0.04),
+          ],
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Container(
+        width: 26,
+        height: 26,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: fortune.accent.withValues(alpha: 0.85),
+        ),
+      ),
+    );
+  }
+}
+
+/// Full-bleed candlelit backdrop for the ritual, dimmed by a scrim so the
+/// calm text and whisper field stay perfectly readable.
+class _RitualBackdrop extends StatelessWidget {
+  const _RitualBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            'assets/bg/bg_ritual.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+          ),
+        ),
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.55),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -13,6 +13,7 @@ class FortuneScaffold extends StatelessWidget {
     this.scrollable = false,
     this.padding,
     this.constrainWidth = true,
+    this.background,
   });
 
   final Widget child;
@@ -20,6 +21,10 @@ class FortuneScaffold extends StatelessWidget {
   final bool scrollable;
   final EdgeInsetsGeometry? padding;
   final bool constrainWidth;
+
+  /// Optional full-bleed layer painted behind the body (below the app bar).
+  /// Null keeps the plain solid background — existing pages are unaffected.
+  final Widget? background;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +44,22 @@ class FortuneScaffold extends StatelessWidget {
           )
         : content;
 
+    Widget body = SafeArea(
+      child: scrollable ? SingleChildScrollView(child: bounded) : bounded,
+    );
+    final bg = background;
+    if (bg != null) {
+      body = Stack(
+        children: [Positioned.fill(child: bg), body],
+      );
+    }
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: context.fortuneColors.backgroundPrimary,
         appBar: appBar,
-        body: SafeArea(
-          child: scrollable ? SingleChildScrollView(child: bounded) : bounded,
-        ),
+        body: body,
       ),
     );
   }
