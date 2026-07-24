@@ -147,6 +147,16 @@ class _WalletView extends StatelessWidget {
         const FortuneDivider(),
         const SizedBox(height: AppSpacing.md),
 
+        // Coin & gem packs — honest storefront: art is real, purchase is
+        // «به‌زودی» until the in-app-purchase backend lands.
+        Text('سکه و جم بیشتر', style: textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        const _StorePacks(),
+
+        const SizedBox(height: AppSpacing.lg),
+        const FortuneDivider(),
+        const SizedBox(height: AppSpacing.md),
+
         Text(s.walletHistoryTitle, style: textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
 
@@ -160,6 +170,73 @@ class _WalletView extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Two rows of coin/gem packs. Tapping any pack is honest: the art is final,
+/// but purchase is «به‌زودی» until in-app-purchase ships. No dead cards.
+class _StorePacks extends StatelessWidget {
+  const _StorePacks();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: _card(context, 'coin_pack_s', 'کوچک')),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(child: _card(context, 'coin_pack_m', 'متوسط')),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(child: _card(context, 'coin_pack_l', 'بزرگ')),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Row(
+          children: [
+            Expanded(child: _card(context, 'gem_pack_s', 'کوچک')),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(child: _card(context, 'gem_pack_m', 'متوسط')),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(child: _card(context, 'gem_pack_l', 'بزرگ')),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _card(BuildContext context, String id, String tier) {
+    final c = context.fortuneColors;
+    final textTheme = Theme.of(context).textTheme;
+    return GestureDetector(
+      onTap: () => ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        const SnackBar(
+          content: Text('خریدِ درون‌برنامه‌ای به‌زودی فعال می‌شود'),
+        ),
+      ),
+      child: FortuneCard(
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/store/$id.jpg',
+                height: 52,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) =>
+                    Icon(Icons.savings, color: c.goldWarm, size: 36),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(tier, style: textTheme.labelSmall),
+            Text(
+              context.strings.comingSoon,
+              style: textTheme.labelSmall?.copyWith(color: c.textMuted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
