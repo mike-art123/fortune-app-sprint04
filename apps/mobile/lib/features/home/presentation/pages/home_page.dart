@@ -26,6 +26,10 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   void _open(BuildContext context, FortuneDefinition fortune) {
+    if (fortune.id == 'coffee') {
+      context.push(AppRoutes.coffeePath);
+      return;
+    }
     if (!fortune.isAvailable) {
       _soon(context);
       return;

@@ -17,6 +17,10 @@ class AllFortunesPage extends StatelessWidget {
   const AllFortunesPage({super.key});
 
   void _open(BuildContext context, FortuneItem item) {
+    if (item.$1 == 'coffee') {
+      context.push(AppRoutes.coffeePath);
+      return;
+    }
     if (item.$4) {
       context.push(AppRoutes.ritual(item.$1));
     } else {
