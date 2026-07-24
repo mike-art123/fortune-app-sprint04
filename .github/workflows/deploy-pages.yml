@@ -1,8 +1,14 @@
 name: Deploy Web (Cloudflare Pages)
 
 # Builds the Flutter Web PRODUCTION flavor against the live Railway API and
-# publishes apps/mobile/build/web to the Cloudflare Pages project "bakhtnegar"
-# via Wrangler.
+# publishes apps/mobile/build/web to the Cloudflare Pages project
+# "fortune-app-sprint04" (the project the app.bakhtnegar.com custom domain is
+# attached to) via Wrangler — the single source of truth for deployments.
+#
+# IMPORTANT: that Pages project must be DIRECT-UPLOAD (its GitHub auto-build
+# disconnected). Cloudflare's native Git build has no Flutter SDK and produces
+# a broken (text) deployment; Wrangler cannot publish to a Git-connected
+# project. One method only: this workflow.
 #
 # Stays GREEN (job skipped) until Cloudflare creds are present. To enable:
 #   - repo VARIABLE  CLOUDFLARE_ACCOUNT_ID   = <your Cloudflare account id>   (gates the job)
@@ -10,7 +16,8 @@ name: Deploy Web (Cloudflare Pages)
 # Optional overrides (sensible defaults are baked in below):
 #   - repo VARIABLE  API_BASE_URL            = https://<api-domain>/api/v1
 #   - repo VARIABLE  TELEGRAM_BOT_USERNAME   = bakhtnegarbot
-# A Cloudflare Pages project named "bakhtnegar" must exist.
+# A Cloudflare Pages project named "fortune-app-sprint04" must exist as a
+# Direct-Upload project (GitHub auto-build disconnected).
 
 on:
   push:
@@ -62,4 +69,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/mobile/build/web --project-name=bakhtnegar --branch=main
+          command: pages deploy apps/mobile/build/web --project-name=fortune-app-sprint04 --branch=main
