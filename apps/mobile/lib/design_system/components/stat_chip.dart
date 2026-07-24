@@ -15,12 +15,16 @@ class StatChip extends StatelessWidget {
     required this.value,
     this.label,
     this.iconColor,
+    this.asset,
   });
 
   final IconData icon;
   final String value;
   final String? label;
   final Color? iconColor;
+
+  /// Optional leading image asset; falls back to [icon] if it fails to load.
+  final String? asset;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +42,16 @@ class StatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: iconColor ?? c.goldWarm),
+          if (asset != null)
+            Image.asset(
+              asset!,
+              width: 18,
+              height: 18,
+              errorBuilder: (context, error, stack) =>
+                  Icon(icon, size: 16, color: iconColor ?? c.goldWarm),
+            )
+          else
+            Icon(icon, size: 16, color: iconColor ?? c.goldWarm),
           const SizedBox(width: AppSpacing.xxs),
           Text(
             value,

@@ -106,12 +106,17 @@ class _TopBar extends StatelessWidget {
       children: [
         const _ProfileChip(),
         const Spacer(),
-        const StatChip(icon: Icons.monetization_on, value: '۲۴۵۰'),
+        const StatChip(
+          icon: Icons.monetization_on,
+          value: '۲۴۵۰',
+          asset: 'assets/icons/icon_coin.jpg',
+        ),
         const SizedBox(width: AppSpacing.xs),
         const StatChip(
           icon: Icons.diamond,
           value: '۸۰',
           iconColor: AppPalette.gem,
+          asset: 'assets/icons/icon_gem.jpg',
         ),
         const SizedBox(width: AppSpacing.xs),
         Icon(Icons.menu, color: c.goldWarm),
@@ -164,11 +169,11 @@ class _QuickActions extends StatelessWidget {
   final VoidCallback onTap;
 
   static const _items = [
-    (icon: Icons.wb_sunny_outlined, label: 'فال روزانه'),
-    (icon: Icons.card_giftcard, label: 'جایزهٔ روزانه'),
-    (icon: Icons.casino_outlined, label: 'شانس امروز'),
-    (icon: Icons.event_note_outlined, label: 'تقویم معنوی'),
-    (icon: Icons.menu_book_outlined, label: 'استخاره'),
+    (asset: 'assets/icons/qa_daily.jpg', label: 'فال روزانه'),
+    (asset: 'assets/icons/qa_reward.jpg', label: 'جایزهٔ روزانه'),
+    (asset: 'assets/icons/qa_luck.jpg', label: 'شانس امروز'),
+    (asset: 'assets/icons/qa_calendar.jpg', label: 'تقویم معنوی'),
+    (asset: 'assets/icons/qa_estekhare.jpg', label: 'استخاره'),
   ];
 
   @override
@@ -193,7 +198,13 @@ class _QuickActions extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(item.icon, color: c.goldWarm, size: 22),
+                  Image.asset(
+                    item.asset,
+                    width: 30,
+                    height: 30,
+                    errorBuilder: (context, error, stack) =>
+                        Icon(Icons.auto_awesome, color: c.goldWarm, size: 22),
+                  ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     item.label,
@@ -342,7 +353,20 @@ class _RewardBanner extends StatelessWidget {
       glow: true,
       child: Row(
         children: [
-          const Icon(Icons.card_giftcard, size: 40, color: AppPalette.goldHi),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: Image.asset(
+              'assets/store/reward_chest.jpg',
+              width: 56,
+              height: 56,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stack) => const Icon(
+                Icons.card_giftcard,
+                size: 40,
+                color: AppPalette.goldHi,
+              ),
+            ),
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
