@@ -1,14 +1,16 @@
 name: Deploy Web (Cloudflare Pages)
 
-# Builds the Flutter Web PRODUCTION flavor against the real Railway API and
-# publishes apps/mobile/build/web to Cloudflare Pages via Wrangler.
+# Builds the Flutter Web PRODUCTION flavor against the live Railway API and
+# publishes apps/mobile/build/web to the Cloudflare Pages project "bakhtnegar"
+# via Wrangler.
 #
-# Stays GREEN (job skipped) until the deploy is configured. To enable, set:
-#   - repo variable  API_BASE_URL              = https://<railway-api-domain>/api/v1
-#   - repo variable  TELEGRAM_BOT_USERNAME     = bakhtnegarbot        (optional)
-#   - repo secret    CLOUDFLARE_API_TOKEN      = <Pages: Edit token>
-#   - repo secret    CLOUDFLARE_ACCOUNT_ID     = <Cloudflare account id>
-# and create a Cloudflare Pages project named "bakhtnegar".
+# Stays GREEN (job skipped) until Cloudflare creds are present. To enable:
+#   - repo VARIABLE  CLOUDFLARE_ACCOUNT_ID   = <your Cloudflare account id>   (gates the job)
+#   - repo SECRET    CLOUDFLARE_API_TOKEN    = <token with "Cloudflare Pages: Edit">
+# Optional overrides (sensible defaults are baked in below):
+#   - repo VARIABLE  API_BASE_URL            = https://<api-domain>/api/v1
+#   - repo VARIABLE  TELEGRAM_BOT_USERNAME   = bakhtnegarbot
+# A Cloudflare Pages project named "bakhtnegar" must exist.
 
 on:
   push:
@@ -23,7 +25,9 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ vars.API_BASE_URL != '' }}
+    # Account id is not secret; use it as the enable flag so the run stays green
+    # (job skipped) until you configure the deploy.
+    if: ${{ vars.CLOUDFLARE_ACCOUNT_ID != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,12 +45,12 @@ jobs:
         working-directory: apps/mobile
         run: flutter gen-l10n
 
-      - name: Build web (production flavor, real API URL)
+      - name: Build web (production flavor, live Railway API)
         working-directory: apps/mobile
         run: >
           flutter build web --release
           -t lib/main_production.dart
-          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL }}
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
           --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
 
       - name: SPA routing fallback (deep links / refresh must not 404)
@@ -57,5 +61,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy apps/mobile/build/web --project-name=bakhtnegar --branch=main
