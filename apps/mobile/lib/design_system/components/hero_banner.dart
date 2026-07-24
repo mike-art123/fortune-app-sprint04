@@ -53,6 +53,11 @@ class HeroBanner extends StatelessWidget {
       ),
     );
 
+    Widget inner = content;
+    if (bg != null) {
+      inner = _WithBackground(asset: bg, child: content);
+    }
+
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: bg == null ? AppGradients.heroNight : null,
@@ -60,12 +65,7 @@ class HeroBanner extends StatelessWidget {
         border: Border.all(color: AppPalette.goldMid.withValues(alpha: 0.35)),
         boxShadow: AppEffects.goldGlow,
       ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: bg == null
-            ? content
-            : _WithBackground(asset: bg, child: content),
-      ),
+      child: ClipRRect(borderRadius: radius, child: inner),
     );
   }
 }
