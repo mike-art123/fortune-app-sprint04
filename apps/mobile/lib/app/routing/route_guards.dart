@@ -11,7 +11,7 @@ abstract final class RouteGuards {
     if (startup is StartupInProgress || startup is StartupFailed) {
       return atSplash ? null : '/splash';
     }
-    if (atSplash) return '/explore';
+    if (atSplash) return '/home';
     return null;
   }
 }
