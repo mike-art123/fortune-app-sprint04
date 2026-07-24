@@ -46,6 +46,12 @@ export const envSchema = z
 
     TELEGRAM_BOT_TOKEN: z.string().optional(),
     TELEGRAM_BOT_USERNAME: z.string().optional(),
+    TELEGRAM_MINIAPP_URL: z.string().url().default('https://bakhtnegar.pages.dev'),
+    TELEGRAM_WEBHOOK_SECRET: z.string().optional(),
+    // Public origin used to self-register the bot webhook. Railway injects
+    // RAILWAY_PUBLIC_DOMAIN automatically for a service with a generated domain.
+    PUBLIC_BASE_URL: z.string().url().optional(),
+    RAILWAY_PUBLIC_DOMAIN: z.string().optional(),
 
     /** Sprint 04 auth (doc 53). */
     AUTH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().max(2592000).default(86400),
