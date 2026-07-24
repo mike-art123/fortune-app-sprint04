@@ -43,7 +43,7 @@ class HomePage extends StatelessWidget {
     if (index == 0) {
       context.go(AppRoutes.profilePath);
     } else if (index == 1) {
-      context.go(AppRoutes.explorePath);
+      context.go(AppRoutes.allFortunesPath);
     } else if (index == 3) {
       context.go(AppRoutes.historyPath);
     } else if (index == 4) {
@@ -83,7 +83,7 @@ class HomePage extends StatelessWidget {
             SectionTitle(
               title: 'فال‌های محبوب',
               actionLabel: 'مشاهده همه',
-              onAction: () => context.go(AppRoutes.explorePath),
+              onAction: () => context.go(AppRoutes.allFortunesPath),
             ),
             _FeaturedRow(onOpen: (f) => _open(context, f)),
             const SizedBox(height: AppSpacing.md),

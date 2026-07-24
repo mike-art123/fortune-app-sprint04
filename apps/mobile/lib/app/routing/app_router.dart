@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
+import '../../features/fortunes/presentation/pages/all_fortunes_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/profile/presentation/pages/profile_placeholder_page.dart';
@@ -56,6 +57,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.homePath,
         name: AppRoutes.homeName,
         builder: (_, __) => const HomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.allFortunesPath,
+        name: AppRoutes.allFortunesName,
+        builder: (_, __) => const AllFortunesPage(),
       ),
       GoRoute(
         path: AppRoutes.explorePath,

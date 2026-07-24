@@ -6,6 +6,9 @@ abstract final class AppRoutes {
   static const homeName = 'home';
   static const homePath = '/home';
 
+  static const allFortunesName = 'allFortunes';
+  static const allFortunesPath = '/fortunes';
+
   static const exploreName = 'explore';
   static const explorePath = '/explore';
 
