@@ -92,7 +92,8 @@ class _HomePageState extends State<HomePage> {
     final tgTop = _safeArea.topInset;
     final double desiredTop;
     if (_safeArea.isTelegram && _safeArea.isFullscreen && tgTop <= 0.5) {
-      final floor = defaultTargetPlatform == TargetPlatform.iOS ? 47.0 : 0.0;
+      final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+      final floor = isIOS ? 47.0 : 0.0;
       final physical = viewTop > floor ? viewTop : floor;
       desiredTop = physical + 8;
     } else {
