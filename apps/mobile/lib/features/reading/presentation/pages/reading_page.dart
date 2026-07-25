@@ -10,6 +10,7 @@ import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
+import '../../../../design_system/foundations/fortune_focus.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../core/errors/app_failure.dart';
@@ -86,6 +87,7 @@ class _ReadingView extends StatelessWidget {
 
     final locale = Localizations.localeOf(context);
     final fortune = FortuneRegistry.byId(current.fortuneId);
+    final accent = fortune?.accent ?? c.goldWarm;
     final textTheme = Theme.of(context).textTheme;
 
     return FortuneScaffold(
@@ -98,17 +100,32 @@ class _ReadingView extends StatelessWidget {
         children: [
           const SizedBox(height: AppSpacing.md),
 
-          // Hero illustration for this fortune (absent asset falls back away).
+          // Hero illustration in the fortune's own light: its focal crop and a
+          // soft aura in its accent, so the result page carries the same
+          // identity as the ritual that led here (interior phase 4).
           FortuneFadeIn(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.xl),
-              child: Image.asset(
-                'assets/fortunes/${current.fortuneId}.jpg',
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) =>
-                    const SizedBox.shrink(),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                boxShadow: [
+                  BoxShadow(
+                    color: accent.withValues(alpha: 0.26),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                child: Image.asset(
+                  'assets/fortunes/${current.fortuneId}.jpg',
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  alignment: fortuneFocalAlignment(current.fortuneId),
+                  errorBuilder: (context, error, stack) =>
+                      const SizedBox.shrink(),
+                ),
               ),
             ),
           ),
@@ -131,7 +148,14 @@ class _ReadingView extends StatelessWidget {
               style: textTheme.labelMedium?.copyWith(color: c.textMuted),
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xs),
+
+          // A quiet ornament in the fortune's accent between date and body.
+          FortuneFadeIn(
+            duration: const Duration(milliseconds: 560),
+            child: _AccentDivider(accent: accent),
+          ),
+          const SizedBox(height: AppSpacing.xs),
 
           // Long-form reading body in a premium gold-edged card.
           FortuneFadeIn(
@@ -188,6 +212,49 @@ class _ReadingView extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
         ],
       ),
+    );
+  }
+}
+
+/// A hairline that breathes in the fortune's accent: fading lines meeting a
+/// small rotated diamond — an ornament, never a border.
+class _AccentDivider extends StatelessWidget {
+  const _AccentDivider({required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget line(AlignmentGeometry begin, AlignmentGeometry end) {
+      return Expanded(
+        child: Container(
+          height: 1,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: begin,
+              end: end,
+              colors: [
+                accent.withValues(alpha: 0),
+                accent.withValues(alpha: 0.55),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        line(AlignmentDirectional.centerStart, AlignmentDirectional.centerEnd),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          child: Transform.rotate(
+            angle: 0.785398,
+            child: Container(width: 7, height: 7, color: accent),
+          ),
+        ),
+        line(AlignmentDirectional.centerEnd, AlignmentDirectional.centerStart),
+      ],
     );
   }
 }
