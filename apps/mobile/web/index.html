@@ -22,16 +22,22 @@
        Loaded before Flutter so the bridge sees it at startup. -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Open at full size the instant the Mini App launches: expand to full
-       height on every client, and request true edge-to-edge fullscreen on
-       clients that support it (Bot API 8.0+). Guarded so older Telegram
-       clients — and opening the page outside Telegram — are unaffected. -->
+  <!-- Runs before Flutter boots: signal ready, expand to full height, and
+       DISABLE vertical swipes so a downward drag inside the app can never close
+       or minimise the Mini App (normal content scrolling and the Telegram Close
+       button still work). Then request true edge-to-edge fullscreen where
+       supported (Bot API 8.0+). All guarded — older clients and non-Telegram
+       browsers are unaffected. Nothing anywhere calls enableVerticalSwipes(). -->
   <script>
     (function () {
       try {
         var wa = window.Telegram && window.Telegram.WebApp;
         if (!wa) return;
+        if (typeof wa.ready === 'function') wa.ready();
         if (typeof wa.expand === 'function') wa.expand();
+        if (typeof wa.disableVerticalSwipes === 'function') {
+          wa.disableVerticalSwipes();
+        }
         if (typeof wa.requestFullscreen === 'function') {
           try { wa.requestFullscreen(); window.__tgFsRequested = true; } catch (e) {}
         }
