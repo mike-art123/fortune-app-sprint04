@@ -10,10 +10,10 @@ abstract final class AppLayout {
   static const double pageMargin = 18;
 
   /// Gap between major sections (title + content blocks).
-  static const double sectionGap = 30;
+  static const double sectionGap = 34;
 
   /// Gap between a section heading and its content.
-  static const double headingGap = 14;
+  static const double headingGap = 16;
 
   /// Gap between cards in a rail or grid.
   static const double cardGap = 14;

@@ -1,27 +1,24 @@
 import 'package:flutter/widgets.dart';
 
-/// Per-artwork focal alignment for BoxFit.cover crops. The fortune paintings
-/// are landscape (~1.28); when a card is portrait or ultra-wide the crop must
-/// keep each piece's subject in frame instead of always centring. Only assets
-/// that need it are listed; everything else defaults to [Alignment.center].
-///
-/// These are layout hints for cropping only — no artwork is modified. Values
-/// are refined against the live render, not guessed blindly.
+/// Per-artwork focal alignment for BoxFit.cover crops. Vertical alignment only
+/// affects wide frames (the 16:9 hero and 2:1 section cards), which crop
+/// top/bottom; portrait cards crop left/right, where every subject here is
+/// already horizontally centred. So only the ids that appear in a wide frame —
+/// the hero and each theme's lead card — carry a focal hint, tuned against the
+/// real render so each composition's subject stays in frame. No artwork is
+/// modified; everything else defaults to [Alignment.center].
 Alignment fortuneFocalAlignment(String id) {
   return _focus[id] ?? Alignment.center;
 }
 
 const Map<String, Alignment> _focus = {
-  // Subject sits high in the frame (moon, candle flame, headers).
-  'hafez': Alignment(0, -0.15),
-  'candle': Alignment(0, -0.25),
-  'dream': Alignment(0, -0.20),
-  'universe': Alignment(0, -0.20),
-  'angel': Alignment(0, -0.15),
-  // Subject sits low (cups, hands, open books, scrolls).
-  'coffee': Alignment(0, 0.15),
-  'friendship': Alignment(0, 0.20),
-  'quran': Alignment(0, 0.10),
-  'tasbih': Alignment(0, 0.15),
-  // Centred emblems that read best dead-centre stay default (omitted).
+  // Keep the flame + subject high in the frame.
+  'hafez': Alignment(0, -0.12), // candle + open book near the top
+  'marriage': Alignment(0, -0.12), // candle flame above the rings
+  'yesno': Alignment(0, -0.06), // crystal ball sits a touch high
+  'love': Alignment(0, -0.04), // symmetrical heart, near-centre
+  // Keep the subject that sits low from being clipped.
+  'job': Alignment(0, 0.06), // gold chest below centre
+  'tea': Alignment(0, 0.06), // cup + saucer below centre
+  // birthmonth: a centred circular zodiac wheel — default centre is optimal.
 };
