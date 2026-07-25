@@ -81,71 +81,84 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Telegram fullscreen can draw the top bar under the Close controls /
-    // Dynamic Island. Prefer Telegram's reported inset; but Telegram iOS
-    // fullscreen often reports 0, so fall back to the real physical inset
-    // (viewPadding.top) with an iPhone floor. SafeArea already consumes
-    // MediaQuery.padding.top, so we add only the EXTRA beyond it (never
-    // doubled), clamped to a sane range.
-    final mqTop = MediaQuery.paddingOf(context).top;
-    final viewTop = MediaQuery.viewPaddingOf(context).top;
-    final tgTop = _safeArea.topInset;
-    final double desiredTop;
-    if (_safeArea.isTelegram && _safeArea.isFullscreen && tgTop <= 0.5) {
-      final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-      final floor = isIOS ? 47.0 : 0.0;
-      final physical = viewTop > floor ? viewTop : floor;
-      desiredTop = physical + 8;
-    } else {
-      desiredTop = tgTop;
-    }
-    final extraTop = (desiredTop - mqTop).clamp(0.0, 200.0).toDouble();
+    final topInset = _resolveTopInset(context);
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
       bottomNavigationBar: PremiumBottomNavigation(
         currentIndex: 2,
         onTap: (i) => _tapNav(context, i),
       ),
-      body: SafeArea(
-        bottom: false,
-        child: AnimatedPadding(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.only(top: extraTop),
-          child: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Dedicated top toolbar: always below Telegram's safe area and
+          // Close/More controls — never under them. No SafeArea/Stack overlap.
+          AnimatedPadding(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+              top: topInset,
+              left: AppSpacing.md,
+              right: AppSpacing.md,
             ),
-            children: [
-              const _TopBar(),
-              const SizedBox(height: AppSpacing.md),
-              HeroBanner(
-                title: 'فال و اسرار زندگی',
-                subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
-                backgroundAsset: 'assets/bg/bg_hero.jpg',
-                action: PremiumButton(
-                  label: 'نیت کن',
-                  icon: Icons.auto_awesome,
-                  onPressed: () => context.push(AppRoutes.ritual('hafez')),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _QuickActions(onTap: () => _soon(context)),
-              SectionTitle(
-                title: 'فال‌های محبوب',
-                actionLabel: 'مشاهده همه',
-                onAction: () => context.go(AppRoutes.allFortunesPath),
-              ),
-              _FeaturedRow(onOpen: (f) => _open(context, f)),
-              const SizedBox(height: AppSpacing.md),
-              _RewardBanner(onClaim: () => _soon(context)),
-              const SizedBox(height: AppSpacing.lg),
-            ],
+            child: const _TopBar(),
           ),
-        ),
+          // 24–32px of breathing room below the toolbar before the Hero.
+          const SizedBox(height: 28),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                0,
+                AppSpacing.md,
+                AppSpacing.lg,
+              ),
+              children: [
+                HeroBanner(
+                  title: 'فال و اسرار زندگی',
+                  subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
+                  backgroundAsset: 'assets/bg/bg_hero.jpg',
+                  action: PremiumButton(
+                    label: 'نیت کن',
+                    icon: Icons.auto_awesome,
+                    onPressed: () => context.push(AppRoutes.ritual('hafez')),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _QuickActions(onTap: () => _soon(context)),
+                SectionTitle(
+                  title: 'فال‌های محبوب',
+                  actionLabel: 'مشاهده همه',
+                  onAction: () => context.go(AppRoutes.allFortunesPath),
+                ),
+                _FeaturedRow(onOpen: (f) => _open(context, f)),
+                const SizedBox(height: AppSpacing.md),
+                _RewardBanner(onClaim: () => _soon(context)),
+                const SizedBox(height: AppSpacing.lg),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  /// Top inset that clears Telegram's safe area + Close/More control row.
+  /// Prefers Telegram's reported insets; on iOS fullscreen (which often
+  /// reports 0) it falls back to the real physical inset plus a control-row
+  /// allowance — never one fixed value for all devices.
+  double _resolveTopInset(BuildContext context) {
+    final tgTop = _safeArea.topInset;
+    if (tgTop > 0.5) return tgTop;
+
+    final viewTop = MediaQuery.viewPaddingOf(context).top;
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+    if (_safeArea.isTelegram && _safeArea.isFullscreen) {
+      final device = viewTop > 0 ? viewTop : (isIOS ? 59.0 : 24.0);
+      final controlRow = isIOS ? 44.0 : 12.0;
+      return (device + controlRow).clamp(0.0, 200.0).toDouble();
+    }
+    return viewTop > 8 ? viewTop : 8.0;
   }
 }
 

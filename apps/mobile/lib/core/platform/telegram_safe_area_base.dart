@@ -46,10 +46,11 @@ abstract class TelegramSafeArea extends ChangeNotifier {
       // contribute nothing so existing layout is preserved.
       top = 0;
     } else if (fullscreen) {
-      final larger = safeTop > contentTop ? safeTop : contentTop;
-      // When Telegram reports nothing (a known iOS fullscreen bug) keep this at
-      // 0 so the widget can fall back to the real physical inset instead.
-      top = larger > 0 ? larger + _breathingRoom : 0;
+      // Device safe area + Telegram's control-row inset, stacked — the full
+      // clearance content needs. When Telegram reports nothing (a known iOS
+      // fullscreen bug) keep 0 so the widget falls back to the physical inset.
+      final total = safeTop + contentTop;
+      top = total > 0 ? total + _breathingRoom : 0;
     } else {
       top = contentTop;
     }
