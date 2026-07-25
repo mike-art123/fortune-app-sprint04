@@ -18,6 +18,7 @@ class _FakeRepo implements ReadingRepository {
   Future<Result<Reading>> create(
     FalInput input, {
     String? idempotencyKey,
+    String? adEntitlementId,
   }) async {
     calls++;
     keys.add(idempotencyKey);

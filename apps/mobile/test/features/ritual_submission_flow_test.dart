@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/core/result/result.dart';
+import 'package:fortune_app/features/access/application/access_flow_controller.dart';
+import 'package:fortune_app/features/access/data/access_repository.dart';
+import 'package:fortune_app/features/access/domain/access_models.dart';
 import 'package:fortune_app/features/fortunes/domain/fal_input.dart';
 import 'package:fortune_app/features/reading/application/reading_submission_controller.dart';
 import 'package:fortune_app/features/reading/domain/reading.dart';
@@ -17,6 +20,7 @@ class _FakeRepo implements ReadingRepository {
   Future<Result<Reading>> create(
     FalInput input, {
     String? idempotencyKey,
+    String? adEntitlementId,
   }) async =>
       Success(
         Reading(
@@ -27,6 +31,50 @@ class _FakeRepo implements ReadingRepository {
           createdAt: DateTime(2026),
         ),
       );
+}
+
+/// Access always answers «free» here — the flow under test is the submission
+/// itself, not the monetization sheet.
+class _FakeAccessRepo implements AccessRepository {
+  @override
+  Future<Result<AccessOptions>> accessOptions(String fortuneId) async {
+    return Success(
+      AccessOptions(
+        fortuneId: fortuneId,
+        isVip: false,
+        isFreeNow: true,
+        freeUsesRemainingToday: 1,
+        rewardedAdAvailable: false,
+        rewardedAdsRemainingToday: 0,
+        accessState: 'free',
+      ),
+    );
+  }
+
+  @override
+  Future<Result<MediationSession>> createMediation(
+    String fortuneId,
+    String idempotencyKey,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<MediationSession>> reportFailure(
+    String sessionId,
+    int attemptNumber,
+    String reason,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<MediationStatus>> status(String sessionId) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> cancel(String sessionId) async {}
 }
 
 Widget host() {
@@ -52,7 +100,10 @@ Widget host() {
     ],
   );
   return ProviderScope(
-    overrides: [readingRepositoryProvider.overrideWithValue(_FakeRepo())],
+    overrides: [
+      readingRepositoryProvider.overrideWithValue(_FakeRepo()),
+      accessRepositoryProvider.overrideWithValue(_FakeAccessRepo()),
+    ],
     child: MaterialApp.router(
       routerConfig: router,
       locale: SupportedLocales.fa,

@@ -115,13 +115,16 @@ class AccessFlowController
     final key = _idempotencyKey ??= const Uuid().v4();
 
     final created = await repo.createMediation(_fortuneId, key);
-    var session = created.valueOrNull;
-    if (session == null) {
+    final opened = created.valueOrNull;
+    if (opened == null) {
       _rotateKey();
       state = AccessError(created.failureOrNull!);
       return;
     }
 
+    // Non-nullable by construction: the compiler never has to keep a
+    // promotion alive across the loop below.
+    var session = opened;
     while (true) {
       final current = session.current;
       if (current == null) break;
@@ -224,7 +227,6 @@ final accessRepositoryProvider = Provider<AccessRepository>((ref) {
   return AccessRepository(ref.watch(apiClientProvider));
 });
 
-final accessFlowControllerProvider = NotifierProvider.autoDispose.family<
-    AccessFlowController,
-    AccessFlowState,
-    String>(AccessFlowController.new);
+final accessFlowControllerProvider = NotifierProvider.autoDispose
+    .family<AccessFlowController, AccessFlowState, String>(
+        AccessFlowController.new);

@@ -94,13 +94,13 @@ Future<String> _playAdsgram(String blockId) async {
     await promise.toDart;
     // The AdsGram promise resolves only after the ad was watched through.
     return 'completed';
-  } catch (error) {
-    // Rejection carries {error: bool, done: bool, description}: a user skip
-    // rejects with error=false — that must NOT fall through to another
-    // provider; a technical error may.
-    final isUserSkip = error is JSObject &&
-        error.getProperty<JSAny?>('error'.toJS).dartify() == false;
-    return isUserSkip ? 'skipped' : 'no_fill';
+  } catch (_) {
+    // AdsGram rejects for both user skips and no-fill. Distinguishing them
+    // needs a JS-type runtime check that is not platform-consistent (analyzer:
+    // invalid_runtime_check_with_js_interop_types), so we take the safe side:
+    // treat every rejection as a user stop. Mediation never double-shows an
+    // ad this way; refining the mapping comes with live block-id testing.
+    return 'skipped';
   }
 }
 
@@ -117,19 +117,21 @@ Future<String> _playMonetag(String zoneId) async {
   if (!loaded) return 'ad_unavailable';
 
   // The loader defines window.show_<zone> shortly after the script arrives.
-  JSFunction? show;
+  var defined = false;
   for (var attempt = 0; attempt < 20; attempt++) {
-    show = globalContext.getProperty<JSFunction?>(fnName.toJS);
-    if (show != null) break;
+    if (globalContext.hasProperty(fnName.toJS).toDart) {
+      defined = true;
+      break;
+    }
     await Future<void>.delayed(const Duration(milliseconds: 150));
   }
-  if (show == null) return 'ad_unavailable';
+  if (!defined) return 'ad_unavailable';
 
   try {
-    final result = show.callAsFunction();
-    if (result is JSPromise) {
-      await (result as JSPromise<JSAny?>).toDart;
-    }
+    // Typed through the interop generic — no JS-type is/as runtime checks.
+    final promise = globalContext.callMethod<JSPromise<JSAny?>?>(fnName.toJS);
+    if (promise == null) return 'ad_unavailable';
+    await promise.toDart;
     return 'completed';
   } catch (_) {
     // Monetag rejects for no-inventory and user-abort alike; without a
