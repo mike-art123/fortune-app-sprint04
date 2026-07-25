@@ -304,6 +304,11 @@ abstract final class FortuneRegistry {
       'Ask it short and clear, within.',
       'بله یا خیر را ببین',
       'See yes or no',
+      chips: const [
+        LocalizedText(fa: 'آیا این‌طور می‌شود؟', en: 'Will it turn out so?'),
+        LocalizedText(fa: 'آیا پیش بروم؟', en: 'Should I go ahead?'),
+        LocalizedText(fa: 'آیا او همان است؟', en: 'Is this the one?'),
+      ],
     ),
     _intent(
       'luckynumber',
@@ -314,6 +319,11 @@ abstract final class FortuneRegistry {
       'Trust your luck.',
       'عددِ شانست را ببین',
       'See your lucky number',
+      chips: const [
+        LocalizedText(fa: 'برای امروز', en: 'For today'),
+        LocalizedText(fa: 'برای این هفته', en: 'For this week'),
+        LocalizedText(fa: 'برای این ماه', en: 'For this month'),
+      ],
     ),
     _intent(
       'luckycolor',
@@ -324,6 +334,7 @@ abstract final class FortuneRegistry {
       'Imagine today in colour.',
       'رنگِ امروزت را ببین',
       'See the colour of today',
+      offering: FortuneOffering.colors,
     ),
     _intent(
       'luckystone',
@@ -334,6 +345,7 @@ abstract final class FortuneRegistry {
       'Think of your birth month.',
       'سنگِ تو را پیدا کن',
       'Find your stone',
+      offering: FortuneOffering.months,
     ),
     _intent(
       'luckyflower',
@@ -374,6 +386,7 @@ abstract final class FortuneRegistry {
       'Say your birth month within.',
       'طالعِ ماهت را ببین',
       'See the sign of your month',
+      offering: FortuneOffering.months,
     ),
     _intent(
       'daily',
@@ -517,8 +530,10 @@ abstract final class FortuneRegistry {
     String ritualFa,
     String ritualEn,
     String ctaFa,
-    String ctaEn,
-  ) {
+    String ctaEn, {
+    FortuneOffering offering = FortuneOffering.none,
+    List<LocalizedText> chips = const [],
+  }) {
     return FortuneDefinition(
       id: id,
       accent: a,
@@ -532,6 +547,8 @@ abstract final class FortuneRegistry {
       ),
       cta: LocalizedText(fa: ctaFa, en: ctaEn),
       pace: _pace,
+      offering: offering,
+      offeringChips: chips,
     );
   }
 

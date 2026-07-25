@@ -18,6 +18,13 @@ enum FortuneInputKind {
 
 enum FortuneAvailability { available, soon }
 
+/// A bespoke offering element rendered above the whisper (interior phase 5).
+/// Where a fortune's ritual asks for a *choice* — a birth month, a colour, a
+/// short intent — rather than free prose, the ritual shows a tap-to-choose
+/// strip. Every choice merely seeds the whisper text; there is no separate
+/// field and no backend change. [none] keeps the plain whisper.
+enum FortuneOffering { none, months, colors, chips }
+
 /// Per-family motion pace: ritual entries breathe at their own rhythm.
 class RitualPace {
   const RitualPace({required this.enter, required this.step});
@@ -46,6 +53,8 @@ class FortuneDefinition {
     this.minWords,
     this.maxLength = 300,
     this.availability = FortuneAvailability.available,
+    this.offering = FortuneOffering.none,
+    this.offeringChips = const [],
   });
 
   final String id;
@@ -78,6 +87,13 @@ class FortuneDefinition {
 
   final int maxLength;
   final FortuneAvailability availability;
+
+  /// Bespoke offering element for this fortune (interior phase 5).
+  final FortuneOffering offering;
+
+  /// Quick-intent chip labels used when [offering] is [FortuneOffering.chips].
+  /// Each chip, when tapped, seeds the whisper with an editable starting line.
+  final List<LocalizedText> offeringChips;
 
   bool get isAvailable => availability == FortuneAvailability.available;
 }

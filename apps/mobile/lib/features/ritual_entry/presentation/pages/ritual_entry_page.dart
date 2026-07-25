@@ -19,6 +19,8 @@ import '../../../fortunes/domain/fortune_definition.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../reading/application/reading_submission_controller.dart';
 import '../controllers/ritual_entry_controller.dart';
+import '../widgets/offering_strip.dart';
+import '../widgets/paired_names_field.dart';
 import '../widgets/whisper_field.dart';
 
 /// Ritual Entry — a personal ritual, not a form. One still moon, one calm
@@ -213,6 +215,22 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             child: _buildOffering(fortune, locale),
           ),
 
+          // Bespoke offering elements (phase 5): a month, a colour or a short
+          // intent that seeds the whisper above — registry-driven, and the
+          // person can always keep editing the seeded text by hand.
+          if (fortune.offering != FortuneOffering.none) ...[
+            const SizedBox(height: AppSpacing.lg),
+            FortuneFadeIn(
+              duration: pace.enter + pace.step * 2,
+              child: OfferingStrip(
+                offering: fortune.offering,
+                accent: fortune.accent,
+                chips: fortune.offeringChips,
+                onSeed: _seedIntention,
+              ),
+            ),
+          ],
+
           // Dream only: golden theme emblems that seed the whisper with a
           // starting word — inspiration, never a dead ornament.
           if (fortune.id == 'dream') ...[
@@ -305,31 +323,13 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
         );
 
       case FortuneInputKind.twoNames:
-        final c = context.fortuneColors;
-        return Column(
-          children: [
-            WhisperField(
-              controller: _primary,
-              accent: fortune.accent,
-              placeholder: fortune.placeholder?.resolve(locale),
-              maxLength: fortune.maxLength,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            // The bond — a single quiet word, no ornament.
-            Text(
-              'و',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: c.textMuted),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            WhisperField(
-              controller: _secondary,
-              accent: fortune.accent,
-              placeholder: fortune.placeholderSecond?.resolve(locale),
-              maxLength: fortune.maxLength,
-            ),
-          ],
+        return PairedNamesField(
+          first: _primary,
+          second: _secondary,
+          accent: fortune.accent,
+          firstPlaceholder: fortune.placeholder?.resolve(locale),
+          secondPlaceholder: fortune.placeholderSecond?.resolve(locale),
+          maxLength: fortune.maxLength,
         );
 
       case FortuneInputKind.photo:
@@ -345,6 +345,14 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     final next = existing.isEmpty ? label : '$existing $label';
     _primary.text = next;
     _primary.selection = TextSelection.collapsed(offset: next.length);
+  }
+
+  // Seed the whisper with a bespoke choice (a month, a colour, a short intent),
+  // caret at the end so the person can keep editing. Any guidance is softened.
+  void _seedIntention(String value) {
+    _primary.text = value;
+    _primary.selection = TextSelection.collapsed(offset: value.length);
+    ref.read(ritualEntryControllerProvider(widget.fortuneId).notifier).soften();
   }
 
   // At rest the moon holds the gaze; while the reading is sealing, the golden
