@@ -86,8 +86,8 @@ class AccessFlowController
     if (state is AccessChecking || state is AccessPreparingAd) return;
     state = const AccessChecking();
 
-    final result =
-        await ref.read(accessRepositoryProvider).accessOptions(_fortuneId);
+    final repo = ref.read(accessRepositoryProvider);
+    final result = await repo.accessOptions(_fortuneId);
     state = result.fold(
       onSuccess: (options) {
         _lastOptions = options;
@@ -196,8 +196,8 @@ class AccessFlowController
     String sessionId,
     ProviderHandle current,
   ) async {
-    final deadline = DateTime.now()
-        .add(Duration(milliseconds: current.verifyTimeoutMs));
+    final timeout = Duration(milliseconds: current.verifyTimeoutMs);
+    final deadline = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(deadline)) {
       final result = await repo.status(sessionId);
       final status = result.valueOrNull;
@@ -227,7 +227,7 @@ final accessRepositoryProvider = Provider<AccessRepository>((ref) {
   return AccessRepository(ref.watch(apiClientProvider));
 });
 
-final accessFlowControllerProvider = NotifierProvider.autoDispose
-    .family<AccessFlowController, AccessFlowState, String>(
-  AccessFlowController.new,
-);
+final accessFlowControllerProvider = NotifierProvider.autoDispose.family<
+    AccessFlowController,
+    AccessFlowState,
+    String>(AccessFlowController.new);
