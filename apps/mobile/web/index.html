@@ -66,7 +66,8 @@
           var wa = window.Telegram && window.Telegram.WebApp;
           if (!wa) {
             window.__tgSafeArea = {
-              inTelegram: false, topInset: 0, bottom: 0, left: 0, right: 0
+              inTelegram: false, topInset: 0, debug: 'no-telegram',
+              bottom: 0, left: 0, right: 0
             };
             window.dispatchEvent(new Event('tg-safearea'));
             return;
@@ -87,8 +88,11 @@
             top = base > 0 ? base : envTop();
           }
           top = Math.max(0, Math.min(200, top));
+          var dbg = 'TG fs=' + (full ? 1 : 0) + ' s=' + Math.round(num(s.top)) +
+            ' c=' + Math.round(num(c.top)) + ' env=' + Math.round(envTop()) +
+            ' -> top=' + Math.round(top);
           window.__tgSafeArea = {
-            inTelegram: true, topInset: top,
+            inTelegram: true, topInset: top, debug: dbg,
             bottom: num(s.bottom), left: num(s.left), right: num(s.right)
           };
           window.dispatchEvent(new Event('tg-safearea'));

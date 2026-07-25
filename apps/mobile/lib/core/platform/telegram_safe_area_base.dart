@@ -22,6 +22,10 @@ abstract class TelegramSafeArea extends ChangeNotifier {
   /// Whether we're running inside Telegram (its WebApp is present).
   bool get isTelegram => _telegram;
 
+  /// Human-readable diagnostics from index.html (temporary, for tuning).
+  String _debug = '';
+  String get debugInfo => _debug;
+
   /// Begin listening to Telegram viewport / safe-area events.
   void start();
 
@@ -32,6 +36,7 @@ abstract class TelegramSafeArea extends ChangeNotifier {
     required double bottom,
     required double left,
     required double right,
+    String debug = '',
   }) {
     final nt = _clamp(top);
     final nb = _clamp(bottom);
@@ -41,7 +46,8 @@ abstract class TelegramSafeArea extends ChangeNotifier {
         nb != _bottom ||
         nl != _left ||
         nr != _right ||
-        inTelegram != _telegram;
+        inTelegram != _telegram ||
+        debug != _debug;
     if (!changed) return;
 
     _top = nt;
@@ -49,6 +55,7 @@ abstract class TelegramSafeArea extends ChangeNotifier {
     _left = nl;
     _right = nr;
     _telegram = inTelegram;
+    _debug = debug;
 
     if (kDebugMode) {
       debugPrint('[tg-safearea] inTelegram=$inTelegram topInset=$_top');

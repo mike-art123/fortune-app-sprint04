@@ -19,6 +19,7 @@ extension type _Resolved(JSObject _) implements JSObject {
   external double get bottom;
   external double get left;
   external double get right;
+  external String get debug;
 }
 
 class _WebTelegramSafeArea extends TelegramSafeArea {
@@ -48,7 +49,16 @@ class _WebTelegramSafeArea extends TelegramSafeArea {
       bottom: _numOf(() => raw.bottom),
       left: _numOf(() => raw.left),
       right: _numOf(() => raw.right),
+      debug: _strOf(() => raw.debug),
     );
+  }
+
+  String _strOf(String Function() read) {
+    try {
+      return read();
+    } catch (_) {
+      return '';
+    }
   }
 
   _Resolved? _safeRaw() {
