@@ -86,7 +86,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final topInset = _resolveTopInset(context);
-    final locale = Localizations.localeOf(context);
     final hafez = FortuneRegistry.byId('hafez');
 
     return Scaffold(
@@ -126,10 +125,10 @@ class _HomePageState extends State<HomePage> {
                     if (hafez != null)
                       FeaturedWideFortuneCard(
                         id: hafez.id,
-                        title: hafez.title.resolve(locale),
-                        subtitle: hafez.subtitle.resolve(locale),
+                        title: 'فال حافظ',
+                        subtitle: 'نیت کن و از دیوان بپرس',
                         accent: hafez.accent,
-                        cta: hafez.cta.resolve(locale),
+                        cta: 'فال حافظ را باز کن',
                         onTap: () => _openId(context, hafez.id, true),
                       ),
                     const SizedBox(height: AppLayout.sectionGap),
