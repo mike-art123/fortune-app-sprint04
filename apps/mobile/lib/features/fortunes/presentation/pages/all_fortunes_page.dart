@@ -143,7 +143,6 @@ class AllFortunesPage extends StatelessWidget {
                 accent: _accentFor(id),
                 available: openable,
                 soonLabel: 'به‌زودی',
-                priceLabel: '۵',
                 onTap: () => _open(context, item),
               );
             },

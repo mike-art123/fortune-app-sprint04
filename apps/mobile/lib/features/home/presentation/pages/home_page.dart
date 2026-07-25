@@ -9,7 +9,6 @@ import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/premium_button.dart';
 import '../../../../design_system/components/section_title.dart';
-import '../../../../design_system/components/stat_chip.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_layout.dart';
@@ -194,21 +193,55 @@ class _TopBar extends StatelessWidget {
       children: [
         const _ProfileChip(),
         const Spacer(),
-        const StatChip(
-          icon: Icons.monetization_on,
-          value: '۲۴۵۰',
-          asset: 'assets/icons/icon_coin.jpg',
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        const StatChip(
-          icon: Icons.diamond,
-          value: '۸۰',
-          iconColor: AppPalette.gem,
-          asset: 'assets/icons/icon_gem.jpg',
-        ),
+        const _VipChip(),
         const SizedBox(width: AppSpacing.xs),
         Icon(Icons.menu, color: c.goldWarm),
       ],
+    );
+  }
+}
+
+/// The only header status: a quiet VIP entry (no coin or gem balances exist).
+class _VipChip extends StatelessWidget {
+  const _VipChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      onTap: () => context.push(AppRoutes.vipPath),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          gradient: AppGradients.rewardWash,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(
+            color: AppPalette.goldMid.withValues(alpha: 0.5),
+          ),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.workspace_premium,
+              size: 16,
+              color: AppPalette.goldHi,
+            ),
+            SizedBox(width: 4),
+            Text(
+              'VIP',
+              style: TextStyle(
+                color: AppPalette.goldHi,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -354,7 +387,6 @@ class _EditorialLove extends StatelessWidget {
                 accent: _accentFor('marriage'),
                 available: true,
                 soonLabel: 'به‌زودی',
-                priceLabel: '۵',
                 onTap: () => onOpen('marriage'),
               ),
             ),
@@ -367,7 +399,6 @@ class _EditorialLove extends StatelessWidget {
                 accent: _accentFor('child'),
                 available: true,
                 soonLabel: 'به‌زودی',
-                priceLabel: '۵',
                 onTap: () => onOpen('child'),
               ),
             ),

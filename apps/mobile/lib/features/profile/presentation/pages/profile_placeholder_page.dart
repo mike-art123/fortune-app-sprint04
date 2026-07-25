@@ -49,13 +49,14 @@ class ProfilePlaceholderPage extends StatelessWidget {
           children: [
             _header(context),
             const SizedBox(height: AppSpacing.md),
+            // Coins are gone: the only stats are the user's own journey.
             Row(
               children: [
-                _stat(context, Icons.monetization_on, '۲۴٬۵۶۰', 'سکه‌ها'),
-                const SizedBox(width: AppSpacing.xs),
-                _stat(context, Icons.diamond, '۸۵۰', 'جم‌ها'),
-                const SizedBox(width: AppSpacing.xs),
                 _stat(context, Icons.auto_awesome, '۱۲۸', 'فال‌ها'),
+                const SizedBox(width: AppSpacing.xs),
+                _stat(context, Icons.local_fire_department, '۷', 'روز پیاپی'),
+                const SizedBox(width: AppSpacing.xs),
+                _stat(context, Icons.bookmark_border, '۱۲', 'نشان‌شده'),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
@@ -96,7 +97,7 @@ class ProfilePlaceholderPage extends StatelessWidget {
               () => _soon(context),
             ),
             const SizedBox(height: AppSpacing.sm),
-            _vip(context, () => _soon(context)),
+            _vip(context, () => context.push(AppRoutes.vipPath)),
             const SizedBox(height: AppSpacing.lg),
           ],
         ),

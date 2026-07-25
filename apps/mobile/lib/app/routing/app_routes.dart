@@ -26,6 +26,8 @@ abstract final class AppRoutes {
 
   static const walletName = 'wallet';
   static const walletPath = '/wallet';
+  static const vipName = 'vip';
+  static const vipPath = '/vip';
 
   static const historyName = 'history';
   static const historyPath = '/history';

@@ -13,6 +13,7 @@ import '../../features/reading/presentation/pages/reading_page.dart';
 import '../../features/ritual_entry/presentation/pages/ritual_entry_page.dart';
 import '../../features/splash/presentation/controllers/startup_controller.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/vip/presentation/pages/vip_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../../shared/providers/shared_providers.dart';
 import '../app_startup_state.dart';
@@ -135,8 +136,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const HistoryPage(),
       ),
       GoRoute(
+        path: AppRoutes.vipPath,
+        name: AppRoutes.vipName,
+        builder: (_, __) => const VipPage(),
+      ),
+      GoRoute(
         path: AppRoutes.walletPath,
         name: AppRoutes.walletName,
+        // The coin store is gone (coins removed). Any old wallet link lands on
+        // the VIP page; the builder stays only so the widget/import remains
+        // referenced until the wallet feature is deleted outright.
+        redirect: (context, state) => AppRoutes.vipPath,
         builder: (_, __) => const WalletPage(),
       ),
       GoRoute(
