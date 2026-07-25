@@ -114,15 +114,6 @@ class _HomePageState extends State<HomePage> {
                 AppSpacing.lg,
               ),
               children: [
-                Text(
-                  _safeArea.debugInfo,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFFE7C25E),
-                    fontSize: 10,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 HeroBanner(
                   title: 'فال و اسرار زندگی',
                   subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
