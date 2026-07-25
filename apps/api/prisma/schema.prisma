@@ -141,16 +141,19 @@ model CoinTransaction {
   @@map("coin_transactions")
 }
 
-/// Subscription entitlement (Sprint 04 / doc 53). One per user. Payments and
-/// renewal flows arrive with their own document; grants are system-level.
+/// VIP subscription entitlement. One per user. Activated by verified Telegram
+/// Stars payments (or a system grant); `platformTransactionId` stores the last
+/// applied telegram_payment_charge_id so a webhook retry never extends twice.
 model Subscription {
-  id               String   @id @default(cuid())
-  userId           String   @unique @map("user_id")
-  plan             String
-  status           String
-  currentPeriodEnd DateTime @map("current_period_end")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                    String   @id @default(cuid())
+  userId                String   @unique @map("user_id")
+  plan                  String
+  status                String
+  currentPeriodEnd      DateTime @map("current_period_end")
+  autoRenew             Boolean  @default(false) @map("auto_renew")
+  platformTransactionId String?  @unique @map("platform_transaction_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

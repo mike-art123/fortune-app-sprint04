@@ -93,6 +93,11 @@ export const envSchema = z
     AD_ENTITLEMENT_TTL_SECONDS: z.coerce.number().int().positive().default(1800),
     AD_COOLDOWN_FAILURES: z.coerce.number().int().min(1).max(20).default(3),
     AD_COOLDOWN_WINDOW_SECONDS: z.coerce.number().int().positive().default(300),
+
+    /** VIP plan prices in Telegram Stars (XTR). */
+    VIP_MONTHLY_STARS: z.coerce.number().int().positive().default(250),
+    VIP_QUARTERLY_STARS: z.coerce.number().int().positive().default(600),
+    VIP_ANNUAL_STARS: z.coerce.number().int().positive().default(2000),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production') {

@@ -3,7 +3,7 @@ import { AppLoggerService } from '../../infrastructure/logging/app-logger.servic
 import { TelegramBotConfig } from './telegram-bot.config';
 import type { TelegramUpdate } from './telegram-update.types';
 
-interface TelegramApiResponse {
+export interface TelegramApiResponse {
   ok: boolean;
   description?: string;
   result?: unknown;
@@ -45,7 +45,7 @@ export class TelegramBotService implements OnApplicationBootstrap {
       const res = await this.call('setWebhook', {
         url,
         secret_token: this.config.webhookSecret,
-        allowed_updates: ['message'],
+        allowed_updates: ['message', 'pre_checkout_query'],
       });
       if (res.ok) {
         this.logger.info('telegram.webhook.registered', { url });
@@ -75,6 +75,11 @@ export class TelegramBotService implements OnApplicationBootstrap {
     const chatId = message?.chat?.id;
     if (chatId == null || !text.startsWith('/start')) return;
     await this.sendStart(chatId);
+  }
+
+  /** Time-bounded Bot API call for sibling services (payments, invoices). */
+  api(method: string, body: unknown): Promise<TelegramApiResponse> {
+    return this.call(method, body);
   }
 
   private async sendStart(chatId: number): Promise<void> {

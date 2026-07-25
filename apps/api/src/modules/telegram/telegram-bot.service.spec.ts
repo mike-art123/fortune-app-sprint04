@@ -43,7 +43,7 @@ describe('TelegramBotService', () => {
     const body = JSON.parse(init.body) as Record<string, unknown>;
     expect(body.url).toBe('https://api.example.com/api/v1/telegram/webhook');
     expect(body.secret_token).toBe('secret123');
-    expect(body.allowed_updates).toEqual(['message']);
+    expect(body.allowed_updates).toEqual(['message', 'pre_checkout_query']);
   });
 
   it('skips registration when no bot token is configured', async () => {
