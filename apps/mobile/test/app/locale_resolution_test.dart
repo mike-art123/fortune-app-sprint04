@@ -10,10 +10,10 @@ void main() {
     );
   });
 
-  test('system locale is used when nothing is stored', () {
+  test('an English DEVICE never flips the app — Persian-first', () {
     expect(
       SupportedLocales.resolve(null, const Locale('en')),
-      SupportedLocales.en,
+      SupportedLocales.fa,
     );
   });
 

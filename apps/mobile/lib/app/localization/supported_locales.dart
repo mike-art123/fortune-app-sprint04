@@ -17,16 +17,13 @@ abstract final class SupportedLocales {
     GlobalCupertinoLocalizations.delegate,
   ];
 
-  /// Resolves a stored/system locale to a supported one, defaulting to Persian.
+  /// Resolves the active locale. BakhtNegar is Persian-first: only an explicit
+  /// in-app choice (the stored preference) may switch the language — a device
+  /// set to English must NOT flip the whole experience to English. The system
+  /// locale is deliberately ignored until a real language switcher ships.
   static Locale resolve(String? storedCode, Locale? systemLocale) {
     if (storedCode != null) {
       final match = all.where((l) => l.languageCode == storedCode).firstOrNull;
-      if (match != null) return match;
-    }
-    if (systemLocale != null) {
-      final match = all
-          .where((l) => l.languageCode == systemLocale.languageCode)
-          .firstOrNull;
       if (match != null) return match;
     }
     return fallback;
