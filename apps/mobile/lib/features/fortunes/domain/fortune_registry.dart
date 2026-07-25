@@ -304,6 +304,7 @@ abstract final class FortuneRegistry {
       'Ask it short and clear, within.',
       'بله یا خیر را ببین',
       'See yes or no',
+      offering: FortuneOffering.chips,
       chips: const [
         LocalizedText(fa: 'آیا این‌طور می‌شود؟', en: 'Will it turn out so?'),
         LocalizedText(fa: 'آیا پیش بروم؟', en: 'Should I go ahead?'),
@@ -319,6 +320,7 @@ abstract final class FortuneRegistry {
       'Trust your luck.',
       'عددِ شانست را ببین',
       'See your lucky number',
+      offering: FortuneOffering.chips,
       chips: const [
         LocalizedText(fa: 'برای امروز', en: 'For today'),
         LocalizedText(fa: 'برای این هفته', en: 'For this week'),

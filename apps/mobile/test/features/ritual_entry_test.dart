@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entry_page.dart';
+import 'package:fortune_app/features/ritual_entry/presentation/widgets/paired_names_field.dart';
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
 
 Widget host(String fortuneId) => ProviderScope(
@@ -28,12 +29,17 @@ void main() {
     expect(find.text('فال حافظ را باز کن'), findsOneWidget);
   });
 
-  testWidgets('love entry renders two whispers joined by و', (tester) async {
+  testWidgets('love entry renders the paired-names bond, not a bare و', (
+    tester,
+  ) async {
     await tester.pumpWidget(host('love'));
     await tester.pumpAndSettle();
 
+    // Interior phase 5: the two whispers are joined by the bond element in
+    // the family accent — the lone «و» between form fields is gone.
+    expect(find.byType(PairedNamesField), findsOneWidget);
     expect(find.byType(WhisperField), findsNWidgets(2));
-    expect(find.text('و'), findsOneWidget);
+    expect(find.text('و'), findsNothing);
   });
 
   testWidgets('love: sealing with one name shows gentle guidance', (
