@@ -12,6 +12,10 @@ class StartupController extends AsyncNotifier<AppStartupState> {
   @override
   Future<AppStartupState> build() async {
     try {
+      // The premium splash stays on screen for at least this long, even when
+      // initialization finishes sooner, so the brand banner is seen.
+      final minDisplay = Future<void>.delayed(const Duration(seconds: 2));
+
       await ref
           .read(storageMigrationsProvider)
           .run()
@@ -30,6 +34,7 @@ class StartupController extends AsyncNotifier<AppStartupState> {
       // Fire-and-forget: telemetry failures must not affect startup.
       unawaited(ref.read(analyticsServiceProvider).track(const AppStarted()));
 
+      await minDisplay;
       return const StartupReady();
     } catch (e, st) {
       ref
@@ -52,6 +57,7 @@ class StartupController extends AsyncNotifier<AppStartupState> {
   Future<void> retry() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
+      final minDisplay = Future<void>.delayed(const Duration(seconds: 2));
       await ref
           .read(storageMigrationsProvider)
           .run()
@@ -60,6 +66,7 @@ class StartupController extends AsyncNotifier<AppStartupState> {
           .read(authControllerProvider.notifier)
           .bootstrap()
           .timeout(const Duration(seconds: 20), onTimeout: () {});
+      await minDisplay;
       return const StartupReady();
     });
   }

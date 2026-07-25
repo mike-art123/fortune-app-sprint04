@@ -58,7 +58,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.homePath,
         name: AppRoutes.homeName,
-        builder: (_, __) => const HomePage(),
+        // Cross-fade + a whisper of scale from the splash into Home. Both
+        // screens share the same dark canvas — no white/black flash.
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          child: const HomePage(),
+          transitionDuration: const Duration(milliseconds: 420),
+          transitionsBuilder: (context, animation, secondary, child) {
+            final curved = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            );
+            return FadeTransition(
+              opacity: curved,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.985, end: 1).animate(curved),
+                child: child,
+              ),
+            );
+          },
+        ),
       ),
       GoRoute(
         path: AppRoutes.allFortunesPath,
