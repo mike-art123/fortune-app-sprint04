@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/core/result/result.dart';
+import 'package:fortune_app/features/access/application/access_flow_controller.dart';
 import 'package:fortune_app/features/access/data/access_repository.dart';
 import 'package:fortune_app/features/access/domain/access_models.dart';
 import 'package:fortune_app/features/fortunes/domain/fal_input.dart';
@@ -83,7 +84,7 @@ class _FreeAccessRepo implements AccessRepository {
   Future<void> cancel(String sessionId) async {}
 }
 
-Widget host(String fortuneId, _CapturingRepo repo) {
+Widget _host(String fortuneId, _CapturingRepo repo) {
   final router = GoRouter(
     initialLocation: '/ritual/$fortuneId',
     routes: [
@@ -134,7 +135,7 @@ void main() {
   ) async {
     await phone(tester);
     final repo = _CapturingRepo();
-    await tester.pumpWidget(host('birthmonth', repo));
+    await tester.pumpWidget(_host('birthmonth', repo));
     await tester.pumpAndSettle();
 
     expect(find.text('مهر'), findsOneWidget);
@@ -153,7 +154,7 @@ void main() {
   ) async {
     await phone(tester);
     final repo = _CapturingRepo();
-    await tester.pumpWidget(host('luckycolor', repo));
+    await tester.pumpWidget(_host('luckycolor', repo));
     await tester.pumpAndSettle();
 
     expect(find.text('فیروزه‌ای'), findsOneWidget);
@@ -170,7 +171,7 @@ void main() {
   ) async {
     await phone(tester);
     final repo = _CapturingRepo();
-    await tester.pumpWidget(host('yesno', repo));
+    await tester.pumpWidget(_host('yesno', repo));
     await tester.pumpAndSettle();
 
     expect(find.text('آیا پیش بروم؟'), findsOneWidget);
@@ -187,7 +188,7 @@ void main() {
   ) async {
     await phone(tester);
     final repo = _CapturingRepo();
-    await tester.pumpWidget(host('love', repo));
+    await tester.pumpWidget(_host('love', repo));
     await tester.pumpAndSettle();
 
     expect(find.byType(PairedNamesField), findsOneWidget);
