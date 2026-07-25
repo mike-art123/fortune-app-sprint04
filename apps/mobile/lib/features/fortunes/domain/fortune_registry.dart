@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../../../design_system/foundations/app_colors.dart';
 import '../../../shared/models/localized_text.dart';
 import 'fortune_definition.dart';
@@ -10,6 +11,21 @@ abstract final class FortuneRegistry {
     enter: Duration(milliseconds: 500),
     step: Duration(milliseconds: 150),
   );
+
+  // Per-fortune jewel accents: the four category accents + a few extras, so
+  // each fortune's moon glow and ritual aura reads distinctly.
+  static const _gold = CategoryAccents.hafez;
+  static const _turq = CategoryAccents.tarot;
+  static const _blue = CategoryAccents.dream;
+  static const _rose = CategoryAccents.love;
+  static const _copper = CategoryAccents.coffee;
+  static const _violet = Color(0xFFA78BFA);
+  static const _emerald = Color(0xFF5FBF8F);
+  static const _amber = Color(0xFFE6A23C);
+  static const _teal = Color(0xFF4FB6B0);
+  static const _magenta = Color(0xFFCB6FB0);
+  static const _sky = Color(0xFF6FA8DC);
+  static const _jade = Color(0xFF7FC8A9);
 
   /// Every fortune family: the four backend-live rituals + coffee (soon), then
   /// the remaining catalog fortunes activated with shared ritual copy — each
@@ -149,46 +165,46 @@ abstract final class FortuneRegistry {
   ];
 
   static final List<FortuneDefinition> _extended = [
-    _intent('abjad', 'فال ابجد', 'حروف و اعداد'),
-    _twoNames('marriage', 'فال ازدواج', 'آیندهٔ ازدواج'),
-    _intent('child', 'فال فرزند', 'فرزند داری؟'),
-    _intent('friendship', 'فال دوستی', 'دوستانِ واقعی'),
-    _intent('separation', 'فال جدایی', 'پایانِ رابطه؟'),
-    _twoNames('reconcile', 'فال آشتی', 'بازگشتِ او'),
-    _intent('name', 'فال اسم', 'رازِ نامت'),
-    _intent('job', 'فال شغل', 'آیندهٔ کاری'),
-    _intent('money', 'فال مالی', 'ثروت و پول'),
-    _intent('travel', 'فال سفر', 'سفر در راه؟'),
-    _intent('future', 'فال آینده', 'در انتظارِ من'),
-    _intent('message', 'فال پیام', 'پیامی در راه'),
-    _intent('intention', 'فال نیت', 'نیتِ قلبی'),
-    _intent('yesno', 'بله یا خیر', 'پاسخِ سریع'),
-    _intent('luckynumber', 'عدد شانس', 'عددِ خوش‌یمن'),
-    _intent('luckycolor', 'رنگ شانس', 'رنگِ امروز'),
-    _intent('luckystone', 'سنگ شانس', 'سنگِ متولد'),
-    _intent('luckyflower', 'گل شانس', 'گلِ تو'),
-    _intent('dailytalisman', 'طلسم روزانه', 'حفاظت و انرژی'),
-    _intent('lots', 'فال قرعه', 'قرعه و شانس'),
-    _intent('birthmonth', 'ماه تولد', 'طالع و شخصیت'),
-    _intent('daily', 'فال روزانه', 'ویژهٔ امروز'),
-    _intent('universe', 'فال کائنات', 'پیامِ جهان'),
-    _intent('tea', 'فال چای', 'برگ‌های چای'),
-    _intent('candle', 'فال شمع', 'نور و انرژی'),
-    _intent('mirror', 'فال آینه', 'آینهٔ آینده'),
-    _intent('lenormand', 'فال لنورمان', 'کارت‌های لنورمان'),
-    _intent('rune', 'فال رون', 'حروفِ باستان'),
-    _intent('cards', 'فال کارتی', 'کارت‌های اوراکل'),
-    _intent('quran', 'فال قرآن', 'استخارهٔ قرآن'),
-    _intent('tasbih', 'فال تسبیح', 'دانه‌های تسبیح'),
-    _intent('angel', 'پیام فرشتگان', 'پیامِ فرشته'),
-    _intent('spiritanimal', 'حیوان روح', 'حیوانِ روحِ تو'),
-    _intent('meditation', 'مدیتیشن', 'نیت‌گذاری'),
+    _intent('abjad', 'فال ابجد', 'حروف و اعداد', _gold),
+    _twoNames('marriage', 'فال ازدواج', 'آیندهٔ ازدواج', _rose),
+    _intent('child', 'فال فرزند', 'فرزند داری؟', _magenta),
+    _intent('friendship', 'فال دوستی', 'دوستانِ واقعی', _teal),
+    _intent('separation', 'فال جدایی', 'پایانِ رابطه؟', _blue),
+    _twoNames('reconcile', 'فال آشتی', 'بازگشتِ او', _rose),
+    _intent('name', 'فال اسم', 'رازِ نامت', _violet),
+    _intent('job', 'فال شغل', 'آیندهٔ کاری', _emerald),
+    _intent('money', 'فال مالی', 'ثروت و پول', _amber),
+    _intent('travel', 'فال سفر', 'سفر در راه؟', _sky),
+    _intent('future', 'فال آینده', 'در انتظارِ من', _violet),
+    _intent('message', 'فال پیام', 'پیامی در راه', _turq),
+    _intent('intention', 'فال نیت', 'نیتِ قلبی', _gold),
+    _intent('yesno', 'بله یا خیر', 'پاسخِ سریع', _amber),
+    _intent('luckynumber', 'عدد شانس', 'عددِ خوش‌یمن', _teal),
+    _intent('luckycolor', 'رنگ شانس', 'رنگِ امروز', _magenta),
+    _intent('luckystone', 'سنگ شانس', 'سنگِ متولد', _violet),
+    _intent('luckyflower', 'گل شانس', 'گلِ تو', _rose),
+    _intent('dailytalisman', 'طلسم روزانه', 'حفاظت و انرژی', _amber),
+    _intent('lots', 'فال قرعه', 'قرعه و شانس', _copper),
+    _intent('birthmonth', 'ماه تولد', 'طالع و شخصیت', _violet),
+    _intent('daily', 'فال روزانه', 'ویژهٔ امروز', _gold),
+    _intent('universe', 'فال کائنات', 'پیامِ جهان', _violet),
+    _intent('tea', 'فال چای', 'برگ‌های چای', _jade),
+    _intent('candle', 'فال شمع', 'نور و انرژی', _amber),
+    _intent('mirror', 'فال آینه', 'آینهٔ آینده', _sky),
+    _intent('lenormand', 'فال لنورمان', 'کارت‌های لنورمان', _turq),
+    _intent('rune', 'فال رون', 'حروفِ باستان', _copper),
+    _intent('cards', 'فال کارتی', 'کارت‌های اوراکل', _teal),
+    _intent('quran', 'فال قرآن', 'استخارهٔ قرآن', _emerald),
+    _intent('tasbih', 'فال تسبیح', 'دانه‌های تسبیح', _jade),
+    _intent('angel', 'پیام فرشتگان', 'پیامِ فرشته', _sky),
+    _intent('spiritanimal', 'حیوان روح', 'حیوانِ روحِ تو', _copper),
+    _intent('meditation', 'مدیتیشن', 'نیت‌گذاری', _teal),
   ];
 
-  static FortuneDefinition _intent(String id, String fa, String sub) {
+  static FortuneDefinition _intent(String id, String fa, String sub, Color a) {
     return FortuneDefinition(
       id: id,
-      accent: CategoryAccents.hafez,
+      accent: a,
       inputKind: FortuneInputKind.intention,
       title: LocalizedText(fa: fa, en: fa),
       subtitle: LocalizedText(fa: sub, en: sub),
@@ -205,10 +221,15 @@ abstract final class FortuneRegistry {
     );
   }
 
-  static FortuneDefinition _twoNames(String id, String fa, String sub) {
+  static FortuneDefinition _twoNames(
+    String id,
+    String fa,
+    String sub,
+    Color a,
+  ) {
     return FortuneDefinition(
       id: id,
-      accent: CategoryAccents.love,
+      accent: a,
       inputKind: FortuneInputKind.twoNames,
       title: LocalizedText(fa: fa, en: fa),
       subtitle: LocalizedText(fa: sub, en: sub),
