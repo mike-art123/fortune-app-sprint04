@@ -52,7 +52,7 @@ class ReadingPage extends ConsumerWidget {
                 : s.readingUnavailableTitle,
             reassurance: s.readingUnavailableBody,
             retryLabel: s.actionBackToExplore,
-            onRetry: () => context.go(AppRoutes.explorePath),
+            onRetry: () => context.go(AppRoutes.allFortunesPath),
           ),
         ),
         data: (loaded) => _ReadingView(reading: loaded),
@@ -183,7 +183,7 @@ class _ReadingView extends StatelessWidget {
           FortuneButton(
             label: s.actionBackToExplore,
             variant: FortuneButtonVariant.text,
-            onPressed: () => context.go(AppRoutes.explorePath),
+            onPressed: () => context.go(AppRoutes.allFortunesPath),
           ),
           const SizedBox(height: AppSpacing.lg),
         ],

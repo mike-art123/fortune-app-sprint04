@@ -67,7 +67,7 @@ void main() {
     await tester.pump();
     expect(find.text('در تاریخچه‌ات ماند.'), findsOneWidget);
 
-    await tester.tap(find.text('اشتراک'));
+    await tester.tap(find.text('اشتراک‌گذاری'));
     await tester.pump();
     expect(find.text('این آیین به‌زودی آماده می‌شود.'), findsOneWidget);
   });

@@ -63,7 +63,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
           message: s.routeNotFoundTitle,
           reassurance: s.routeNotFoundBody,
           retryLabel: s.actionBackToExplore,
-          onRetry: () => context.go(AppRoutes.explorePath),
+          onRetry: () => context.go(AppRoutes.allFortunesPath),
         ),
       );
     }

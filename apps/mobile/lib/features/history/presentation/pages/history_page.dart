@@ -38,7 +38,7 @@ class HistoryPage extends ConsumerWidget {
             title: s.historyEmptyTitle,
             description: s.historyEmptyBody,
             actionLabel: s.historyEmptyAction,
-            onAction: () => context.go(AppRoutes.explorePath),
+            onAction: () => context.go(AppRoutes.allFortunesPath),
           ),
         HistoryLoaded() => _HistoryList(state: state),
       },

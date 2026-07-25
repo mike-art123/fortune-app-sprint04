@@ -97,6 +97,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.explorePath,
         name: AppRoutes.exploreName,
+        // Legacy Explore is deprecated and must never show in production:
+        // always redirect to the real «فال‌ها» grid. The builder is kept only
+        // so the widget/import stays referenced.
+        redirect: (context, state) => AppRoutes.allFortunesPath,
         builder: (_, __) => const ExplorePage(),
       ),
       GoRoute(
@@ -188,7 +192,7 @@ class _NotFoundPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 TextButton(
-                  onPressed: () => context.go(AppRoutes.explorePath),
+                  onPressed: () => context.go(AppRoutes.allFortunesPath),
                   child: Text(s.actionBackToExplore),
                 ),
               ],

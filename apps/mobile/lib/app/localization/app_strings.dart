@@ -36,7 +36,8 @@ class AppStrings {
   String get routeNotFoundBody => _fa
       ? 'شاید نشانی تغییر کرده باشد. می‌توانی به کاوش برگردی.'
       : 'The address may have changed. You can head back to Explore.';
-  String get actionBackToExplore => _fa ? 'بازگشت به کاوش' : 'Back to Explore';
+  String get actionBackToExplore =>
+      _fa ? 'بازگشت به فال‌ها' : 'Back to Fortunes';
   String get actionRetry => _fa ? 'دوباره تلاش کن' : 'Try again';
   String get startupFailedTitle =>
       _fa ? 'شروع برنامه ممکن نشد' : "The app couldn't start";
@@ -51,7 +52,7 @@ class AppStrings {
       ? 'خوانشِ کامل در مرحله‌ی بعدِ ساخت به این‌جا می‌آید.'
       : 'The full reading arrives here in the next build stage.';
   String get actionSave => _fa ? 'ذخیره' : 'Save';
-  String get actionShare => _fa ? 'اشتراک' : 'Share';
+  String get actionShare => _fa ? 'اشتراک‌گذاری' : 'Share';
   String get readingUnavailableTitle =>
       _fa ? 'این خوانش در دسترس نیست' : 'This reading is not available';
   String get readingUnavailableBody => _fa
