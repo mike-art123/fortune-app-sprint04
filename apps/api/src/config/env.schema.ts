@@ -80,6 +80,19 @@ export const envSchema = z
     REWARDED_ADS_DAILY_LIMIT: z.coerce.number().int().min(0).max(1000).default(5),
     /** Enforce free/ad/VIP gating. Off until the client + ad + Stars ship. */
     ENFORCE_ACCESS_LIMITS: z.coerce.boolean().default(false),
+
+    /** Rewarded-ad mediation. Ordered provider priority (backend-owned). */
+    REWARDED_AD_PROVIDERS: z.string().default('adsgram,monetag'),
+    ADSGRAM_BLOCK_ID: z.string().default(''),
+    ADSGRAM_REWARD_SECRET: z.string().default(''),
+    MONETAG_ZONE_ID: z.string().default(''),
+    MONETAG_REWARD_SECRET: z.string().default(''),
+    AD_LOAD_TIMEOUT_MS: z.coerce.number().int().positive().default(12000),
+    AD_VERIFY_TIMEOUT_MS: z.coerce.number().int().positive().default(20000),
+    AD_SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(600),
+    AD_ENTITLEMENT_TTL_SECONDS: z.coerce.number().int().positive().default(1800),
+    AD_COOLDOWN_FAILURES: z.coerce.number().int().min(1).max(20).default(3),
+    AD_COOLDOWN_WINDOW_SECONDS: z.coerce.number().int().positive().default(300),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production') {

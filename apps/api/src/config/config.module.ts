@@ -11,6 +11,7 @@ import { AiConfig } from './ai.config';
 import { AuthConfig } from './auth.config';
 import { WalletConfig } from './wallet.config';
 import { MonetizationConfig } from './monetization.config';
+import { AdsConfig } from './ads.config';
 
 const providers = [
   AppConfig,
@@ -23,6 +24,7 @@ const providers = [
   AuthConfig,
   WalletConfig,
   MonetizationConfig,
+  AdsConfig,
 ];
 
 @Global()

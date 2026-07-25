@@ -13,6 +13,7 @@ import { FeatureFlagsModule } from './infrastructure/feature-flags/feature-flags
 import { ObservabilityModule } from './infrastructure/observability/observability.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { AuthGuard } from './common/guards/auth.guard';
+import { AdsModule } from './modules/ads/ads.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { EntitlementsModule } from './modules/entitlements/entitlements.module';
@@ -46,6 +47,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
         ],
       }),
     }),
+    AdsModule,
     AuthModule,
     UsersModule,
     EntitlementsModule,
