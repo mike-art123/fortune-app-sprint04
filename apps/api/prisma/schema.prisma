@@ -20,6 +20,7 @@ model User {
   idempotencyKeys IdempotencyKey[]
   subscription    Subscription?
   wallet          Wallet?
+  dailyUsage      DailyFortuneUsage[]
 
   @@map("users")
 }
@@ -152,4 +153,25 @@ model Subscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+/// Per-user, per-day free-allowance counter (coins removed). One row per
+/// (user, dateKey, fortuneId); `dateKey` is the server-computed YYYY-MM-DD in
+/// the app timezone. The unique key makes granting the daily free reading
+/// atomic, and the count is only ever incremented after a successful reading.
+model DailyFortuneUsage {
+  id                       String   @id @default(cuid())
+  userId                   String   @map("user_id")
+  dateKey                  String   @map("date_key")
+  fortuneId                String   @map("fortune_id")
+  successfulFreeUsageCount Int      @default(0) @map("successful_free_usage_count")
+  lastFreeUsedAt           DateTime @default(now()) @map("last_free_used_at")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dateKey, fortuneId])
+  @@index([userId, dateKey])
+  @@map("daily_fortune_usage")
 }
