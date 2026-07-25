@@ -229,4 +229,5 @@ final accessRepositoryProvider = Provider<AccessRepository>((ref) {
 
 final accessFlowControllerProvider = NotifierProvider.autoDispose
     .family<AccessFlowController, AccessFlowState, String>(
-        AccessFlowController.new);
+  AccessFlowController.new,
+);
