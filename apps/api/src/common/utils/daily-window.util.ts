@@ -42,10 +42,14 @@ function tzOffsetMs(now: Date, timeZone: string): number {
     minute: '2-digit',
     second: '2-digit',
   }).formatToParts(now);
-  const map: Record<string, number> = {};
-  for (const p of parts) {
-    if (p.type !== 'literal') map[p.type] = Number(p.value);
-  }
-  const asUtc = Date.UTC(map.year, map.month - 1, map.day, map.hour, map.minute, map.second);
+  const num = (type: string): number => Number(parts.find((p) => p.type === type)?.value ?? '0');
+  const asUtc = Date.UTC(
+    num('year'),
+    num('month') - 1,
+    num('day'),
+    num('hour'),
+    num('minute'),
+    num('second'),
+  );
   return asUtc - now.getTime();
 }
