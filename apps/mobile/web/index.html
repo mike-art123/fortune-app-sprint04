@@ -39,28 +39,60 @@
     })();
   </script>
 
-  <!-- Publish Telegram's safe-area insets to Flutter. Flutter reads
-       window.__tgSafeArea and rebuilds on the 'tg-safearea' event, so the top
-       header never hides under Telegram's Close/top controls in fullscreen.
-       Fully guarded: outside Telegram this never runs and Flutter sees nothing. -->
+  <!-- Resolve Telegram's TOP safe-area entirely in JS — where safeAreaInset,
+       contentSafeAreaInset, isFullscreen and the iOS user-agent are all
+       directly available — and publish a single, ready-to-use
+       window.__tgSafeArea.topInset. Flutter just pads its toolbar by that
+       number, so the header can never sit under Telegram's Close/More controls.
+       Re-published on every safe-area / viewport / fullscreen event and a few
+       timed retries (iOS reports late). Outside Telegram inTelegram=false. -->
   <script>
     (function () {
       function num(v) { return (typeof v === 'number' && isFinite(v)) ? v : 0; }
+      function envTop() {
+        try {
+          var el = document.createElement('div');
+          el.style.cssText =
+            'position:fixed;top:0;left:0;width:0;visibility:hidden;' +
+            'pointer-events:none;height:env(safe-area-inset-top,0px);';
+          (document.body || document.documentElement).appendChild(el);
+          var h = el.getBoundingClientRect().height || 0;
+          el.parentNode.removeChild(el);
+          return h;
+        } catch (e) { return 0; }
+      }
       function recompute() {
         try {
           var wa = window.Telegram && window.Telegram.WebApp;
-          if (!wa) return;
+          if (!wa) {
+            window.__tgSafeArea = {
+              inTelegram: false, topInset: 0, bottom: 0, left: 0, right: 0
+            };
+            window.dispatchEvent(new Event('tg-safearea'));
+            return;
+          }
           var s = wa.safeAreaInset || {};
           var c = wa.contentSafeAreaInset || {};
+          var full = !!wa.isFullscreen;
+          var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+          var top = num(s.top) + num(c.top);
+          if (top > 0) {
+            top += 8;                         // real values: breathing room
+          } else if (full) {
+            var device = envTop() || (isIOS ? 59 : 24);
+            top = device + (isIOS ? 44 : 12); // notch + Close/More control row
+          } else {
+            top = envTop();                   // non-fullscreen: OS notch only
+          }
+          top = Math.max(0, Math.min(200, top));
           window.__tgSafeArea = {
-            top: num(s.top), bottom: num(s.bottom),
-            left: num(s.left), right: num(s.right),
-            contentTop: num(c.top), contentBottom: num(c.bottom),
-            fullscreen: !!wa.isFullscreen
+            inTelegram: true, topInset: top,
+            bottom: num(s.bottom), left: num(s.left), right: num(s.right)
           };
           window.dispatchEvent(new Event('tg-safearea'));
         } catch (e) {}
       }
+      window.__tgRecomputeSafeArea = recompute;
       try {
         var wa = window.Telegram && window.Telegram.WebApp;
         if (wa && typeof wa.onEvent === 'function') {
@@ -71,8 +103,8 @@
         }
       } catch (e) {}
       recompute();
-      // Fullscreen / safe-area settle after launch on iOS; retry a few times.
-      [150, 400, 900, 1800].forEach(function (ms) {
+      // Telegram populates insets / enters fullscreen after launch on iOS.
+      [100, 250, 500, 900, 1500, 2500].forEach(function (ms) {
         setTimeout(recompute, ms);
       });
     })();

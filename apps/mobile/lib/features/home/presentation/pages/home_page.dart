@@ -148,15 +148,15 @@ class _HomePageState extends State<HomePage> {
   /// reports 0) it falls back to the real physical inset plus a control-row
   /// allowance — never one fixed value for all devices.
   double _resolveTopInset(BuildContext context) {
-    final tgTop = _safeArea.topInset;
-    if (tgTop > 0.5) return tgTop;
-
     final viewTop = MediaQuery.viewPaddingOf(context).top;
-    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-    if (_safeArea.isTelegram && _safeArea.isFullscreen) {
+    if (_safeArea.isTelegram) {
+      final top = _safeArea.topInset;
+      if (top > 0.5) return top;
+      // Telegram hasn't reported yet: fall back to the physical inset plus a
+      // control-row allowance so the toolbar still clears Close / More.
+      final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
       final device = viewTop > 0 ? viewTop : (isIOS ? 59.0 : 24.0);
-      final controlRow = isIOS ? 44.0 : 12.0;
-      return (device + controlRow).clamp(0.0, 200.0).toDouble();
+      return (device + (isIOS ? 44.0 : 12.0)).clamp(0.0, 200.0).toDouble();
     }
     return viewTop > 8 ? viewTop : 8.0;
   }
