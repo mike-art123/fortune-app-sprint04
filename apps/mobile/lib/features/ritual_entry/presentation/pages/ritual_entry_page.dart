@@ -88,7 +88,10 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     return FortuneScaffold(
       appBar: AppBar(title: Text(fortune.title.resolve(locale))),
       scrollable: true,
-      background: const _RitualBackdrop(),
+      background: _RitualBackdrop(
+        fortuneId: fortune.id,
+        accent: fortune.accent,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -288,10 +291,14 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   }
 }
 
-/// Full-bleed candlelit backdrop for the ritual, dimmed by a scrim so the
-/// calm text and whisper field stay perfectly readable.
+/// Per-fortune themed backdrop: the fortune's own artwork, faded behind a dark
+/// navy scrim (so the calm text stays readable) with a soft accent glow rising
+/// from the bottom. Falls back to the shared candlelit image, then to black.
 class _RitualBackdrop extends StatelessWidget {
-  const _RitualBackdrop();
+  const _RitualBackdrop({required this.fortuneId, required this.accent});
+
+  final String fortuneId;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -299,15 +306,39 @@ class _RitualBackdrop extends StatelessWidget {
       children: [
         Positioned.fill(
           child: Image.asset(
-            'assets/bg/bg_ritual.jpg',
+            'assets/fortunes/$fortuneId.jpg',
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+            errorBuilder: (context, error, stack) => Image.asset(
+              'assets/bg/bg_ritual.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stack) =>
+                  const ColoredBox(color: Colors.black),
+            ),
           ),
         ),
-        Positioned.fill(
+        const Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.55),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x9E05070F), Color(0xD605070F)],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 220,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, accent.withValues(alpha: 0.16)],
+              ),
             ),
           ),
         ),
