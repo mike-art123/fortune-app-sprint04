@@ -47,8 +47,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   Widget build(BuildContext context) {
     final s = context.strings;
     final startup = ref.watch(startupControllerProvider);
-    final failed =
-        startup.hasError || startup.valueOrNull is StartupFailed;
+    final failed = startup.hasError || startup.valueOrNull is StartupFailed;
 
     if (failed) {
       return FortuneScaffold(
@@ -81,13 +80,7 @@ class _SplashView extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
-          'assets/bg/splash_banner.jpg',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stack) => const ColoredBox(
-            color: AppPalette.nightDeep,
-          ),
-        ),
+        Image.asset('assets/bg/splash_banner.jpg', fit: BoxFit.cover),
         const DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
