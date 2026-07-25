@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/localization/supported_locales.dart';
@@ -57,6 +58,26 @@ void main() {
   testWidgets('save confirms history; share copies the reading', (
     tester,
   ) async {
+    // The real clipboard channel has no handler under flutter_test; without a
+    // mock, Clipboard.setData never completes and the share flow stalls.
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          final args = call.arguments as Map<Object?, Object?>;
+          copied.add(args['text']! as String);
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
     await tester.pumpWidget(host(_reading()));
     await tester.pumpAndSettle();
 
@@ -72,6 +93,7 @@ void main() {
     await tester.tap(find.text('اشتراک‌گذاری'));
     await tester.pumpAndSettle();
     expect(find.text('متنِ فال کپی شد؛ هرجا خواستی بفرست.'), findsOneWidget);
+    expect(copied.single, contains('پیامی از دیوان'));
   });
 
   testWidgets('cold deep link fetches the reading by id', (tester) async {

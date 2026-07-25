@@ -43,56 +43,52 @@ describe('all fortunes (e2e) — every catalog entry yields a real reading', () 
     return { intention: 'دلم روشن شود' };
   }
 
-  it(
-    'creates a reading for every single catalog fortune and saves history',
-    async () => {
-      const created: string[] = [];
+  it('creates a reading for every single catalog fortune and saves history', async () => {
+    const created: string[] = [];
 
-      for (const fortune of FORTUNE_CATALOG) {
-        const res = await request(app.getHttpServer())
-          .post('/api/v1/readings')
-          .set(auth)
-          .send({ fortuneId: fortune.id, input: inputFor(fortune.inputKind) });
-
-        expect({ id: fortune.id, status: res.status }).toEqual({ id: fortune.id, status: 201 });
-        const data = res.body.data as {
-          id: string;
-          fortune: string;
-          title: string;
-          reading: string;
-        };
-        expect(data.fortune).toBe(fortune.id);
-        expect(data.title.length).toBeGreaterThan(0);
-        expect(data.reading.length).toBeGreaterThan(20);
-        created.push(data.id);
-      }
-
-      expect(created).toHaveLength(FORTUNE_CATALOG.length);
-
-      // Every one of them is in the user's history (newest-first pages).
-      const seen = new Set<string>();
-      let cursor: string | null = null;
-      for (let page = 0; page < 6; page++) {
-        const url = cursor
-          ? `/api/v1/readings?limit=20&cursor=${encodeURIComponent(cursor)}`
-          : '/api/v1/readings?limit=20';
-        const list = await request(app.getHttpServer()).get(url).set(auth).expect(200);
-        for (const item of list.body.data.items as { id: string }[]) seen.add(item.id);
-        cursor = list.body.data.nextCursor as string | null;
-        if (!cursor) break;
-      }
-      for (const id of created) expect(seen.has(id)).toBe(true);
-
-      // Ownership: a created reading is retrievable by its owner.
-      const one = created[0] as string;
-      const byId = await request(app.getHttpServer())
-        .get(`/api/v1/readings/${one}`)
+    for (const fortune of FORTUNE_CATALOG) {
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/readings')
         .set(auth)
-        .expect(200);
-      expect(byId.body.data.id).toBe(one);
-    },
-    120000,
-  );
+        .send({ fortuneId: fortune.id, input: inputFor(fortune.inputKind) });
+
+      expect({ id: fortune.id, status: res.status }).toEqual({ id: fortune.id, status: 201 });
+      const data = res.body.data as {
+        id: string;
+        fortune: string;
+        title: string;
+        reading: string;
+      };
+      expect(data.fortune).toBe(fortune.id);
+      expect(data.title.length).toBeGreaterThan(0);
+      expect(data.reading.length).toBeGreaterThan(20);
+      created.push(data.id);
+    }
+
+    expect(created).toHaveLength(FORTUNE_CATALOG.length);
+
+    // Every one of them is in the user's history (newest-first pages).
+    const seen = new Set<string>();
+    let cursor: string | null = null;
+    for (let page = 0; page < 6; page++) {
+      const url = cursor
+        ? `/api/v1/readings?limit=20&cursor=${encodeURIComponent(cursor)}`
+        : '/api/v1/readings?limit=20';
+      const list = await request(app.getHttpServer()).get(url).set(auth).expect(200);
+      for (const item of list.body.data.items as { id: string }[]) seen.add(item.id);
+      cursor = list.body.data.nextCursor as string | null;
+      if (!cursor) break;
+    }
+    for (const id of created) expect(seen.has(id)).toBe(true);
+
+    // Ownership: a created reading is retrievable by its owner.
+    const one = created[0] as string;
+    const byId = await request(app.getHttpServer())
+      .get(`/api/v1/readings/${one}`)
+      .set(auth)
+      .expect(200);
+    expect(byId.body.data.id).toBe(one);
+  }, 120000);
 
   it('the user input truly shapes the result (two-names carries the names)', async () => {
     const res = await request(app.getHttpServer())

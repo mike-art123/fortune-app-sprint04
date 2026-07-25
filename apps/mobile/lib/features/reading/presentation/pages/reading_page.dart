@@ -86,7 +86,13 @@ class _ReadingView extends ConsumerWidget {
   Future<void> _share(BuildContext context, WidgetRef ref) async {
     final bridge = ref.read(telegramBridgeProvider);
     final text = '${reading.title}\n\n${reading.text}\n\n🔮 بخت‌نگار';
-    await Clipboard.setData(ClipboardData(text: text));
+
+    var copied = true;
+    try {
+      await Clipboard.setData(ClipboardData(text: text));
+    } catch (_) {
+      copied = false; // never a silent failure — the snackbar tells the truth
+    }
     if (bridge.isAvailable) {
       final url = Uri(
         scheme: 'https',
@@ -100,7 +106,13 @@ class _ReadingView extends ConsumerWidget {
     final messenger = ScaffoldMessenger.maybeOf(context);
     messenger?.clearSnackBars();
     messenger?.showSnackBar(
-      const SnackBar(content: Text('متنِ فال کپی شد؛ هرجا خواستی بفرست.')),
+      SnackBar(
+        content: Text(
+          copied
+              ? 'متنِ فال کپی شد؛ هرجا خواستی بفرست.'
+              : 'اشتراک‌گذاری ممکن نشد؛ دوباره تلاش کن.',
+        ),
+      ),
     );
   }
 
