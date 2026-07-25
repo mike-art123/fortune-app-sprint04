@@ -123,8 +123,9 @@ class AccessFlowController
     }
 
     while (true) {
-      final current = session!.current;
+      final current = session.current;
       if (current == null) break;
+      final sid = session.sessionId;
 
       final outcome = await playRewardedAd(
         provider: current.provider,
@@ -133,16 +134,15 @@ class AccessFlowController
       );
 
       if (outcome == 'completed') {
-        final entitlementId =
-            await _awaitVerification(repo, session.sessionId, current);
-        if (entitlementId != null) {
-          state = AccessProceed(adEntitlementId: entitlementId);
+        final unlock = await _awaitVerification(repo, sid, current);
+        if (unlock != null) {
+          state = AccessProceed(adEntitlementId: unlock);
           return;
         }
         // Server never confirmed: no unlock, and NO fallback to another
         // provider (could double-show ads for one reward).
         await repo.reportFailure(
-          session.sessionId,
+          sid,
           current.attemptNumber,
           'verification_failed',
         );
@@ -153,38 +153,35 @@ class AccessFlowController
 
       if (outcome == 'skipped') {
         // The user closed the ad — never auto-try another provider.
-        await repo.reportFailure(
-          session.sessionId,
-          current.attemptNumber,
-          'skipped',
-        );
+        await repo.reportFailure(sid, current.attemptNumber, 'skipped');
         _rotateKey();
         final options = _lastOptions;
         state = options != null ? AccessSheet(options) : const AccessIdle();
         return;
       }
 
-      final reason =
-          _fallbackReasons.contains(outcome) ? outcome : 'ad_unavailable';
+      var reason = outcome;
+      if (!_fallbackReasons.contains(outcome)) reason = 'ad_unavailable';
       final reported = await repo.reportFailure(
-        session.sessionId,
+        sid,
         current.attemptNumber,
         reason,
       );
-      session = reported.valueOrNull;
-      if (session == null) {
+      final next = reported.valueOrNull;
+      if (next == null) {
         _rotateKey();
         state = AccessError(reported.failureOrNull!);
         return;
       }
+      session = next;
     }
 
     // Chain over without a reward.
     _rotateKey();
     if (session.status == 'rewarded') {
       final status = await repo.status(session.sessionId);
-      final entitlementId = status.valueOrNull?.entitlementId;
-      state = AccessProceed(adEntitlementId: entitlementId);
+      final unlock = status.valueOrNull?.entitlementId;
+      state = AccessProceed(adEntitlementId: unlock);
       return;
     }
     state = const AccessAdsExhausted();
