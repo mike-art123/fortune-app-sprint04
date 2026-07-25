@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/localization/app_strings.dart';
@@ -16,6 +17,7 @@ import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../core/errors/app_failure.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../design_system/components/fortune_loading.dart';
+import '../../../../shared/providers/shared_providers.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../history/application/history_controller.dart';
 import '../../domain/reading.dart';
@@ -64,7 +66,7 @@ class ReadingPage extends ConsumerWidget {
   }
 }
 
-class _ReadingView extends StatelessWidget {
+class _ReadingView extends ConsumerWidget {
   const _ReadingView({required this.reading});
 
   final Reading reading;
@@ -79,8 +81,31 @@ class _ReadingView extends StatelessWidget {
         : formatted;
   }
 
+  /// Real share: the reading is copied for pasting anywhere, and inside
+  /// Telegram the native share sheet opens with the text prefilled.
+  Future<void> _share(BuildContext context, WidgetRef ref) async {
+    final bridge = ref.read(telegramBridgeProvider);
+    final text = '${reading.title}\n\n${reading.text}\n\n🔮 بخت‌نگار';
+    await Clipboard.setData(ClipboardData(text: text));
+    if (bridge.isAvailable) {
+      final url = Uri(
+        scheme: 'https',
+        host: 't.me',
+        path: 'share/url',
+        queryParameters: {'url': 'https://t.me/bakhtnegarbot', 'text': text},
+      ).toString();
+      await bridge.openLink(url);
+    }
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    messenger?.clearSnackBars();
+    messenger?.showSnackBar(
+      const SnackBar(content: Text('متنِ فال کپی شد؛ هرجا خواستی بفرست.')),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final s = context.strings;
     final c = context.fortuneColors;
     final current = reading;
@@ -192,13 +217,7 @@ class _ReadingView extends StatelessWidget {
                 child: FortuneButton(
                   label: s.actionShare,
                   variant: FortuneButtonVariant.secondary,
-                  onPressed: () {
-                    final messenger = ScaffoldMessenger.maybeOf(context);
-                    messenger?.clearSnackBars();
-                    messenger?.showSnackBar(
-                      SnackBar(content: Text(s.comingSoonDetail)),
-                    );
-                  },
+                  onPressed: () => _share(context, ref),
                 ),
               ),
             ],

@@ -54,7 +54,9 @@ void main() {
     expect(find.text('۲۰۲۶/۰۱/۰۷'), findsOneWidget);
   });
 
-  testWidgets('save confirms history; share shows coming-soon', (tester) async {
+  testWidgets('save confirms history; share copies the reading', (
+    tester,
+  ) async {
     await tester.pumpWidget(host(_reading()));
     await tester.pumpAndSettle();
 
@@ -68,8 +70,8 @@ void main() {
     expect(find.text('در تاریخچه‌ات ماند.'), findsOneWidget);
 
     await tester.tap(find.text('اشتراک‌گذاری'));
-    await tester.pump();
-    expect(find.text('این آیین به‌زودی آماده می‌شود.'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('متنِ فال کپی شد؛ هرجا خواستی بفرست.'), findsOneWidget);
   });
 
   testWidgets('cold deep link fetches the reading by id', (tester) async {
