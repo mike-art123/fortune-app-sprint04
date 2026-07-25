@@ -16,10 +16,15 @@ class ReadingRepositoryImpl implements ReadingRepository {
   Future<Result<Reading>> create(
     FalInput input, {
     String? idempotencyKey,
+    String? adEntitlementId,
   }) async {
+    final body = FalInputPayload.toJson(input);
+    if (adEntitlementId != null) {
+      body['adEntitlementId'] = adEntitlementId;
+    }
     final result = await _api.post(
       '/readings',
-      body: FalInputPayload.toJson(input),
+      body: body,
       headers: idempotencyKey == null
           ? null
           : {HeaderKeys.idempotencyKey: idempotencyKey},

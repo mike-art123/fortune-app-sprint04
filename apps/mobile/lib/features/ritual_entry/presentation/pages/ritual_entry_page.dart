@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,9 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
+import '../../../access/application/access_flow_controller.dart';
+import '../../../access/presentation/widgets/access_sheet.dart';
+import '../../../fortunes/domain/fal_input.dart';
 import '../../../fortunes/domain/fortune_definition.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../reading/application/reading_submission_controller.dart';
@@ -31,6 +36,10 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   final _primary = TextEditingController();
   final _secondary = TextEditingController();
 
+  /// The sealed offering, preserved across the access sheet, the ad and the
+  /// VIP purchase flow — the user never types anything twice.
+  FalInput? _pendingInput;
+
   @override
   void dispose() {
     _primary.dispose();
@@ -46,9 +55,81 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
               secondary: _secondary.text,
             );
     if (input != null) {
-      // Real submission: Ritual → POST /readings → Reading screen.
-      ref.read(readingSubmissionControllerProvider.notifier).submit(input);
+      // Access first (VIP → free daily → sheet); submission follows access.
+      _pendingInput = input;
+      ref.read(accessFlowControllerProvider(fortune.id).notifier).begin();
     }
+  }
+
+  AccessFlowController _access(FortuneDefinition fortune) {
+    return ref.read(accessFlowControllerProvider(fortune.id).notifier);
+  }
+
+  void _submitPending(FortuneDefinition fortune, String? adEntitlementId) {
+    final input = _pendingInput;
+    if (input == null) return;
+    _access(fortune).reset();
+    ref
+        .read(readingSubmissionControllerProvider.notifier)
+        .submit(input, adEntitlementId: adEntitlementId);
+  }
+
+  Future<void> _onAccessChanged(
+    FortuneDefinition fortune,
+    AccessFlowState next,
+  ) async {
+    switch (next) {
+      case AccessProceed(:final adEntitlementId):
+        _submitPending(fortune, adEntitlementId);
+      case AccessSheet():
+        final choice = await showAccessSheet(
+          context,
+          fortuneName: fortune.title.resolve(Localizations.localeOf(context)),
+        );
+        if (!mounted) return;
+        if (choice == 'ad') {
+          await _access(fortune).watchAd();
+        } else if (choice == 'vip') {
+          await _goVipAndRecheck(fortune);
+        } else {
+          _access(fortune).reset();
+        }
+      case AccessLimitReached():
+        final goVip = await showAdLimitDialog(context);
+        if (!mounted) return;
+        if (goVip) {
+          await _goVipAndRecheck(fortune);
+        } else {
+          _access(fortune).reset();
+        }
+      case AccessAdsExhausted():
+        final action = await showAdsExhaustedDialog(context);
+        if (!mounted) return;
+        if (action == 'retry') {
+          await _access(fortune).watchAd();
+        } else if (action == 'vip') {
+          await _goVipAndRecheck(fortune);
+        } else {
+          _access(fortune).reset();
+        }
+      case AccessError(:final failure):
+        _access(fortune).reset();
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(FailureMessageResolver.resolve(failure))),
+        );
+      case AccessIdle():
+      case AccessChecking():
+      case AccessPreparingAd():
+        break;
+    }
+  }
+
+  /// VIP purchase keeps the pending offering; on return, re-check access and
+  /// continue automatically when the subscription now covers it.
+  Future<void> _goVipAndRecheck(FortuneDefinition fortune) async {
+    await context.push(AppRoutes.vipPath);
+    if (!mounted || _pendingInput == null) return;
+    await _access(fortune).begin();
   }
 
   @override
@@ -71,6 +152,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     final locale = Localizations.localeOf(context);
     final state = ref.watch(ritualEntryControllerProvider(fortune.id));
     final submission = ref.watch(readingSubmissionControllerProvider);
+    final access = ref.watch(accessFlowControllerProvider(fortune.id));
 
     // Navigate exactly once when the reading arrives; input stays preserved on
     // failure so nothing the user whispered is ever lost.
@@ -79,6 +161,14 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
         final reading = next.reading;
         ref.read(readingSubmissionControllerProvider.notifier).reset();
         context.push(AppRoutes.reading(reading.id), extra: reading);
+      }
+    });
+
+    // Access decisions (sheet / limit / exhausted / proceed) arrive as state;
+    // the page reacts with the matching surface while the offering is kept.
+    ref.listen(accessFlowControllerProvider(fortune.id), (previous, next) {
+      if (previous != next && mounted) {
+        unawaited(_onAccessChanged(fortune, next));
       }
     });
     final c = context.fortuneColors;
@@ -168,9 +258,15 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
           FortuneFadeIn(
             duration: pace.enter + pace.step * 3,
             child: FortuneButton(
-              label: fortune.cta.resolve(locale),
-              isLoading: submission is SubmissionInFlight,
-              onPressed: submission is SubmissionInFlight
+              label: access is AccessPreparingAd
+                  ? 'در حال آماده‌سازی تبلیغ...'
+                  : fortune.cta.resolve(locale),
+              isLoading: submission is SubmissionInFlight ||
+                  access is AccessChecking ||
+                  access is AccessPreparingAd,
+              onPressed: submission is SubmissionInFlight ||
+                      access is AccessChecking ||
+                      access is AccessPreparingAd
                   ? null
                   : () => _seal(fortune),
             ),

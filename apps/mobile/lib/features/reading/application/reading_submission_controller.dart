@@ -42,14 +42,16 @@ class ReadingSubmissionController
   @override
   ReadingSubmissionState build() => const SubmissionIdle();
 
-  Future<void> submit(FalInput input) async {
+  Future<void> submit(FalInput input, {String? adEntitlementId}) async {
     if (state is SubmissionInFlight) return;
     final key = _pendingIdempotencyKey ??= const Uuid().v4();
     state = const SubmissionInFlight();
 
-    final result = await ref
-        .read(readingRepositoryProvider)
-        .create(input, idempotencyKey: key);
+    final result = await ref.read(readingRepositoryProvider).create(
+          input,
+          idempotencyKey: key,
+          adEntitlementId: adEntitlementId,
+        );
     state = result.fold(
       onSuccess: (reading) {
         _pendingIdempotencyKey = null;

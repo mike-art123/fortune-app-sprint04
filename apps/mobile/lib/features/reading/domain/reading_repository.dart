@@ -4,7 +4,12 @@ import 'reading.dart';
 
 /// Contract the application layer depends on — never the implementation.
 abstract interface class ReadingRepository {
-  /// Sprint 04: [idempotencyKey] makes retries charge-safe — the backend
-  /// replays the same reading instead of debiting twice.
-  Future<Result<Reading>> create(FalInput input, {String? idempotencyKey});
+  /// [idempotencyKey] makes retries replay-safe (the backend returns the same
+  /// reading). [adEntitlementId] is the one-time rewarded-ad unlock when the
+  /// user earned access by watching an ad.
+  Future<Result<Reading>> create(
+    FalInput input, {
+    String? idempotencyKey,
+    String? adEntitlementId,
+  });
 }
