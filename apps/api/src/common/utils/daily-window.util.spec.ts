@@ -18,23 +18,20 @@ describe('daily-window util', () => {
   describe('nextResetAt', () => {
     it('returns the next local midnight as a UTC instant (Tehran)', () => {
       const now = new Date('2026-07-24T10:00:00Z'); // 13:30 in Tehran
-      expect(nextResetAt(now, 'Asia/Tehran').toISOString()).toBe(
-        '2026-07-24T20:30:00.000Z',
-      );
+      const iso = nextResetAt(now, 'Asia/Tehran').toISOString();
+      expect(iso).toBe('2026-07-24T20:30:00.000Z');
     });
 
     it('rolls to the following day when already past local midnight', () => {
       const now = new Date('2026-07-24T21:00:00Z'); // 00:30 next day in Tehran
-      expect(nextResetAt(now, 'Asia/Tehran').toISOString()).toBe(
-        '2026-07-25T20:30:00.000Z',
-      );
+      const iso = nextResetAt(now, 'Asia/Tehran').toISOString();
+      expect(iso).toBe('2026-07-25T20:30:00.000Z');
     });
 
     it('matches UTC midnight when the zone is UTC', () => {
       const now = new Date('2026-07-24T10:00:00Z');
-      expect(nextResetAt(now, 'UTC').toISOString()).toBe(
-        '2026-07-25T00:00:00.000Z',
-      );
+      const iso = nextResetAt(now, 'UTC').toISOString();
+      expect(iso).toBe('2026-07-25T00:00:00.000Z');
     });
   });
 });
