@@ -4,25 +4,25 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
+import '../../../../design_system/components/fortune_cards.dart';
 import '../../../../design_system/components/gold_border_container.dart';
-import '../../../../design_system/components/hero_banner.dart';
-import '../../../../design_system/components/luxury_card.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/premium_button.dart';
 import '../../../../design_system/components/section_title.dart';
 import '../../../../design_system/components/stat_chip.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 import '../../../../design_system/foundations/app_gradients.dart';
+import '../../../../design_system/foundations/app_layout.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
-import '../../../fortunes/domain/fortune_definition.dart';
+import '../../../fortunes/domain/fortune_catalog.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 
-/// The premium landing screen (BakhtNegar visual reference): a cinematic hero,
-/// quick actions, popular fortunes and a daily-reward banner over a gold-edged
-/// dark canvas with the raised central «خانه» orb. Logic-free — it drives the
-/// existing fortune registry and routes; no backend contracts change.
+/// The premium landing screen: a cinematic featured fortune, a compact quick
+/// action row, a curated horizontal rail and one asymmetric editorial section
+/// over a deep night canvas. Composition-only; routes and backend contracts are
+/// unchanged. The first viewport stays calm — not every fortune shows at once.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -49,16 +49,20 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
-  void _open(BuildContext context, FortuneDefinition fortune) {
-    if (fortune.id == 'coffee') {
+  void _openId(BuildContext context, String id, bool available) {
+    if (id == 'coffee') {
       context.push(AppRoutes.coffeePath);
       return;
     }
-    if (!fortune.isAvailable) {
+    if (id == 'elements') {
+      context.push(AppRoutes.elementsPath);
+      return;
+    }
+    if (!available) {
       _soon(context);
       return;
     }
-    context.push(AppRoutes.ritual(fortune.id));
+    context.push(AppRoutes.ritual(id));
   }
 
   void _soon(BuildContext context) {
@@ -82,6 +86,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final topInset = _resolveTopInset(context);
+    final locale = Localizations.localeOf(context);
+    final hafez = FortuneRegistry.byId('hafez');
+
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
       bottomNavigationBar: PremiumBottomNavigation(
@@ -91,51 +98,67 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Dedicated top toolbar: always below Telegram's safe area and
-          // Close/More controls — never under them. No SafeArea/Stack overlap.
           AnimatedPadding(
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeOut,
             padding: EdgeInsets.only(
               top: topInset,
-              left: AppSpacing.md,
-              right: AppSpacing.md,
+              left: AppLayout.pageMargin,
+              right: AppLayout.pageMargin,
             ),
             child: const _TopBar(),
           ),
-          // 24–32px of breathing room below the toolbar before the Hero.
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                0,
-                AppSpacing.md,
-                AppSpacing.lg,
-              ),
-              children: [
-                HeroBanner(
-                  title: 'فال و اسرار زندگی',
-                  subtitle: 'هر نیت: راهی‌ست به سوی یک پاسخ…',
-                  backgroundAsset: 'assets/bg/bg_hero.jpg',
-                  action: PremiumButton(
-                    label: 'نیت کن',
-                    icon: Icons.auto_awesome,
-                    onPressed: () => context.push(AppRoutes.ritual('hafez')),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppLayout.maxContentWidth,
+                ),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppLayout.pageMargin,
+                    0,
+                    AppLayout.pageMargin,
+                    AppSpacing.lg,
                   ),
+                  children: [
+                    if (hafez != null)
+                      FeaturedWideFortuneCard(
+                        id: hafez.id,
+                        title: hafez.title.resolve(locale),
+                        subtitle: hafez.subtitle.resolve(locale),
+                        accent: hafez.accent,
+                        cta: hafez.cta.resolve(locale),
+                        onTap: () => _openId(context, hafez.id, true),
+                      ),
+                    const SizedBox(height: AppLayout.sectionGap),
+                    _QuickActionsRow(onTap: () => _soon(context)),
+                    const SizedBox(height: AppLayout.sectionGap),
+                    SectionTitle(
+                      title: 'فال‌های محبوب',
+                      actionLabel: 'مشاهده همه',
+                      onAction: () => context.go(AppRoutes.allFortunesPath),
+                    ),
+                    const SizedBox(height: AppLayout.headingGap),
+                    _CuratedRail(
+                      items: FortuneCatalog.groups.first.items,
+                      onOpen: (id, live) => _openId(context, id, live),
+                    ),
+                    const SizedBox(height: AppLayout.sectionGap),
+                    SectionTitle(
+                      title: 'عشق و روابط',
+                      actionLabel: 'مشاهده همه',
+                      onAction: () => context.go(AppRoutes.allFortunesPath),
+                    ),
+                    const SizedBox(height: AppLayout.headingGap),
+                    _EditorialLove(onOpen: (id) => _openId(context, id, true)),
+                    const SizedBox(height: AppLayout.sectionGap),
+                    _RewardBanner(onClaim: () => _soon(context)),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                _QuickActions(onTap: () => _soon(context)),
-                SectionTitle(
-                  title: 'فال‌های محبوب',
-                  actionLabel: 'مشاهده همه',
-                  onAction: () => context.go(AppRoutes.allFortunesPath),
-                ),
-                _FeaturedRow(onOpen: (f) => _open(context, f)),
-                const SizedBox(height: AppSpacing.md),
-                _RewardBanner(onClaim: () => _soon(context)),
-                const SizedBox(height: AppSpacing.lg),
-              ],
+              ),
             ),
           ),
         ],
@@ -144,22 +167,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Top inset that clears Telegram's safe area + Close/More control row.
-  /// Prefers Telegram's reported insets; on iOS fullscreen (which often
-  /// reports 0) it falls back to the real physical inset plus a control-row
-  /// allowance — never one fixed value for all devices.
   double _resolveTopInset(BuildContext context) {
     final viewTop = MediaQuery.viewPaddingOf(context).top;
     if (_safeArea.isTelegram) {
       final top = _safeArea.topInset;
       if (top > 0.5) return top;
-      // Telegram hasn't reported yet: fall back to the physical inset plus a
-      // control-row allowance so the toolbar still clears Close / More.
       final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
       final device = viewTop > 0 ? viewTop : (isIOS ? 59.0 : 24.0);
       return (device + (isIOS ? 44.0 : 12.0)).clamp(0.0, 200.0).toDouble();
     }
     return viewTop > 8 ? viewTop : 8.0;
   }
+}
+
+/// Accent for a catalog id, falling back to gold when it is not a live ritual.
+Color _accentFor(String id) {
+  return FortuneRegistry.byId(id)?.accent ?? AppPalette.goldMid;
 }
 
 class _TopBar extends StatelessWidget {
@@ -229,8 +252,9 @@ class _ProfileChip extends StatelessWidget {
   }
 }
 
-class _QuickActions extends StatelessWidget {
-  const _QuickActions({required this.onTap});
+/// Compact quick actions: four borderless icon + label tiles, evenly spread.
+class _QuickActionsRow extends StatelessWidget {
+  const _QuickActionsRow({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -238,170 +262,119 @@ class _QuickActions extends StatelessWidget {
     (asset: 'assets/icons/qa_daily.jpg', label: 'فال روزانه'),
     (asset: 'assets/icons/qa_reward.jpg', label: 'جایزهٔ روزانه'),
     (asset: 'assets/icons/qa_luck.jpg', label: 'شانس امروز'),
-    (asset: 'assets/icons/qa_calendar.jpg', label: 'تقویم معنوی'),
     (asset: 'assets/icons/qa_estekhare.jpg', label: 'استخاره'),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final c = context.fortuneColors;
-    return SizedBox(
-      height: 80,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.xs),
-        itemBuilder: (context, i) {
-          final item = _items[i];
-          return GestureDetector(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (final item in _items)
+          QuickActionTile(
+            asset: item.asset,
+            label: item.label,
             onTap: onTap,
-            child: GoldBorderContainer(
-              radius: AppRadius.lg,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xs,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    item.asset,
-                    width: 30,
-                    height: 30,
-                    errorBuilder: (context, error, stack) =>
-                        Icon(Icons.auto_awesome, color: c.goldWarm, size: 22),
-                  ),
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    item.label,
-                    style: TextStyle(color: c.textPrimary, fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+          ),
+      ],
     );
   }
 }
 
-class _FeaturedRow extends StatelessWidget {
-  const _FeaturedRow({required this.onOpen});
+/// Curated horizontal rail of compact landscape cards with a peek of the next.
+class _CuratedRail extends StatelessWidget {
+  const _CuratedRail({required this.items, required this.onOpen});
 
-  final void Function(FortuneDefinition fortune) onOpen;
+  final List<FortuneItem> items;
+  final void Function(String id, bool available) onOpen;
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context);
-    return SizedBox(
-      height: 172,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: FortuneRegistry.all.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-        itemBuilder: (context, i) {
-          final fortune = FortuneRegistry.all[i];
-          return _FeaturedCard(
-            fortune: fortune,
-            locale: locale,
-            onTap: () => onOpen(fortune),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final cardW = (width * AppLayout.railWidthFraction)
+            .clamp(200.0, AppLayout.railWidthMax)
+            .toDouble();
+        final cardH = cardW / AppLayout.compactLandscape;
+        return SizedBox(
+          height: cardH,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            physics: const BouncingScrollPhysics(),
+            itemCount: items.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(width: AppLayout.cardGap),
+            itemBuilder: (context, i) {
+              final it = items[i];
+              return SizedBox(
+                width: cardW,
+                child: CompactLandscapeFortuneCard(
+                  id: it.$1,
+                  title: it.$2,
+                  subtitle: it.$3,
+                  accent: _accentFor(it.$1),
+                  onTap: () => onOpen(it.$1, it.$4),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
 
-class _FeaturedCard extends StatelessWidget {
-  const _FeaturedCard({
-    required this.fortune,
-    required this.locale,
-    required this.onTap,
-  });
+/// Asymmetric editorial block: one wide thematic band + a pair of portraits.
+class _EditorialLove extends StatelessWidget {
+  const _EditorialLove({required this.onOpen});
 
-  final FortuneDefinition fortune;
-  final Locale locale;
-  final VoidCallback onTap;
+  final void Function(String id) onOpen;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.fortuneColors;
-    return SizedBox(
-      width: 132,
-      child: LuxuryCard(
-        onTap: onTap,
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Column(
+      children: [
+        SectionFeatureCard(
+          id: 'love',
+          title: 'فال عشق',
+          subtitle: 'دو نام، یک پیوند',
+          accent: _accentFor('love'),
+          onTap: () => onOpen('love'),
+        ),
+        const SizedBox(height: AppLayout.cardGap),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Emblem(
-              id: fortune.id,
-              icon: _iconFor(fortune.id),
-              accent: fortune.accent,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              fortune.title.resolve(locale),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: c.goldWarm,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+            Expanded(
+              child: PortraitFortuneCard(
+                id: 'marriage',
+                title: 'فال ازدواج',
+                subtitle: 'آیندهٔ ازدواج',
+                accent: _accentFor('marriage'),
+                available: true,
+                soonLabel: 'به‌زودی',
+                priceLabel: '۵',
+                onTap: () => onOpen('marriage'),
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              fortune.subtitle.resolve(locale),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: c.textMuted, fontSize: 10),
+            const SizedBox(width: AppLayout.cardGap),
+            Expanded(
+              child: PortraitFortuneCard(
+                id: 'child',
+                title: 'فال فرزند',
+                subtitle: 'فرزند داری؟',
+                accent: _accentFor('child'),
+                available: true,
+                soonLabel: 'به‌زودی',
+                priceLabel: '۵',
+                onTap: () => onOpen('child'),
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Emblem extends StatelessWidget {
-  const _Emblem({
-    required this.id,
-    required this.icon,
-    required this.accent,
-  });
-
-  final String id;
-  final IconData icon;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: Image.asset(
-        'assets/fortunes/$id.jpg',
-        height: 84,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stack) => _fallback(),
-      ),
-    );
-  }
-
-  Widget _fallback() {
-    return Container(
-      height: 84,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          colors: [accent.withValues(alpha: 0.35), AppPalette.nightPanel],
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppPalette.goldMid.withValues(alpha: 0.3)),
-      ),
-      child: Icon(icon, size: 40, color: AppPalette.goldHi),
+      ],
     );
   }
 }
@@ -459,22 +432,5 @@ class _RewardBanner extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-IconData _iconFor(String id) {
-  switch (id) {
-    case 'hafez':
-      return Icons.menu_book;
-    case 'tarot':
-      return Icons.style;
-    case 'dream':
-      return Icons.nightlight_round;
-    case 'love':
-      return Icons.favorite;
-    case 'coffee':
-      return Icons.local_cafe;
-    default:
-      return Icons.auto_awesome;
   }
 }

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
-import '../../../../design_system/components/luxury_card.dart';
+import '../../../../design_system/components/fortune_cards.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/section_title.dart';
 import '../../../../design_system/foundations/app_colors.dart';
-import '../../../../design_system/foundations/app_radius.dart';
+import '../../../../design_system/foundations/app_layout.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
-import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../domain/fortune_catalog.dart';
+import '../../domain/fortune_registry.dart';
 
 /// Fortunes that open a real content screen (a guide) instead of a live
 /// ritual reading. These are never «به‌زودی» — they lead somewhere real.
@@ -26,9 +26,13 @@ String? _guidePathFor(String id) {
   }
 }
 
-/// «همه فال‌ها» — the full browse grid. Every fortune has a real illustrated
-/// card; live ones open the ritual, guided ones open a content screen, and the
-/// rest are honest «به‌زودی».
+Color _accentFor(String id) {
+  return FortuneRegistry.byId(id)?.accent ?? AppPalette.goldMid;
+}
+
+/// «همه فال‌ها» — an editorial browse experience. Each theme opens with one
+/// wide feature image, then its remaining fortunes flow as a two-column grid of
+/// portrait cards: varied proportions, image-led, no repetitive square tiles.
 class AllFortunesPage extends StatelessWidget {
   const AllFortunesPage({super.key});
 
@@ -67,104 +71,89 @@ class AllFortunesPage extends StatelessWidget {
       ),
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppLayout.maxContentWidth,
+            ),
+            child: CustomScrollView(
+              slivers: [
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: AppSpacing.sm),
+                ),
+                for (final group in FortuneCatalog.groups)
+                  ..._sectionSlivers(context, group),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: AppSpacing.xl),
+                ),
+              ],
+            ),
           ),
-          children: [
-            for (final group in FortuneCatalog.groups) ...[
-              SectionTitle(title: group.title),
-              GridView.extent(
-                // Responsive: cells cap at ~220px wide, so desktop gets more
-                // columns instead of three giant cells that shrink the art to
-                // a thin strip. childAspectRatio leaves room for image + text.
-                maxCrossAxisExtent: 220,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: AppSpacing.xs,
-                crossAxisSpacing: AppSpacing.xs,
-                childAspectRatio: 0.9,
-                children: [
-                  for (final item in group.items)
-                    _CatalogCard(item: item, onTap: () => _open(context, item)),
-                ],
-              ),
-            ],
-            const SizedBox(height: AppSpacing.lg),
-          ],
         ),
       ),
     );
   }
-}
 
-class _CatalogCard extends StatelessWidget {
-  const _CatalogCard({required this.item, required this.onTap});
-
-  final FortuneItem item;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.fortuneColors;
-    final id = item.$1;
-    final title = item.$2;
-    final subtitle = item.$3;
-    final live = item.$4;
-    final openable = live || _guidedIds.contains(id);
-    return LuxuryCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.xs),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: AspectRatio(
-              // Matches the artwork (640x498 ≈ 1.28), so the FULL hero shows
-              // with no crop or distortion; height scales with the card width.
-              aspectRatio: 1.28,
-              child: Image.asset(
-                'assets/fortunes/$id.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) => _fallback(),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: c.goldWarm,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            openable ? subtitle : 'به‌زودی',
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: openable ? c.textMuted : c.warning,
-              fontSize: 9,
-            ),
-          ),
-        ],
+  List<Widget> _sectionSlivers(BuildContext context, FortuneGroup group) {
+    final featured = group.items.first;
+    final rest = group.items.skip(1).toList();
+    const pad = EdgeInsets.symmetric(horizontal: AppLayout.pageMargin);
+    return [
+      SliverPadding(
+        padding: pad,
+        sliver: SliverToBoxAdapter(child: SectionTitle(title: group.title)),
       ),
-    );
-  }
-
-  Widget _fallback() {
-    return const ColoredBox(
-      color: AppPalette.nightPanel,
-      child: Center(
-        child: Icon(Icons.auto_awesome, color: AppPalette.goldMid),
+      const SliverToBoxAdapter(
+        child: SizedBox(height: AppLayout.headingGap),
       ),
-    );
+      SliverPadding(
+        padding: pad,
+        sliver: SliverToBoxAdapter(
+          child: SectionFeatureCard(
+            id: featured.$1,
+            title: featured.$2,
+            subtitle: featured.$3,
+            accent: _accentFor(featured.$1),
+            onTap: () => _open(context, featured),
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(
+        child: SizedBox(height: AppLayout.cardGap),
+      ),
+      SliverPadding(
+        padding: pad,
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: AppLayout.portrait,
+            mainAxisSpacing: AppLayout.cardGap,
+            crossAxisSpacing: AppLayout.cardGap,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (context, i) {
+              final item = rest[i];
+              final id = item.$1;
+              final live = item.$4;
+              final openable = live || _guidedIds.contains(id);
+              return PortraitFortuneCard(
+                id: id,
+                title: item.$2,
+                subtitle: item.$3,
+                accent: _accentFor(id),
+                available: openable,
+                soonLabel: 'به‌زودی',
+                priceLabel: '۵',
+                onTap: () => _open(context, item),
+              );
+            },
+            childCount: rest.length,
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(
+        child: SizedBox(height: AppLayout.sectionGap),
+      ),
+    ];
   }
 }
