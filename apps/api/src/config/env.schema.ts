@@ -70,6 +70,16 @@ export const envSchema = z
 
     /** Coin price of one reading (backend-authoritative economy). */
     WALLET_READING_COST: z.coerce.number().int().min(0).max(1000).default(5),
+
+    /** Access model (coins removed). IANA timezone anchoring the daily
+     * free-allowance reset — the day boundary is computed server-side. */
+    APP_TIMEZONE: z.string().default('Asia/Tehran'),
+    /** Comma-separated fortune ids that get one free reading per day. */
+    FREE_DAILY_FORTUNE_IDS: z.string().default('hafez,daily'),
+    /** Max rewarded-ad unlocks per user per day. */
+    REWARDED_ADS_DAILY_LIMIT: z.coerce.number().int().min(0).max(1000).default(5),
+    /** Enforce free/ad/VIP gating. Off until the client + ad + Stars ship. */
+    ENFORCE_ACCESS_LIMITS: z.coerce.boolean().default(false),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production') {

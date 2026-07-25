@@ -10,6 +10,7 @@ import { SwaggerConfig } from './swagger.config';
 import { AiConfig } from './ai.config';
 import { AuthConfig } from './auth.config';
 import { WalletConfig } from './wallet.config';
+import { MonetizationConfig } from './monetization.config';
 
 const providers = [
   AppConfig,
@@ -21,6 +22,7 @@ const providers = [
   AiConfig,
   AuthConfig,
   WalletConfig,
+  MonetizationConfig,
 ];
 
 @Global()
