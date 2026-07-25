@@ -78,11 +78,12 @@
           var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
           var top;
           if (full) {
-            // Always clear the notch AND Telegram's Close/More control row, even
-            // when Telegram reports only one of the two insets (or neither).
-            var device = num(s.top) || envTop() || (isIOS ? 59 : 24);
-            var control = num(c.top) || (isIOS ? 44 : 12);
-            top = device + control + 8;
+            // Clear the notch AND Telegram's Close/More control row. Telegram
+            // under-reports contentTop on some iOS clients (e.g. 26 vs ~44),
+            // so floor both parts instead of trusting the raw sum.
+            var device = Math.max(num(s.top), envTop(), isIOS ? 47 : 0);
+            var control = Math.max(num(c.top), isIOS ? 44 : 12);
+            top = device + control + 12;
           } else {
             var base = num(s.top) + num(c.top);
             top = base > 0 ? base : envTop();
