@@ -75,13 +75,16 @@ class AllFortunesPage extends StatelessWidget {
           children: [
             for (final group in FortuneCatalog.groups) ...[
               SectionTitle(title: group.title),
-              GridView.count(
-                crossAxisCount: 3,
+              GridView.extent(
+                // Responsive: cells cap at ~220px wide, so desktop gets more
+                // columns instead of three giant cells that shrink the art to
+                // a thin strip. childAspectRatio leaves room for image + text.
+                maxCrossAxisExtent: 220,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: AppSpacing.xs,
                 crossAxisSpacing: AppSpacing.xs,
-                childAspectRatio: 0.72,
+                childAspectRatio: 0.9,
                 children: [
                   for (final item in group.items)
                     _CatalogCard(item: item, onTap: () => _open(context, item)),
@@ -118,11 +121,15 @@ class _CatalogCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: Image.asset(
-              'assets/fortunes/$id.jpg',
-              height: 70,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stack) => _fallback(),
+            child: AspectRatio(
+              // Matches the artwork (640x498 ≈ 1.28), so the FULL hero shows
+              // with no crop or distortion; height scales with the card width.
+              aspectRatio: 1.28,
+              child: Image.asset(
+                'assets/fortunes/$id.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) => _fallback(),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xxs),
@@ -153,11 +160,11 @@ class _CatalogCard extends StatelessWidget {
   }
 
   Widget _fallback() {
-    return Container(
-      height: 70,
+    return const ColoredBox(
       color: AppPalette.nightPanel,
-      alignment: Alignment.center,
-      child: const Icon(Icons.auto_awesome, color: AppPalette.goldMid),
+      child: Center(
+        child: Icon(Icons.auto_awesome, color: AppPalette.goldMid),
+      ),
     );
   }
 }
