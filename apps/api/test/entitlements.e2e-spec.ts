@@ -55,4 +55,58 @@ describe('entitlements (e2e) — Sprint 04', () => {
     const debit = wallet.body.data.transactions.find((t: { kind: string }) => t.kind === 'debit');
     expect(debit).toBeUndefined();
   });
+
+  describe('access options (free daily / rewarded ad / VIP — never coins)', () => {
+    it('hafez starts free: unused daily allowance, backend-computed reset', async () => {
+      const session = await loginAs(app, { id: freshTelegramId(), first_name: 'سهمیه' });
+
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/access-options/hafez')
+        .set('authorization', `Bearer ${session.accessToken}`)
+        .expect(200);
+
+      const view = res.body.data;
+      expect(view.accessState).toBe('free');
+      expect(view.isFreeNow).toBe(true);
+      expect(view.freeUsesRemainingToday).toBe(1);
+      expect(new Date(view.nextFreeResetAt).getTime()).toBeGreaterThan(Date.now());
+      expect(view).not.toHaveProperty('coinCost');
+      expect(view).not.toHaveProperty('coinBalance');
+    });
+
+    it('a successful hafez reading consumes ONLY the hafez allowance', async () => {
+      const session = await loginAs(app, { id: freshTelegramId(), first_name: 'مستقل' });
+      const auth = { authorization: `Bearer ${session.accessToken}` };
+
+      await request(app.getHttpServer())
+        .post('/api/v1/readings')
+        .set(auth)
+        .send({ fortuneId: 'hafez', input: {} })
+        .expect(201);
+
+      const hafez = await request(app.getHttpServer())
+        .get('/api/v1/access-options/hafez')
+        .set(auth)
+        .expect(200);
+      expect(hafez.body.data.isFreeNow).toBe(false);
+      expect(hafez.body.data.freeUsesRemainingToday).toBe(0);
+
+      const daily = await request(app.getHttpServer())
+        .get('/api/v1/access-options/daily')
+        .set(auth)
+        .expect(200);
+      expect(daily.body.data.isFreeNow).toBe(true);
+      expect(daily.body.data.freeUsesRemainingToday).toBe(1);
+    });
+
+    it('an unknown fortune yields the 404 contract', async () => {
+      const session = await loginAs(app, { id: freshTelegramId(), first_name: 'ناشناس' });
+
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/access-options/nope')
+        .set('authorization', `Bearer ${session.accessToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    });
+  });
 });

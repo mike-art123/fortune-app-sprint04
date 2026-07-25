@@ -33,6 +33,12 @@ export class EntitlementsService {
     return { covered: true, source: 'free', cost: 0 };
   }
 
+  /** True when the user holds an active, unexpired VIP subscription. */
+  async hasActiveVip(userId: string, now: Date = new Date()): Promise<boolean> {
+    const subscription = await this.prisma.subscription.findUnique({ where: { userId } });
+    return this.isActive(subscription, now);
+  }
+
   /**
    * System-level grant. There is intentionally no public purchase endpoint in
    * Sprint 04 — payments arrive with their own document; until then grants are

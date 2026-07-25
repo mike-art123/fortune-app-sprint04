@@ -29,12 +29,21 @@ const repository = {
 };
 
 const entitlements = {
-  assessReading: jest.fn(),
+  hasActiveVip: jest.fn(),
 };
 
-const wallet = {
-  debitForReading: jest.fn(),
-  refundDebit: jest.fn(),
+const freeDaily = {
+  freeUsesRemainingToday: jest.fn(),
+  consumeFreeToday: jest.fn(),
+};
+
+const mediation = {
+  consumeEntitlement: jest.fn(),
+  restoreEntitlement: jest.fn(),
+};
+
+const monetization = {
+  enforceAccessLimits: false,
 };
 
 const idempotency = {
@@ -46,116 +55,146 @@ const service = new ReadingsService(
   repository as never,
   provider as never,
   entitlements as never,
-  wallet as never,
+  freeDaily as never,
+  mediation as never,
+  monetization as never,
   idempotency as never,
   logger as never,
 );
 
 function resetHappyPath(): void {
   jest.clearAllMocks();
+  monetization.enforceAccessLimits = false;
   provider.generate.mockResolvedValue({ title: 'عنوان', reading: 'متنِ خوانش' });
   repository.create.mockImplementation((r) =>
     Promise.resolve({ id: 'clx1', createdAt: new Date('2026-01-01T00:00:00Z'), ...r }),
   );
   repository.list.mockResolvedValue([]);
   repository.findById.mockResolvedValue(null);
-  entitlements.assessReading.mockResolvedValue({ covered: false, source: null, cost: 5 });
-  wallet.debitForReading.mockResolvedValue({ transactionId: 'd1', amount: -5 });
-  wallet.refundDebit.mockResolvedValue({ transactionId: 'r1', amount: 5 });
+  entitlements.hasActiveVip.mockResolvedValue(false);
+  freeDaily.freeUsesRemainingToday.mockResolvedValue(0);
+  freeDaily.consumeFreeToday.mockResolvedValue(undefined);
+  mediation.consumeEntitlement.mockResolvedValue(undefined);
+  mediation.restoreEntitlement.mockResolvedValue(undefined);
   idempotency.check.mockResolvedValue(null);
   idempotency.record.mockResolvedValue(undefined);
 }
 
-describe('ReadingsService.create — entitlement and debit orchestration', () => {
+describe('ReadingsService.create — access orchestration (coins removed)', () => {
   beforeEach(resetHappyPath);
 
-  it('debits before generating and persists the reading under the user', async () => {
+  it('persists the reading under the user with no coin machinery', async () => {
     const res = await service.create({ fortuneId: 'hafez', input: {} }, 'req-1', principal, null);
 
-    expect(entitlements.assessReading).toHaveBeenCalledWith('u1');
-    expect(wallet.debitForReading).toHaveBeenCalledWith({
-      userId: 'u1',
-      cost: 5,
-      reason: 'reading:hafez',
-      idempotencyRefId: null,
-    });
     expect(repository.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'u1', fortuneId: 'hafez', requestId: 'req-1' }),
     );
     expect(res.fortune).toBe('hafez');
-    expect(wallet.refundDebit).not.toHaveBeenCalled();
+    expect(mediation.consumeEntitlement).not.toHaveBeenCalled();
   });
 
-  it('skips the debit entirely under an active subscription', async () => {
-    entitlements.assessReading.mockResolvedValue({
-      covered: true,
-      source: 'subscription',
-      cost: 0,
-    });
+  it('VIP readings never touch the free allowance or entitlements', async () => {
+    entitlements.hasActiveVip.mockResolvedValue(true);
 
     await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null);
 
-    expect(wallet.debitForReading).not.toHaveBeenCalled();
+    expect(freeDaily.freeUsesRemainingToday).not.toHaveBeenCalled();
+    expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
+    expect(mediation.consumeEntitlement).not.toHaveBeenCalled();
   });
 
-  it('propagates INSUFFICIENT_COINS without generating anything', async () => {
-    wallet.debitForReading.mockRejectedValue(
-      new DomainException('INSUFFICIENT_COINS', 'سکه کافی نیست.'),
-    );
+  it('counts the free daily allowance only after a successful reading', async () => {
+    freeDaily.freeUsesRemainingToday.mockResolvedValue(1);
 
-    await expect(
-      service.create({ fortuneId: 'hafez', input: {} }, null, principal, null),
-    ).rejects.toMatchObject({ code: 'INSUFFICIENT_COINS' });
-    expect(provider.generate).not.toHaveBeenCalled();
-    expect(repository.create).not.toHaveBeenCalled();
+    await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null);
+
+    expect(freeDaily.consumeFreeToday).toHaveBeenCalledWith('u1', 'hafez');
   });
 
-  it('refunds the debit when generation fails, then surfaces READING_FAILED', async () => {
+  it('does not count the allowance when generation fails (retry stays free)', async () => {
+    freeDaily.freeUsesRemainingToday.mockResolvedValue(1);
     provider.generate.mockRejectedValue(new Error('provider exploded'));
 
     await expect(
       service.create({ fortuneId: 'hafez', input: {} }, null, principal, null),
     ).rejects.toMatchObject({ code: 'READING_FAILED' });
-    expect(wallet.refundDebit).toHaveBeenCalledWith('d1', 'reading:failed');
+    expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
   });
 
-  it('refunds the debit when persistence fails', async () => {
+  it('a counting hiccup never takes the reading away from the user', async () => {
+    freeDaily.freeUsesRemainingToday.mockResolvedValue(1);
+    freeDaily.consumeFreeToday.mockRejectedValue(new Error('db blip'));
+
+    const res = await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null);
+
+    expect(res.fortune).toBe('hafez');
+    expect(logger.error).toHaveBeenCalledWith(
+      'reading.freeDaily.count.failed',
+      expect.objectContaining({ fortuneId: 'hafez' }),
+    );
+  });
+
+  it('consumes the ad entitlement before generating when provided', async () => {
+    const dto = { fortuneId: 'tarot', adEntitlementId: 'ent1', input: {} };
+
+    await service.create(dto, null, principal, null);
+
+    expect(mediation.consumeEntitlement).toHaveBeenCalledWith('u1', 'ent1', 'tarot');
+    const consumeOrder = mediation.consumeEntitlement.mock.invocationCallOrder[0] as number;
+    const generateOrder = provider.generate.mock.invocationCallOrder[0] as number;
+    expect(consumeOrder).toBeLessThan(generateOrder);
+  });
+
+  const adDto = { fortuneId: 'tarot', adEntitlementId: 'ent1', input: {} };
+
+  it('restores the ad entitlement when generation fails (retry entitlement)', async () => {
+    provider.generate.mockRejectedValue(new Error('provider exploded'));
+
+    await expect(service.create(adDto, null, principal, null)).rejects.toMatchObject({
+      code: 'READING_FAILED',
+    });
+    expect(mediation.restoreEntitlement).toHaveBeenCalledWith('ent1');
+  });
+
+  it('restores the ad entitlement when persistence fails', async () => {
     repository.create.mockRejectedValue(new Error('db down'));
 
-    await expect(
-      service.create({ fortuneId: 'hafez', input: {} }, null, principal, null),
-    ).rejects.toMatchObject({ code: 'READING_FAILED' });
-    expect(wallet.refundDebit).toHaveBeenCalledWith('d1', 'reading:failed');
-  });
-
-  it('does not refund when there was nothing debited (covered reading fails)', async () => {
-    entitlements.assessReading.mockResolvedValue({
-      covered: true,
-      source: 'subscription',
-      cost: 0,
+    await expect(service.create(adDto, null, principal, null)).rejects.toMatchObject({
+      code: 'READING_FAILED',
     });
-    provider.generate.mockRejectedValue(new Error('boom'));
-
-    await expect(
-      service.create({ fortuneId: 'hafez', input: {} }, null, principal, null),
-    ).rejects.toMatchObject({ code: 'READING_FAILED' });
-    expect(wallet.refundDebit).not.toHaveBeenCalled();
+    expect(mediation.restoreEntitlement).toHaveBeenCalledWith('ent1');
   });
 
-  it('surfaces the original error even when the refund itself fails (and logs it)', async () => {
+  it('surfaces the original error even when the restore itself fails', async () => {
     provider.generate.mockRejectedValue(new Error('provider exploded'));
-    wallet.refundDebit.mockRejectedValue(new Error('refund infra down'));
+    mediation.restoreEntitlement.mockRejectedValue(new Error('restore infra down'));
 
-    await expect(
-      service.create({ fortuneId: 'hafez', input: {} }, null, principal, null),
-    ).rejects.toMatchObject({ code: 'READING_FAILED' });
+    await expect(service.create(adDto, null, principal, null)).rejects.toMatchObject({
+      code: 'READING_FAILED',
+    });
     expect(logger.error).toHaveBeenCalledWith(
-      'reading.refund.failed',
-      expect.objectContaining({ debitTransactionId: 'd1' }),
+      'reading.adEntitlement.restore.failed',
+      expect.objectContaining({ entitlementId: 'ent1' }),
     );
   });
 
-  it('replays an identical idempotent request without a second debit', async () => {
+  it('refuses with ACCESS_REQUIRED when enforcement is on and no path exists', async () => {
+    monetization.enforceAccessLimits = true;
+
+    await expect(
+      service.create({ fortuneId: 'tarot', input: {} }, null, principal, null),
+    ).rejects.toMatchObject({ code: 'ACCESS_REQUIRED' });
+    expect(provider.generate).not.toHaveBeenCalled();
+  });
+
+  it('lets the reading through free while enforcement is off', async () => {
+    const res = await service.create({ fortuneId: 'tarot', input: {} }, null, principal, null);
+
+    expect(res.fortune).toBe('tarot');
+    expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
+  });
+
+  it('replays an identical idempotent request without consuming anything', async () => {
     const stored = {
       id: 'clx-old',
       fortune: 'hafez',
@@ -173,26 +212,23 @@ describe('ReadingsService.create — entitlement and debit orchestration', () =>
     );
 
     expect(res).toEqual(stored);
-    expect(wallet.debitForReading).not.toHaveBeenCalled();
     expect(provider.generate).not.toHaveBeenCalled();
+    expect(mediation.consumeEntitlement).not.toHaveBeenCalled();
   });
 
-  it('passes the idempotency key into the debit as the DB-level backstop', async () => {
+  it('records the idempotency result under the provided key', async () => {
     await service.create({ fortuneId: 'hafez', input: {} }, null, principal, 'key-12345678');
 
-    expect(wallet.debitForReading).toHaveBeenCalledWith(
-      expect.objectContaining({ idempotencyRefId: 'key-12345678' }),
-    );
     expect(idempotency.record).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'u1', operation: 'reading.create', key: 'key-12345678' }),
     );
   });
 
-  it('rejects an unknown fortune before touching entitlements or the wallet', async () => {
+  it('rejects an unknown fortune before touching access services', async () => {
     await expect(
       service.create({ fortuneId: 'nope', input: {} }, null, principal, null),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
-    expect(entitlements.assessReading).not.toHaveBeenCalled();
+    expect(entitlements.hasActiveVip).not.toHaveBeenCalled();
   });
 
   it('validates the offering (dream needs words; love needs both names)', async () => {
@@ -202,7 +238,7 @@ describe('ReadingsService.create — entitlement and debit orchestration', () =>
     await expect(
       service.create({ fortuneId: 'love', input: { selfName: 'سارا' } }, null, principal, null),
     ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
-    expect(wallet.debitForReading).not.toHaveBeenCalled();
+    expect(provider.generate).not.toHaveBeenCalled();
   });
 });
 

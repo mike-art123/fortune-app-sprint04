@@ -5,10 +5,12 @@ import { AppException } from '../../common/exceptions/app.exception';
 import type { AuthenticatedPrincipal } from '../../common/types/authenticated-principal';
 import { nowIso, toIso } from '../../common/utils/date.util';
 import { decodeCursor, encodeCursor } from '../../common/utils/pagination.util';
+import { MonetizationConfig } from '../../config/monetization.config';
 import { IdempotencyService } from '../../infrastructure/idempotency/idempotency.service';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
+import { MediationService } from '../ads/mediation.service';
 import { EntitlementsService } from '../entitlements/entitlements.service';
-import { WalletService } from '../wallet/wallet.service';
+import { FreeDailyService } from '../entitlements/free-daily.service';
 import type { CreateReadingDto, ReadingInputDto } from './dto/create-reading.dto';
 import { findFortune, type FortuneCatalogEntry } from './fortune-catalog';
 import { READING_PROVIDER, type ReadingProvider } from './providers/reading-provider.interface';
@@ -31,12 +33,14 @@ export interface ReadingListPage {
 const DEFAULT_PAGE_SIZE = 20;
 const IDEMPOTENCY_OPERATION = 'reading.create';
 
+type AccessMethod = 'vip' | 'free_daily' | 'rewarded_ad' | 'free';
+
 /**
- * Orchestrates one reading (Sprint 04 / doc 53):
- * validate → entitlement → atomic debit → generate → persist → shape.
- * If anything after a successful debit fails, the debit is refunded
- * (compensating ledger row, idempotent) before the error surfaces — the user
- * is never charged for a reading they did not receive.
+ * Orchestrates one reading (coins removed):
+ * validate → access decision (VIP → free daily → ad entitlement) → generate →
+ * persist → count. The free-daily allowance is counted only AFTER a successful
+ * reading; a consumed ad entitlement is restored when generation fails, so the
+ * user never re-watches an ad for a reading they did not receive.
  */
 @Injectable()
 export class ReadingsService {
@@ -44,19 +48,13 @@ export class ReadingsService {
     private readonly repository: ReadingsRepository,
     @Inject(READING_PROVIDER) private readonly provider: ReadingProvider,
     private readonly entitlements: EntitlementsService,
-    private readonly wallet: WalletService,
+    private readonly freeDaily: FreeDailyService,
+    private readonly mediation: MediationService,
+    private readonly monetization: MonetizationConfig,
     private readonly idempotency: IdempotencyService,
     private readonly logger: AppLoggerService,
   ) {}
 
-  /**
-   * Orchestrates a full paid-reading request: resolve the fortune, check
-   * entitlement (subscription covers it, or debit the wallet), generate the
-   * reading via the configured provider, then persist it. If generation or
-   * persistence fails after a debit was taken, the debit is compensated
-   * (refunded) before the error propagates — the caller never pays for a
-   * reading they didn't receive.
-   */
   async create(
     dto: CreateReadingDto,
     requestId: string | null,
@@ -86,17 +84,26 @@ export class ReadingsService {
       }
     }
 
-    const entitlement = await this.entitlements.assessReading(userId);
+    // ── access decision (spec order: VIP → free daily → rewarded ad) ──
+    const isVip = await this.entitlements.hasActiveVip(userId);
+    let accessMethod: AccessMethod = 'free';
+    let consumedAdEntitlementId: string | null = null;
 
-    let debitTransactionId: string | null = null;
-    if (!entitlement.covered && entitlement.cost > 0) {
-      const debit = await this.wallet.debitForReading({
-        userId,
-        cost: entitlement.cost,
-        reason: `reading:${fortune.id}`,
-        idempotencyRefId: idempotencyKey,
-      });
-      debitTransactionId = debit.transactionId;
+    if (isVip) {
+      accessMethod = 'vip';
+    } else {
+      const freeRemaining = await this.freeDaily.freeUsesRemainingToday(userId, fortune.id);
+      if (freeRemaining > 0) {
+        accessMethod = 'free_daily';
+      } else if (dto.adEntitlementId) {
+        await this.mediation.consumeEntitlement(userId, dto.adEntitlementId, fortune.id);
+        consumedAdEntitlementId = dto.adEntitlementId;
+        accessMethod = 'rewarded_ad';
+      } else if (this.monetization.enforceAccessLimits) {
+        throw new DomainException('ACCESS_REQUIRED', 'برای این فال، تبلیغ ببین یا عضو ویژه شو.', {
+          status: HttpStatus.PAYMENT_REQUIRED,
+        });
+      }
     }
 
     let record: Reading;
@@ -111,13 +118,28 @@ export class ReadingsService {
         requestId,
       });
     } catch (error) {
-      await this.compensate(debitTransactionId);
+      // Retry entitlement: a verified ad reward survives a failed generation.
+      await this.restoreAdEntitlement(consumedAdEntitlementId);
       if (error instanceof AppException) throw error;
       throw new DomainException('READING_FAILED', 'خوانش کامل نشد؛ دوباره تلاش کن.', {
         status: HttpStatus.BAD_GATEWAY,
         retryable: true,
         developerMessage: error instanceof Error ? error.message : String(error),
       });
+    }
+
+    // The free allowance is counted only after success, and a counting hiccup
+    // must never take the reading away from the user.
+    if (accessMethod === 'free_daily') {
+      try {
+        await this.freeDaily.consumeFreeToday(userId, fortune.id);
+      } catch (countError) {
+        this.logger.error('reading.freeDaily.count.failed', {
+          userId,
+          fortuneId: fortune.id,
+          error: countError instanceof Error ? countError.message : String(countError),
+        });
+      }
     }
 
     const response = this.shape(record);
@@ -170,19 +192,15 @@ export class ReadingsService {
     return this.shape(record);
   }
 
-  /**
-   * Refund a charged-but-unfulfilled reading. Refund failures are logged and
-   * swallowed so the original error surfaces; the ledger's uniqueness makes a
-   * later manual/automated retry safe.
-   */
-  private async compensate(debitTransactionId: string | null): Promise<void> {
-    if (!debitTransactionId) return;
+  /** Give a consumed ad entitlement back; failures are logged, never thrown. */
+  private async restoreAdEntitlement(entitlementId: string | null): Promise<void> {
+    if (!entitlementId) return;
     try {
-      await this.wallet.refundDebit(debitTransactionId, 'reading:failed');
-    } catch (refundError) {
-      this.logger.error('reading.refund.failed', {
-        debitTransactionId,
-        error: refundError instanceof Error ? refundError.message : String(refundError),
+      await this.mediation.restoreEntitlement(entitlementId);
+    } catch (restoreError) {
+      this.logger.error('reading.adEntitlement.restore.failed', {
+        entitlementId,
+        error: restoreError instanceof Error ? restoreError.message : String(restoreError),
       });
     }
   }

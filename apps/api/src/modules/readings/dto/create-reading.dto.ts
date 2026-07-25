@@ -20,6 +20,9 @@ export class ReadingInputDto {
 export class CreateReadingDto {
   @IsString() @MinLength(1) @MaxLength(64) fortuneId!: string;
 
+  /** One-time rewarded-ad unlock id (verified server-side, single-use). */
+  @IsOptional() @IsString() @MaxLength(64) adEntitlementId?: string;
+
   @IsObject()
   @ValidateNested()
   @Type(() => ReadingInputDto)

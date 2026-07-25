@@ -62,6 +62,27 @@ describe('EntitlementsService.assessReading', () => {
     expect(res.source).toBe('free');
   });
 
+  it('hasActiveVip is true only for an active, unexpired subscription', async () => {
+    prisma.subscription.findUnique.mockResolvedValue({
+      userId: 'u1',
+      plan: 'monthly',
+      status: 'active',
+      currentPeriodEnd: new Date('2026-08-01T00:00:00Z'),
+    });
+    await expect(service.hasActiveVip('u1', NOW)).resolves.toBe(true);
+
+    prisma.subscription.findUnique.mockResolvedValue({
+      userId: 'u1',
+      plan: 'monthly',
+      status: 'active',
+      currentPeriodEnd: new Date('2026-07-01T00:00:00Z'),
+    });
+    await expect(service.hasActiveVip('u1', NOW)).resolves.toBe(false);
+
+    prisma.subscription.findUnique.mockResolvedValue(null);
+    await expect(service.hasActiveVip('u1', NOW)).resolves.toBe(false);
+  });
+
   it('grantSubscription upserts an active subscription for the user', async () => {
     prisma.subscription.upsert.mockResolvedValue({ id: 's1' });
     const end = new Date('2026-08-19T00:00:00Z');
