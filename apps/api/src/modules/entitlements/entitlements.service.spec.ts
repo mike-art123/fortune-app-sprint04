@@ -1,7 +1,5 @@
 import { EntitlementsService } from './entitlements.service';
 
-const config = { readingCostCoins: 5 };
-
 const prisma = {
   subscription: {
     findUnique: jest.fn(),
@@ -9,19 +7,19 @@ const prisma = {
   },
 };
 
-const service = new EntitlementsService(prisma as never, config as never);
+const service = new EntitlementsService(prisma as never);
 
 const NOW = new Date('2026-07-19T12:00:00Z');
 
 describe('EntitlementsService.assessReading', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('charges the configured coin price when no subscription exists', async () => {
+  it('grants free access when no subscription exists (coins removed)', async () => {
     prisma.subscription.findUnique.mockResolvedValue(null);
 
     const res = await service.assessReading('u1', NOW);
 
-    expect(res).toEqual({ covered: false, source: null, cost: 5 });
+    expect(res).toEqual({ covered: true, source: 'free', cost: 0 });
   });
 
   it('covers the reading fully under an active, unexpired subscription', async () => {
@@ -47,8 +45,8 @@ describe('EntitlementsService.assessReading', () => {
 
     const res = await service.assessReading('u1', NOW);
 
-    expect(res.covered).toBe(false);
-    expect(res.cost).toBe(5);
+    expect(res.source).toBe('free');
+    expect(res.cost).toBe(0);
   });
 
   it('does not honor a canceled subscription even inside its period', async () => {
@@ -61,7 +59,7 @@ describe('EntitlementsService.assessReading', () => {
 
     const res = await service.assessReading('u1', NOW);
 
-    expect(res.covered).toBe(false);
+    expect(res.source).toBe('free');
   });
 
   it('grantSubscription upserts an active subscription for the user', async () => {

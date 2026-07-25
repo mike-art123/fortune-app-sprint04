@@ -27,8 +27,8 @@ describe('entitlements (e2e) — Sprint 04', () => {
     expect(res.body.error.code).toBe('UNAUTHORIZED');
   });
 
-  it('reports the coin price for a user without a subscription', async () => {
-    const session = await loginAs(app, { id: freshTelegramId(), first_name: 'قیمت' });
+  it('reports free coverage for a user without a subscription', async () => {
+    const session = await loginAs(app, { id: freshTelegramId(), first_name: 'رایگان' });
 
     const res = await request(app.getHttpServer())
       .get('/api/v1/entitlements/me')
@@ -36,20 +36,14 @@ describe('entitlements (e2e) — Sprint 04', () => {
       .expect(200);
 
     expect(res.body.success).toBe(true);
-    expect(res.body.data.covered).toBe(false);
-    expect(res.body.data.source).toBeNull();
-    expect(res.body.data.cost).toBeGreaterThan(0);
+    expect(res.body.data.covered).toBe(true);
+    expect(res.body.data.source).toBe('free');
+    expect(res.body.data.cost).toBe(0);
   });
 
-  it('matches the price actually debited for a reading', async () => {
-    const session = await loginAs(app, { id: freshTelegramId(), first_name: 'تطبیق' });
+  it('creates a reading without any coin debit (coins removed)', async () => {
+    const session = await loginAs(app, { id: freshTelegramId(), first_name: 'بی‌سکه' });
     const auth = { authorization: `Bearer ${session.accessToken}` };
-
-    const ent = await request(app.getHttpServer())
-      .get('/api/v1/entitlements/me')
-      .set(auth)
-      .expect(200);
-    const cost = ent.body.data.cost as number;
 
     await request(app.getHttpServer())
       .post('/api/v1/readings')
@@ -59,6 +53,6 @@ describe('entitlements (e2e) — Sprint 04', () => {
 
     const wallet = await request(app.getHttpServer()).get('/api/v1/wallet').set(auth).expect(200);
     const debit = wallet.body.data.transactions.find((t: { kind: string }) => t.kind === 'debit');
-    expect(debit.amount).toBe(-cost);
+    expect(debit).toBeUndefined();
   });
 });

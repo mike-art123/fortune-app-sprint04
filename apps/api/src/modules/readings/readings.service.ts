@@ -113,7 +113,7 @@ export class ReadingsService {
     } catch (error) {
       await this.compensate(debitTransactionId);
       if (error instanceof AppException) throw error;
-      throw new DomainException('READING_FAILED', 'خوانش کامل نشد و سکه‌ای از تو کم نشد.', {
+      throw new DomainException('READING_FAILED', 'خوانش کامل نشد؛ دوباره تلاش کن.', {
         status: HttpStatus.BAD_GATEWAY,
         retryable: true,
         developerMessage: error instanceof Error ? error.message : String(error),
