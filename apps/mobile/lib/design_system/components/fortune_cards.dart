@@ -12,20 +12,24 @@ import 'fortune_art.dart';
 /// draw a gold outline — depth comes from the image, scrim, shadow and spacing.
 
 // ── shared text styles over artwork ──────────────────────────────────────
-TextStyle _titleStyle(double size) => TextStyle(
-  color: Colors.white,
-  fontSize: size,
-  height: 1.15,
-  fontWeight: FontWeight.w800,
-  shadows: const [Shadow(color: Color(0xCC000000), blurRadius: 8)],
-);
+TextStyle _titleStyle(double size) {
+  return TextStyle(
+    color: Colors.white,
+    fontSize: size,
+    height: 1.15,
+    fontWeight: FontWeight.w800,
+    shadows: const [Shadow(color: Color(0xCC000000), blurRadius: 8)],
+  );
+}
 
-TextStyle _descStyle(double size) => TextStyle(
-  color: Colors.white.withValues(alpha: 0.82),
-  fontSize: size,
-  height: 1.25,
-  shadows: const [Shadow(color: Color(0xB3000000), blurRadius: 6)],
-);
+TextStyle _descStyle(double size) {
+  return TextStyle(
+    color: Colors.white.withValues(alpha: 0.82),
+    fontSize: size,
+    height: 1.25,
+    shadows: const [Shadow(color: Color(0xB3000000), blurRadius: 6)],
+  );
+}
 
 /// A discreet coin / free indicator — small by design (spec: no large labels).
 class _MetaBadge extends StatelessWidget {

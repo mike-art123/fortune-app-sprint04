@@ -40,17 +40,21 @@ abstract final class AppLayout {
   static const double railWidthMax = 300;
 
   /// Standard soft elevation for image-led cards (no gold outline).
-  static List<BoxShadow> get cardShadow => const [
-    BoxShadow(
-      color: Color(0x66000000),
-      blurRadius: 18,
-      offset: Offset(0, 10),
-    ),
-  ];
+  static List<BoxShadow> get cardShadow {
+    return const [
+      BoxShadow(
+        color: Color(0x66000000),
+        blurRadius: 18,
+        offset: Offset(0, 10),
+      ),
+    ];
+  }
 
   /// A hairline inner highlight that reads as craft, not a boxed border.
-  static Border get innerHairline => Border.all(
-    color: AppPalette.goldHi.withValues(alpha: 0.10),
-    width: 1,
-  );
+  static Border get innerHairline {
+    return Border.all(
+      color: AppPalette.goldHi.withValues(alpha: 0.10),
+      width: 1,
+    );
+  }
 }
