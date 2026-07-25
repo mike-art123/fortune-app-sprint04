@@ -54,6 +54,7 @@ jobs:
         working-directory: apps/mobile
         run: >
           flutter build web --release
+          --pwa-strategy=none
           -t lib/main_production.dart
           --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
           --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
