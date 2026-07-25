@@ -33,7 +33,7 @@
         if (!wa) return;
         if (typeof wa.expand === 'function') wa.expand();
         if (typeof wa.requestFullscreen === 'function') {
-          try { wa.requestFullscreen(); } catch (e) {}
+          try { wa.requestFullscreen(); window.__tgFsRequested = true; } catch (e) {}
         }
       } catch (e) {}
     })();
@@ -73,16 +73,18 @@
           }
           var s = wa.safeAreaInset || {};
           var c = wa.contentSafeAreaInset || {};
-          var full = !!wa.isFullscreen;
+          var full = !!wa.isFullscreen || !!window.__tgFsRequested;
           var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
-          var top = num(s.top) + num(c.top);
-          if (top > 0) {
-            top += 8;                         // real values: breathing room
-          } else if (full) {
-            var device = envTop() || (isIOS ? 59 : 24);
-            top = device + (isIOS ? 44 : 12); // notch + Close/More control row
+          var top;
+          if (full) {
+            // Always clear the notch AND Telegram's Close/More control row, even
+            // when Telegram reports only one of the two insets (or neither).
+            var device = num(s.top) || envTop() || (isIOS ? 59 : 24);
+            var control = num(c.top) || (isIOS ? 44 : 12);
+            top = device + control + 8;
           } else {
-            top = envTop();                   // non-fullscreen: OS notch only
+            var base = num(s.top) + num(c.top);
+            top = base > 0 ? base : envTop();
           }
           top = Math.max(0, Math.min(200, top));
           window.__tgSafeArea = {
