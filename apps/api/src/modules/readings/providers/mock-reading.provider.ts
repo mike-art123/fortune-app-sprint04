@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import type { FortuneCatalogEntry } from '../fortune-catalog';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
-import type { GeneratedReading, ReadingProvider } from './reading-provider.interface';
+import type {
+  GeneratedReading,
+  ReadingProfileContext,
+  ReadingProvider,
+} from './reading-provider.interface';
 
 /**
  * Structured mock provider (Sprint 02). Produces calm, honest Persian copy in
@@ -11,7 +15,23 @@ import type { GeneratedReading, ReadingProvider } from './reading-provider.inter
  */
 @Injectable()
 export class MockReadingProvider implements ReadingProvider {
-  async generate(fortune: FortuneCatalogEntry, input: ReadingInputDto): Promise<GeneratedReading> {
+  async generate(
+    fortune: FortuneCatalogEntry,
+    input: ReadingInputDto,
+    profile?: ReadingProfileContext,
+  ): Promise<GeneratedReading> {
+    const base = await this.compose(fortune, input);
+    // Personalization (scope §16): the confirmed name opens the reading —
+    // exactly once, as a natural address, deterministic for share-stripping.
+    const name = profile?.displayName?.trim();
+    if (!name) return base;
+    return { title: base.title, reading: `${name}، ${base.reading}` };
+  }
+
+  private async compose(
+    fortune: FortuneCatalogEntry,
+    input: ReadingInputDto,
+  ): Promise<GeneratedReading> {
     switch (fortune.inputKind) {
       case 'intention':
         return {

@@ -3,7 +3,11 @@ import { AiConfig } from '../../../config/ai.config';
 import { AppLoggerService } from '../../../infrastructure/logging/app-logger.service';
 import type { FortuneCatalogEntry } from '../fortune-catalog';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
-import type { GeneratedReading, ReadingProvider } from './reading-provider.interface';
+import type {
+  GeneratedReading,
+  ReadingProfileContext,
+  ReadingProvider,
+} from './reading-provider.interface';
 import { MockReadingProvider } from './mock-reading.provider';
 import { buildPrompt } from './prompt-builder';
 
@@ -42,14 +46,18 @@ export class AiReadingProvider implements ReadingProvider {
     private readonly logger: AppLoggerService,
   ) {}
 
-  async generate(fortune: FortuneCatalogEntry, input: ReadingInputDto): Promise<GeneratedReading> {
+  async generate(
+    fortune: FortuneCatalogEntry,
+    input: ReadingInputDto,
+    profile?: ReadingProfileContext,
+  ): Promise<GeneratedReading> {
     const startedAt = Date.now();
     const maxAttempts = this.config.maxRetries + 1;
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const generated = await this.requestOnce(fortune, input);
+        const generated = await this.requestOnce(fortune, input, profile);
         this.logger.info('reading.ai.succeeded', {
           fortuneId: fortune.id,
           attempt,
@@ -76,13 +84,14 @@ export class AiReadingProvider implements ReadingProvider {
       reason: lastError instanceof Error ? lastError.message : 'unknown',
     });
 
-    return this.fallback.generate(fortune, input);
+    return this.fallback.generate(fortune, input, profile);
   }
 
   /** One HTTP round-trip, bounded by a hard deadline. */
   private async requestOnce(
     fortune: FortuneCatalogEntry,
     input: ReadingInputDto,
+    profile?: ReadingProfileContext,
   ): Promise<GeneratedReading> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -100,7 +109,7 @@ export class AiReadingProvider implements ReadingProvider {
           temperature: 0.85,
           max_tokens: 900,
           response_format: { type: 'json_object' },
-          messages: buildPrompt(fortune, input),
+          messages: buildPrompt(fortune, input, profile),
         }),
       });
 

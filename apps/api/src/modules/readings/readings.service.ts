@@ -11,6 +11,7 @@ import { AppLoggerService } from '../../infrastructure/logging/app-logger.servic
 import { MediationService } from '../ads/mediation.service';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 import { FreeDailyService } from '../entitlements/free-daily.service';
+import { UsersService } from '../users/users.service';
 import type { CreateReadingDto, ReadingInputDto } from './dto/create-reading.dto';
 import { findFortune, type FortuneCatalogEntry } from './fortune-catalog';
 import { READING_PROVIDER, type ReadingProvider } from './providers/reading-provider.interface';
@@ -52,6 +53,7 @@ export class ReadingsService {
     private readonly mediation: MediationService,
     private readonly monetization: MonetizationConfig,
     private readonly idempotency: IdempotencyService,
+    private readonly users: UsersService,
     private readonly logger: AppLoggerService,
   ) {}
 
@@ -108,7 +110,14 @@ export class ReadingsService {
 
     let record: Reading;
     try {
-      const generated = await this.provider.generate(fortune, dto.input);
+      // Personalization (scope §16): only a name the user confirmed in
+      // onboarding is ever used; otherwise the reading stays impersonal.
+      const owner = await this.users.findById(userId);
+      const profile = {
+        displayName:
+          owner?.onboardingCompleted === true ? (owner.displayName ?? null) : null,
+      };
+      const generated = await this.provider.generate(fortune, dto.input, profile);
       record = await this.repository.create({
         userId,
         fortuneId: fortune.id,

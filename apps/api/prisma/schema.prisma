@@ -8,14 +8,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// Persian calendar birth months (profile onboarding, scope §16).
+enum BirthMonth {
+  FARVARDIN
+  ORDIBEHESHT
+  KHORDAD
+  TIR
+  MORDAD
+  SHAHRIVAR
+  MEHR
+  ABAN
+  AZAR
+  DEY
+  BAHMAN
+  ESFAND
+}
+
 /// User anchored to Telegram identity (`tg:<id>` = the unique telegramId).
 model User {
-  id          String   @id @default(cuid())
-  telegramId  String   @unique @map("telegram_id")
-  displayName String?  @map("display_name")
-  locale      String   @default("fa")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                    String      @id @default(cuid())
+  telegramId            String      @unique @map("telegram_id")
+  displayName           String?     @map("display_name")
+  locale                String      @default("fa")
+  birthMonth            BirthMonth? @map("birth_month")
+  onboardingCompleted   Boolean     @default(false) @map("onboarding_completed")
+  onboardingCompletedAt DateTime?   @map("onboarding_completed_at")
+  profileVersion        Int         @default(0) @map("profile_version")
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
 
   idempotencyKeys        IdempotencyKey[]
   subscription           Subscription?

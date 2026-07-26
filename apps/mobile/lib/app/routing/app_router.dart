@@ -7,6 +7,9 @@ import '../../features/fortunes/presentation/pages/coffee_guide_page.dart';
 import '../../features/fortunes/presentation/pages/elements_guide_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
+import '../../features/profile/application/profile_controller.dart';
+import '../../features/profile/domain/user_profile.dart';
+import '../../features/profile/presentation/pages/onboarding_page.dart';
 import '../../features/profile/presentation/pages/profile_placeholder_page.dart';
 import '../../features/reading/domain/reading.dart';
 import '../../features/reading/presentation/pages/reading_page.dart';
@@ -37,6 +40,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     startupControllerProvider,
     (_, __) => refresh.value++,
   );
+  // The onboarding gate (scope §16) re-evaluates whenever the profile loads
+  // or completes — same bridge pattern as startup above.
+  ref.listen<AsyncValue<UserProfile?>>(
+    profileControllerProvider,
+    (_, __) => refresh.value++,
+  );
 
   // Drives the Telegram BackButton from the route stack (bound after the router
   // exists). A no-op off Telegram; disposed with the provider.
@@ -54,8 +63,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final startup = ref.read(startupControllerProvider).valueOrNull ??
           const StartupInProgress();
+      final profile = ref.read(profileControllerProvider);
+      // Unknown while loading; a failed fetch must not trap the app on
+      // splash forever, so a hard failure counts as "no gate".
+      final onboardingCompleted =
+          profile.hasError ? true : profile.valueOrNull?.onboardingCompleted;
       return RouteGuards.redirect(
         startup: startup,
+        onboardingCompleted:
+            startup is StartupReady ? onboardingCompleted : null,
         location: state.matchedLocation,
       );
     },
@@ -165,6 +181,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.profilePath,
         name: AppRoutes.profileName,
         builder: (_, __) => const ProfilePlaceholderPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboardingPath,
+        name: AppRoutes.onboardingName,
+        builder: (_, state) =>
+            OnboardingPage(next: state.uri.queryParameters['next']),
       ),
     ],
     errorBuilder: (_, __) => const _NotFoundPage(),

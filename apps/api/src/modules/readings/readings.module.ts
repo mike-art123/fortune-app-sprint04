@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AdsModule } from '../ads/ads.module';
 import { EntitlementsModule } from '../entitlements/entitlements.module';
+import { UsersModule } from '../users/users.module';
 import { AiConfig } from '../../config/ai.config';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
 import { ReadingsController } from './readings.controller';
@@ -11,7 +12,7 @@ import { MockReadingProvider } from './providers/mock-reading.provider';
 import { READING_PROVIDER, type ReadingProvider } from './providers/reading-provider.interface';
 
 @Module({
-  imports: [EntitlementsModule, AdsModule],
+  imports: [EntitlementsModule, AdsModule, UsersModule],
   controllers: [ReadingsController],
   providers: [
     ReadingsService,

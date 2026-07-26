@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
@@ -11,11 +12,14 @@ import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../application/profile_controller.dart';
+import '../../domain/user_profile.dart';
+import '../widgets/edit_profile_sheet.dart';
 
-/// Premium profile screen (BakhtNegar visual reference): avatar + level, coin/
-/// gem/reading stats, an ornate menu list and a VIP upsell card. Values are
-/// presentational for now; wiring to the real wallet/profile comes later.
-class ProfilePlaceholderPage extends StatelessWidget {
+/// Premium profile screen (BakhtNegar visual reference): the real name and
+/// birth month from the profile (scope §16, editable in place), journey
+/// stats, an ornate menu list and a VIP upsell card.
+class ProfilePlaceholderPage extends ConsumerWidget {
   const ProfilePlaceholderPage({super.key});
 
   void _tapNav(BuildContext context, int index) {
@@ -35,7 +39,8 @@ class ProfilePlaceholderPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(profileControllerProvider).valueOrNull;
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
       bottomNavigationBar: PremiumBottomNavigation(
@@ -47,7 +52,7 @@ class ProfilePlaceholderPage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
           children: [
-            _header(context),
+            _header(context, profile),
             const SizedBox(height: AppSpacing.md),
             // Coins are gone: the only stats are the user's own journey.
             Row(
@@ -105,8 +110,9 @@ class ProfilePlaceholderPage extends StatelessWidget {
     );
   }
 
-  Widget _header(BuildContext context) {
+  Widget _header(BuildContext context, UserProfile? profile) {
     final c = context.fortuneColors;
+    final month = birthMonthFa(profile?.birthMonth);
     return GoldBorderContainer(
       glow: true,
       child: Row(
@@ -132,7 +138,7 @@ class ProfilePlaceholderPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'نرگس احمدی',
+                  profile?.displayName ?? 'مسافرِ بخت',
                   style: TextStyle(
                     color: c.textPrimary,
                     fontSize: 18,
@@ -141,7 +147,9 @@ class ProfilePlaceholderPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'سطح ۱۲ · جست‌وجوگرِ حقیقت',
+                  month != null
+                      ? 'متولدِ $month · جست‌وجوگرِ حقیقت'
+                      : 'جست‌وجوگرِ حقیقت',
                   style: TextStyle(color: c.goldWarm, fontSize: 12),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -156,6 +164,11 @@ class ProfilePlaceholderPage extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: () => showEditProfileSheet(context),
+            tooltip: 'ویرایش نام و ماه تولد',
+            icon: Icon(Icons.edit_outlined, color: c.goldWarm, size: 20),
           ),
         ],
       ),

@@ -35,6 +35,9 @@ abstract final class AppRoutes {
   static const profileName = 'profile';
   static const profilePath = '/profile';
 
+  static const onboardingName = 'onboarding';
+  static const onboardingPath = '/onboarding';
+
   static String ritual(String fortuneId) => '/ritual/$fortuneId';
   static String reading(String readingId) => '/reading/$readingId';
 }

@@ -21,6 +21,8 @@ import '../../../../design_system/components/fortune_loading.dart';
 import '../../../../shared/providers/shared_providers.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../history/application/history_controller.dart';
+import '../../../profile/application/profile_controller.dart';
+import '../../../profile/domain/user_profile.dart';
 import '../../domain/reading.dart';
 
 /// The reading — presented as a quiet page written for one person.
@@ -83,10 +85,14 @@ class _ReadingView extends ConsumerWidget {
   }
 
   /// Real share: the reading is copied for pasting anywhere, and inside
-  /// Telegram the native share sheet opens with the text prefilled.
+  /// Telegram the native share sheet opens with the text prefilled. Privacy
+  /// (scope §16): the person's name is stripped from the shared text — what
+  /// leaves the app is impersonal by default.
   Future<void> _share(BuildContext context, WidgetRef ref) async {
     final bridge = ref.read(telegramBridgeProvider);
-    final text = '${reading.title}\n\n${reading.text}\n\n🔮 بخت‌نگار';
+    final name = ref.read(profileControllerProvider).valueOrNull?.displayName;
+    final body = stripLeadingName(reading.text, name);
+    final text = '${reading.title}\n\n$body\n\n🔮 بخت‌نگار';
 
     var copied = true;
     try {

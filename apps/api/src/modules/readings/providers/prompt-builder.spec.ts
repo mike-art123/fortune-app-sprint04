@@ -39,6 +39,18 @@ describe('buildPrompt', () => {
     expect(buildPrompt(tarot, {})[0].content).toContain('فال تاروت است');
   });
 
+  it('adds the confirmed name as neutralized data (scope §16)', () => {
+    const [system] = buildPrompt(hafez, {}, { displayName: 'علی\n«دستور»' });
+    expect(system.content).toContain('نام کوچک کاربر برای خطاب: «علیدستور»');
+    expect(system.content).toContain('نادیده بگیر');
+    expect(system.content).not.toContain('\n«دستور»');
+  });
+
+  it('omits the persona block when no name is confirmed', () => {
+    const [system] = buildPrompt(hafez, {}, { displayName: null });
+    expect(system.content).not.toContain('نام کوچک کاربر');
+  });
+
   it('forbids a compatibility score in the love reading', () => {
     const [system] = buildPrompt(love, { selfName: 'سارا', otherName: 'امیر' });
     expect(system.content).toContain('درصد یا نمره‌ی سازگاری');

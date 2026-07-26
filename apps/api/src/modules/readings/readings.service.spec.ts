@@ -51,6 +51,10 @@ const idempotency = {
   record: jest.fn(),
 };
 
+const users = {
+  findById: jest.fn().mockResolvedValue(null),
+};
+
 const service = new ReadingsService(
   repository as never,
   provider as never,
@@ -59,6 +63,7 @@ const service = new ReadingsService(
   mediation as never,
   monetization as never,
   idempotency as never,
+  users as never,
   logger as never,
 );
 
