@@ -5,9 +5,7 @@ import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../design_system/components/fortune_cards.dart';
-import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
-import '../../../../design_system/components/premium_button.dart';
 import '../../../../design_system/components/section_title.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 import '../../../../design_system/foundations/app_gradients.dart';
@@ -131,7 +129,9 @@ class _HomePageState extends State<HomePage> {
                         onTap: () => _openId(context, hafez.id, true),
                       ),
                     const SizedBox(height: AppLayout.sectionGap),
-                    _QuickActionsRow(onTap: () => _soon(context)),
+                    _QuickActionsRow(
+                      onOpen: (id) => _openId(context, id, true),
+                    ),
                     const SizedBox(height: AppLayout.sectionGap),
                     SectionTitle(
                       title: 'فال‌های محبوب',
@@ -151,8 +151,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: AppLayout.headingGap),
                     _EditorialLove(onOpen: (id) => _openId(context, id, true)),
-                    const SizedBox(height: AppLayout.sectionGap),
-                    _RewardBanner(onClaim: () => _soon(context)),
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
@@ -284,29 +282,28 @@ class _ProfileChip extends StatelessWidget {
   }
 }
 
-/// Compact quick actions: four borderless icon + label tiles, evenly spread.
+/// Compact quick actions: two borderless icon + label tiles that open their
+/// own rituals directly — the daily reading and the istikhara.
 class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow({required this.onTap});
+  const _QuickActionsRow({required this.onOpen});
 
-  final VoidCallback onTap;
+  final void Function(String id) onOpen;
 
   static const _items = [
-    (asset: 'assets/icons/qa_daily.jpg', label: 'فال روزانه'),
-    (asset: 'assets/icons/qa_reward.jpg', label: 'جایزهٔ روزانه'),
-    (asset: 'assets/icons/qa_luck.jpg', label: 'شانس امروز'),
-    (asset: 'assets/icons/qa_estekhare.jpg', label: 'استخاره'),
+    (id: 'daily', asset: 'assets/icons/qa_daily.jpg', label: 'فال روزانه'),
+    (id: 'quran', asset: 'assets/icons/qa_estekhare.jpg', label: 'استخاره'),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         for (final item in _items)
           QuickActionTile(
             asset: item.asset,
             label: item.label,
-            onTap: onTap,
+            onTap: () => onOpen(item.id),
           ),
       ],
     );
@@ -409,58 +406,3 @@ class _EditorialLove extends StatelessWidget {
   }
 }
 
-class _RewardBanner extends StatelessWidget {
-  const _RewardBanner({required this.onClaim});
-
-  final VoidCallback onClaim;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.fortuneColors;
-    return GoldBorderContainer(
-      gradient: AppGradients.rewardWash,
-      glow: true,
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            child: Image.asset(
-              'assets/store/reward_chest.jpg',
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stack) => const Icon(
-                Icons.card_giftcard,
-                size: 40,
-                color: AppPalette.goldHi,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'جایزهٔ روزانه',
-                  style: TextStyle(
-                    color: c.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'هر روز وارد شو و جایزه بگیر',
-                  style: TextStyle(color: c.textMuted, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          PremiumButton(label: 'دریافت', onPressed: onClaim),
-        ],
-      ),
-    );
-  }
-}

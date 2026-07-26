@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../foundations/app_colors.dart';
 import '../foundations/app_gradients.dart';
 import '../foundations/app_layout.dart';
+import '../foundations/app_radius.dart';
 import '../foundations/app_spacing.dart';
 import 'fortune_art.dart';
 
@@ -365,31 +366,32 @@ class QuickActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadiusPill._pill),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Rounded-square artwork tile, matching the app's card imagery —
+          // the emblem fills the tile instead of hiding inside a tiny disc.
           Container(
             width: 54,
             height: 54,
             decoration: const BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
               gradient: RadialGradient(
                 colors: [AppPalette.nightGlow, AppPalette.nightPanel],
               ),
             ),
+            clipBehavior: Clip.antiAlias,
             alignment: Alignment.center,
-            child: ClipOval(
-              child: Image.asset(
-                asset,
-                width: 30,
-                height: 30,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) => const Icon(
-                  Icons.auto_awesome,
-                  color: AppPalette.goldHi,
-                  size: 22,
-                ),
+            child: Image.asset(
+              asset,
+              width: 54,
+              height: 54,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stack) => const Icon(
+                Icons.auto_awesome,
+                color: AppPalette.goldHi,
+                size: 22,
               ),
             ),
           ),
