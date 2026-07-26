@@ -10,6 +10,7 @@ import type {
 } from './reading-provider.interface';
 import { MockReadingProvider } from './mock-reading.provider';
 import { buildPrompt } from './prompt-builder';
+import { extractJsonObject } from '../../../common/json/extract-json-object';
 
 /** Statuses worth a second attempt. Everything else fails fast. */
 const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
@@ -152,7 +153,15 @@ export class AiReadingProvider implements ReadingProvider {
  * does not carry a usable title and body.
  */
 export function parseGeneratedReading(raw: string): GeneratedReading {
-  const object = extractJsonObject(raw);
+  let object: Record<string, unknown>;
+  try {
+    object = extractJsonObject(raw);
+  } catch (error) {
+    throw new AiRequestError(
+      error instanceof Error ? error.message : 'completion was not JSON',
+      true,
+    );
+  }
 
   const title = typeof object.title === 'string' ? object.title.trim() : '';
   const reading = typeof object.reading === 'string' ? object.reading.trim() : '';
@@ -165,60 +174,4 @@ export function parseGeneratedReading(raw: string): GeneratedReading {
     title: title.slice(0, MAX_TITLE_CHARS),
     reading: reading.slice(0, MAX_READING_CHARS),
   };
-}
-
-/** Parses the first balanced JSON object in the text, ignoring braces in strings. */
-function extractJsonObject(raw: string): Record<string, unknown> {
-  const text = raw
-    .trim()
-    .replace(/^```(?:json)?/i, '')
-    .replace(/```$/, '')
-    .trim();
-
-  const attempt = (candidate: string): Record<string, unknown> | null => {
-    try {
-      const parsed: unknown = JSON.parse(candidate);
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-        ? (parsed as Record<string, unknown>)
-        : null;
-    } catch {
-      return null;
-    }
-  };
-
-  const direct = attempt(text);
-  if (direct) return direct;
-
-  const start = text.indexOf('{');
-  if (start === -1) {
-    throw new AiRequestError('completion contained no JSON object', true);
-  }
-
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
-
-  for (let i = start; i < text.length; i++) {
-    const char = text[i];
-
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (char === '\\') escaped = true;
-      else if (char === '"') inString = false;
-      continue;
-    }
-
-    if (char === '"') inString = true;
-    else if (char === '{') depth++;
-    else if (char === '}') {
-      depth--;
-      if (depth === 0) {
-        const scanned = attempt(text.slice(start, i + 1));
-        if (scanned) return scanned;
-        break;
-      }
-    }
-  }
-
-  throw new AiRequestError('completion was malformed or truncated JSON', true);
 }

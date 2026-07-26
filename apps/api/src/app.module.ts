@@ -18,6 +18,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { EntitlementsModule } from './modules/entitlements/entitlements.module';
 import { ReadingsModule } from './modules/readings/readings.module';
+import { SearchModule } from './modules/search/search.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { HealthModule } from './modules/health/health.module';
 import { SystemModule } from './modules/system/system.module';
@@ -52,6 +53,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
     UsersModule,
     EntitlementsModule,
     ReadingsModule,
+    SearchModule,
     WalletModule,
     HealthModule,
     SystemModule,
