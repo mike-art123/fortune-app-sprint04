@@ -6,7 +6,7 @@ import 'package:fortune_app/features/history/domain/history_summary.dart';
 /// unexpected must degrade to something the journal can still show.
 void main() {
   test('reads a complete payload', () {
-    final summary = summaryFromJson(const {
+    const payload = <String, dynamic>{
       'range': 'last30',
       'rangeLabelFa': 'سی روز گذشته',
       'total': 3,
@@ -19,7 +19,8 @@ void main() {
       'summary': 'ماه پرکاری داشتی.',
       'source': 'ai',
       'sourceIds': ['r1', 'r2', 'r3'],
-    }, SummaryRange.last30);
+    };
+    final summary = summaryFromJson(payload, SummaryRange.last30);
 
     expect(summary.total, 3);
     expect(summary.previousTotal, 1);
@@ -29,14 +30,15 @@ void main() {
   });
 
   test('drops malformed tallies instead of failing the whole summary', () {
-    final summary = summaryFromJson(const {
+    const payload = <String, dynamic>{
       'summary': 'ماه آرامی داشتی.',
       'byFortune': [
         {'fortuneId': 'hafez', 'titleFa': 'فال حافظ', 'count': 2},
         {'fortuneId': 'tarot', 'count': 'زیاد'},
         'nonsense',
       ],
-    }, SummaryRange.last7);
+    };
+    final summary = summaryFromJson(payload, SummaryRange.last7);
 
     expect(summary.byFortune.length, 1);
     expect(summary.byFortune.single.fortuneId, 'hafez');
@@ -44,9 +46,8 @@ void main() {
   });
 
   test('treats missing numbers as zero rather than guessing', () {
-    final summary = summaryFromJson(const {
-      'summary': 'ماه آرامی داشتی.',
-    }, SummaryRange.last90);
+    const payload = <String, dynamic>{'summary': 'ماه آرامی داشتی.'};
+    final summary = summaryFromJson(payload, SummaryRange.last90);
 
     expect(summary.total, 0);
     expect(summary.previousTotal, 0);
