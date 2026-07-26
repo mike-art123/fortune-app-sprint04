@@ -6,6 +6,7 @@ import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/design_system/components/fortune_button.dart';
 import 'package:fortune_app/core/errors/app_failure.dart';
+import 'package:fortune_app/features/history/application/history_controller.dart';
 import 'package:fortune_app/features/profile/application/profile_controller.dart';
 import 'package:fortune_app/features/profile/domain/user_profile.dart';
 import 'package:fortune_app/features/reading/domain/reading.dart';
