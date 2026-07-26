@@ -4,6 +4,7 @@ import { MediationService } from './mediation.service';
 const prisma = {
   adMediationSession: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
   },
@@ -16,6 +17,9 @@ const prisma = {
     count: jest.fn(),
     create: jest.fn(),
     updateMany: jest.fn(),
+  },
+  user: {
+    findUnique: jest.fn(),
   },
   $transaction: jest.fn((ops: Promise<unknown>[]) => Promise.all(ops)),
 };
@@ -71,6 +75,8 @@ function resetMocks(): void {
   prisma.adProviderAttempt.updateMany.mockResolvedValue({ count: 1 });
   prisma.adProviderAttempt.update.mockResolvedValue({});
   prisma.adMediationSession.findUnique.mockResolvedValue(null);
+  prisma.adMediationSession.findFirst.mockResolvedValue(null);
+  prisma.user.findUnique.mockResolvedValue(null);
   prisma.adMediationSession.create.mockImplementation((args: WriteArgs) =>
     Promise.resolve(sessionRow({ ...args.data, id: 'ses1', attempts: [] })),
   );
@@ -241,6 +247,46 @@ describe('MediationService.verifyRewardCallback', () => {
 
     await expect(
       service.verifyRewardCallback('adsgram', { sid: 'ses1', uid: '42', token: 'secret-a' }, NOW),
+    ).rejects.toMatchObject({ code: 'AD_VERIFICATION_FAILED' });
+  });
+
+  // AdsGram's reward URL can only carry [userId] (the Telegram id), so the
+  // callback arrives with no sid — the service must bind by the user's active
+  // session on the provider instead.
+  it('rewards the user active session on a userid-only (AdsGram) callback', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: 'u1', telegramId: '42' });
+    prisma.adMediationSession.findFirst.mockResolvedValue(callbackSession());
+
+    const res = await service.verifyRewardCallback(
+      'adsgram',
+      { uid: '42', token: 'secret-a' },
+      NOW,
+    );
+
+    expect(res).toEqual({ ok: true });
+    // No provider reward id in the URL → the session id anchors replay safety.
+    const createArgs = prisma.rewardedAdEntitlement.create.mock.calls[0]?.[0] as {
+      data: Record<string, unknown>;
+    };
+    expect(createArgs.data.providerRewardId).toBe('ses1');
+    expect(createArgs.data.status).toBe('available');
+  });
+
+  it('refuses a userid-only callback with no active session (post-reward replay)', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: 'u1', telegramId: '42' });
+    prisma.adMediationSession.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.verifyRewardCallback('adsgram', { uid: '42', token: 'secret-a' }, NOW),
+    ).rejects.toMatchObject({ code: 'AD_VERIFICATION_FAILED' });
+    expect(prisma.rewardedAdEntitlement.create).not.toHaveBeenCalled();
+  });
+
+  it('refuses a userid-only callback for an unknown Telegram user', async () => {
+    prisma.user.findUnique.mockResolvedValue(null);
+
+    await expect(
+      service.verifyRewardCallback('adsgram', { uid: '999', token: 'secret-a' }, NOW),
     ).rejects.toMatchObject({ code: 'AD_VERIFICATION_FAILED' });
   });
 });

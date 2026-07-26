@@ -229,29 +229,14 @@ export class MediationService {
     if (secret.length === 0 || !this.safeEquals(params.token ?? '', secret)) {
       throw this.verificationFailed('bad token');
     }
-    const sid = params.sid ?? '';
-    if (sid.length === 0) throw this.verificationFailed('missing sid');
+    const session = await this.resolveRewardSession(provider, params, now);
 
-    const session = await this.prisma.adMediationSession.findUnique({
-      where: { id: sid },
-      include: { user: true, attempts: true },
-    });
-    if (!session) throw this.verificationFailed('unknown session');
-    if (session.expiresAt.getTime() <= now.getTime()) {
-      throw this.verificationFailed('session expired');
-    }
-    if (session.status !== SESSION_STATUS.attempting) {
-      throw this.verificationFailed(`session not attempting (${session.status})`);
-    }
     const attempt = [...session.attempts]
       .filter((a) => a.provider === provider)
       .sort((a, b) => b.attemptNumber - a.attemptNumber)[0];
     if (!attempt) throw this.verificationFailed('no attempt for provider');
-    if ((params.uid ?? '') !== session.user.telegramId) {
-      throw this.verificationFailed('user mismatch');
-    }
 
-    const rewardId = params.reward && params.reward.length > 0 ? params.reward : sid;
+    const rewardId = params.reward && params.reward.length > 0 ? params.reward : session.id;
     const entitlementExpiry = new Date(now.getTime() + this.ads.entitlementTtlSeconds * 1000);
 
     try {
@@ -290,6 +275,70 @@ export class MediationService {
 
     this.logger.info('ads.reward.verified', { provider, sessionId: session.id });
     return { ok: true };
+  }
+
+  /**
+   * Resolve the session a reward callback belongs to. Providers that can echo
+   * our session id (Monetag's `var3`) send `sid`. AdsGram's reward URL can only
+   * carry `[userId]` (the Telegram id) — no session id — so when `sid` is
+   * absent we bind to that user's single active `attempting` session on this
+   * provider. Either way the session is verified rewardable (bound to the
+   * caller's user, not expired, still attempting) before any reward is issued,
+   * and the entitlement's unique keys keep double-rewards impossible.
+   */
+  private async resolveRewardSession(
+    provider: string,
+    params: { sid?: string; uid?: string },
+    now: Date,
+  ): Promise<{
+    id: string;
+    userId: string;
+    fortuneId: string;
+    status: string;
+    expiresAt: Date;
+    attempts: Array<{ attemptNumber: number; provider: string }>;
+  }> {
+    const sid = params.sid ?? '';
+    const uid = params.uid ?? '';
+
+    if (sid.length > 0) {
+      const session = await this.prisma.adMediationSession.findUnique({
+        where: { id: sid },
+        include: { user: true, attempts: true },
+      });
+      if (!session) throw this.verificationFailed('unknown session');
+      if (uid !== session.user.telegramId) throw this.verificationFailed('user mismatch');
+      this.assertRewardable(session, now);
+      return session;
+    }
+
+    // AdsGram: the reward URL delivers only `[userId]`. Bind to the user's one
+    // active session on this provider; a second ping after the reward finds no
+    // `attempting` session (it flipped to `rewarded`), so replays are refused.
+    if (uid.length === 0) throw this.verificationFailed('missing user');
+    const user = await this.prisma.user.findUnique({ where: { telegramId: uid } });
+    if (!user) throw this.verificationFailed('unknown user');
+    const session = await this.prisma.adMediationSession.findFirst({
+      where: {
+        userId: user.id,
+        currentProvider: provider,
+        status: SESSION_STATUS.attempting,
+        expiresAt: { gt: now },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { user: true, attempts: true },
+    });
+    if (!session) throw this.verificationFailed('no active session');
+    return session;
+  }
+
+  private assertRewardable(session: { status: string; expiresAt: Date }, now: Date): void {
+    if (session.expiresAt.getTime() <= now.getTime()) {
+      throw this.verificationFailed('session expired');
+    }
+    if (session.status !== SESSION_STATUS.attempting) {
+      throw this.verificationFailed(`session not attempting (${session.status})`);
+    }
   }
 
   /** Atomically consume an available, unexpired entitlement for this fortune. */
