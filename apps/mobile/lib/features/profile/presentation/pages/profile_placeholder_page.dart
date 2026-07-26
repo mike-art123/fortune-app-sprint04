@@ -102,6 +102,8 @@ class ProfilePlaceholderPage extends ConsumerWidget {
               () => _soon(context),
             ),
             const SizedBox(height: AppSpacing.sm),
+            _personalization(context, ref, profile),
+            const SizedBox(height: AppSpacing.sm),
             _vip(context, () => context.push(AppRoutes.vipPath)),
             const SizedBox(height: AppSpacing.lg),
           ],
@@ -171,6 +173,37 @@ class ProfilePlaceholderPage extends ConsumerWidget {
             icon: Icon(Icons.edit_outlined, color: c.goldWarm, size: 20),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Scope §4: personalization is a courtesy, so it must be refusable — in one
+  /// tap, in plain words, and without hunting through a settings tree.
+  Widget _personalization(
+    BuildContext context,
+    WidgetRef ref,
+    UserProfile? profile,
+  ) {
+    final c = context.fortuneColors;
+    final on = !(profile?.personalizationOptOut ?? false);
+    return GoldBorderContainer(
+      child: SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        value: on,
+        onChanged: profile == null
+            ? null
+            : (value) => ref
+                .read(profileControllerProvider.notifier)
+                .updateProfile(personalizationOptOut: !value),
+        title: Text(
+          'پیشنهاد بر پایهٔ فال‌های خودم',
+          style: TextStyle(color: c.textPrimary, fontSize: 14),
+        ),
+        subtitle: Text(
+          'خاموش که باشد، هیچ پیشنهادی ساخته نمی‌شود.',
+          style: TextStyle(color: c.textMuted, fontSize: 11),
+        ),
+        activeTrackColor: c.goldWarm.withValues(alpha: 0.5),
       ),
     );
   }

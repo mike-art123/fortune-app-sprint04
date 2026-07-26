@@ -9,6 +9,8 @@ export interface ProfileView {
   birthMonth: BirthMonth | null;
   locale: string;
   onboardingCompleted: boolean;
+  /** Scope §4: when true, nothing is tailored and nothing is suggested. */
+  personalizationOptOut: boolean;
 }
 
 /**
@@ -89,10 +91,14 @@ export class UsersService {
     return this.view(updated);
   }
 
-  /** Profile edit (name and/or birth month); bumps the profile version. */
+  /** Profile edit (name, birth month, personalization); bumps the version. */
   async updateProfile(
     userId: string,
-    input: { displayName?: string; birthMonth?: string },
+    input: {
+      displayName?: string;
+      birthMonth?: string;
+      personalizationOptOut?: boolean;
+    },
   ): Promise<ProfileView> {
     await this.requireUser(userId);
     const data: Prisma.UserUpdateInput = { profileVersion: { increment: 1 } };
@@ -101,6 +107,9 @@ export class UsersService {
     }
     if (input.birthMonth !== undefined) {
       data.birthMonth = this.parseBirthMonth(input.birthMonth);
+    }
+    if (input.personalizationOptOut !== undefined) {
+      data.personalizationOptOut = input.personalizationOptOut;
     }
     const updated = await this.prisma.user.update({ where: { id: userId }, data });
     return this.view(updated);
@@ -156,6 +165,7 @@ export class UsersService {
       birthMonth: user.birthMonth,
       locale: user.locale,
       onboardingCompleted: user.onboardingCompleted,
+      personalizationOptOut: user.personalizationOptOut,
     };
   }
 }

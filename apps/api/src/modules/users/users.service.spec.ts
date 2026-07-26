@@ -20,6 +20,7 @@ function userRow(overrides: Record<string, unknown> = {}): Record<string, unknow
     onboardingCompleted: false,
     onboardingCompletedAt: null,
     profileVersion: 0,
+    personalizationOptOut: false,
     ...overrides,
   };
 }
@@ -140,6 +141,27 @@ describe('UsersService.updateProfile', () => {
     expect(args.data.displayName).toBe('نیلوفر');
     expect(args.data.profileVersion).toEqual({ increment: 1 });
     expect(args.data.birthMonth).toBeUndefined();
+  });
+
+  it('switches personalization off, and says so in the profile', async () => {
+    prisma.user.findUnique.mockResolvedValue(userRow({ onboardingCompleted: true }));
+
+    const view = await service.updateProfile('u1', { personalizationOptOut: true });
+
+    const args = prisma.user.update.mock.calls[0]?.[0] as { data: Record<string, unknown> };
+    expect(args.data.personalizationOptOut).toBe(true);
+    expect(view.personalizationOptOut).toBe(true);
+  });
+
+  it('leaves personalization alone when the edit does not mention it', async () => {
+    prisma.user.findUnique.mockResolvedValue(
+      userRow({ onboardingCompleted: true, personalizationOptOut: true }),
+    );
+
+    await service.updateProfile('u1', { displayName: 'نیلوفر' });
+
+    const args = prisma.user.update.mock.calls[0]?.[0] as { data: Record<string, unknown> };
+    expect(args.data.personalizationOptOut).toBeUndefined();
   });
 
   it('throws NOT_FOUND for an unknown user', async () => {

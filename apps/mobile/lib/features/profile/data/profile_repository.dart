@@ -34,12 +34,15 @@ class ProfileRepository {
   Future<Result<UserProfile>> update({
     String? displayName,
     String? birthMonth,
+    bool? personalizationOptOut,
   }) async {
     final result = await _api.patch(
       '/profile',
       body: {
         if (displayName != null) 'displayName': displayName,
         if (birthMonth != null) 'birthMonth': birthMonth,
+        if (personalizationOptOut != null)
+          'personalizationOptOut': personalizationOptOut,
       },
     );
     return result.fold(

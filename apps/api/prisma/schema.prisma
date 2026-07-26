@@ -34,6 +34,11 @@ model User {
   onboardingCompleted   Boolean     @default(false) @map("onboarding_completed")
   onboardingCompletedAt DateTime?   @map("onboarding_completed_at")
   profileVersion        Int         @default(0) @map("profile_version")
+
+  /// Scope §4: personalization is on by default and can be switched off for
+  /// good. Stored on the user, not on the device, so turning it off once turns
+  /// it off everywhere.
+  personalizationOptOut Boolean     @default(false) @map("personalization_opt_out")
   createdAt             DateTime    @default(now()) @map("created_at")
   updatedAt             DateTime    @updatedAt @map("updated_at")
 

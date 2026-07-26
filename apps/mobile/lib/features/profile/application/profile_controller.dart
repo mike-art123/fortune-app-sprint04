@@ -46,11 +46,13 @@ class ProfileController extends AsyncNotifier<UserProfile?> {
   Future<AppFailure?> updateProfile({
     String? displayName,
     String? birthMonth,
+    bool? personalizationOptOut,
   }) async {
     final repo = ref.read(profileRepositoryProvider);
     final result = await repo.update(
       displayName: displayName,
       birthMonth: birthMonth,
+      personalizationOptOut: personalizationOptOut,
     );
     return result.fold(
       onSuccess: (profile) {

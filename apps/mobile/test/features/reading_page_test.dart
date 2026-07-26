@@ -6,7 +6,9 @@ import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/design_system/components/fortune_button.dart';
 import 'package:fortune_app/core/errors/app_failure.dart';
+import 'package:fortune_app/core/result/result.dart';
 import 'package:fortune_app/features/history/application/history_controller.dart';
+import 'package:fortune_app/features/history/domain/history_repository.dart';
 import 'package:fortune_app/features/profile/application/profile_controller.dart';
 import 'package:fortune_app/features/profile/domain/user_profile.dart';
 import 'package:fortune_app/features/reading/domain/reading.dart';
@@ -26,6 +28,19 @@ class _NamedProfile extends ProfileController {
         displayName: 'علی',
         birthMonth: 'MEHR',
         onboardingCompleted: true,
+      );
+}
+
+/// The page now ends with «بعد از این», which reads history. Tests declare
+/// that dependency instead of letting it reach for the network.
+class _EmptyHistory implements HistoryRepository {
+  @override
+  Future<Result<ReadingListPage>> list({String? cursor}) async =>
+      const Success(ReadingListPage(items: [], nextCursor: null));
+
+  @override
+  Future<Result<Reading>> byId(String id) async => const ResultFailure(
+        AppFailure(kind: FailureKind.notFound, messageKey: 'notFound'),
       );
 }
 
@@ -50,6 +65,7 @@ Widget host(
   return ProviderScope(
     overrides: [
       profileControllerProvider.overrideWith(profile),
+      historyRepositoryProvider.overrideWithValue(_EmptyHistory()),
       ...overrides,
     ],
     // Share reads the profile lazily; in the real app the router has already

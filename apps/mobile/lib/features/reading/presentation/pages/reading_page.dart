@@ -23,6 +23,7 @@ import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../history/application/history_controller.dart';
 import '../../../profile/application/profile_controller.dart';
 import '../../../profile/domain/user_profile.dart';
+import '../../../recommendations/presentation/widgets/next_fortunes_strip.dart';
 import '../../domain/reading.dart';
 
 /// The reading — presented as a quiet page written for one person.
@@ -247,6 +248,8 @@ class _ReadingView extends ConsumerWidget {
             variant: FortuneButtonVariant.text,
             onPressed: () => context.go(AppRoutes.allFortunesPath),
           ),
+          // Where to go next, drawn from this reader's own history (scope §5).
+          NextFortunesStrip(fortuneId: current.fortuneId),
           const SizedBox(height: AppSpacing.lg),
         ],
       ),

@@ -4,6 +4,7 @@ class UserProfile {
     required this.displayName,
     required this.birthMonth,
     required this.onboardingCompleted,
+    this.personalizationOptOut = false,
   });
 
   final String? displayName;
@@ -12,11 +13,16 @@ class UserProfile {
   final String? birthMonth;
   final bool onboardingCompleted;
 
+  /// Scope §4: when true nothing is tailored and nothing is suggested. Kept on
+  /// the server, so switching it off once switches it off on every device.
+  final bool personalizationOptOut;
+
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
       displayName: json['displayName'] as String?,
       birthMonth: json['birthMonth'] as String?,
       onboardingCompleted: json['onboardingCompleted'] == true,
+      personalizationOptOut: json['personalizationOptOut'] == true,
     );
   }
 }

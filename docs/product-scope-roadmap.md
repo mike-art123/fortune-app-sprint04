@@ -314,3 +314,40 @@ for the same question, and stays quiet entirely when the index already
 answered. Formatting verified with two dart_style builds and prettier 3.3.3.
 
 Phase 3 (§2 + §3) is now complete.
+
+## Phase 4 delivery report (personalization §4 + next fortune §5)
+
+Architecture decision (same anti-duplication rule as Phase 1): affinity is
+**derived from the reader's own readings**, not stored in a second table. A
+`UserPreferenceProfile` would have to be kept in sync with the history that
+already exists, and would need its own deletion story; deriving means a deleted
+reading also deletes its influence, with nothing to remember. What §4 requires —
+category and time-of-day affinity, ≤3 explained cards, opt-out — is delivered in
+full. The only stored preference is the opt-out itself, which must survive a
+device change: `User.personalizationOptOut` (migration
+`20260726120000_personalization_opt_out`), read and written through the existing
+profile endpoints.
+
+Rules (`next_fortunes.dart`, pure and offline): never the fortune just read,
+never something that cannot be opened, never a repeat inside one strip, and at
+most three. One card per kind of reason, so the strip says three different
+things: the family of what was just read, then what this reader actually opens
+at this part of the day (صبح/ظهر/عصر/شب — two readings before it counts as a
+habit, once is not a pattern), then something never tried. Each card carries
+its reason in one line; a suggestion without a reason is just an advertisement.
+
+Client: `NextFortunesStrip` under the reading, opening through the shared
+destination map like every other card. It reads history through the existing
+repository and shows nothing at all while loading, on failure, or when
+personalization is off — and when it is off, history is not even consulted. The
+switch lives on the profile screen in plain words.
+
+Tests: the rule table (no repeats, no dead ends, the family first, a habit named
+as one, one reading not yet a habit, untried offered as untried, determinism,
+the four day parts, and every fortune having a next step), the strip (offers
+with reasons, opens through the map, silent and history-free when opted out),
+and the server (opt-out stored and reported, untouched when an edit does not
+mention it). Formatting verified with two dart_style builds and prettier 3.3.3.
+
+Phase 4 (§4 + §5) is complete. Remaining: Phase 5 (§6, §7), Phase 6 (§8), and
+Phase 2 (§1) once licensed audio assets exist.
