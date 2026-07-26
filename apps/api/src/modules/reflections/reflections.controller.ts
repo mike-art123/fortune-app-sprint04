@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -81,12 +71,15 @@ export class ReflectionsController {
     });
   }
 
+  /**
+   * Answers with the id it removed: the response envelope always carries a
+   * body, and «رفت» is easier to show than an empty 204.
+   */
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
   remove(
     @Param('id') id: string,
     @CurrentUser() principal: AuthenticatedPrincipal | undefined,
-  ): Promise<void> {
+  ): Promise<{ id: string }> {
     return this.reflections.remove(this.required(principal).userId, id);
   }
 

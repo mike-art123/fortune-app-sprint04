@@ -48,6 +48,15 @@ class ApiClient {
         () => _dio.patch<dynamic>(path, data: body, cancelToken: cancelToken),
       );
 
+  Future<Result<Map<String, dynamic>>> put(
+    String path, {
+    Object? body,
+    CancelToken? cancelToken,
+  }) =>
+      _request(
+        () => _dio.put<dynamic>(path, data: body, cancelToken: cancelToken),
+      );
+
   Future<Result<Map<String, dynamic>>> delete(
     String path, {
     CancelToken? cancelToken,

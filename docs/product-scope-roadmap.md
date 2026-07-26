@@ -492,3 +492,27 @@ cursor, `GET /reflections/reading/:id` fetches the one attached to a reading,
 and total — it is their diary. Every route is scoped to the caller; no request
 shape can reach another person's entries. Flag: `reflection.journal`, off by
 default, and the written lines are the floor rather than a fallback.
+
+## Phase 6b delivery report — client (reflection surface, §8)
+
+«برای خودت بنویس» sits under a finished reading: five words to choose from, a
+line that answers the one chosen, and a plain text field. The privacy promise is
+written on the card itself — a promise nobody can read is not a promise.
+
+Behaviour worth naming. The field is filled once from what was written before
+and never again, so a response arriving late cannot overwrite what somebody is
+mid-sentence on. A refused save does not claim success: the button stays «ثبت»
+rather than turning into «ثبت شد». Choosing a heavier feeling shows its line in
+the warm accent instead of a probing question, exactly as the server decided —
+the client does not second-guess that, and does not scan the note either.
+
+The reading screen's shared test dependencies (`test/support/reading_page_deps`)
+now also declare an empty journal, so every test that lands on that screen keeps
+its promise of touching no network. `ApiClient` learned `put`, because the
+journal's write is a PUT — coming back to a reading edits rather than stacks.
+
+Phase 6 (§8) is complete. Every phase in the binding scope is now delivered
+except Phase 2 (§1 ambient audio), which waits on owner-supplied licensed audio
+files. Two flags remain off until deliberately enabled: `reflection.journal`
+(the AI-phrased question; the written lines ship on) and `notifications.smart`,
+which additionally needs `NOTIFICATIONS_SWEEP_SECRET` and an external scheduler.

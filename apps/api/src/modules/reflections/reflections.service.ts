@@ -130,11 +130,12 @@ export class ReflectionsService {
   }
 
   /** Deleting is immediate and total — it is their diary. */
-  async remove(userId: string, id: string): Promise<void> {
+  async remove(userId: string, id: string): Promise<{ id: string }> {
     const deleted = await this.prisma.reflectionEntry.deleteMany({
       where: { id, userId },
     });
     if (deleted.count === 0) throw new NotFoundException('reflection not found');
+    return { id };
   }
 
   /**

@@ -6,7 +6,6 @@ import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/design_system/components/fortune_button.dart';
 import 'package:fortune_app/core/errors/app_failure.dart';
-import 'package:fortune_app/features/history/application/history_controller.dart';
 import 'package:fortune_app/features/profile/application/profile_controller.dart';
 import 'package:fortune_app/features/profile/domain/user_profile.dart';
 import 'package:fortune_app/features/reading/domain/reading.dart';
@@ -43,11 +42,7 @@ Widget host(
     ],
   );
   return ProviderScope(
-    overrides: [
-      profileControllerProvider.overrideWith(profile),
-      historyRepositoryProvider.overrideWithValue(NoHistory()),
-      ...overrides,
-    ],
+    overrides: [...readingScreenDeps(profile: profile), ...overrides],
     // Share reads the profile lazily; in the real app the router has already
     // resolved it before any page shows, so the test warms it the same way.
     child: Consumer(
