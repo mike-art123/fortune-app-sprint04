@@ -463,3 +463,32 @@ Phase 5 (§6 + §7) is complete. Remaining: Phase 6 (§8 reflection journal) and
 Phase 2 (§1 ambient audio) once licensed audio assets exist. The notification
 sweep still needs an external scheduler and `NOTIFICATIONS_SWEEP_SECRET` before
 a single message can be sent.
+
+## Phase 6a delivery report — server (reflection journal, §8)
+
+The `note` column is the most private row in this database, and the service is
+built around one rule: it is never input to anything. Not summarised, not
+classified, not counted, never placed in a prompt, and never logged — not even
+its length. The only thing that leaves the table is a page of entries, going
+back to the person who wrote them. `reflection.saved` records the feeling and
+nothing else, and the feeling is one of five words the app itself offered.
+
+Deliberate deviation, recorded: the scope reserves a `ReflectionSummary` model.
+There is none, and there should not be — summarising a diary means reading it.
+The equivalent value is delivered without that cost: the follow-up line is
+chosen from the **feeling alone**, so §8's "AI micro-questions" ship with the
+model receiving one word from a closed list of five and nothing else.
+
+Crisis-safe behaviour, without surveillance: the app does not scan anybody's
+text to guess at their state. Instead the two heavier feelings — «نگران» and
+«گرفته» — are never probed and never handed to a model at all. They are met with
+a written line that makes room and says plainly that talking to someone real is
+allowed. No diagnosis, no alarm, and nothing inferred from private words.
+
+Shape: `PUT /reflections` writes or rewrites (coming back to a reading edits
+rather than stacking), `GET /reflections` pages newest-first with an opaque
+cursor, `GET /reflections/reading/:id` fetches the one attached to a reading,
+`GET /reflections/prompt?feeling=` returns the line, and `DELETE` is immediate
+and total — it is their diary. Every route is scoped to the caller; no request
+shape can reach another person's entries. Flag: `reflection.journal`, off by
+default, and the written lines are the floor rather than a fallback.

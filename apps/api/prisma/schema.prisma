@@ -51,8 +51,36 @@ model User {
   summaries              AiSummaryCache[]
   notificationPreference NotificationPreference?
   notifications          NotificationDelivery[]
+  reflections            ReflectionEntry[]
 
   @@map("users")
+}
+
+/// Scope §8: what someone wrote to themselves after a reading.
+///
+/// This is the most private row in the database. `note` is never read by any
+/// feature: it is not summarised, not searched server-side, not counted, never
+/// put in a prompt, and never logged. The only things that leave this table are
+/// the rows themselves, back to the person who wrote them.
+///
+/// `readingId` is nullable so a thought that belongs to no particular reading
+/// still has a home; the unique pair keeps at most one reflection per reading
+/// while leaving standalone entries unconstrained (Postgres treats NULLs as
+/// distinct).
+model ReflectionEntry {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  readingId String?  @map("reading_id")
+  feeling   String
+  note      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, readingId])
+  @@index([userId, createdAt])
+  @@map("reflection_entries")
 }
 
 /// Scope §7: what this person agreed to hear from us, and when.

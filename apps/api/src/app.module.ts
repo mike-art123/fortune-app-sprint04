@@ -20,6 +20,7 @@ import { EntitlementsModule } from './modules/entitlements/entitlements.module';
 import { HistorySummaryModule } from './modules/history-summary/history-summary.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ReadingsModule } from './modules/readings/readings.module';
+import { ReflectionsModule } from './modules/reflections/reflections.module';
 import { SearchModule } from './modules/search/search.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { HealthModule } from './modules/health/health.module';
@@ -55,6 +56,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
     UsersModule,
     EntitlementsModule,
     ReadingsModule,
+    ReflectionsModule,
     HistorySummaryModule,
     NotificationsModule,
     SearchModule,
