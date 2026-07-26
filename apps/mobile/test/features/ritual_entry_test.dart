@@ -6,16 +6,32 @@ import 'package:fortune_app/app/theme/app_theme.dart';
 import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entry_page.dart';
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/paired_names_field.dart';
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
+import 'package:go_router/go_router.dart';
 
-Widget host(String fortuneId) => ProviderScope(
-      child: MaterialApp(
-        locale: SupportedLocales.fa,
-        supportedLocales: SupportedLocales.all,
-        localizationsDelegates: SupportedLocales.delegates,
-        theme: AppTheme.dark(),
-        home: RitualEntryPage(fortuneId: fortuneId),
+/// The page now renders its back affordance through the router (FortuneAppBar
+/// reads GoRouter/GoRouterState), so the host must provide a real GoRouter —
+/// the same shape the CI-green smoke suite uses.
+Widget host(String fortuneId) {
+  final router = GoRouter(
+    initialLocation: '/ritual/$fortuneId',
+    routes: [
+      GoRoute(
+        path: '/ritual/:fortuneId',
+        builder: (_, state) =>
+            RitualEntryPage(fortuneId: state.pathParameters['fortuneId']!),
       ),
-    );
+    ],
+  );
+  return ProviderScope(
+    child: MaterialApp.router(
+      routerConfig: router,
+      locale: SupportedLocales.fa,
+      supportedLocales: SupportedLocales.all,
+      localizationsDelegates: SupportedLocales.delegates,
+      theme: AppTheme.dark(),
+    ),
+  );
+}
 
 void main() {
   testWidgets('hafez entry shows ritual line, whisper, and CTA', (
