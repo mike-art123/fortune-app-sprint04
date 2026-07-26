@@ -2,6 +2,18 @@ import { Injectable } from '@nestjs/common';
 import type { Reading } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 
+/**
+ * A reading reduced to what anything outside this module may see: which
+ * fortune, and when. The words themselves stay in this table — the history
+ * summary (scope §6) is built from the shape of someone's visits, never from
+ * what they were told.
+ */
+export interface ReadingMoment {
+  id: string;
+  fortuneId: string;
+  createdAt: Date;
+}
+
 export interface CreateReadingRecord {
   userId: string;
   fortuneId: string;
@@ -22,6 +34,20 @@ export class ReadingsRepository {
 
   findById(id: string): Promise<Reading | null> {
     return this.prisma.reading.findUnique({ where: { id } });
+  }
+
+  /**
+   * Everything this reader saw since an instant, reduced to what a summary is
+   * allowed to know (scope §6): which fortune, and when. The text column is
+   * deliberately not selected — it never leaves this table for that feature.
+   */
+  listSince(params: { userId: string; since: Date }): Promise<ReadingMoment[]> {
+    const { userId, since } = params;
+    return this.prisma.reading.findMany({
+      where: { userId, createdAt: { gte: since } },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      select: { id: true, fortuneId: true, createdAt: true },
+    });
   }
 
   /**

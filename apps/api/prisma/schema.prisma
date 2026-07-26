@@ -48,8 +48,33 @@ model User {
   dailyUsage             DailyFortuneUsage[]
   mediationSessions      AdMediationSession[]
   rewardedAdEntitlements RewardedAdEntitlement[]
+  summaries              AiSummaryCache[]
 
   @@map("users")
+}
+
+/// Scope §6: one cached history summary per reader per range.
+///
+/// It holds the sentence that was shown and a fingerprint of the readings it
+/// was counted from — never a reading's text. Add or delete a reading and the
+/// fingerprint no longer matches, so a summary describing a reading that no
+/// longer exists can never be served; deleting the user deletes the summaries
+/// with them. `source` is "ai" when a model wrote the sentence and "rules"
+/// when the app did, so the two are never confused for each other.
+model AiSummaryCache {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  rangeKey    String   @map("range_key")
+  fingerprint String
+  summary     String
+  source      String   @default("rules")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rangeKey])
+  @@map("ai_summary_cache")
 }
 
 /// Simple key/value system settings, audit-friendly.

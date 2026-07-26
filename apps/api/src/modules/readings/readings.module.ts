@@ -48,5 +48,8 @@ import { READING_PROVIDER, type ReadingProvider } from './providers/reading-prov
       },
     },
   ],
+  // The history summary counts readings through this same boundary rather
+  // than opening a second door onto the table (scope §6).
+  exports: [ReadingsRepository],
 })
 export class ReadingsModule {}

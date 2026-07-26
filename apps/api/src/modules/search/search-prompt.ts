@@ -1,10 +1,6 @@
+import type { PromptMessage } from '../../common/ai/prompt-message';
 import { FORTUNE_CATALOG } from '../readings/fortune-catalog';
 import { SEARCH_SCREENS } from './search-interpretation';
-
-export interface PromptMessage {
-  role: 'system' | 'user';
-  content: string;
-}
 
 /** Everything the model is allowed to choose from, written out for it. */
 function catalogLines(): string {

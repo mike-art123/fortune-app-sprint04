@@ -1,3 +1,4 @@
+import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { FortuneCatalogEntry } from '../fortune-catalog';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type { ReadingProfileContext } from './reading-provider.interface';
@@ -12,11 +13,6 @@ import type { ReadingProfileContext } from './reading-provider.interface';
  *
  * The built messages are NEVER logged: the offering is the user's private words.
  */
-
-export interface PromptMessage {
-  role: 'system' | 'user';
-  content: string;
-}
 
 /** Voice rules shared by every fortune kind. */
 const VOICE = [

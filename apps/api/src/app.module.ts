@@ -17,6 +17,7 @@ import { AdsModule } from './modules/ads/ads.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { EntitlementsModule } from './modules/entitlements/entitlements.module';
+import { HistorySummaryModule } from './modules/history-summary/history-summary.module';
 import { ReadingsModule } from './modules/readings/readings.module';
 import { SearchModule } from './modules/search/search.module';
 import { WalletModule } from './modules/wallet/wallet.module';
@@ -53,6 +54,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
     UsersModule,
     EntitlementsModule,
     ReadingsModule,
+    HistorySummaryModule,
     SearchModule,
     WalletModule,
     HealthModule,

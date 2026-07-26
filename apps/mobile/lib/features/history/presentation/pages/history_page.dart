@@ -14,6 +14,7 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../application/history_controller.dart';
 import '../widgets/history_card.dart';
+import '../widgets/history_summary_card.dart';
 
 /// The journal — every reading the user has received, newest first.
 /// Calm surface: a stale page or failed load never scolds the user.
@@ -56,14 +57,21 @@ class _HistoryList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = context.strings;
 
+    // The summary sits in the first slot of the same list, so it scrolls with
+    // the journal instead of pinning a panel above it (scope §6).
+    const summarySlot = 1;
+
     return ListView.separated(
       padding: const EdgeInsetsDirectional.only(
         top: AppSpacing.md,
         bottom: AppSpacing.xl,
       ),
-      itemCount: state.items.length + (state.hasMore ? 1 : 0),
+      itemCount: summarySlot + state.items.length + (state.hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (context, index) {
+      itemBuilder: (context, slot) {
+        if (slot == 0) return const HistorySummaryCard();
+
+        final index = slot - summarySlot;
         if (index >= state.items.length) {
           // Tail slot: a quiet "more" affordance, never auto-firing spinners.
           return Center(
