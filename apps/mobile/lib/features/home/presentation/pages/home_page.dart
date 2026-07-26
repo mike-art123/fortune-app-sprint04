@@ -405,4 +405,3 @@ class _EditorialLove extends StatelessWidget {
     );
   }
 }
-
