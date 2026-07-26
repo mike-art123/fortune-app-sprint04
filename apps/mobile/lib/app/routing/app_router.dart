@@ -18,6 +18,7 @@ import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../../shared/providers/shared_providers.dart';
 import '../app_startup_state.dart';
 import '../localization/app_strings.dart';
+import '../navigation/telegram_back_observer.dart';
 import 'app_routes.dart';
 import 'route_guards.dart';
 import 'route_observer.dart';
@@ -37,11 +38,19 @@ final routerProvider = Provider<GoRouter>((ref) {
     (_, __) => refresh.value++,
   );
 
-  return GoRouter(
+  // Drives the Telegram BackButton from the route stack (bound after the router
+  // exists). A no-op off Telegram; disposed with the provider.
+  final telegramBack = TelegramBackObserver(ref.watch(telegramBridgeProvider));
+  ref.onDispose(telegramBack.dispose);
+
+  final router = GoRouter(
     initialLocation: AppRoutes.splashPath,
     debugLogDiagnostics: false,
     refreshListenable: refresh,
-    observers: [AnalyticsRouteObserver(ref.watch(analyticsServiceProvider))],
+    observers: [
+      AnalyticsRouteObserver(ref.watch(analyticsServiceProvider)),
+      telegramBack,
+    ],
     redirect: (context, state) {
       final startup = ref.read(startupControllerProvider).valueOrNull ??
           const StartupInProgress();
@@ -160,6 +169,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
     errorBuilder: (_, __) => const _NotFoundPage(),
   );
+  telegramBack.bind(router);
+  return router;
 });
 
 /// Entering the ritual/reading space is a passage, not a push — a quiet

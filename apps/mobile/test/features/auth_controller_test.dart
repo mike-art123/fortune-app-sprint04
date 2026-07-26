@@ -55,6 +55,12 @@ class _FakeBridge implements TelegramPlatformBridge {
   Future<void> close() async {}
   @override
   Future<void> openLink(String url) async {}
+  @override
+  Future<void> showBackButton() async {}
+  @override
+  Future<void> hideBackButton() async {}
+  @override
+  void setBackButtonHandler(void Function()? handler) {}
 }
 
 class _FakeAuthRepository implements AuthRepository {

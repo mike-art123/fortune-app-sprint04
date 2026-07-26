@@ -7,6 +7,7 @@ import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
+import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
@@ -141,7 +142,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
 
     if (fortune == null || !fortune.isAvailable) {
       return FortuneScaffold(
-        appBar: AppBar(),
+        appBar: const FortuneAppBar(),
         child: FortuneErrorState(
           message: s.routeNotFoundTitle,
           reassurance: s.routeNotFoundBody,
@@ -178,7 +179,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     final pace = fortune.pace;
 
     return FortuneScaffold(
-      appBar: AppBar(title: Text(fortune.title.resolve(locale))),
+      appBar: FortuneAppBar(title: Text(fortune.title.resolve(locale))),
       scrollable: true,
       background: _RitualBackdrop(
         fortuneId: fortune.id,

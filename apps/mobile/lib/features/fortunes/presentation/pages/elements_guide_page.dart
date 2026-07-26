@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_gradients.dart';
@@ -25,7 +26,7 @@ class ElementsGuidePage extends StatelessWidget {
     final c = context.fortuneColors;
     final t = Theme.of(context).textTheme;
     return FortuneScaffold(
-      appBar: AppBar(title: const Text('عناصر چهارگانه')),
+      appBar: const FortuneAppBar(title: Text('عناصر چهارگانه')),
       scrollable: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

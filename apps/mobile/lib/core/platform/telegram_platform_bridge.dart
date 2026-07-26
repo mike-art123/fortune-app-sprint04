@@ -11,6 +11,15 @@ abstract interface class TelegramPlatformBridge {
   Future<void> hapticImpact();
   Future<void> close();
   Future<void> openLink(String url);
+
+  /// Show / hide the Telegram Mini App native back button. No-op off Telegram.
+  Future<void> showBackButton();
+  Future<void> hideBackButton();
+
+  /// Register the SINGLE handler invoked when the native back button is tapped
+  /// (null clears it). Only one underlying listener is ever registered, so
+  /// repeated route changes never stack duplicate handlers.
+  void setBackButtonHandler(void Function()? handler);
 }
 
 /// Used on every non-Telegram target. All calls are safe no-ops.
@@ -29,4 +38,10 @@ class UnavailableTelegramBridge implements TelegramPlatformBridge {
   Future<void> close() async {}
   @override
   Future<void> openLink(String url) async {}
+  @override
+  Future<void> showBackButton() async {}
+  @override
+  Future<void> hideBackButton() async {}
+  @override
+  void setBackButtonHandler(void Function()? handler) {}
 }

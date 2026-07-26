@@ -8,6 +8,7 @@ import '../../../../design_system/components/fortune_divider.dart';
 import '../../../../design_system/components/fortune_empty_state.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
 import '../../../../design_system/components/fortune_loading.dart';
+import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
@@ -27,7 +28,7 @@ class WalletPage extends ConsumerWidget {
     final state = ref.watch(walletControllerProvider);
 
     return FortuneScaffold(
-      appBar: AppBar(title: Text(s.walletTitle)),
+      appBar: FortuneAppBar(title: Text(s.walletTitle)),
       child: switch (state) {
         WalletLoading() => const Center(child: FortuneLoading()),
         WalletFailed(:final failure) => FortuneErrorState(

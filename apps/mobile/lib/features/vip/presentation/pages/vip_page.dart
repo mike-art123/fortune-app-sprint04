@@ -5,6 +5,7 @@ import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
 import '../../../../design_system/components/fortune_loading.dart';
+import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/luxury_card.dart';
@@ -27,7 +28,7 @@ class VipPage extends ConsumerWidget {
     final state = ref.watch(vipControllerProvider);
 
     return FortuneScaffold(
-      appBar: AppBar(title: const Text('عضویت ویژه')),
+      appBar: const FortuneAppBar(title: Text('عضویت ویژه')),
       child: switch (state) {
         VipLoading() => const Center(child: FortuneLoading()),
         VipFailed(:final failure) => FortuneErrorState(

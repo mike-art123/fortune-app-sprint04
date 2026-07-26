@@ -8,6 +8,7 @@ import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/fortune_empty_state.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
 import '../../../../design_system/components/fortune_loading.dart';
+import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
@@ -25,7 +26,7 @@ class HistoryPage extends ConsumerWidget {
     final state = ref.watch(historyControllerProvider);
 
     return FortuneScaffold(
-      appBar: AppBar(title: Text(s.historyTitle)),
+      appBar: FortuneAppBar(title: Text(s.historyTitle)),
       child: switch (state) {
         HistoryLoading() => const Center(child: FortuneLoading()),
         HistoryFailed(:final failure) => FortuneErrorState(

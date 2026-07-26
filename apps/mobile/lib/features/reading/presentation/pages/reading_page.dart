@@ -7,6 +7,7 @@ import '../../../../app/routing/app_routes.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
+import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_radius.dart';
@@ -44,11 +45,11 @@ class ReadingPage extends ConsumerWidget {
       final fetched = ref.watch(readingByIdProvider(readingId));
       return fetched.when(
         loading: () => FortuneScaffold(
-          appBar: AppBar(),
+          appBar: const FortuneAppBar(),
           child: const Center(child: FortuneLoading()),
         ),
         error: (error, _) => FortuneScaffold(
-          appBar: AppBar(),
+          appBar: const FortuneAppBar(),
           child: FortuneErrorState(
             message: error is AppFailure
                 ? FailureMessageResolver.resolve(error)
@@ -128,7 +129,7 @@ class _ReadingView extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return FortuneScaffold(
-      appBar: AppBar(
+      appBar: FortuneAppBar(
         title: Text(fortune?.title.resolve(locale) ?? s.readingTitle),
       ),
       scrollable: true,
