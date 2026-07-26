@@ -38,12 +38,20 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
   /// Fills the field once from what was written before, and never again — an
   /// arriving response must not overwrite what somebody is in the middle of
   /// typing.
-  void _adopt(Reflection? existing) {
-    if (_loaded) return;
+  ///
+  /// «Once» has to wait for a real answer, though. The first frame is drawn
+  /// while the request is still in flight, and treating that empty moment as
+  /// the answer would spend the one chance on nothing — which is exactly the
+  /// bug this comment used to describe the opposite of.
+  void _adopt(AsyncValue<Reflection?> existing) {
+    if (_loaded || existing.isLoading) return;
     _loaded = true;
-    if (existing == null) return;
-    _note.text = existing.note;
-    _feeling = existing.feeling;
+    final entry = existing.valueOrNull;
+    if (entry == null) return;
+    // Safe to assign during build: this happens at most once and schedules
+    // nothing — the same build below reads what was just adopted.
+    _note.text = entry.note;
+    _feeling = entry.feeling;
   }
 
   Future<void> _save() async {
@@ -68,8 +76,7 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
-    final existing = ref.watch(reflectionForReadingProvider(widget.readingId));
-    _adopt(existing.valueOrNull);
+    _adopt(ref.watch(reflectionForReadingProvider(widget.readingId)));
 
     final feeling = _feeling;
     final line = feeling == null
