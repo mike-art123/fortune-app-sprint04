@@ -16,6 +16,8 @@ import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entr
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/paired_names_field.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/reading_page_deps.dart';
+
 /// Phase 5 — bespoke offering elements. A chosen month, colour or quick intent
 /// must actually seed the whisper (and reach the reading pipeline as the
 /// intention), and two-name fortunes must render the bond element instead of a
@@ -106,6 +108,7 @@ Widget _host(String fortuneId, _CapturingRepo repo) {
     overrides: [
       readingRepositoryProvider.overrideWithValue(repo),
       accessRepositoryProvider.overrideWithValue(_FreeAccessRepo()),
+      ...readingScreenDeps(),
     ],
     child: MaterialApp.router(
       routerConfig: router,

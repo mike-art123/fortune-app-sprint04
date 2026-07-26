@@ -18,6 +18,8 @@ import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entr
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/reading_page_deps.dart';
+
 /// Final pre-push audit, client side: EVERY available fortune's ritual screen
 /// is really opened at phone size, shows its own bespoke voice, accepts its
 /// input, submits, and lands on the result screen. A missing route, a broken
@@ -104,6 +106,7 @@ Widget host(String fortuneId) {
     overrides: [
       readingRepositoryProvider.overrideWithValue(_EchoRepo()),
       accessRepositoryProvider.overrideWithValue(_FreeAccessRepo()),
+      ...readingScreenDeps(),
     ],
     child: MaterialApp.router(
       routerConfig: router,

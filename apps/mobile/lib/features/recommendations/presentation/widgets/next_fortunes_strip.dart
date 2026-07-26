@@ -22,8 +22,7 @@ class NextFortunesStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final suggestions = ref.watch(nextFortunesProvider(fortuneId));
-    final list = suggestions.valueOrNull ?? const <NextFortune>[];
+    final list = ref.watch(nextFortunesProvider(fortuneId));
     if (list.isEmpty) return const SizedBox.shrink();
 
     final c = context.fortuneColors;
