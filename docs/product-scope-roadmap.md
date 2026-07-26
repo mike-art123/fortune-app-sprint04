@@ -47,6 +47,10 @@ as generated (snapshot-in-text), current name is used only for new readings.
   action-schema navigation (never raw-text nav), guardrails; Web Speech API
   for fa voice with permission/timeout/cancel UX. Flags: `ai_bar`,
   `voice_search`.
+  - **3a — deterministic core (done, this commit)**: fa folding, the in-app
+    index over all 39 registry fortunes + curated aliases, bounded typo
+    tolerance, the `SearchAction` guardrail and the search bar on «همه فال‌ها».
+  - **3b — intent + AI fallback**, **3c — voice** (still in scope, next).
 - **Phase 4 — Personalization engine (§4) + next-fortune recs (§5)** —
   `UserPreferenceProfile`, time-of-day + category affinity, ≤3 premium cards
   with reason line, opt-out. Flags: `personalization`, `next_recs`.
@@ -158,3 +162,43 @@ Not in this phase (still in scope, later phases): ambient audio, AI bar, voice
 search, personalization, recommendations, history summary, notifications,
 reflection journal. No new environment variables; deploy is the usual CI
 `prisma migrate deploy` + Pages build.
+
+## Phase 3a delivery report (deterministic search core)
+
+Scope covered: §2 first stage — "ask by name" beats browsing. A person types
+what they call the fortune and lands on it, however they spell it.
+
+What shipped: `fa_text.dart` (folding — Arabic ي/ك/ة/أ/إ/آ/ٱ/ؤ onto Persian
+letters, tashkeel + superscript alef + tatweel dropped, Persian/Arabic-Indic
+digits to ASCII, ZWNJ/punctuation/emoji as word boundaries, plus a bounded edit
+distance that stops as soon as the ceiling is passed); `fortune_search.dart`
+(index over all registry fortunes: full title, title words, subtitle words,
+curated aliases, id — ranked exact 1000 → prefix 800−overshoot → contains 600 →
+typo 500−60·distance, ties broken openable-first then shortest title then id);
+`search_action.dart` (sealed `SearchAction`: open / soon / nothing);
+`fortune_destinations.dart` (one shared map — the grid and search now read the
+same source, so a card and a result can never disagree); `FortuneSearchBar` on
+«همه فال‌ها» above the themed sections.
+
+Guarantees: typed text never becomes a route — a tap resolves through
+`SearchActions.forFortune`, which validates the id (`RouteParams.isValidId`),
+then the shared destination map, and returns something that cannot navigate for
+anything unknown or malformed. Typo tolerance is bounded by query length
+(≤3 chars: none), so «گل» can never be guessed into «دل». Guided fortunes
+(coffee, elements) resolve to their guide and are never labelled «به‌زودی».
+Everything is offline and deterministic — no network, no model, no query text
+logged anywhere.
+
+Tests: `fa_text_test` (each folding rule, boundaries, digits, bounded
+distance), `fortune_search_test` (index covers the registry; every fortune is
+findable by its own Persian title; exact/prefix/alias/Arabic-keyboard/نیم‌فاصله
+/typo; short-word safety; empty and gibberish ask nothing; limit and ordering;
+action guardrails incl. "no searchable fortune is a dead end"),
+`fortune_search_bar_test` (quiet until asked, partial name opens the ritual,
+Arabic-keyboard alias lands, guided fortune opens its guide, calm empty state
+and clearing), `fortune_destinations_test` (ritual vs guide vs nowhere; every
+live fortune has a destination). Ranking was additionally replayed against the
+real registry data before commit. Formatting verified with the real
+`dart format` at the package language version (3.6) on all ten touched files.
+
+Not in 3a: intent parsing and the AI fallback (3b), voice (3c).
