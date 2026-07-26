@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/localization/app_strings.dart';
+import '../../../../app/navigation/app_back.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/fortune_error_state.dart';
@@ -289,6 +290,16 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
                   ? null
                   : () => _seal(fortune),
             ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+
+          // An explicit way out for anyone who chooses not to take this
+          // fortune — the same quiet button family as the act itself, wired
+          // to the shared back handler (pop, or Explore on a cold link).
+          FortuneButton(
+            label: 'بازگشت',
+            variant: FortuneButtonVariant.secondary,
+            onPressed: () => AppBack.goBack(context),
           ),
           const SizedBox(height: AppSpacing.lg),
         ],

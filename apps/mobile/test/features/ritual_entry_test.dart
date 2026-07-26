@@ -20,6 +20,11 @@ Widget host(String fortuneId) {
         builder: (_, state) =>
             RitualEntryPage(fortuneId: state.pathParameters['fortuneId']!),
       ),
+      GoRoute(
+        path: '/fortunes',
+        builder: (_, __) =>
+            const Scaffold(body: Center(child: Text('explore-stub'))),
+      ),
     ],
   );
   return ProviderScope(
@@ -72,6 +77,19 @@ void main() {
       find.text('برای دیدنِ سازگاری، هر دو نام را بنویس.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the back button under the CTA leaves the ritual', (
+    tester,
+  ) async {
+    await tester.pumpWidget(host('hafez'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('بازگشت'));
+    await tester.tap(find.text('بازگشت'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('explore-stub'), findsOneWidget);
   });
 
   testWidgets('unknown fortune id shows branded recovery', (tester) async {
