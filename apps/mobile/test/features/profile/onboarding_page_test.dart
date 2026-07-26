@@ -65,6 +65,7 @@ class FakeProfileRepo implements ProfileRepository {
   Future<Result<UserProfile>> update({
     String? displayName,
     String? birthMonth,
+    bool? personalizationOptOut,
   }) async {
     throw UnimplementedError();
   }

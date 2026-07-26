@@ -38,9 +38,9 @@ model User {
   /// Scope §4: personalization is on by default and can be switched off for
   /// good. Stored on the user, not on the device, so turning it off once turns
   /// it off everywhere.
-  personalizationOptOut Boolean     @default(false) @map("personalization_opt_out")
-  createdAt             DateTime    @default(now()) @map("created_at")
-  updatedAt             DateTime    @updatedAt @map("updated_at")
+  personalizationOptOut Boolean  @default(false) @map("personalization_opt_out")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
 
   idempotencyKeys        IdempotencyKey[]
   subscription           Subscription?
