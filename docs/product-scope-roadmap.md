@@ -54,7 +54,9 @@ as generated (snapshot-in-text), current name is used only for new readings.
     reaching four fixed screens and three fortunes, through the same guardrail.
   - **3c — voice (done)**: Web Speech API behind an injectable interface,
     fa-IR, interim words, permission/silence/stop handling, no audio kept.
-  - **3d — AI fallback** for sentences no rule covers (still in scope, next).
+  - **3d — AI fallback (done)**: `POST /search/interpret` behind the
+    `search.ai-bar` flag, a closed action schema validated on both ends, and a
+    client that asks only when the person taps «از دستیار بپرس».
 - **Phase 4 — Personalization engine (§4) + next-fortune recs (§5)** —
   `UserPreferenceProfile`, time-of-day + category affinity, ≤3 premium cards
   with reason line, opt-out. Flags: `personalization`, `next_recs`.
