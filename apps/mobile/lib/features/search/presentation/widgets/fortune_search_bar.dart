@@ -9,6 +9,7 @@ import '../../../../design_system/foundations/app_duration.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../data/search_repository.dart';
 import '../../domain/fortune_search.dart';
 import '../../domain/search_action.dart';
 import '../../domain/search_intent.dart';
@@ -24,10 +25,15 @@ class FortuneSearchBar extends StatefulWidget {
   const FortuneSearchBar({
     super.key,
     this.speech = const PlatformSpeechInput(),
+    this.remote,
   });
 
   /// The microphone. Injected so a test can speak without a browser.
   final SpeechInput speech;
+
+  /// The AI stage. Null means it is simply never offered — the bar stays
+  /// entirely offline, which is also what happens when the flag is off.
+  final SearchRepository? remote;
 
   @override
   State<FortuneSearchBar> createState() => _FortuneSearchBarState();
@@ -36,11 +42,18 @@ class FortuneSearchBar extends StatefulWidget {
 class _FortuneSearchBarState extends State<FortuneSearchBar> {
   final _controller = TextEditingController();
   final _focus = FocusNode();
+
+  /// Answers already paid for this session; asking twice about the same
+  /// sentence costs money and tells nobody anything new.
+  final _answers = <String, SearchIntentMatch?>{};
+
   List<FortuneSearchResult> _results = const [];
   SearchIntentMatch? _intent;
+  SearchIntentMatch? _remote;
   StreamSubscription<SpeechEvent>? _voice;
   String? _voiceNote;
   bool _listening = false;
+  bool _thinking = false;
   bool _asked = false;
 
   @override
@@ -66,6 +79,31 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
       // Names first: a sentence only reaches the intent rules when the index
       // has nothing to say (scope §2 pipeline order).
       _intent = results.isEmpty ? SearchIntents.match(value) : null;
+      // A previous answer belongs to a previous question.
+      _remote = _answers[value.trim()];
+    });
+  }
+
+  /// Asks the server, and only ever because someone chose to. Nothing here is
+  /// automatic: no keystroke and no silence spends anything.
+  Future<void> _ask() async {
+    final remote = widget.remote;
+    final query = _controller.text.trim();
+    if (remote == null || query.isEmpty || _thinking) return;
+
+    if (_answers.containsKey(query)) {
+      setState(() => _remote = _answers[query]);
+      return;
+    }
+
+    setState(() => _thinking = true);
+    final match = await remote.interpret(query);
+    if (!mounted) return;
+    setState(() {
+      _answers[query] = match;
+      _thinking = false;
+      // Only show it if the box still holds the question that was asked.
+      _remote = _controller.text.trim() == query ? match : _remote;
     });
   }
 
@@ -75,6 +113,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
       _asked = false;
       _results = const [];
       _intent = null;
+      _remote = null;
       _voiceNote = null;
     });
   }
@@ -168,8 +207,9 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
     final focused = _focus.hasFocus;
-    final intent = _intent;
+    final intent = _intent ?? _remote;
     final voiceLine = _listening ? 'دارم گوش می‌دهم…' : _voiceNote;
+    final canAsk = widget.remote != null && intent == null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -268,6 +308,14 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
               child: Text(
                 'با این نام چیزی پیدا نشد؛ از فهرست پایین انتخاب کن.',
                 style: textTheme.bodyMedium?.copyWith(color: c.textSecondary),
+              ),
+            ),
+          if (_results.isEmpty && canAsk)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: _thinking ? null : _ask,
+                child: Text(_thinking ? 'دارم می‌پرسم…' : 'از دستیار بپرس'),
               ),
             ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
@@ -9,6 +10,7 @@ import '../../../../design_system/components/section_title.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 import '../../../../design_system/foundations/app_layout.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
+import '../../../search/application/search_providers.dart';
 import '../../../search/presentation/widgets/fortune_search_bar.dart';
 import '../../domain/fortune_catalog.dart';
 import '../../domain/fortune_registry.dart';
@@ -67,11 +69,17 @@ class AllFortunesPage extends StatelessWidget {
                   child: SizedBox(height: AppSpacing.sm),
                 ),
                 // Ask by name before browsing by theme (scope §2).
-                const SliverPadding(
-                  padding: EdgeInsetsDirectional.symmetric(
+                SliverPadding(
+                  padding: const EdgeInsetsDirectional.symmetric(
                     horizontal: AppSpacing.md,
                   ),
-                  sliver: SliverToBoxAdapter(child: FortuneSearchBar()),
+                  sliver: SliverToBoxAdapter(
+                    child: Consumer(
+                      builder: (context, ref, _) => FortuneSearchBar(
+                        remote: ref.watch(searchRepositoryProvider),
+                      ),
+                    ),
+                  ),
                 ),
                 const SliverToBoxAdapter(
                   child: SizedBox(height: AppSpacing.sm),

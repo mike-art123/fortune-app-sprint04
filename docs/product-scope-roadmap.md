@@ -274,3 +274,41 @@ cancels. `dart format` verified at the package language version on all seven
 touched files.
 
 Not in 3c: the AI fallback for sentences no rule covers (3d).
+
+## Phase 3d delivery report (the AI stage, and its leash)
+
+Scope covered: §2, last stage. Some sentences no honest rule can place. This
+adds a model for exactly those — and nothing else.
+
+Server: `POST /search/interpret`, authenticated, 20/min, query capped at 120
+characters. `search-interpretation.ts` is the only door between the model and
+navigation: an id the catalog knows, one of four named screens, or nothing.
+An invented id, a path, a URL, prose or the wrong shape all become nothing.
+`search-prompt.ts` writes the closed list out for the model and neutralizes
+the typed question as DATA — quotes, newlines and fences stripped, then capped
+— the rule the display name already follows. The route is dead unless the
+`search.ai-bar` flag is on and a model is configured; one bounded round-trip,
+no retries, temperature 0, 60 tokens. The question is never logged: only its
+length, the outcome and the duration. `extractJsonObject` moved to
+`common/json` and is shared with the reading provider rather than copied.
+
+Client: `SearchRepository` re-validates the reply through the app's own
+tables — an id goes through `FortuneDestinations`, a screen through
+`kSearchScreens` — so a route cannot be invented at either end, and the screen
+labels the rules use are now the same table the reply resolves against. The
+bar asks only when someone taps «از دستیار بپرس», never on a keystroke, never
+on silence, and never for a question it already answered this session. A
+silent answer leaves the calm "nothing found" ending exactly as it was.
+
+Tests: server — the guardrail across every catalog id and every refusal case,
+the prompt carrying the whole list and surviving an injection attempt, and the
+service across flag-off, no-model, good answer, fenced answer, invented id,
+prose, upstream error, network failure, empty input and the no-logging
+promise. Client — the re-validation table (fortune, screen, invented id,
+unknown screen, path, a guide, an id the registry does not have) plus the bar:
+never asks on its own, offers nothing when there is no assistant, asks once
+and opens what came back, keeps the calm ending on silence, never pays twice
+for the same question, and stays quiet entirely when the index already
+answered. Formatting verified with two dart_style builds and prettier 3.3.3.
+
+Phase 3 (§2 + §3) is now complete.
