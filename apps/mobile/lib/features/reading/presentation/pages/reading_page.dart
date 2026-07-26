@@ -44,9 +44,9 @@ class ReadingPage extends ConsumerWidget {
       // Cold deep link — fetch by id. Loading is quiet; failure is honest.
       final fetched = ref.watch(readingByIdProvider(readingId));
       return fetched.when(
-        loading: () => FortuneScaffold(
-          appBar: const FortuneAppBar(),
-          child: const Center(child: FortuneLoading()),
+        loading: () => const FortuneScaffold(
+          appBar: FortuneAppBar(),
+          child: Center(child: FortuneLoading()),
         ),
         error: (error, _) => FortuneScaffold(
           appBar: const FortuneAppBar(),

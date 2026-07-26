@@ -26,8 +26,10 @@ class _Page extends StatelessWidget {
   }
 }
 
-GoRouter _router(String initial,
-    {List<NavigatorObserver> observers = const []}) {
+GoRouter _router(
+  String initial, {
+  List<NavigatorObserver> observers = const [],
+}) {
   return GoRouter(
     initialLocation: initial,
     observers: observers,
@@ -107,7 +109,9 @@ void main() {
 
     test('a deep route reached cold still offers back (fallback)', () {
       expect(
-          AppBack.showBack(location: '/ritual/hafez', canPop: false), isTrue);
+        AppBack.showBack(location: '/ritual/hafez', canPop: false),
+        isTrue,
+      );
       expect(AppBack.showBack(location: '/vip', canPop: false), isTrue);
     });
   });
