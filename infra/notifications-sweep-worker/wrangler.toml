@@ -1,0 +1,25 @@
+name = "bakhtnegar-notifications-sweep"
+main = "src/index.js"
+compatibility_date = "2026-07-26"
+
+# A clock, not an endpoint. There is no `fetch` handler and no route, so this
+# Worker has no public URL: the only thing that can start it is Cloudflare's
+# own scheduler. That removes the whole class of "someone found the trigger".
+[triggers]
+crons = ["*/15 * * * *"]
+
+[observability]
+enabled = true
+
+[vars]
+# Not a secret — a public URL, and useful to see in the dashboard.
+SWEEP_URL = "https://fortune-app-sprint04-production.up.railway.app/api/v1/notifications/sweep"
+
+# NOTIFICATIONS_SWEEP_SECRET is deliberately NOT here. Anything under [vars]
+# is plaintext in this file, in Git, and in the dashboard. The secret is bound
+# as an encrypted secret instead:
+#
+#   npx wrangler secret put NOTIFICATIONS_SWEEP_SECRET
+#
+# Cloudflare stores it encrypted, the value is never readable again after it is
+# set, and it reaches the Worker only as `env.NOTIFICATIONS_SWEEP_SECRET`.
