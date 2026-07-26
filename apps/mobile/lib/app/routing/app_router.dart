@@ -109,8 +109,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.ritualName,
         pageBuilder: (context, state) {
           final id = state.pathParameters['fortuneId'];
+          // Keyed by fortune so moving between two rituals never reuses the
+          // previous ritual's State — a whisper typed for one fortune must
+          // not appear inside another (found in live phase-5 verification).
           final child = RouteParams.isValidId(id)
-              ? RitualEntryPage(fortuneId: id!)
+              ? RitualEntryPage(key: ValueKey('ritual-$id'), fortuneId: id!)
               : const _NotFoundPage();
           return _fadePage(state, child);
         },
