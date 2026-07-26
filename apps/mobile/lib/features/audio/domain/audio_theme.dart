@@ -55,10 +55,23 @@ extension RitualSoundInfo on RitualSound {
 abstract final class AudioThemes {
   /// The audio assets this build actually bundles.
   ///
-  /// Empty until the owner's licensed files exist. This set and the `assets:`
-  /// list in `pubspec.yaml` are the same fact stated twice, so a test compares
-  /// them: add a file, and the test says exactly what else to update.
-  static const Set<String> bundled = <String>{};
+  /// This set and the `assets:` list in `pubspec.yaml` are the same fact stated
+  /// twice, so a test compares them: add a file, and the test says exactly what
+  /// else to update.
+  ///
+  /// «طبیعت» is absent on purpose — the owner did not want it. The theme stays
+  /// in the enum because the scope names it; leaving its file out is all it
+  /// takes for the app to stop offering it.
+  static const Set<String> bundled = <String>{
+    'assets/audio/ambient/night.mp3',
+    'assets/audio/ambient/rain.mp3',
+    'assets/audio/ambient/candle.mp3',
+    'assets/audio/ambient/persian.mp3',
+    'assets/audio/ambient/santur-ney.mp3',
+    'assets/audio/ambient/piano.mp3',
+    'assets/audio/ritual/offering.mp3',
+    'assets/audio/ritual/reveal.mp3',
+  };
 
   /// The themes this build can actually play. Deliberately derived rather than
   /// declared: a theme cannot be offered by mistake.

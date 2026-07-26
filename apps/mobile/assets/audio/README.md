@@ -59,4 +59,34 @@ it is added, so the paperwork lives with the files rather than in an inbox.
 
 | File | Source | Licence | Purchased / obtained |
 |---|---|---|---|
-| _(none yet)_ | | | |
+| ambient/night.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ambient/rain.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ambient/candle.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ambient/persian.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ambient/santur-ney.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ambient/piano.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ritual/offering.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| ritual/reveal.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+
+Fill in the source and licence for each row before release — the files play
+today, but a paid app needs the paperwork to exist somewhere findable.
+
+## What was done to the delivered files
+
+The originals were ~30 MB in total and their levels were 30 dB apart, which
+would have made switching bed to bed a shock. Each file was:
+
+- **levelled** to a common −26 LUFS (accents to −21, so they carry over the
+  bed), two-pass, with a −2 dBTP ceiling — static gain, so nothing was
+  compressed or squashed;
+- **re-encoded** for mobile data: textural beds (شب/باران/شمع) to mono 64 kbps,
+  where noise-like material is transparent; musical beds
+  (ایرانی/سنتور و نی/پیانو) kept in stereo at 96 kbps;
+- **candle trimmed** from five minutes to ninety seconds. Crackle has no melody,
+  so a cut leaves no audible seam, and five minutes of it is more than a loop
+  needs.
+
+Total went from ~30 MB to 8.5 MB, and none of it is downloaded until somebody
+turns sound on and picks a bed. The untouched originals are outside the repo.
+
+«طبیعت» was not wanted, so its file is absent and the app does not offer it.

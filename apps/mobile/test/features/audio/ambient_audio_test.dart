@@ -58,12 +58,26 @@ void main() {
   // a plain ProviderContainer test.
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('the shipped build offers no bed until the files exist', () {
-    // A deliberate tripwire: when the licensed audio lands, this test fails and
-    // points at everything below that must be revisited.
-    expect(AudioThemes.bundled, isEmpty);
-    expect(AudioThemes.available, isEmpty);
-    expect(AudioThemes.hasAny, isFalse);
+  test('the beds offered are exactly the ones with a file', () {
+    expect(AudioThemes.hasAny, isTrue);
+    expect(AudioThemes.available, [
+      AudioTheme.night,
+      AudioTheme.rain,
+      AudioTheme.candle,
+      AudioTheme.persian,
+      AudioTheme.santurNey,
+      AudioTheme.piano,
+    ]);
+
+    // «طبیعت» stays in the enum because the scope names it, and stays out of
+    // the app because the owner did not want it. No file, no offer.
+    expect(AudioThemes.available, isNot(contains(AudioTheme.nature)));
+  });
+
+  test('every bundled path is a file that is really there', () {
+    for (final path in AudioThemes.bundled) {
+      expect(File(path).existsSync(), isTrue, reason: '$path is missing');
+    }
   });
 
   test('`bundled` and pubspec are the same fact, so they cannot drift', () {
@@ -115,30 +129,45 @@ void main() {
     expect(read.volume, closeTo(0.75, 0.001));
   });
 
-  test('nothing plays while there is no licensed bed to play', () async {
+  test('a chosen bed plays, and only after it is asked for', () async {
+    final audio = SpyAudio();
+    final c = container(audio);
+    final controller = c.read(audioControllerProvider.notifier);
+
+    // Nothing has sounded yet: the app opens quiet.
+    expect(audio.played, isEmpty);
+
+    await controller.setEnabled(true);
+    await controller.chooseTheme(AudioTheme.rain);
+
+    expect(c.read(audioControllerProvider).shouldPlay, isTrue);
+    expect(audio.played.last, 'assets/audio/ambient/rain.mp3');
+  });
+
+  test('a bed with no file is never played, however it is chosen', () async {
     final audio = SpyAudio();
     final c = container(audio);
     final controller = c.read(audioControllerProvider.notifier);
 
     await controller.setEnabled(true);
-    await controller.chooseTheme(AudioTheme.night);
+    await controller.chooseTheme(AudioTheme.nature);
 
-    // Asked for, agreed to — and still silent, because the file is not there.
-    expect(c.read(audioControllerProvider).enabled, isTrue);
+    expect(c.read(audioControllerProvider).theme, AudioTheme.nature);
     expect(c.read(audioControllerProvider).shouldPlay, isFalse);
     expect(audio.played, isEmpty);
   });
 
-  test('a ritual sound stays silent unless sound is on and licensed', () async {
+  test('a ritual sound is silent until sound is switched on', () async {
     final audio = SpyAudio();
     final c = container(audio);
     final controller = c.read(audioControllerProvider.notifier);
 
     await controller.playRitual(RitualSound.reveal);
+    expect(audio.once, isEmpty);
+
     await controller.setEnabled(true);
     await controller.playRitual(RitualSound.reveal);
-
-    expect(audio.once, isEmpty);
+    expect(audio.once, ['assets/audio/ritual/reveal.mp3']);
   });
 
   test('turning sound off stops whatever was sounding', () async {
