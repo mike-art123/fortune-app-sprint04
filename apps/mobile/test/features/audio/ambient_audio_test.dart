@@ -87,15 +87,26 @@ void main() {
         .map((m) => m.group(1)!)
         .toSet();
 
-    // Every bundled path must be declared, and every declared audio asset must
-    // be bundled. When the owner adds a file, exactly one of these fails and
-    // says which list is behind.
-    expect(AudioThemes.bundled.difference(declared), isEmpty);
-    for (final path in declared) {
+    // pubspec declares folders and `bundled` names files, so "the same fact"
+    // is a covering relation in both directions, not set equality. Each
+    // direction catches a different mistake: a bundled file nobody declared
+    // would not ship, and a declared folder with nothing under it is a
+    // leftover. Set equality only ever held while `bundled` was empty.
+    bool covers(String entry, String path) =>
+        path == entry || path.startsWith(entry);
+
+    for (final path in AudioThemes.bundled) {
       expect(
-        AudioThemes.bundled.any((bundled) => bundled.startsWith(path)),
+        declared.any((entry) => covers(entry, path)),
         isTrue,
-        reason: '$path is declared but no bundled path starts with it',
+        reason: '$path is bundled but pubspec declares nothing covering it',
+      );
+    }
+    for (final entry in declared) {
+      expect(
+        AudioThemes.bundled.any((path) => covers(entry, path)),
+        isTrue,
+        reason: '$entry is declared but no bundled path sits under it',
       );
     }
   });
@@ -154,7 +165,13 @@ void main() {
 
     expect(c.read(audioControllerProvider).theme, AudioTheme.nature);
     expect(c.read(audioControllerProvider).shouldPlay, isFalse);
-    expect(audio.played, isEmpty);
+
+    // Switching sound on legitimately starts the first licensed bed, so the
+    // promise is not "nothing ever sounded" — it is that «طبیعت» itself never
+    // sounds, and that choosing it silences what was playing rather than
+    // leaving the wrong bed running under the wrong name.
+    expect(audio.played, isNot(contains(AudioTheme.nature.assetPath)));
+    expect(audio.stops, greaterThan(0));
   });
 
   test('a ritual sound is silent until sound is switched on', () async {
