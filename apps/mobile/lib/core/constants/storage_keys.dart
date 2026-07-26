@@ -12,6 +12,12 @@ abstract final class PrefKeys {
   /// kept only so the v2 storage migration can delete stored values.
   static const anonId = 'pref.anon_id';
   static const themeMode = 'pref.theme_mode';
+
+  /// Ambient sound (scope §1). Device-level on purpose: whether a phone should
+  /// make noise is a property of the phone, not of the account.
+  static const audioEnabled = 'pref.audio_enabled';
+  static const audioTheme = 'pref.audio_theme';
+  static const audioVolume = 'pref.audio_volume';
   static const onboardingComplete = 'pref.onboarding_complete';
   static const storageVersion = 'pref.storage_version';
 }

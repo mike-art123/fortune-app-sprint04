@@ -516,3 +516,37 @@ except Phase 2 (§1 ambient audio), which waits on owner-supplied licensed audio
 files. Two flags remain off until deliberately enabled: `reflection.journal`
 (the AI-phrased question; the written lines ship on) and `notifications.smart`,
 which additionally needs `NOTIFICATIONS_SWEEP_SECRET` and an external scheduler.
+
+## Phase 2 delivery report (ambient audio and ritual sound, §1)
+
+Everything except the files. The seven beds (شب/باران/شمع/طبیعت/ایرانی/سنتور و
+نی/پیانو) are declared, the player exists, preferences persist, fades and focus
+handling work, and the profile surface is written — and the whole feature is
+silent, because the licensed audio is the owner's to supply.
+
+The design decision that makes that honest: `AudioThemes.available` is
+**derived** from the assets this build actually bundles, never declared. A theme
+with no file is not offered, the card is absent rather than empty, and no switch
+turns on silence. Dropping the licensed files into `assets/audio/` and listing
+them in `pubspec.yaml` is what brings it alive — and a test compares that list
+against `AudioThemes.bundled`, so the two cannot drift apart in either
+direction.
+
+No package was added. The player is the browser's own `Audio` element through
+`dart:js_interop`, behind the same conditional-export seam the speech feature
+uses, with a stub for the VM and native targets. A plugin would have bought
+nothing and cost a dependency on every platform this app does not ship to.
+
+Behaviour: sound is off until asked for; a bed fades in and fades out rather
+than cutting; replacing a bed stops the previous one first; the app going into
+the background stops playback and only what was playing resumes; a browser's
+refusal to autoplay before the first interaction is treated as the browser being
+careful, not as an error to report. Volume and theme are stored on the device,
+because whether a phone should make noise belongs to the phone.
+
+All sixteen scope sections are now delivered. What remains is not code:
+- licensed ambient/ritual audio files (§1),
+- `NOTIFICATIONS_SWEEP_SECRET` plus an external scheduler before §7 sends
+  anything,
+- the AdsGram review, after which `--dart-define=ENABLE_MONETIZATION=true`
+  restores ads and VIP.
