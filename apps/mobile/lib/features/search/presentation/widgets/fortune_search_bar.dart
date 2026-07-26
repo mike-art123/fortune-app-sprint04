@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/platform/speech_event.dart';
+import '../../../../core/platform/speech_input.dart';
 import '../../../../design_system/foundations/app_duration.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
@@ -9,14 +13,21 @@ import '../../domain/fortune_search.dart';
 import '../../domain/search_action.dart';
 import '../../domain/search_intent.dart';
 
-/// The search bar over «همه فال‌ها» (scope §2).
+/// The search bar over «همه فال‌ها» (scope §2 and §3).
 ///
 /// It answers while you type, tolerates the Arabic ي/ك, نیم‌فاصله and a typo,
-/// and understands a whole sentence when no name matches. It never navigates
-/// on raw text: a tap resolves to a validated action first. Quiet by default —
-/// results appear only when something was asked.
+/// understands a whole sentence when no name matches, and can be spoken to
+/// where the browser allows it. It never navigates on raw text: a tap resolves
+/// to a validated action first. Quiet by default — results appear only when
+/// something was asked.
 class FortuneSearchBar extends StatefulWidget {
-  const FortuneSearchBar({super.key});
+  const FortuneSearchBar({
+    super.key,
+    this.speech = const PlatformSpeechInput(),
+  });
+
+  /// The microphone. Injected so a test can speak without a browser.
+  final SpeechInput speech;
 
   @override
   State<FortuneSearchBar> createState() => _FortuneSearchBarState();
@@ -27,6 +38,9 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
   final _focus = FocusNode();
   List<FortuneSearchResult> _results = const [];
   SearchIntentMatch? _intent;
+  StreamSubscription<SpeechEvent>? _voice;
+  String? _voiceNote;
+  bool _listening = false;
   bool _asked = false;
 
   @override
@@ -37,6 +51,8 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
 
   @override
   void dispose() {
+    // Leaving the screen must also close the microphone, not just forget it.
+    _voice?.cancel();
     _controller.dispose();
     _focus.dispose();
     super.dispose();
@@ -59,7 +75,68 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
       _asked = false;
       _results = const [];
       _intent = null;
+      _voiceNote = null;
     });
+  }
+
+  void _startListening() {
+    if (_listening) return;
+    setState(() {
+      _listening = true;
+      _voiceNote = null;
+    });
+    _voice = widget.speech
+        .listen(locale: 'fa-IR', silence: const Duration(seconds: 6))
+        .listen(
+          _onSpeech,
+          onError: (Object _) => _endListening(SpeechEndReason.failed),
+        );
+  }
+
+  void _onSpeech(SpeechEvent event) {
+    switch (event) {
+      case SpeechHeard(:final text, :final isFinal):
+        _controller.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+        _onChanged(text);
+        if (isFinal) _stopListening();
+      case SpeechEnded(:final reason):
+        _endListening(reason);
+    }
+  }
+
+  /// The person tapped stop, or the browser settled: close the microphone
+  /// quietly, with nothing to explain.
+  void _stopListening() {
+    _voice?.cancel();
+    _voice = null;
+    if (mounted && _listening) setState(() => _listening = false);
+  }
+
+  void _endListening(SpeechEndReason reason) {
+    _voice?.cancel();
+    _voice = null;
+    if (!mounted) return;
+    setState(() {
+      _listening = false;
+      _voiceNote = _noteFor(reason);
+    });
+  }
+
+  /// What to say when listening ends badly. Never blames the person, and never
+  /// leaves them without a next step.
+  static String? _noteFor(SpeechEndReason reason) {
+    return switch (reason) {
+      SpeechEndReason.denied =>
+        'اجازهٔ میکروفون داده نشد؛ از تنظیمات مرورگر روشنش کن.',
+      SpeechEndReason.noSpeech || SpeechEndReason.timeout =>
+        'چیزی نشنیدم؛ دوباره بگو یا بنویس.',
+      SpeechEndReason.unsupported => 'مرورگرت شنیدن را پشتیبانی نمی‌کند.',
+      SpeechEndReason.failed => 'الان نشد؛ یک‌بار دیگر امتحان کن.',
+      SpeechEndReason.finished || SpeechEndReason.cancelled => null,
+    };
   }
 
   void _run(SearchAction action) {
@@ -87,6 +164,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     final textTheme = Theme.of(context).textTheme;
     final focused = _focus.hasFocus;
     final intent = _intent;
+    final voiceLine = _listening ? 'دارم گوش می‌دهم…' : _voiceNote;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -130,6 +208,16 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
                   ),
                 ),
               ),
+              if (widget.speech.isSupported)
+                IconButton(
+                  onPressed: _listening ? _stopListening : _startListening,
+                  tooltip: _listening ? 'توقف' : 'جست‌وجوی صوتی',
+                  icon: Icon(
+                    _listening ? Icons.stop_circle_outlined : Icons.mic_none,
+                    size: 20,
+                    color: _listening ? c.goldWarm : c.textMuted,
+                  ),
+                ),
               if (_asked)
                 IconButton(
                   onPressed: _clear,
@@ -139,6 +227,18 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
             ],
           ),
         ),
+        if (voiceLine != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppSpacing.sm,
+            ),
+            child: Text(
+              voiceLine,
+              style: textTheme.bodySmall?.copyWith(color: c.textSecondary),
+            ),
+          ),
+        ],
         if (_asked) ...[
           const SizedBox(height: AppSpacing.sm),
           if (_results.isNotEmpty)

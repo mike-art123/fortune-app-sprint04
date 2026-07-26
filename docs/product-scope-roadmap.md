@@ -50,7 +50,11 @@ as generated (snapshot-in-text), current name is used only for new readings.
   - **3a — deterministic core (done, this commit)**: fa folding, the in-app
     index over all 39 registry fortunes + curated aliases, bounded typo
     tolerance, the `SearchAction` guardrail and the search bar on «همه فال‌ها».
-  - **3b — intent + AI fallback**, **3c — voice** (still in scope, next).
+  - **3b — sentences by rule (done)**: trigger rules over folded tokens
+    reaching four fixed screens and three fortunes, through the same guardrail.
+  - **3c — voice (done)**: Web Speech API behind an injectable interface,
+    fa-IR, interim words, permission/silence/stop handling, no audio kept.
+  - **3d — AI fallback** for sentences no rule covers (still in scope, next).
 - **Phase 4 — Personalization engine (§4) + next-fortune recs (§5)** —
   `UserPreferenceProfile`, time-of-day + category affinity, ≤3 premium cards
   with reason line, opt-out. Flags: `personalization`, `next_recs`.
@@ -236,3 +240,37 @@ were replayed against the real registry before commit; `dart format` verified
 at the package language version on all five touched files.
 
 Not in 3b: the AI fallback for sentences no rule covers, and voice (3c).
+
+## Phase 3c delivery report (speaking to the app)
+
+Scope covered: §3. Saying «فال حافظ» is shorter than typing it, and for someone
+who does not type Persian comfortably it is the only short path.
+
+What shipped: `speech_event.dart` (what the microphone reports: interim and
+settled words, or an ending with its reason), `speech_recognition.dart` with
+the usual stub/web conditional export — the web file drives the browser's Web
+Speech API through `dart:js_interop`, the stub simply reports "cannot listen"
+so `flutter test`, `analyze` and native targets never load it —
+`speech_input.dart` (the interface the search bar sees, plus the platform
+implementation with a silence timeout that restarts on every word), and the
+microphone button in the search bar: interim words appear in the box and are
+searched as they arrive, the settled reading closes the microphone, and the
+result rows are the ones already built for typing.
+
+Guarantees: the microphone is offered only where the browser can actually
+listen — no dead button, no pointless permission prompt. No audio is recorded,
+stored or sent by the app; only recognised text crosses the boundary, and it
+lives in the text field like anything typed. Cancelling the subscription
+aborts recognition, so tapping stop, clearing, or leaving the screen all close
+the microphone rather than forgetting it. Refusal, silence, an unsupported
+browser and an unknown failure each get their own plain line that never blames
+the person and always leaves a next step (بنویس).
+
+Tests: `voice_search_test` with a fake microphone — the button appears only
+when hearing is possible, a spoken name fills the box and opens the fortune it
+meant, interim words are shown without closing the microphone, a refused
+permission is explained calmly, silence says so, and tapping stop actually
+cancels. `dart format` verified at the package language version on all seven
+touched files.
+
+Not in 3c: the AI fallback for sentences no rule covers (3d).
