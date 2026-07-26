@@ -23,8 +23,8 @@ class _ReadyStartup extends StartupController {
   Future<AppStartupState> build() async => const StartupReady();
 }
 
-class _FakeProfileRepo implements ProfileRepository {
-  _FakeProfileRepo({this.alreadyCompleted = false});
+class FakeProfileRepo implements ProfileRepository {
+  FakeProfileRepo({this.alreadyCompleted = false});
 
   final bool alreadyCompleted;
   Result<UserProfile>? nextCompleteResult;
@@ -70,7 +70,7 @@ class _FakeProfileRepo implements ProfileRepository {
   }
 }
 
-Widget host(_FakeProfileRepo repo, {String? next}) {
+Widget host(FakeProfileRepo repo, {String? next}) {
   final router = GoRouter(
     initialLocation: '/onboarding',
     routes: [
@@ -109,7 +109,7 @@ void main() {
   testWidgets('full ritual: name → month → welcome → original destination', (
     tester,
   ) async {
-    final repo = _FakeProfileRepo();
+    final repo = FakeProfileRepo();
     await tester.pumpWidget(host(repo, next: '/ritual/hafez'));
     await tester.pumpAndSettle();
 
@@ -169,7 +169,7 @@ void main() {
   testWidgets('a failed save shows the message and keeps every choice', (
     tester,
   ) async {
-    final repo = _FakeProfileRepo()
+    final repo = FakeProfileRepo()
       ..nextCompleteResult = const ResultFailure(
         AppFailure(kind: FailureKind.timeout, messageKey: 'errorTimeout'),
       );
@@ -201,7 +201,7 @@ void main() {
   testWidgets('an already-onboarded visitor is never asked again', (
     tester,
   ) async {
-    final repo = _FakeProfileRepo(alreadyCompleted: true);
+    final repo = FakeProfileRepo(alreadyCompleted: true);
     await tester.pumpWidget(host(repo, next: '/ritual/hafez'));
     await tester.pumpAndSettle();
 
@@ -212,7 +212,7 @@ void main() {
   testWidgets('without a next target «بریم» lands on the app fallback', (
     tester,
   ) async {
-    final repo = _FakeProfileRepo();
+    final repo = FakeProfileRepo();
     await tester.pumpWidget(host(repo));
     await tester.pumpAndSettle();
 

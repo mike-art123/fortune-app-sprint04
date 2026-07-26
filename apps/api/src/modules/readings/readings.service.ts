@@ -114,8 +114,7 @@ export class ReadingsService {
       // onboarding is ever used; otherwise the reading stays impersonal.
       const owner = await this.users.findById(userId);
       const profile = {
-        displayName:
-          owner?.onboardingCompleted === true ? (owner.displayName ?? null) : null,
+        displayName: owner?.onboardingCompleted === true ? (owner.displayName ?? null) : null,
       };
       const generated = await this.provider.generate(fortune, dto.input, profile);
       record = await this.repository.create({
