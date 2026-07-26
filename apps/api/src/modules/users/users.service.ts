@@ -124,8 +124,12 @@ export class UsersService {
    * template or prompt), enforce a sane 1..40 length.
    */
   private normalizeDisplayName(raw: string): string {
-    const cleaned = raw
-      .replace(/[\u0000-\u001f\u007f<>]/g, '')
+    const cleaned = Array.from(raw)
+      .filter((char) => {
+        const code = char.codePointAt(0) ?? 0;
+        return code > 0x1f && code !== 0x7f && char !== '<' && char !== '>';
+      })
+      .join('')
       .replace(/\s+/g, ' ')
       .trim();
     if (cleaned.length === 0 || cleaned.length > 40) {

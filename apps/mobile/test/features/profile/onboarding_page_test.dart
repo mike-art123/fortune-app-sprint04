@@ -82,6 +82,11 @@ Widget host(FakeProfileRepo repo, {String? next}) {
         path: '/home',
         builder: (_, __) => const Scaffold(body: Text('home-stub')),
       ),
+      // AppBack.fallbackPath — where a completed ritual lands with no target.
+      GoRoute(
+        path: '/fortunes',
+        builder: (_, __) => const Scaffold(body: Text('fortunes-stub')),
+      ),
       GoRoute(
         path: '/ritual/:fortuneId',
         builder: (_, state) => Scaffold(
@@ -226,6 +231,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('بریم'));
     await tester.pumpAndSettle();
-    expect(find.text('home-stub'), findsOneWidget);
+    expect(find.text('fortunes-stub'), findsOneWidget);
   });
 }

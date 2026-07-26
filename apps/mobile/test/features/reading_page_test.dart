@@ -52,12 +52,20 @@ Widget host(
       profileControllerProvider.overrideWith(profile),
       ...overrides,
     ],
-    child: MaterialApp.router(
-      routerConfig: router,
-      locale: SupportedLocales.fa,
-      supportedLocales: SupportedLocales.all,
-      localizationsDelegates: SupportedLocales.delegates,
-      theme: AppTheme.dark(),
+    // Share reads the profile lazily; in the real app the router has already
+    // resolved it before any page shows, so the test warms it the same way.
+    child: Consumer(
+      builder: (context, ref, child) {
+        ref.watch(profileControllerProvider);
+        return child!;
+      },
+      child: MaterialApp.router(
+        routerConfig: router,
+        locale: SupportedLocales.fa,
+        supportedLocales: SupportedLocales.all,
+        localizationsDelegates: SupportedLocales.delegates,
+        theme: AppTheme.dark(),
+      ),
     ),
   );
 }
