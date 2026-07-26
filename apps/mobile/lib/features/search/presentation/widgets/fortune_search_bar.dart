@@ -128,15 +128,20 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
   /// What to say when listening ends badly. Never blames the person, and never
   /// leaves them without a next step.
   static String? _noteFor(SpeechEndReason reason) {
-    return switch (reason) {
-      SpeechEndReason.denied =>
-        'اجازهٔ میکروفون داده نشد؛ از تنظیمات مرورگر روشنش کن.',
-      SpeechEndReason.noSpeech || SpeechEndReason.timeout =>
-        'چیزی نشنیدم؛ دوباره بگو یا بنویس.',
-      SpeechEndReason.unsupported => 'مرورگرت شنیدن را پشتیبانی نمی‌کند.',
-      SpeechEndReason.failed => 'الان نشد؛ یک‌بار دیگر امتحان کن.',
-      SpeechEndReason.finished || SpeechEndReason.cancelled => null,
-    };
+    switch (reason) {
+      case SpeechEndReason.denied:
+        return 'اجازهٔ میکروفون داده نشد؛ از تنظیمات مرورگر روشنش کن.';
+      case SpeechEndReason.noSpeech:
+      case SpeechEndReason.timeout:
+        return 'چیزی نشنیدم؛ دوباره بگو یا بنویس.';
+      case SpeechEndReason.unsupported:
+        return 'مرورگرت شنیدن را پشتیبانی نمی‌کند.';
+      case SpeechEndReason.failed:
+        return 'الان نشد؛ یک‌بار دیگر امتحان کن.';
+      case SpeechEndReason.finished:
+      case SpeechEndReason.cancelled:
+        return null;
+    }
   }
 
   void _run(SearchAction action) {

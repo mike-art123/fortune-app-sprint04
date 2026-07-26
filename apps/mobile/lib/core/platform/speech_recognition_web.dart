@@ -23,8 +23,8 @@ JSFunction? _recognitionClass() {
 }
 
 Stream<SpeechEvent> recognizeSpeech({required String locale}) {
-  final factory = _recognitionClass();
-  if (factory == null) {
+  final recognizer = _recognitionClass();
+  if (recognizer == null) {
     return Stream.value(const SpeechEnded(SpeechEndReason.unsupported));
   }
 
@@ -51,7 +51,7 @@ Stream<SpeechEvent> recognizeSpeech({required String locale}) {
   };
 
   try {
-    final instance = factory.callAsConstructor<JSObject>();
+    final instance = recognizer.callAsConstructor<JSObject>();
     recognition = instance;
     instance.setProperty('lang'.toJS, locale.toJS);
     instance.setProperty('interimResults'.toJS, true.toJS);
