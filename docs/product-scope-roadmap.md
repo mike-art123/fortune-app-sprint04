@@ -202,3 +202,37 @@ real registry data before commit. Formatting verified with the real
 `dart format` at the package language version (3.6) on all ten touched files.
 
 Not in 3a: intent parsing and the AI fallback (3b), voice (3c).
+
+## Phase 3b delivery report (sentences, answered by rules)
+
+Scope covered: §2 second stage. People do not only type names — they type
+«برام یه فال بگیر» or «تاریخچه‌ام رو ببین». The index answers names; this layer
+answers sentences.
+
+What shipped: `search_intent.dart` — trigger rules over folded tokens, scored
+by how many words of the strongest trigger the sentence contains (every word
+must be present, so «فال بگیر» never fires on «فال حافظ»); Persian possessives
+and plurals glued to the noun («پروفایلم», «سابقه‌ام», «اشتراکم») match by
+prefix, short words stay exact. Rules reach four fixed screens (تاریخچه،
+پروفایل، اشتراک ویژه، همه فال‌ها) and three fortunes (فال روزانه، بله یا خیر،
+تعبیر خواب). `OpenDestinationAction` joins the sealed action family; the search
+bar now resolves every tap — a fortune row or an intent row — through one
+`_run(SearchAction)`, and both row kinds are the same widget.
+
+Guarantees: a route path is always a constant from `AppRoutes`, never assembled
+from typed text, and a fortune intent still goes through the shared destination
+map, so an intent can never outrank availability. The intent stage runs only
+when the index found nothing, so names always win. Every match names its
+destination and adds one calm line before anything opens. Rules only cover
+phrasings the index cannot already answer — no alias is repeated as a rule.
+Still offline, still free, still the same answer every time.
+
+Tests: `search_intent_test` (eleven real sentences → the exact screen, the
+possessive forms, label/hint always present, named fortunes left to the index,
+small talk and noise ask nothing, and the guardrail that a sentence can never
+invent a destination or misname a fortune), plus a bar test that types a whole
+sentence and lands on the history screen. Rule reachability and every sentence
+were replayed against the real registry before commit; `dart format` verified
+at the package language version on all five touched files.
+
+Not in 3b: the AI fallback for sentences no rule covers, and voice (3c).

@@ -31,6 +31,10 @@ Widget host() {
         path: '/coffee',
         builder: (_, __) => const Scaffold(body: Text('coffee-guide-stub')),
       ),
+      GoRoute(
+        path: '/history',
+        builder: (_, __) => const Scaffold(body: Text('history-stub')),
+      ),
     ],
   );
   return MaterialApp.router(
@@ -88,6 +92,22 @@ void main() {
     await tester.tap(find.text('فال قهوه'));
     await tester.pumpAndSettle();
     expect(find.text('coffee-guide-stub'), findsOneWidget);
+  });
+
+  testWidgets('a whole sentence lands on the screen it asked for', (
+    tester,
+  ) async {
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+
+    // No fortune is named here, so the index stays silent and the intent
+    // rules answer instead — naming the destination before opening it.
+    await tester.enterText(find.byType(TextField), 'تاریخچه‌ام رو ببین');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('تاریخچهٔ فال‌ها'));
+    await tester.pumpAndSettle();
+    expect(find.text('history-stub'), findsOneWidget);
   });
 
   testWidgets('nothing found is said calmly, and clearing restores quiet', (

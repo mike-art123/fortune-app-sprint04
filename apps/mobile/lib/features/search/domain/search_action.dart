@@ -18,6 +18,15 @@ final class OpenFortuneAction extends SearchAction {
   final String path;
 }
 
+/// A fixed in-app destination that is not a fortune (history, profile, …).
+/// [path] always comes from `AppRoutes`; it is never assembled from typed text.
+final class OpenDestinationAction extends SearchAction {
+  const OpenDestinationAction({required this.path, required this.label});
+
+  final String path;
+  final String label;
+}
+
 /// The fortune exists but is not live yet — say so, never navigate.
 final class FortuneSoonAction extends SearchAction {
   const FortuneSoonAction(this.fortuneId);

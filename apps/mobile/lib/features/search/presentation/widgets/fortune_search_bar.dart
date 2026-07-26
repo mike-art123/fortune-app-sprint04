@@ -7,12 +7,14 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../domain/fortune_search.dart';
 import '../../domain/search_action.dart';
+import '../../domain/search_intent.dart';
 
-/// The search bar over «همه فال‌ها» (scope §2, deterministic stage).
+/// The search bar over «همه فال‌ها» (scope §2).
 ///
 /// It answers while you type, tolerates the Arabic ي/ك, نیم‌فاصله and a typo,
-/// and never navigates on raw text: a tap resolves to a validated action
-/// first. Quiet by default — results appear only when something was asked.
+/// and understands a whole sentence when no name matches. It never navigates
+/// on raw text: a tap resolves to a validated action first. Quiet by default —
+/// results appear only when something was asked.
 class FortuneSearchBar extends StatefulWidget {
   const FortuneSearchBar({super.key});
 
@@ -24,6 +26,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
   final _controller = TextEditingController();
   final _focus = FocusNode();
   List<FortuneSearchResult> _results = const [];
+  SearchIntentMatch? _intent;
   bool _asked = false;
 
   @override
@@ -40,9 +43,13 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
   }
 
   void _onChanged(String value) {
+    final results = FortuneSearch.query(value);
     setState(() {
       _asked = value.trim().isNotEmpty;
-      _results = FortuneSearch.query(value);
+      _results = results;
+      // Names first: a sentence only reaches the intent rules when the index
+      // has nothing to say (scope §2 pipeline order).
+      _intent = results.isEmpty ? SearchIntents.match(value) : null;
     });
   }
 
@@ -51,21 +58,26 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     setState(() {
       _asked = false;
       _results = const [];
+      _intent = null;
     });
   }
 
-  void _open(FortuneSearchEntry entry) {
-    final action = SearchActions.forFortune(entry.id);
-    switch (action) {
-      case OpenFortuneAction(:final path):
-        _focus.unfocus();
-        context.push(path);
-      case FortuneSoonAction():
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          const SnackBar(content: Text('این فال به‌زودی فعال می‌شود')),
-        );
-      case NoSearchAction():
-        break;
+  void _run(SearchAction action) {
+    final path = switch (action) {
+      OpenFortuneAction(:final path) => path,
+      OpenDestinationAction(:final path) => path,
+      FortuneSoonAction() => null,
+      NoSearchAction() => null,
+    };
+    if (path != null) {
+      _focus.unfocus();
+      context.push(path);
+      return;
+    }
+    if (action is FortuneSoonAction) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        const SnackBar(content: Text('این فال به‌زودی فعال می‌شود')),
+      );
     }
   }
 
@@ -74,6 +86,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
     final focused = _focus.hasFocus;
+    final intent = _intent;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,7 +141,21 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
         ),
         if (_asked) ...[
           const SizedBox(height: AppSpacing.sm),
-          if (_results.isEmpty)
+          if (_results.isNotEmpty)
+            for (final result in _results)
+              _SuggestionRow(
+                title: result.entry.title,
+                subtitle: result.entry.subtitle,
+                soon: !result.entry.isOpenable,
+                onTap: () => _run(SearchActions.forFortune(result.entry.id)),
+              )
+          else if (intent != null)
+            _SuggestionRow(
+              title: intent.label,
+              subtitle: intent.hint,
+              onTap: () => _run(intent.action),
+            )
+          else
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(
                 horizontal: AppSpacing.sm,
@@ -137,21 +164,27 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
                 'با این نام چیزی پیدا نشد؛ از فهرست پایین انتخاب کن.',
                 style: textTheme.bodyMedium?.copyWith(color: c.textSecondary),
               ),
-            )
-          else
-            for (final result in _results)
-              _ResultRow(entry: result.entry, onTap: () => _open(result.entry)),
+            ),
         ],
       ],
     );
   }
 }
 
-class _ResultRow extends StatelessWidget {
-  const _ResultRow({required this.entry, required this.onTap});
+/// One tappable answer — a fortune the index found, or the screen a sentence
+/// asked for. Both name where they lead before they lead there.
+class _SuggestionRow extends StatelessWidget {
+  const _SuggestionRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.soon = false,
+  });
 
-  final FortuneSearchEntry entry;
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
+  final bool soon;
 
   @override
   Widget build(BuildContext context) {
@@ -178,14 +211,14 @@ class _ResultRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        entry.title,
+                        title,
                         style: textTheme.titleMedium?.copyWith(
                           color: c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        entry.subtitle,
+                        subtitle,
                         style: textTheme.bodySmall?.copyWith(
                           color: c.textMuted,
                         ),
@@ -193,7 +226,7 @@ class _ResultRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (!entry.isOpenable)
+                if (soon)
                   Text(
                     'به‌زودی',
                     style: textTheme.labelSmall?.copyWith(
