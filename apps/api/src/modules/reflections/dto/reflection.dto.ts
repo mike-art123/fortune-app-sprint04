@@ -1,14 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-  IsIn,
-  IsInt,
-  IsOptional,
-  IsString,
-  Max,
-  MaxLength,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { FEELINGS } from '../reflection-feelings';
 
 const ALLOWED = [...FEELINGS] as string[];
