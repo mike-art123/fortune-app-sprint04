@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/config/monetization_switch.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/luxury_card.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
@@ -104,7 +105,8 @@ class ProfilePlaceholderPage extends ConsumerWidget {
             const SizedBox(height: AppSpacing.sm),
             _personalization(context, ref, profile),
             const SizedBox(height: AppSpacing.sm),
-            _vip(context, () => context.push(AppRoutes.vipPath)),
+            if (kMonetizationEnabled)
+              _vip(context, () => context.push(AppRoutes.vipPath)),
             const SizedBox(height: AppSpacing.lg),
           ],
         ),

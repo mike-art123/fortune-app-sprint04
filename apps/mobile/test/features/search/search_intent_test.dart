@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/routing/fortune_destinations.dart';
+import 'package:fortune_app/core/config/monetization_switch.dart';
 import 'package:fortune_app/features/fortunes/domain/fortune_registry.dart';
 import 'package:fortune_app/features/search/domain/search_action.dart';
 import 'package:fortune_app/features/search/domain/search_intent.dart';
@@ -25,7 +26,6 @@ const _asks = <String, String>{
   'فال‌های قبلی من': '/history',
   'می‌خوام اسمم رو عوض کنم': '/profile',
   'پروفایلم را باز کن': '/profile',
-  'اشتراکم تمام شده': '/vip',
   'چه فالی داری؟': '/fortunes',
 };
 
@@ -39,7 +39,19 @@ void main() {
 
     test('the possessive glued to the noun changes nothing', () {
       expect(_path('سابقه‌ام'), '/history');
-      expect(_path('اشتراکم'), '/vip');
+      expect(_path('پروفایلم'), '/profile');
+    });
+
+    // «اشتراکم تمام شده» is a real sentence with a real destination — but only
+    // while there is something to subscribe to. With monetization paused the
+    // app offers nothing rather than a screen that cannot do anything.
+    test('the subscription screen is offered only while it exists', () {
+      final match = SearchIntents.match('اشتراکم تمام شده');
+      if (kMonetizationEnabled) {
+        expect(_path('اشتراکم تمام شده'), '/vip');
+      } else {
+        expect(match, isNull);
+      }
     });
 
     test('a match always says what it will open', () {

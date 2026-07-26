@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/config/monetization_switch.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/fortunes/presentation/pages/all_fortunes_page.dart';
 import '../../features/fortunes/presentation/pages/coffee_guide_page.dart';
@@ -166,6 +167,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.vipPath,
         name: AppRoutes.vipName,
+        // Paused, not removed: while monetization is off nothing is for sale,
+        // so a link here (a deep link, an old bookmark) lands on the fortunes
+        // list rather than on a screen that cannot do anything.
+        redirect: (context, state) =>
+            kMonetizationEnabled ? null : AppRoutes.allFortunesPath,
         builder: (_, __) => const VipPage(),
       ),
       GoRoute(

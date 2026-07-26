@@ -351,3 +351,54 @@ mention it). Formatting verified with two dart_style builds and prettier 3.3.3.
 
 Phase 4 (§4 + §5) is complete. Remaining: Phase 5 (§6, §7), Phase 6 (§8), and
 Phase 2 (§1) once licensed audio assets exist.
+
+## Phase 5a delivery report (history summary and compare, §6)
+
+The server does the arithmetic and the model, if it is switched on at all, is
+only allowed to phrase it. `history-digest.ts` counts the chosen window and the
+identical window before it — totals, per-fortune tallies, first-times, active
+days, and a time-of-day habit that is named only when there is an outright one
+(a tie says nothing). `history-narrative.ts` turns that into Persian sentences
+with no model involved; that is the floor, not a fallback, so a disabled flag, a
+missing key or a slow upstream costs tone and nothing else.
+
+Privacy: the prompt contains counts. No reading text, no name, no birth month,
+no ids — there is nothing in it that could leak into a sentence even if the
+model tried. The answer is rejected unless it is short, Persian, and free of
+links and markup. `AiSummaryCache` is keyed by a fingerprint of the readings it
+describes, so adding or deleting a reading retires the old summary by itself,
+and the row is cascaded away with its user. The switch that silences suggestions
+(§4) also closes this wire. Flag: `history.summary`, off by default.
+
+Client: «نگاهی به گذشته» rides in the first slot of the journal list, so it
+scrolls with the readings instead of pinning a panel over them. Three windows,
+the sentence, and the counts behind it as pills. When a model wrote the
+sentence the card says so. A failed summary is silence — the journal is already
+on screen.
+
+Anti-duplication: `PromptMessage` was declared twice and about to become three,
+so it now lives once in `common/ai`; the readings repository owns the
+`ReadingMoment` projection the summary counts, rather than a second door onto
+that table.
+
+## Monetization paused (temporary, reversible)
+
+Ads (§ rewarded-ad mediation) and VIP are **paused, not dropped** — every model,
+endpoint, test and screen remains in place and in scope. Two reasons: the owner
+needs to walk the whole app end to end without a paywall interrupting a ritual,
+and AdsGram's review raised a question that should be settled before their SDK
+loads at all.
+
+Mechanism: one compile-time constant, `kMonetizationEnabled`
+(`lib/core/config/monetization_switch.dart`), false by default. While it is
+false the access flow proceeds immediately without asking the server, the VIP
+entries on home and profile are absent, `/vip` redirects to the fortunes list,
+and search never offers a subscription screen. Because it is a compile-time
+constant the ad paths are tree-shaken out, so no provider SDK can be fetched.
+The API needs nothing: `ENFORCE_ACCESS_LIMITS` is unset in production, which
+already means every reading is free.
+
+To restore: build with `--dart-define=ENABLE_MONETIZATION=true` and set
+`ENFORCE_ACCESS_LIMITS=true` on the API. `test/features/access/
+monetization_paused_test.dart` fails deliberately when the switch flips, so the
+assumptions written there are revisited rather than forgotten.

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/config/monetization_switch.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/platform/rewarded_ad_player.dart';
 import '../../../shared/providers/shared_providers.dart';
@@ -82,8 +83,16 @@ class AccessFlowController
   AccessFlowState build(String arg) => const AccessIdle();
 
   /// Backend decision order: vip/free start immediately; otherwise the sheet.
+  ///
+  /// While monetization is paused this is the single place that knows it: the
+  /// ritual proceeds without asking the server anything, so no sheet, no ad
+  /// and no subscription prompt can appear anywhere downstream.
   Future<void> begin() async {
     if (state is AccessChecking || state is AccessPreparingAd) return;
+    if (!kMonetizationEnabled) {
+      state = const AccessProceed();
+      return;
+    }
     state = const AccessChecking();
 
     final repo = ref.read(accessRepositoryProvider);

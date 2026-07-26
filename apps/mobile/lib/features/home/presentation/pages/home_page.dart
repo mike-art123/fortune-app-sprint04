@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/config/monetization_switch.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../design_system/components/fortune_cards.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
@@ -191,8 +192,12 @@ class _TopBar extends StatelessWidget {
       children: [
         const _ProfileChip(),
         const Spacer(),
-        const _VipChip(),
-        const SizedBox(width: AppSpacing.xs),
+        // Nothing is sold while monetization is paused, so nothing advertises
+        // it either.
+        if (kMonetizationEnabled) ...[
+          const _VipChip(),
+          const SizedBox(width: AppSpacing.xs),
+        ],
         Icon(Icons.menu, color: c.goldWarm),
       ],
     );

@@ -1,4 +1,5 @@
 import '../../../app/routing/app_routes.dart';
+import '../../../core/config/monetization_switch.dart';
 import '../../fortunes/domain/fortune_registry.dart';
 import 'fa_text.dart';
 import 'search_action.dart';
@@ -165,6 +166,9 @@ abstract final class SearchIntents {
   /// that wants to open a screen — the rules here, or an answer from the
   /// server — goes through this, so no stage can name a screen we do not have.
   static SearchIntentMatch? forScreen(String screen) {
+    // Nothing is sold while monetization is paused, so the subscription screen
+    // is not something a search may lead to either.
+    if (screen == 'vip' && !kMonetizationEnabled) return null;
     final target = kSearchScreens[screen];
     if (target == null) return null;
     return SearchIntentMatch(
