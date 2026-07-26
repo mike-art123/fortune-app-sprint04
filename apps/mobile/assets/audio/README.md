@@ -54,22 +54,48 @@ time `bundled` stops being empty — that test is the checklist for this file.
 
 ## Licence log
 
-Ambient beds need commercial-use rights for a paid app. Record each one here as
-it is added, so the paperwork lives with the files rather than in an inbox.
+All eight files came from **Pixabay** (sound effects and music) and **Mixkit**,
+both of which the owner browsed on 2026-07-26. Terms below were read from the
+sources on that date.
 
-| File | Source | Licence | Purchased / obtained |
-|---|---|---|---|
-| ambient/night.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ambient/rain.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ambient/candle.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ambient/persian.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ambient/santur-ney.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ambient/piano.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ritual/offering.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
-| ritual/reveal.mp3 | _owner-supplied_ | _to record_ | 2026-07-26 |
+| File | Source | Licence |
+|---|---|---|
+| ambient/night.mp3 | Pixabay or Mixkit — see the gap below | Pixabay Content License / Mixkit Free License |
+| ambient/rain.mp3 | Pixabay Sound Effects | Pixabay Content License |
+| ambient/candle.mp3 | Pixabay Sound Effects (fireplace) | Pixabay Content License |
+| ambient/persian.mp3 | Pixabay Music (oriental) | Pixabay Content License |
+| ambient/santur-ney.mp3 | Pixabay or Mixkit — see the gap below | Pixabay Content License / Mixkit Free License |
+| ambient/piano.mp3 | Pixabay Music (piano) | Pixabay Content License |
+| ritual/offering.mp3 | Pixabay Sound Effects (chime or magic) | Pixabay Content License |
+| ritual/reveal.mp3 | Pixabay Sound Effects (chime or magic) | Pixabay Content License |
 
-Fill in the source and licence for each row before release — the files play
-today, but a paid app needs the paperwork to exist somewhere findable.
+### What the two licences allow
+
+**Pixabay Content License** (read 2026-07-26 at
+<https://pixabay.com/service/license-summary/>): free to use, **no attribution
+required**, and modification is expressly allowed. The prohibition that matters
+is selling or distributing content *standalone* — Pixabay defines standalone as
+"where no creative effort has been applied to the Content and it remains in
+substantially the same form as it exists on our website". These files are
+re-levelled, re-encoded, one of them trimmed, and they play as a background
+layer inside a larger work, so this use is not standalone distribution.
+
+**Mixkit Free License** (read 2026-07-26 at <https://mixkit.co/license/> and
+<https://mixkit.co/llm-info/>): commercial use allowed, no attribution required;
+copies may not be sold without applying skill and effort, and items may not be
+made available to third parties as items. Same conclusion.
+
+### The honest gap
+
+**The individual track pages were not recorded.** Both licences permit this use
+without attribution, so nothing is blocked — but if a source is ever
+questioned, "it came from Pixabay" is weaker evidence than a URL.
+
+Worth five minutes before release: reopen the download history on each site and
+paste the track URL and author into the table above. Two reasons beyond
+tidiness — Pixabay hosts community uploads, so a track can occasionally be
+re-uploaded by somebody who does not hold the rights, and a licence page can
+change. A URL and a date make both answerable later.
 
 ## What was done to the delivered files
 
