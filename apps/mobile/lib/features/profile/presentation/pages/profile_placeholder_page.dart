@@ -13,6 +13,7 @@ import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../notifications/presentation/widgets/notification_settings_card.dart';
 import '../../application/profile_controller.dart';
 import '../../domain/user_profile.dart';
 import '../widgets/edit_profile_sheet.dart';
@@ -104,6 +105,8 @@ class ProfilePlaceholderPage extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             _personalization(context, ref, profile),
+            const SizedBox(height: AppSpacing.sm),
+            const NotificationSettingsCard(),
             const SizedBox(height: AppSpacing.sm),
             if (kMonetizationEnabled)
               _vip(context, () => context.push(AppRoutes.vipPath)),

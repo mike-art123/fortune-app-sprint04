@@ -440,3 +440,26 @@ Preferences live at `GET/PATCH /notifications/preferences`, scoped to the
 caller. Hours, caps and mute length are validated at the edge *and* clamped in
 the service — a preference that silences someone forever by accident is worse
 than a rejected request.
+
+## Phase 5b delivery report — client (notification settings, §7)
+
+«یادآوری‌ها» sits on the profile screen, under personalization. Three switches
+(today's fortune, a nudge after a few days away, the weekly look-back), the
+quiet-hours sentence written out in Persian digits so it can be checked at a
+glance, and one tap for «یک هفته چیزی نفرست» — which the same tap undoes.
+
+Two rules hold the surface honest. While the settings are unknown or the server
+is unreachable the card shows **nothing at all**, rather than a switch resting
+in a position nobody chose. And a refused save leaves every switch exactly where
+it was: a control that lies about what the server holds is worse than no control.
+Each change sends only the field that changed.
+
+Tests cover the quiet-hours sentence, one-field-per-change, a refused save
+leaving the switch alone, mute and un-mute, and silence while the settings are
+unknown; plus the payload falling back to the same modest defaults the server
+uses, and a mute being read against the clock so a past one needs no cleanup.
+
+Phase 5 (§6 + §7) is complete. Remaining: Phase 6 (§8 reflection journal) and
+Phase 2 (§1 ambient audio) once licensed audio assets exist. The notification
+sweep still needs an external scheduler and `NOTIFICATIONS_SWEEP_SECRET` before
+a single message can be sent.
