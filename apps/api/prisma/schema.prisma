@@ -49,8 +49,58 @@ model User {
   mediationSessions      AdMediationSession[]
   rewardedAdEntitlements RewardedAdEntitlement[]
   summaries              AiSummaryCache[]
+  notificationPreference NotificationPreference?
+  notifications          NotificationDelivery[]
 
   @@map("users")
+}
+
+/// Scope §7: what this person agreed to hear from us, and when.
+///
+/// Every field is a limit, not a capability: quiet hours, a daily cap, and a
+/// mute that ends by itself. Defaults are deliberately modest — one message a
+/// day at most, nothing between 22:00 and 08:00 local, and the weekly look-back
+/// off until it is asked for.
+model NotificationPreference {
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  dailyFortune   Boolean  @default(true) @map("daily_fortune")
+  streakReminder Boolean  @default(true) @map("streak_reminder")
+  weeklySummary  Boolean  @default(false) @map("weekly_summary")
+  quietFromHour  Int      @default(22) @map("quiet_from_hour")
+  quietToHour    Int      @default(8) @map("quiet_to_hour")
+  dailyCap       Int      @default(1) @map("daily_cap")
+  timeZone       String   @default("Asia/Tehran") @map("time_zone")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  /// Set by «فعلاً چیزی نفرست»; when it passes, messages resume on their own.
+  mutedUntil DateTime? @map("muted_until")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+/// Scope §7: one row per message we decided to send.
+///
+/// `(userId, kind, dateKey)` is unique, so a sweep that runs twice — or two
+/// sweeps racing — can never send the same thing twice, and counting today's
+/// rows is how the daily cap is enforced. The row holds the kind, never the
+/// text: what was written is not worth keeping.
+model NotificationDelivery {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  kind      String
+  dateKey   String   @map("date_key")
+  status    String   @default("sent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kind, dateKey])
+  @@index([userId, createdAt])
+  @@map("notification_deliveries")
 }
 
 /// Scope §6: one cached history summary per reader per range.

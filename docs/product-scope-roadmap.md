@@ -402,3 +402,41 @@ To restore: build with `--dart-define=ENABLE_MONETIZATION=true` and set
 `ENFORCE_ACCESS_LIMITS=true` on the API. `test/features/access/
 monetization_paused_test.dart` fails deliberately when the switch flips, so the
 assumptions written there are revisited rather than forgotten.
+
+## Phase 5b delivery report — server (smart notifications, §7)
+
+The decision is pure and the plumbing is thin. `notification-plan.ts` answers
+one question — what, if anything, is worth saying to this reader right now —
+from the clock, their own preferences and when they last read a fortune. Same
+inputs, same answer, every time; a feature that reaches somebody when they are
+not looking has to be inspectable rather than clever.
+
+Every rule is a reason **not** to send: muted (a mute that expires by itself),
+inside their own quiet hours (which may cross midnight), the daily cap reached,
+already sent today, switched off, or simply nothing worth saying. Priority is
+explicit, so when the cap allows one message it is the most useful one: a real
+absence first (day three, then once a week — an absence is not an invitation to
+ask every morning), then today's fortune (only after 09:00 local and only if
+they have not already read one today), then the week's look-back on Friday.
+
+Privacy: the copy carries no name, no birth month and never a line from a
+reading — a message on a lock screen is read by whoever holds the phone. The
+delivery row stores the kind and the local date, never the text. Logs record
+the kind only.
+
+Idempotency: `(user, kind, dateKey)` is unique and the row is written *before*
+the send, so a sweep that runs twice — or two sweeps racing — cannot send the
+same thing twice. The cost is that a refused send is not retried today, which
+is the right trade for a courtesy message.
+
+Delivery rides the existing Telegram bot; no second channel to Telegram was
+opened. There is no timer inside the API: `POST /notifications/sweep` is driven
+by an external scheduler and carries a shared secret compared in constant time.
+While `NOTIFICATIONS_SWEEP_SECRET` is empty the route refuses every caller, so
+a fresh deployment cannot message anybody by accident. Flag:
+`notifications.smart`, off by default.
+
+Preferences live at `GET/PATCH /notifications/preferences`, scoped to the
+caller. Hours, caps and mute length are validated at the edge *and* clamped in
+the service — a preference that silences someone forever by accident is worse
+than a rejected request.

@@ -94,6 +94,13 @@ export const envSchema = z
     AD_COOLDOWN_FAILURES: z.coerce.number().int().min(1).max(20).default(3),
     AD_COOLDOWN_WINDOW_SECONDS: z.coerce.number().int().positive().default(300),
 
+    /** Scope §7: shared secret an external scheduler presents to run the
+     * notification sweep. Empty means the route refuses every caller, so
+     * nothing can be sent until this is set deliberately. */
+    NOTIFICATIONS_SWEEP_SECRET: z.string().default(''),
+    /** How many readers one sweep may consider. Bounded on purpose. */
+    NOTIFICATIONS_SWEEP_BATCH: z.coerce.number().int().min(1).max(2000).default(200),
+
     /** VIP plan prices in Telegram Stars (XTR). */
     VIP_MONTHLY_STARS: z.coerce.number().int().positive().default(250),
     VIP_QUARTERLY_STARS: z.coerce.number().int().positive().default(600),

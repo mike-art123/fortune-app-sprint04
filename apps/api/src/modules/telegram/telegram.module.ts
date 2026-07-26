@@ -13,5 +13,8 @@ import { VipController } from './vip.controller';
 @Module({
   controllers: [TelegramWebhookController, VipController],
   providers: [TelegramBotConfig, TelegramBotService, TelegramPaymentsService],
+  // Notifications (scope §7) send through this same bot rather than opening a
+  // second channel to Telegram.
+  exports: [TelegramBotService],
 })
 export class TelegramModule {}
