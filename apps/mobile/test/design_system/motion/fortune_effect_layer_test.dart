@@ -80,6 +80,25 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('paints the talisman through a blink', (tester) async {
+    await tester.pumpWidget(
+      AmbientMotion(
+        child: frame(
+          const FortuneEffectLayer(
+            id: 'dailytalisman',
+            accent: Color(0xFFC5A0FF),
+          ),
+        ),
+      ),
+    );
+    // Walk one full period in small steps so frames land inside the blink.
+    for (var i = 0; i < 20; i += 1) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byType(CustomPaint), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('reduced motion never starts the ticker', (tester) async {
     await tester.pumpWidget(
       MediaQuery(

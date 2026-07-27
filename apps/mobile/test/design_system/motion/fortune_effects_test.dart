@@ -55,6 +55,50 @@ void main() {
     expect(effectSeedFor('hafez'), isNot(effectSeedFor('candle')));
   });
 
+  test('the talisman blinks: shut once a period, open the rest', () {
+    final spec = fortuneEffectSpec('dailytalisman')!;
+    final blink = spec.layers.firstWhere(
+      (layer) => layer.kind == FortuneEffectKind.blink,
+    );
+    final eye = blink.eye!;
+    final seed = effectSeedFor('dailytalisman');
+    var sawShut = false;
+    var openCount = 0;
+    const steps = 400;
+    for (var i = 0; i < steps; i += 1) {
+      final t = i * (2 * eye.blinkPeriod) / steps;
+      final c = blinkClosure(seed, t, period: eye.blinkPeriod);
+      expect(c, inInclusiveRange(0, 1));
+      expect(c, blinkClosure(seed, t, period: eye.blinkPeriod));
+      if (c >= 0.99) sawShut = true;
+      if (c == 0) openCount += 1;
+    }
+    expect(sawShut, isTrue);
+    expect(openCount, greaterThan(steps ~/ 2));
+  });
+
+  test('the talisman eye opening stays inside the artwork', () {
+    final spec = fortuneEffectSpec('dailytalisman')!;
+    final eye = spec.layers
+        .firstWhere((layer) => layer.kind == FortuneEffectKind.blink)
+        .eye!;
+    expect(eye.xLeft, greaterThanOrEqualTo(0));
+    expect(eye.xRight, lessThanOrEqualTo(kFortuneArtSize.width));
+    expect(eye.xLeft, lessThan(eye.xRight));
+    for (var i = 0; i <= 40; i += 1) {
+      final u = i / 40;
+      final top = eye.upperY(u);
+      final bottom = eye.lowerY(u);
+      expect(top, inInclusiveRange(0, kFortuneArtSize.height));
+      expect(bottom, inInclusiveRange(0, kFortuneArtSize.height));
+      if (u > 0.1 && u < 0.9) {
+        expect(bottom - top, greaterThan(10));
+      }
+    }
+    expect((eye.upperY(0) - eye.lowerY(0)).abs(), lessThan(3));
+    expect((eye.upperY(1) - eye.lowerY(1)).abs(), lessThan(3));
+  });
+
   test('cover mapping matches the centre-cover crop', () {
     const size = Size(300, 300);
     final centre = mapCoverPoint(

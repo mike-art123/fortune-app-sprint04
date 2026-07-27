@@ -21,7 +21,7 @@ const Size kFortuneArtSize = Size(640, 498);
 
 /// What a layer paints. Kinds are deliberately few; cards differ by anchor,
 /// colour and intensity, not by bespoke code.
-enum FortuneEffectKind { steam, flame, sparkle, glow }
+enum FortuneEffectKind { steam, flame, sparkle, glow, blink }
 
 /// One layer of ambient motion, anchored in image space.
 class FortuneEffectLayerSpec {
@@ -32,6 +32,7 @@ class FortuneEffectLayerSpec {
     this.color,
     this.intensity = 1,
     this.count = 0,
+    this.eye,
   });
 
   final FortuneEffectKind kind;
@@ -50,6 +51,77 @@ class FortuneEffectLayerSpec {
 
   /// Particle count; 0 means the kind's default.
   final int count;
+
+  /// Eye-opening geometry; only [FortuneEffectKind.blink] layers carry one.
+  final FortuneEyeGeometry? eye;
+}
+
+/// The eye opening of a card that blinks, measured in artwork pixels.
+///
+/// The lid edges are quartic fits y(u) over u = (x - xLeft) / (xRight -
+/// xLeft), read off the real artwork the way anchors are. The eyeball never
+/// moves; two lid surfaces slide over it and meet at [closureDepth] of the
+/// opening's height — the upper lid travels the long way, like a real blink.
+class FortuneEyeGeometry {
+  const FortuneEyeGeometry({
+    required this.xLeft,
+    required this.xRight,
+    required this.upperCoeffs,
+    required this.lowerCoeffs,
+    this.closureDepth = 0.62,
+    this.blinkPeriod = 2,
+  });
+
+  /// Horizontal extent of the opening, artwork pixels.
+  final double xLeft;
+  final double xRight;
+
+  /// Quartic coefficients of the lid edges y(u), highest power first.
+  final List<double> upperCoeffs;
+  final List<double> lowerCoeffs;
+
+  /// Where the lids meet, as a fraction of the opening's height.
+  final double closureDepth;
+
+  /// Seconds between blinks.
+  final double blinkPeriod;
+
+  /// Artwork y of the upper lid edge at u in 0..1.
+  double upperY(double u) => _evalPoly(upperCoeffs, u);
+
+  /// Artwork y of the lower lid edge at u in 0..1.
+  double lowerY(double u) => _evalPoly(lowerCoeffs, u);
+}
+
+double _evalPoly(List<double> coeffs, double u) {
+  var y = 0.0;
+  for (final c in coeffs) {
+    y = y * u + c;
+  }
+  return y;
+}
+
+/// How shut a blinking eye is at second [t] — 0 open, 1 shut.
+///
+/// Once per [period] the lid drops fast (~110ms), rests shut a beat and
+/// releases slower (~180ms); the start jitters a little per cycle so the
+/// rhythm never turns metronomic. Pure function of (seed, t), like every
+/// other motion here.
+double blinkClosure(int seed, double t, {double period = 2}) {
+  const close = 0.11;
+  const hold = 0.05;
+  const open = 0.18;
+  final cycle = (t / period).floor();
+  final offset = 0.5 + effectRandom(seed, cycle, 71) * 0.45;
+  final s = t - cycle * period - offset;
+  if (s < 0 || s > close + hold + open) return 0;
+  if (s < close) {
+    final u = s / close;
+    return u * u;
+  }
+  if (s < close + hold) return 1;
+  final u = (s - close - hold) / open;
+  return (1 - u) * (1 - u);
 }
 
 /// The full effect of one card: a short list of layers, painted in order.
@@ -114,6 +186,15 @@ const Color _smoke = Color(0xFFB9AFA4);
 const Color _rose = Color(0xFFFF9FB0);
 const Color _violet = Color(0xFFC5A0FF);
 const Color _paleMoon = Color(0xFFF4EBCF);
+
+/// The talisman's eye opening, fitted on the artwork's inner gold rims
+/// (max residual under 1.5px against the measured edge points).
+const FortuneEyeGeometry _talismanEye = FortuneEyeGeometry(
+  xLeft: 212,
+  xRight: 433,
+  upperCoeffs: [224.3407, -454.1082, 462.1742, -231.079, 249.4362],
+  lowerCoeffs: [315.5714, -683.4197, 296.5842, 71.6733, 250.3278],
+);
 
 /// All forty cards of the catalog. Anchors were read off the real artwork,
 /// one image at a time — a wrong anchor is worse than no effect, because
@@ -553,8 +634,14 @@ const Map<String, FortuneEffectSpec> _effects = {
       count: 8,
     ),
   ]),
-  // The amulet’s eye holds a steady, breathing light.
+  // The amulet’s eye holds a steady, breathing light — and blinks, every
+  // couple of seconds, the glow dimming for the beat the lids are shut.
   'dailytalisman': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.blink,
+      anchor: Offset(0.503, 0.504),
+      eye: _talismanEye,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.4),
