@@ -200,7 +200,6 @@ class FortuneEffectPainter extends CustomPainter {
     _drawRadialGlow(canvas, anchor, radius, _tint(layer), alpha);
   }
 
-
   void _drawRadialGlow(
     Canvas canvas,
     Offset center,
