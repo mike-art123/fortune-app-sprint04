@@ -99,6 +99,25 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('paints the hourglass through a full cycle', (tester) async {
+    await tester.pumpWidget(
+      AmbientMotion(
+        child: frame(
+          const FortuneEffectLayer(
+            id: 'future',
+            accent: Color(0xFFFFC66B),
+          ),
+        ),
+      ),
+    );
+    // Seven seconds covers the whole drain and the rewind shimmer.
+    for (var i = 0; i < 14; i += 1) {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    expect(find.byType(CustomPaint), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('reduced motion never starts the ticker', (tester) async {
     await tester.pumpWidget(
       MediaQuery(

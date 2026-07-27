@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'ambient_motion.dart';
 import 'fortune_effects.dart';
+import 'fortune_hourglass.dart';
 
 const double _tau = math.pi * 2;
 
@@ -68,6 +69,8 @@ class FortuneEffectPainter extends CustomPainter {
           _paintGlow(canvas, size, layer, layerSeed, t, dim: blink);
         case FortuneEffectKind.blink:
           _paintBlink(canvas, size, layer, blink);
+        case FortuneEffectKind.hourglass:
+          _paintHourglass(canvas, size, layer, t);
       }
     }
   }
@@ -454,6 +457,404 @@ class FortuneEffectPainter extends CustomPainter {
       (rgb[0] * factor).clamp(0, 255).round(),
       (rgb[1] * factor).clamp(0, 255).round(),
       (rgb[2] * factor).clamp(0, 255).round(),
+    );
+  }
+
+  /// Maps an artwork-pixel point through the cover crop, like every anchor.
+  Offset _artPoint(Size size, double x, double y) {
+    return mapCoverPoint(
+      Offset(x / kFortuneArtSize.width, y / kFortuneArtSize.height),
+      size,
+      alignment,
+    );
+  }
+
+  double _band01(double v, double aa) => (v / aa).clamp(0.0, 1.0);
+
+  Color _shade(Color color, double factor) {
+    return Color.fromARGB(
+      255,
+      (color.r * 255 * factor).clamp(0, 255).round(),
+      (color.g * 255 * factor).clamp(0, 255).round(),
+      (color.b * 255 * factor).clamp(0, 255).round(),
+    );
+  }
+
+  // Hourglass palette, taken from the replica renders.
+  static const int _sandColumns = 36;
+  static const Color _sandWarmThroat = Color(0xFF966C42);
+  static const Color _sandCoolStreak = Color(0xFFEBF0F8);
+  static const Color _sandLipLit = Color(0xFFEED6A6);
+  static const Color _sandCrestLit = Color(0xFFF6E1B0);
+  static const Color _sandGrain = Color(0xFFF0DBAA);
+  static const Color _sandImpact = Color(0xFFF6E2B4);
+  static const Color _sandShimmer = Color(0xFFFFCD82);
+
+  /// Six seconds of sand. The top pile drains to empty glass, the bottom
+  /// pile grows above its painted crest, grains fall between them — and
+  /// the rewind eases it all back under a warm shimmer.
+  void _paintHourglass(
+    Canvas canvas,
+    Size size,
+    FortuneEffectLayerSpec layer,
+    double t,
+  ) {
+    final hg = layer.hourglass;
+    if (hg == null) return;
+    final drain = hg.drainSeconds;
+    final rewind = hg.rewindSeconds;
+    final p = hourglassProgress(t, drain: drain, rewind: rewind);
+    final rewinding = hourglassRewind(t, drain: drain, rewind: rewind);
+    if (p > 0.001) {
+      _paintHourglassTop(canvas, size, hg, p);
+      _paintHourglassBottom(canvas, size, hg, p);
+    }
+    _paintHourglassStream(canvas, size, hg, p, t, rewinding > 0);
+    if (rewinding > 0) {
+      final centre = _artPoint(size, hg.neckX, 280);
+      final alpha = 0.14 * math.sin(math.pi * rewinding);
+      _drawRadialGlow(
+        canvas,
+        centre,
+        150 * coverScale(size),
+        _sandShimmer,
+        alpha,
+      );
+    }
+  }
+
+  /// The draining top pile: empty glass follows the falling surface.
+  void _paintHourglassTop(
+    Canvas canvas,
+    Size size,
+    FortuneHourglassGeometry hg,
+    double p,
+  ) {
+    final edge = (hg.topY0 + 3) + ((hg.topY1 - 2) - (hg.topY0 + 3)) * p;
+    final xl = hg.spanLeftAt(edge);
+    final xr = hg.spanRightAt(edge);
+    final dip = 9 - 5 * p;
+    final step = (hg.topX1 - hg.topX0) / (_sandColumns - 1);
+    final xs = List<double>.generate(
+      _sandColumns,
+      (i) => hg.topX0 + i * step,
+    );
+    final tops = [for (final x in xs) hg.topAt(x)];
+    final bots = [for (final x in xs) hg.botAt(x)];
+
+    double curAt(double x) {
+      final su = ((x - xl) / math.max(xr - xl, 1e-6)).clamp(0.0, 1.0);
+      return edge + dip * 4 * su * (1 - su);
+    }
+
+    double coverFactor(double x, double y) {
+      final top = hg.topAt(x);
+      final bot = hg.botAt(x);
+      final inside = _band01(y - top, 1.3) * _band01(bot - y, 1.3);
+      final inSpan = x >= xl - 0.5 && x <= xr + 0.5;
+      final kept = inSpan ? _band01(y - curAt(x), 1.5) : 0.0;
+      return inside * (1 - kept);
+    }
+
+    final curs = [for (final x in xs) curAt(x)];
+    final covers = List<double>.generate(_sandColumns, (i) {
+      final inSpan = xs[i] >= xl - 0.5 && xs[i] <= xr + 0.5;
+      final floor = inSpan ? math.max(tops[i], curs[i]) : bots[i];
+      return math.min(bots[i], floor);
+    });
+
+    final clipTop = [
+      for (var i = 0; i < _sandColumns; i += 1)
+        _artPoint(size, xs[i], tops[i]),
+    ];
+    final clipBot = [
+      for (var i = 0; i < _sandColumns; i += 1)
+        _artPoint(size, xs[i], bots[i]),
+    ];
+    final region = Path()..moveTo(clipTop.first.dx, clipTop.first.dy);
+    for (final o in clipTop.skip(1)) {
+      region.lineTo(o.dx, o.dy);
+    }
+    for (final o in clipBot.reversed) {
+      region.lineTo(o.dx, o.dy);
+    }
+    region.close();
+    canvas.save();
+    canvas.clipPath(region);
+
+    Color fillAt(double x, double y) {
+      final depth = ((y - 190) / 80).clamp(0.0, 1.0);
+      final base = _shade(hg.glassAt(x), 1 - 0.22 * depth);
+      final dx = (x - hg.neckX) / 46;
+      final throat = math.exp(-dx * dx) * ((y - 225) / 30).clamp(0.0, 1.0);
+      return Color.lerp(base, _sandWarmThroat, throat * 0.45)!;
+    }
+
+    // the fill: an above-blend row easing out of the artwork, then the
+    // deepening glass tone, as five stacked ribbons
+    double rowY(int i, int k) {
+      final blendEnd = math.min(tops[i] + 7, covers[i]);
+      if (k == 0) return tops[i];
+      if (k == 1) return blendEnd;
+      return blendEnd + (covers[i] - blendEnd) * (k - 1) / 4;
+    }
+
+    final rowPts = List<List<Offset>>.generate(6, (k) {
+      return [
+        for (var i = 0; i < _sandColumns; i += 1)
+          _artPoint(size, xs[i], rowY(i, k)),
+      ];
+    });
+    final rowColors = List<List<Color>>.generate(6, (k) {
+      return List<Color>.generate(_sandColumns, (i) {
+        if (k == 0) return hg.aboveAt(xs[i]);
+        return fillAt(xs[i], rowY(i, k));
+      });
+    });
+    for (var k = 0; k < 5; k += 1) {
+      _drawLidStrip(
+        canvas,
+        rowPts[k],
+        rowPts[k + 1],
+        rowColors[k],
+        rowColors[k + 1],
+        _lidPaint,
+      );
+    }
+
+    // wall reflection streaks over the emptied glass
+    const streakRows = 22;
+    final rowStep = (hg.topY1 - hg.topY0) / (streakRows - 1);
+    void streak({required bool left}) {
+      final width = left ? 3.0 : 2.5;
+      final alpha = left ? 0.20 : 0.09;
+      final inner = <Offset>[];
+      final centre = <Offset>[];
+      final outer = <Offset>[];
+      final peak = <Color>[];
+      final none = <Color>[];
+      for (var j = 0; j < streakRows; j += 1) {
+        final y = hg.topY0 + j * rowStep;
+        final wx = left ? hg.spanLeftAt(y) + 4 : hg.spanRightAt(y) - 4;
+        final a = alpha * coverFactor(wx, y);
+        inner.add(_artPoint(size, wx - width, y));
+        centre.add(_artPoint(size, wx, y));
+        outer.add(_artPoint(size, wx + width, y));
+        peak.add(_sandCoolStreak.withValues(alpha: a));
+        none.add(_sandCoolStreak.withValues(alpha: 0));
+      }
+      _drawLidStrip(canvas, inner, centre, none, peak, _lidPaint);
+      _drawLidStrip(canvas, centre, outer, peak, none, _lidPaint);
+    }
+
+    streak(left: true);
+    streak(left: false);
+
+    // the descending surface: a bright lip with a soft shadow above it
+    List<Offset> lipRow(double off) {
+      return [
+        for (var i = 0; i < _sandColumns; i += 1)
+          _artPoint(size, xs[i], curs[i] + off),
+      ];
+    }
+
+    final lipPeak = List<Color>.generate(_sandColumns, (i) {
+      final w = 0.9 * coverFactor(xs[i], curs[i] + 1.4);
+      return _sandLipLit.withValues(alpha: w);
+    });
+    final lipNone = List<Color>.filled(
+      _sandColumns,
+      _sandLipLit.withValues(alpha: 0),
+    );
+    _drawLidStrip(
+      canvas,
+      lipRow(1.4 - 2.8),
+      lipRow(1.4),
+      lipNone,
+      lipPeak,
+      _lidPaint,
+    );
+    _drawLidStrip(
+      canvas,
+      lipRow(1.4),
+      lipRow(1.4 + 2.8),
+      lipPeak,
+      lipNone,
+      _lidPaint,
+    );
+    final shadowPeak = List<Color>.generate(_sandColumns, (i) {
+      final w = 0.35 * coverFactor(xs[i], curs[i] - 2.4);
+      return Color.fromARGB((w * 255).round(), 0, 0, 0);
+    });
+    final shadowNone = List<Color>.filled(
+      _sandColumns,
+      const Color(0x00000000),
+    );
+    _drawLidStrip(
+      canvas,
+      lipRow(-2.4 - 2.0),
+      lipRow(-2.4),
+      shadowNone,
+      shadowPeak,
+      _lidPaint,
+    );
+    _drawLidStrip(
+      canvas,
+      lipRow(-2.4),
+      lipRow(-0.4),
+      shadowPeak,
+      shadowNone,
+      _lidPaint,
+    );
+
+    canvas.restore();
+  }
+
+  /// The growing bottom pile: fresh sand above the painted crest.
+  void _paintHourglassBottom(
+    Canvas canvas,
+    Size size,
+    FortuneHourglassGeometry hg,
+    double p,
+  ) {
+    final step = (hg.botX1 - hg.botX0) / (_sandColumns - 1);
+    final xs = List<double>.generate(
+      _sandColumns,
+      (i) => hg.botX0 + i * step,
+    );
+    final painted = [for (final x in xs) hg.crestAt(x)];
+    final curs = [
+      for (var i = 0; i < _sandColumns; i += 1)
+        painted[i] + (hg.fullCrestAt(xs[i]) - painted[i]) * p,
+    ];
+
+    Color sideAt(double x) {
+      final w = ((x - hg.neckX + 22) / 60).clamp(0.0, 1.0);
+      return Color.lerp(hg.litSand, hg.shadeSand, w)!;
+    }
+
+    List<Offset> rowAt(double Function(int i) yOf) {
+      return [
+        for (var i = 0; i < _sandColumns; i += 1)
+          _artPoint(size, xs[i], yOf(i)),
+      ];
+    }
+
+    final sideColors = [for (final x in xs) sideAt(x)];
+    final seamColors = List<Color>.generate(_sandColumns, (i) {
+      return Color.lerp(sideColors[i], hg.crestToneAt(xs[i]), 0.85)!;
+    });
+    final crestRow = rowAt((i) => curs[i]);
+    _drawLidStrip(
+      canvas,
+      crestRow,
+      rowAt((i) => math.max(curs[i], painted[i] - 5)),
+      sideColors,
+      sideColors,
+      _lidPaint,
+    );
+    _drawLidStrip(
+      canvas,
+      rowAt((i) => math.max(curs[i], painted[i] - 5)),
+      rowAt((i) => painted[i] + 2),
+      sideColors,
+      seamColors,
+      _lidPaint,
+    );
+
+    // crest light, strongest where the stream lands
+    final crestPeak = List<Color>.generate(_sandColumns, (i) {
+      final dx = (xs[i] - hg.neckX) / 42;
+      final grown = _band01(painted[i] + 0.8 - curs[i], 3);
+      final w = (0.3 + 0.5 * math.exp(-dx * dx)) * 0.8 * grown;
+      return _sandCrestLit.withValues(alpha: w.clamp(0.0, 1.0));
+    });
+    final crestNone = List<Color>.filled(
+      _sandColumns,
+      _sandCrestLit.withValues(alpha: 0),
+    );
+    _drawLidStrip(
+      canvas,
+      rowAt((i) => curs[i] + 1.2 - 2.6),
+      rowAt((i) => curs[i] + 1.2),
+      crestNone,
+      crestPeak,
+      _lidPaint,
+    );
+    _drawLidStrip(
+      canvas,
+      rowAt((i) => curs[i] + 1.2),
+      rowAt((i) => curs[i] + 1.2 + 2.6),
+      crestPeak,
+      crestNone,
+      _lidPaint,
+    );
+
+    // the big glass reflections stay in front of the new sand
+    void streak(double sx, double width, double alpha, double y0, double y1) {
+      const rows = 14;
+      final paintedHere = hg.crestAt(sx);
+      final cur = paintedHere + (hg.fullCrestAt(sx) - paintedHere) * p;
+      final inner = <Offset>[];
+      final centre = <Offset>[];
+      final outer = <Offset>[];
+      final peak = <Color>[];
+      final none = <Color>[];
+      for (var j = 0; j < rows; j += 1) {
+        final y = y0 + (y1 - y0) * j / (rows - 1);
+        final ramp = _band01(y - y0, 6) * _band01(y1 - y, 6);
+        final cover = _band01(y - cur, 1.5) * _band01(paintedHere + 2 - y, 3);
+        final a = alpha * ramp * cover;
+        inner.add(_artPoint(size, sx - width, y));
+        centre.add(_artPoint(size, sx, y));
+        outer.add(_artPoint(size, sx + width, y));
+        peak.add(_sandCoolStreak.withValues(alpha: a));
+        none.add(_sandCoolStreak.withValues(alpha: 0));
+      }
+      _drawLidStrip(canvas, inner, centre, none, peak, _lidPaint);
+      _drawLidStrip(canvas, centre, outer, peak, none, _lidPaint);
+    }
+
+    streak(259, 6, 0.22, 300, 352);
+    streak(352, 4, 0.12, 302, 345);
+  }
+
+  /// Falling grains between the neck and wherever the crest stands now.
+  void _paintHourglassStream(
+    Canvas canvas,
+    Size size,
+    FortuneHourglassGeometry hg,
+    double p,
+    double t,
+    bool rewinding,
+  ) {
+    if (p >= 0.999) return;
+    final paintedLand = hg.crestAt(hg.neckX);
+    final land = paintedLand + (hg.fullCrestAt(hg.neckX) - paintedLand) * p;
+    const streamTop = 272.0;
+    final h = land - streamTop;
+    if (h <= 4) return;
+    final scale = coverScale(size);
+    for (var g = 0; g < 14; g += 1) {
+      final speed = 0.42 + 0.1 * ((g * 37 % 11) / 11);
+      final phase = (g * 0.61803) % 1.0;
+      var u = (t / speed + phase) % 1.0;
+      if (rewinding) u = 1.0 - u;
+      final gy = streamTop + u * h;
+      final wobble = 0.9 * math.sin(g * 2.1) + 0.5 * math.sin(t * 9 + g);
+      final gx = hg.neckX + wobble;
+      final fade = math.min(1.0, (land - gy) / 6.0 + 0.3);
+      final alpha = 0.4 * fade;
+      if (alpha <= 0.01) continue;
+      _dotPaint.color = _sandGrain.withValues(alpha: alpha);
+      canvas.drawCircle(_artPoint(size, gx, gy), 1.15 * scale, _dotPaint);
+    }
+    final pulse = 0.16 + 0.07 * math.sin(t * 11);
+    _dotPaint.color = _sandImpact.withValues(alpha: pulse);
+    canvas.drawCircle(
+      _artPoint(size, hg.neckX, land - 1.5),
+      3 * scale,
+      _dotPaint,
     );
   }
 

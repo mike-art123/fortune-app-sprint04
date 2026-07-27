@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/painting.dart';
 
+import 'fortune_hourglass.dart';
+
 /// The ambient-effect vocabulary and the per-card map (scope: living cards).
 ///
 /// Every fortune card may carry a few effect layers — steam over a cup,
@@ -21,7 +23,7 @@ const Size kFortuneArtSize = Size(640, 498);
 
 /// What a layer paints. Kinds are deliberately few; cards differ by anchor,
 /// colour and intensity, not by bespoke code.
-enum FortuneEffectKind { steam, flame, sparkle, glow, blink }
+enum FortuneEffectKind { steam, flame, sparkle, glow, blink, hourglass }
 
 /// One layer of ambient motion, anchored in image space.
 class FortuneEffectLayerSpec {
@@ -33,6 +35,7 @@ class FortuneEffectLayerSpec {
     this.intensity = 1,
     this.count = 0,
     this.eye,
+    this.hourglass,
   });
 
   final FortuneEffectKind kind;
@@ -54,6 +57,10 @@ class FortuneEffectLayerSpec {
 
   /// Eye-opening geometry; only [FortuneEffectKind.blink] layers carry one.
   final FortuneEyeGeometry? eye;
+
+  /// Hourglass geometry; only [FortuneEffectKind.hourglass] layers carry
+  /// one.
+  final FortuneHourglassGeometry? hourglass;
 }
 
 /// The eye opening of a card that blinks, measured in artwork pixels.
@@ -515,8 +522,14 @@ const Map<String, FortuneEffectSpec> _effects = {
       count: 8,
     ),
   ]),
-  // The hourglass sand glows; stars hold still around it.
+  // The hourglass runs: six seconds of falling sand, a warm shimmer as
+  // time turns back, and the cycle begins again.
   'future': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.hourglass,
+      anchor: Offset(0.491, 0.562),
+      hourglass: kFutureHourglass,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.68, 0.55),

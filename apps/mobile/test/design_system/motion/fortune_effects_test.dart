@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/design_system/motion/fortune_effects.dart';
+import 'package:fortune_app/design_system/motion/fortune_hourglass.dart';
 import 'package:fortune_app/features/fortunes/domain/fortune_catalog.dart';
 
 void main() {
@@ -97,6 +98,56 @@ void main() {
     }
     expect((eye.upperY(0) - eye.lowerY(0)).abs(), lessThan(3));
     expect((eye.upperY(1) - eye.lowerY(1)).abs(), lessThan(3));
+  });
+
+  test('the hourglass runs its six seconds and turns back', () {
+    final spec = fortuneEffectSpec('future')!;
+    final layer = spec.layers.firstWhere(
+      (l) => l.kind == FortuneEffectKind.hourglass,
+    );
+    final hg = layer.hourglass!;
+    expect(hg.drainSeconds, 6);
+    expect(hourglassProgress(0), 0);
+    expect(hourglassProgress(hg.drainSeconds - 0.001), closeTo(1, 0.001));
+    final period = hg.drainSeconds + hg.rewindSeconds;
+    expect(hourglassProgress(period - 0.0001), lessThan(0.01));
+    for (var i = 0; i < 200; i += 1) {
+      final t = i * period / 100;
+      final c = hourglassProgress(t);
+      expect(c, inInclusiveRange(0, 1));
+      expect(c, hourglassProgress(t));
+      expect(hourglassProgress(t + period), closeTo(c, 1e-9));
+    }
+    expect(hourglassRewind(hg.drainSeconds / 2), 0);
+    expect(
+      hourglassRewind(hg.drainSeconds + hg.rewindSeconds / 2),
+      closeTo(0.5, 0.001),
+    );
+  });
+
+  test('the hourglass geometry stays inside the artwork', () {
+    final hg = fortuneEffectSpec('future')!
+        .layers
+        .firstWhere((l) => l.kind == FortuneEffectKind.hourglass)
+        .hourglass!;
+    expect(hg.topX0, lessThan(hg.topX1));
+    expect(hg.botX0, lessThan(hg.botX1));
+    for (var i = 0; i <= 40; i += 1) {
+      final x = hg.topX0 + (hg.topX1 - hg.topX0) * i / 40;
+      expect(hg.topAt(x), inInclusiveRange(0, kFortuneArtSize.height));
+      expect(hg.botAt(x), greaterThanOrEqualTo(hg.topAt(x)));
+      final bx = hg.botX0 + (hg.botX1 - hg.botX0) * i / 40;
+      final crest = hg.crestAt(bx);
+      expect(crest, inInclusiveRange(0, kFortuneArtSize.height));
+      expect(hg.fullCrestAt(bx), lessThanOrEqualTo(crest));
+    }
+    for (var i = 0; i <= 20; i += 1) {
+      final y = hg.topY0 + (hg.topY1 - hg.topY0) * i / 20;
+      expect(hg.spanLeftAt(y), lessThan(hg.spanRightAt(y)));
+    }
+    expect(hg.glassTone.length % 3, 0);
+    expect(hg.aboveTone.length % 3, 0);
+    expect(hg.crestTone.length % 3, 0);
   });
 
   test('cover mapping matches the centre-cover crop', () {
