@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -89,7 +91,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final topInset = telegramTopInset(context);
-    final hafez = FortuneRegistry.byId('hafez');
 
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
@@ -125,13 +126,10 @@ class _HomePageState extends State<HomePage> {
                     AppSpacing.lg,
                   ),
                   children: [
-                    if (hafez != null)
-                      FeaturedWideFortuneCard(
-                        id: hafez.id,
-                        title: 'فال حافظ',
-                        accent: hafez.accent,
-                        onTap: () => _openId(context, hafez.id, true),
-                      ),
+                    _FeaturedCarousel(
+                      items: FortuneCatalog.popular,
+                      onOpen: (id, live) => _openId(context, id, live),
+                    ),
                     const SizedBox(height: AppLayout.sectionGap),
                     _QuickActionsRow(
                       onOpen: (id) => _openId(context, id, true),
@@ -170,6 +168,113 @@ class _HomePageState extends State<HomePage> {
 /// Accent for a catalog id, falling back to gold when it is not a live ritual.
 Color _accentFor(String id) {
   return FortuneRegistry.byId(id)?.accent ?? AppPalette.goldMid;
+}
+
+/// The opening card, ten fortunes deep. It turns itself every three seconds
+/// and gives way to a finger at once; the dots underneath say which one is
+/// showing and how many are left, so the movement reads as an invitation
+/// rather than a banner that will not sit still.
+class _FeaturedCarousel extends StatefulWidget {
+  const _FeaturedCarousel({required this.items, required this.onOpen});
+
+  final List<FortuneItem> items;
+  final void Function(String id, bool live) onOpen;
+
+  @override
+  State<_FeaturedCarousel> createState() => _FeaturedCarouselState();
+}
+
+class _FeaturedCarouselState extends State<_FeaturedCarousel> {
+  static const _dwell = Duration(seconds: 3);
+  static const _glide = Duration(milliseconds: 420);
+
+  final _controller = PageController();
+  late final List<FortuneItem> _slides;
+  Timer? _timer;
+  int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Shuffled here and only here. Shuffling in build would deal a new order
+    // on every rebuild — the card would change under the reader's finger.
+    _slides = List<FortuneItem>.of(widget.items)..shuffle();
+    _restart();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _restart() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_dwell, (_) {
+      if (!mounted || !_controller.hasClients || _slides.length < 2) return;
+      _controller.animateToPage(
+        (_index + 1) % _slides.length,
+        duration: _glide,
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  void _onPageChanged(int i) {
+    setState(() => _index = i);
+    // A swipe buys a full three seconds on the card it landed on, instead of
+    // inheriting whatever was left of the previous one.
+    _restart();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.fortuneColors;
+    return Column(
+      children: [
+        // The PageView needs a bounded height and the card carries the ratio,
+        // so the ratio moves out here; the card's own AspectRatio then sees
+        // tight constraints and passes them straight through.
+        AspectRatio(
+          aspectRatio: AppLayout.featuredWide,
+          child: PageView.builder(
+            controller: _controller,
+            onPageChanged: _onPageChanged,
+            itemCount: _slides.length,
+            itemBuilder: (context, i) {
+              final item = _slides[i];
+              return FeaturedWideFortuneCard(
+                id: item.$1,
+                title: item.$2,
+                accent: _accentFor(item.$1),
+                onTap: () => widget.onOpen(item.$1, item.$4),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < _slides.length; i++)
+              AnimatedContainer(
+                duration: _glide,
+                width: i == _index ? 8 : 6,
+                height: i == _index ? 8 : 6,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i == _index
+                      ? c.goldWarm
+                      : c.textMuted.withValues(alpha: 0.35),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 class _TopBar extends StatelessWidget {

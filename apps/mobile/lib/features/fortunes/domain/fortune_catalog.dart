@@ -70,4 +70,39 @@ abstract final class FortuneCatalog {
       ('meditation', 'مدیتیشن', 'نیت‌گذاری', true),
     ]),
   ];
+
+  /// The ten the home carousel turns through. Ids only: the card's title,
+  /// subtitle and live flag are read back out of the groups above, so a
+  /// fortune cannot be shown here without existing in the catalog and a
+  /// renamed one cannot say two different things on two screens.
+  static const popularIds = <String>[
+    'hafez',
+    'tarot',
+    'coffee',
+    'love',
+    'dream',
+    'abjad',
+    'daily',
+    'quran',
+    'yesno',
+    'candle',
+  ];
+
+  /// [popularIds] resolved against the catalog, in that order. An id with no
+  /// entry is skipped rather than thrown, so a typo costs one slide instead of
+  /// the whole home screen.
+  static List<FortuneItem> get popular {
+    final byId = <String, FortuneItem>{};
+    for (final group in groups) {
+      for (final item in group.items) {
+        byId[item.$1] = item;
+      }
+    }
+    final resolved = <FortuneItem>[];
+    for (final id in popularIds) {
+      final item = byId[id];
+      if (item != null) resolved.add(item);
+    }
+    return resolved;
+  }
 }
