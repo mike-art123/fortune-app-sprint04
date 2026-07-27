@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../../core/extensions/string_extensions.dart';
-import '../../../../design_system/components/fortune_card.dart';
+import '../../../../design_system/components/fortune_art.dart';
+import '../../../../design_system/foundations/app_colors.dart';
+import '../../../../design_system/foundations/app_layout.dart';
+import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../reading/domain/reading.dart';
 
-/// One remembered reading: the family's accent dot, the title, the Persian
-/// date, and a two-line whisper of the text.
+/// Text now sits on artwork rather than a flat panel, so it carries the same
+/// shadow the image-led cards use to stay readable over a photograph.
+const _overArt = [Shadow(color: Color(0xCC000000), blurRadius: 8)];
+
+/// One remembered reading, wearing its own fortune's artwork: the family's
+/// accent dot, the title, the Persian date, and a two-line whisper of the text.
+///
+/// The journal used to be a column of identical navy panels, so recognising a
+/// reading meant reading it. The picture does that work at a glance.
 class HistoryCard extends StatelessWidget {
   const HistoryCard({super.key, required this.reading, required this.onOpen});
 
@@ -26,61 +36,121 @@ class HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.fortuneColors;
+    final fortune = FortuneRegistry.byId(reading.fortuneId);
+    final accent = fortune?.accent ?? context.fortuneColors.accentSecondary;
+    final shape = BorderRadius.circular(AppRadius.lg);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: shape,
+        boxShadow: AppLayout.cardShadow,
+      ),
+      child: ClipRRect(
+        borderRadius: shape,
+        child: Material(
+          color: AppPalette.nightPanel,
+          child: InkWell(
+            onTap: onOpen,
+            child: Stack(
+              // Loose on purpose. A history card has no fixed ratio — a long
+              // title makes a taller card — so the text decides the height and
+              // the artwork stretches to whatever that turns out to be. An
+              // expanding Stack would demand a bounded height the list cannot
+              // give it.
+              children: [
+                Positioned.fill(child: _artwork(accent)),
+                Padding(
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  child: _content(context, accent),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The fortune's own image, veiled just enough that two lines of body text
+  /// stay readable on top of it. Every fortune the API can return has artwork,
+  /// and FortuneArt paints its own gradient if one ever goes missing.
+  Widget _artwork(Color accent) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FortuneArt(id: reading.fortuneId, accent: accent, scrim: false),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppPalette.nightDeep.withValues(alpha: 0.72),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _content(BuildContext context, Color accent) {
     final textTheme = Theme.of(context).textTheme;
     final fortune = FortuneRegistry.byId(reading.fortuneId);
-    final accent = fortune?.accent ?? c.accentSecondary;
     final locale = Localizations.localeOf(context);
+    final label = fortune?.title.resolve(locale) ?? reading.fortuneId;
 
-    return FortuneCard(
-      onTap: onOpen,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.85),
-                  shape: BoxShape.circle,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.95),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  fortune?.title.resolve(locale) ?? reading.fortuneId,
-                  style: textTheme.labelMedium?.copyWith(color: c.textMuted),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Text(
-                _date(context),
-                style: textTheme.labelSmall?.copyWith(color: c.textMuted),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            reading.title,
-            style: textTheme.titleMedium?.copyWith(height: 1.6),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            reading.text,
-            style: textTheme.bodySmall?.copyWith(
-              color: c.textMuted,
-              height: 1.9,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Text(
+                label,
+                style: textTheme.labelMedium?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.78),
+                  shadows: _overArt,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              _date(context),
+              style: textTheme.labelSmall?.copyWith(
+                color: Colors.white.withValues(alpha: 0.70),
+                shadows: _overArt,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          reading.title,
+          style: textTheme.titleMedium?.copyWith(
+            height: 1.6,
+            color: Colors.white,
+            shadows: _overArt,
           ),
-        ],
-      ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: AppSpacing.xxs),
+        Text(
+          reading.text,
+          style: textTheme.bodySmall?.copyWith(
+            color: Colors.white.withValues(alpha: 0.80),
+            height: 1.9,
+            shadows: _overArt,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }
