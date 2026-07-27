@@ -208,7 +208,10 @@ describe('HafezReadingProvider', () => {
   });
 
   it('draws the same ghazal for the same intention on the same day', async () => {
-    global.fetch = jest.fn().mockResolvedValue(completion(VALID_REPLY)) as never;
+    // A Response body reads once; two draws need two fresh completions.
+    global.fetch = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(completion(VALID_REPLY))) as never;
     const corpus = makeCorpus();
     const provider = new HafezReadingProvider(
       makeInner(),

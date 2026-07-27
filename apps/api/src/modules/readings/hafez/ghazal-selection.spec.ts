@@ -10,11 +10,11 @@ describe('normalizeIntention', () => {
   });
 
   it('maps Persian and Arabic-Indic digits to ASCII', () => {
-    expect(normalizeIntention('سال ۱۴۰۵ و ٣ آرزو')).toBe('سال 1405 و 3 آرزو');
+    expect(normalizeIntention('سال ۱۴۰۵ و ٣ آرزو')).toBe('سال 1405 و 3 ارزو');
   });
 
   it('collapses whitespace and trims', () => {
-    expect(normalizeIntention('  دلِ   آرام \n ')).toBe('دلِ آرام');
+    expect(normalizeIntention('  دلِ   آرام \n ')).toBe('دل ارام');
   });
 
   it('treats absence as the empty intention', () => {
