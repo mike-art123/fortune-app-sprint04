@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../app/routing/fortune_destinations.dart';
+import '../../../../core/platform/telegram_safe_area.dart';
+import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/fortune_cards.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/section_title.dart';
@@ -22,8 +24,33 @@ Color _accentFor(String id) {
 /// «همه فال‌ها» — an editorial browse experience. Each theme opens with one
 /// wide feature image, then its remaining fortunes flow as a two-column grid of
 /// portrait cards: varied proportions, image-led, no repetitive square tiles.
-class AllFortunesPage extends StatelessWidget {
+class AllFortunesPage extends StatefulWidget {
   const AllFortunesPage({super.key});
+
+  @override
+  State<AllFortunesPage> createState() => _AllFortunesPageState();
+}
+
+class _AllFortunesPageState extends State<AllFortunesPage> {
+  // Telegram reports its inset after the page is already built, so the page
+  // has to listen rather than read once — the same contract HomePage keeps.
+  final _safeArea = telegramSafeArea;
+
+  @override
+  void initState() {
+    super.initState();
+    _safeArea.addListener(_onSafeAreaChanged);
+  }
+
+  @override
+  void dispose() {
+    _safeArea.removeListener(_onSafeAreaChanged);
+    super.dispose();
+  }
+
+  void _onSafeAreaChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _open(BuildContext context, FortuneItem item) {
     // One shared map decides where a fortune leads, so a card and a search
@@ -59,6 +86,7 @@ class AllFortunesPage extends StatelessWidget {
         onTap: (i) => _tapNav(context, i),
       ),
       body: SafeArea(
+        top: false,
         bottom: false,
         child: Center(
           child: ConstrainedBox(
@@ -67,27 +95,15 @@ class AllFortunesPage extends StatelessWidget {
             ),
             child: CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: AppSpacing.sm),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: telegramTopInset(context)),
                 ),
-                // Ask by name before browsing by theme (scope §2).
-                SliverPadding(
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: AppSpacing.md,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: Consumer(
-                      builder: (context, ref, _) => FortuneSearchBar(
-                        remote: ref.watch(searchRepositoryProvider),
-                      ),
-                    ),
-                  ),
-                ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: AppSpacing.sm),
-                ),
-                for (final group in FortuneCatalog.groups)
-                  ..._sectionSlivers(context, group),
+                // Search used to sit alone above everything, which put it under
+                // Telegram's Close button — present, but impossible to tap. It
+                // now shares the first heading's row, so it arrives with the
+                // content instead of ahead of it (scope §2).
+                for (final (index, group) in FortuneCatalog.groups.indexed)
+                  ..._sectionSlivers(context, group, searchInTitle: index == 0),
                 const SliverToBoxAdapter(
                   child: SizedBox(height: AppSpacing.xl),
                 ),
@@ -99,14 +115,30 @@ class AllFortunesPage extends StatelessWidget {
     );
   }
 
-  List<Widget> _sectionSlivers(BuildContext context, FortuneGroup group) {
+  List<Widget> _sectionSlivers(
+    BuildContext context,
+    FortuneGroup group, {
+    required bool searchInTitle,
+  }) {
     final featured = group.items.first;
     final rest = group.items.skip(1).toList();
     const pad = EdgeInsets.symmetric(horizontal: AppLayout.pageMargin);
     return [
       SliverPadding(
         padding: pad,
-        sliver: SliverToBoxAdapter(child: SectionTitle(title: group.title)),
+        sliver: SliverToBoxAdapter(
+          child: SectionTitle(
+            title: group.title,
+            trailing: searchInTitle
+                ? Consumer(
+                    builder: (context, ref, _) => FortuneSearchBar(
+                      remote: ref.watch(searchRepositoryProvider),
+                      hintText: 'جست‌وجوی فال',
+                    ),
+                  )
+                : null,
+          ),
+        ),
       ),
       const SliverToBoxAdapter(
         child: SizedBox(height: AppLayout.headingGap),

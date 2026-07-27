@@ -26,7 +26,12 @@ class FortuneSearchBar extends StatefulWidget {
     super.key,
     this.speech = const PlatformSpeechInput(),
     this.remote,
+    this.hintText = 'دنبال چه فالی می‌گردی؟',
   });
+
+  /// The invitation. Shortened when the bar shares a row with a heading or a
+  /// name, where the full question would be clipped rather than read.
+  final String hintText;
 
   /// The microphone. Injected so a test can speak without a browser.
   final SpeechInput speech;
@@ -241,7 +246,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
                   style: textTheme.bodyLarge,
                   cursorColor: c.goldWarm,
                   decoration: InputDecoration(
-                    hintText: 'دنبال چه فالی می‌گردی؟',
+                    hintText: widget.hintText,
                     hintStyle: textTheme.bodyMedium?.copyWith(
                       color: c.textMuted,
                     ),

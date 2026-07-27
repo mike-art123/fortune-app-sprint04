@@ -6,6 +6,7 @@ import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/config/monetization_switch.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
+import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/fortune_cards.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/section_title.dart';
@@ -18,6 +19,8 @@ import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_catalog.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../profile/application/profile_controller.dart';
+import '../../../search/application/search_providers.dart';
+import '../../../search/presentation/widgets/fortune_search_bar.dart';
 
 /// The premium landing screen: a cinematic featured fortune, a compact quick
 /// action row, a curated horizontal rail and one asymmetric editorial section
@@ -85,7 +88,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final topInset = _resolveTopInset(context);
+    final topInset = telegramTopInset(context);
     final hafez = FortuneRegistry.byId('hafez');
 
     return Scaffold(
@@ -163,18 +166,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// Top inset that clears Telegram's safe area + Close/More control row.
-  double _resolveTopInset(BuildContext context) {
-    final viewTop = MediaQuery.viewPaddingOf(context).top;
-    if (_safeArea.isTelegram) {
-      final top = _safeArea.topInset;
-      if (top > 0.5) return top;
-      final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-      final device = viewTop > 0 ? viewTop : (isIOS ? 59.0 : 24.0);
-      return (device + (isIOS ? 44.0 : 12.0)).clamp(0.0, 200.0).toDouble();
-    }
-    return viewTop > 8 ? viewTop : 8.0;
-  }
 }
 
 /// Accent for a catalog id, falling back to gold when it is not a live ritual.
@@ -187,16 +178,24 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Const even though the chip watches the profile: Riverpod marks the
-    // chip's own element dirty, so it rebuilds without this Row being rebuilt.
-    // AmbientAudioCard on the profile page is the same shape and updates fine.
-    return const Row(
+    // The name keeps the outer edge it always had; search takes the empty half
+    // of the row rather than a band of its own, so the first fortune stays
+    // above the fold.
+    return Row(
       children: [
-        _ProfileChip(),
-        Spacer(),
+        const _ProfileChip(),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Consumer(
+            builder: (context, ref, _) => FortuneSearchBar(
+              remote: ref.watch(searchRepositoryProvider),
+              hintText: 'جست‌وجوی فال',
+            ),
+          ),
+        ),
         // Nothing is sold while monetization is paused, so nothing advertises
         // it either.
-        if (kMonetizationEnabled) _VipChip(),
+        if (kMonetizationEnabled) const _VipChip(),
       ],
     );
   }
