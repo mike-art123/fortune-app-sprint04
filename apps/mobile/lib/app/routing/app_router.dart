@@ -16,6 +16,7 @@ import '../../features/profile/presentation/pages/profile_placeholder_page.dart'
 import '../../features/reading/domain/reading.dart';
 import '../../features/reading/presentation/pages/reading_page.dart';
 import '../../features/ritual_entry/presentation/pages/ritual_entry_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/splash/presentation/controllers/startup_controller.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/vip/presentation/pages/vip_page.dart';
@@ -193,6 +194,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.profilePath,
         name: AppRoutes.profileName,
         builder: (_, __) => const ProfilePlaceholderPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsPath,
+        name: AppRoutes.settingsName,
+        builder: (_, __) => const SettingsPage(),
       ),
       GoRoute(
         path: AppRoutes.onboardingPath,
