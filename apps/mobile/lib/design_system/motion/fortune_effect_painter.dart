@@ -563,14 +563,12 @@ class FortuneEffectPainter extends CustomPainter {
       return math.min(bots[i], floor);
     });
 
-    final clipTop = [
-      for (var i = 0; i < _sandColumns; i += 1)
-        _artPoint(size, xs[i], tops[i]),
-    ];
-    final clipBot = [
-      for (var i = 0; i < _sandColumns; i += 1)
-        _artPoint(size, xs[i], bots[i]),
-    ];
+    final clipTop = <Offset>[];
+    final clipBot = <Offset>[];
+    for (var i = 0; i < _sandColumns; i += 1) {
+      clipTop.add(_artPoint(size, xs[i], tops[i]));
+      clipBot.add(_artPoint(size, xs[i], bots[i]));
+    }
     final region = Path()..moveTo(clipTop.first.dx, clipTop.first.dy);
     for (final o in clipTop.skip(1)) {
       region.lineTo(o.dx, o.dy);
@@ -599,18 +597,19 @@ class FortuneEffectPainter extends CustomPainter {
       return blendEnd + (covers[i] - blendEnd) * (k - 1) / 4;
     }
 
-    final rowPts = List<List<Offset>>.generate(6, (k) {
-      return [
-        for (var i = 0; i < _sandColumns; i += 1)
-          _artPoint(size, xs[i], rowY(i, k)),
-      ];
-    });
-    final rowColors = List<List<Color>>.generate(6, (k) {
-      return List<Color>.generate(_sandColumns, (i) {
-        if (k == 0) return hg.aboveAt(xs[i]);
-        return fillAt(xs[i], rowY(i, k));
-      });
-    });
+    final rowPts = <List<Offset>>[];
+    final rowColors = <List<Color>>[];
+    for (var k = 0; k < 6; k += 1) {
+      final pts = <Offset>[];
+      final colors = <Color>[];
+      for (var i = 0; i < _sandColumns; i += 1) {
+        final y = rowY(i, k);
+        pts.add(_artPoint(size, xs[i], y));
+        colors.add(k == 0 ? hg.aboveAt(xs[i]) : fillAt(xs[i], y));
+      }
+      rowPts.add(pts);
+      rowColors.add(colors);
+    }
     for (var k = 0; k < 5; k += 1) {
       _drawLidStrip(
         canvas,
@@ -652,10 +651,11 @@ class FortuneEffectPainter extends CustomPainter {
 
     // the descending surface: a bright lip with a soft shadow above it
     List<Offset> lipRow(double off) {
-      return [
-        for (var i = 0; i < _sandColumns; i += 1)
-          _artPoint(size, xs[i], curs[i] + off),
-      ];
+      final points = <Offset>[];
+      for (var i = 0; i < _sandColumns; i += 1) {
+        points.add(_artPoint(size, xs[i], curs[i] + off));
+      }
+      return points;
     }
 
     final lipPeak = List<Color>.generate(_sandColumns, (i) {
@@ -723,10 +723,10 @@ class FortuneEffectPainter extends CustomPainter {
       (i) => hg.botX0 + i * step,
     );
     final painted = [for (final x in xs) hg.crestAt(x)];
-    final curs = [
-      for (var i = 0; i < _sandColumns; i += 1)
-        painted[i] + (hg.fullCrestAt(xs[i]) - painted[i]) * p,
-    ];
+    final curs = <double>[];
+    for (var i = 0; i < _sandColumns; i += 1) {
+      curs.add(painted[i] + (hg.fullCrestAt(xs[i]) - painted[i]) * p);
+    }
 
     Color sideAt(double x) {
       final w = ((x - hg.neckX + 22) / 60).clamp(0.0, 1.0);
@@ -734,10 +734,11 @@ class FortuneEffectPainter extends CustomPainter {
     }
 
     List<Offset> rowAt(double Function(int i) yOf) {
-      return [
-        for (var i = 0; i < _sandColumns; i += 1)
-          _artPoint(size, xs[i], yOf(i)),
-      ];
+      final points = <Offset>[];
+      for (var i = 0; i < _sandColumns; i += 1) {
+        points.add(_artPoint(size, xs[i], yOf(i)));
+      }
+      return points;
     }
 
     final sideColors = [for (final x in xs) sideAt(x)];

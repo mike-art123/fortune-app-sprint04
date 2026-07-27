@@ -153,8 +153,7 @@ class FortuneHourglassGeometry {
 /// sand-region mask (warmth/brightness classification, row-chained), not
 /// placed by eye; the replica renders and this data agree to under one
 /// grey level on average.
-const FortuneHourglassGeometry kFutureHourglass =
-    FortuneHourglassGeometry(
+const FortuneHourglassGeometry kFutureHourglass = FortuneHourglassGeometry(
   topX0: 262,
   topX1: 354,
   topY0: 185,
