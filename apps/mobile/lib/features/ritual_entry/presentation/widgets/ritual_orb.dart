@@ -20,7 +20,7 @@ class RitualOrb extends StatefulWidget {
     super.key,
     required this.accent,
     this.sealing = false,
-    this.size = 120,
+    this.size = 168,
   });
 
   /// The fortune's own colour, from the registry.
@@ -146,6 +146,31 @@ class _OrbPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final r = size.shortestSide / 2;
     _aura(canvas, center, r);
+    // Two coronas, always in the same order, cross-faded by intensity: a
+    // steady one that burns down as the reading begins and a taller, quicker
+    // one that rises through it.
+    _corona(
+      canvas,
+      center,
+      r,
+      phase: slow,
+      beatA: 28,
+      beatB: 17,
+      count: 15,
+      reach: 0.20,
+      alpha: 1.0 - 0.45 * intensity,
+    );
+    _corona(
+      canvas,
+      center,
+      r,
+      phase: fast,
+      beatA: 16,
+      beatB: 11,
+      count: 21,
+      reach: 0.34,
+      alpha: intensity,
+    );
     _ring(canvas, center, r * 0.78, slow, 1.4, _gold(0.55));
     if (intensity > 0.01) {
       _ring(canvas, center, r * 0.88, fast, 2.0, _goldHi(0.85 * intensity));
@@ -153,6 +178,97 @@ class _OrbPainter extends CustomPainter {
     _ticks(canvas, center, r);
     _core(canvas, center, r);
     _sparks(canvas, center, r);
+  }
+
+  /// A ring of tongues standing off the core.
+  ///
+  /// The whole corona is one path, so a crowded frame costs a single blur and
+  /// a single draw instead of twenty-one of each — this runs on a phone
+  /// inside Telegram, sixty times a second, behind a full-bleed photograph.
+  ///
+  /// [beatA] and [beatB] are whole numbers of flickers per turn of the clock
+  /// driving them. Whole, deliberately: a fractional rate would jump the
+  /// instant the controller wraps from one back to zero. Two coprime rates
+  /// beat against each other, which is what stops the flames pulsing in time
+  /// with one another like a machine.
+  void _corona(
+    Canvas canvas,
+    Offset center,
+    double r, {
+    required double phase,
+    required int beatA,
+    required int beatB,
+    required int count,
+    required double reach,
+    required double alpha,
+  }) {
+    if (alpha <= 0.01) return;
+    final base = r * 0.33;
+    final half = r * 0.055;
+    final path = Path();
+    for (var i = 0; i < count; i++) {
+      final wa = math.sin((phase * beatA + i * 0.381) * math.pi * 2);
+      final wb = math.sin((phase * beatB + i * 0.117) * math.pi * 2);
+      final swell = (wa * 0.6 + wb * 0.4) * 0.5 + 0.5;
+      final len = r * reach * (0.45 + 0.55 * swell);
+      _addTongue(
+        path,
+        i * math.pi * 2 / count,
+        base,
+        len,
+        half,
+        (wa - wb) * 0.09,
+      );
+    }
+    // Additive: where tongues overlap they brighten, the way light does and
+    // paint does not. The gradient is built around the origin so it survives
+    // the translate below unmoved — a radial gradient is indifferent to it.
+    final paint = Paint()
+      ..blendMode = BlendMode.plus
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.2)
+      ..shader = RadialGradient(
+        colors: [
+          AppPalette.goldHi.withValues(alpha: 0.80 * alpha),
+          accent.withValues(alpha: 0.50 * alpha),
+          accent.withValues(alpha: 0.0),
+        ],
+        stops: const [0.0, 0.45, 1.0],
+      ).createShader(
+        Rect.fromCircle(center: Offset.zero, radius: base + r * reach),
+      );
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.drawPath(path, paint);
+    canvas.restore();
+  }
+
+  /// One tongue, built already rotated so it can join the shared path. The
+  /// points are turned by hand rather than by a canvas transform, because a
+  /// transform would have to be pushed and popped for every single flame.
+  void _addTongue(
+    Path path,
+    double angle,
+    double base,
+    double len,
+    double half,
+    double lean,
+  ) {
+    final ca = math.cos(angle);
+    final sa = math.sin(angle);
+    Offset at(double x, double y) => Offset(x * ca - y * sa, x * sa + y * ca);
+
+    final tip = base + len;
+    final mid = base + len * 0.55;
+    final sway = lean * len;
+    final root = at(base, -half);
+    final belly1 = at(mid, -half * 1.15 + sway);
+    final crown = at(tip, sway);
+    final belly2 = at(mid, half * 1.15 + sway);
+    final heel = at(base, half);
+    path.moveTo(root.dx, root.dy);
+    path.quadraticBezierTo(belly1.dx, belly1.dy, crown.dx, crown.dy);
+    path.quadraticBezierTo(belly2.dx, belly2.dy, heel.dx, heel.dy);
+    path.close();
   }
 
   Color _gold(double alpha) => AppPalette.goldMid.withValues(alpha: alpha);
@@ -267,7 +383,7 @@ class _OrbPainter extends CustomPainter {
       final paint = Paint()
         ..color = _goldHi((0.25 + 0.55 * intensity) * (i.isEven ? 1.0 : 0.7))
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.4);
-      canvas.drawCircle(at, 1.6 + 1.2 * intensity, paint);
+      canvas.drawCircle(at, 2.0 + 1.4 * intensity, paint);
     }
   }
 

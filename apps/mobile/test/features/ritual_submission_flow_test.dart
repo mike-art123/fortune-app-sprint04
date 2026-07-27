@@ -125,6 +125,10 @@ void main() {
     await tester.pumpWidget(host());
     await pumpRitual(tester);
 
+    // Scroll it into view first: the CTA sits near the fold on the default
+    // 800x600 test surface, so tapping blind would depend on the exact height
+    // of everything above it.
+    await tester.ensureVisible(find.text('فال حافظ را باز کن'));
     await tester.tap(find.text('فال حافظ را باز کن'));
     await pumpRitual(tester);
 

@@ -72,6 +72,10 @@ void main() {
     await pumpRitual(tester);
 
     await tester.enterText(find.byType(WhisperField).first, 'سارا');
+    // Scroll it into view first: the CTA sits near the fold on the default
+    // 800x600 test surface, so tapping blind would depend on the exact height
+    // of everything above it.
+    await tester.ensureVisible(find.text('سازگاری را ببین'));
     await tester.tap(find.text('سازگاری را ببین'));
     await pumpRitual(tester);
 
