@@ -47,43 +47,54 @@ Everything, in `notification-plan.ts`:
 Running every 15 minutes is what makes per-reader quiet hours work at all: the
 API is asked often and answers "not yet" nearly every time.
 
-## Deploy
+## How it is deployed
 
-```bash
-cd infra/notifications-sweep-worker
+Cloudflare builds it straight from GitHub — there is no local `wrangler` step,
+and the owner's machine has no Node at all. That is the point: `wrangler.toml`
+in this folder stays the single source of truth, so changing the schedule or
+the URL is a commit, not a click.
 
-# 1. authenticate once
-npx wrangler login
+| Setting | Value |
+|---|---|
+| Worker | `bakhtnegar-notifications-sweep` |
+| Repository | `mike-art123/fortune-app-sprint04`, branch `main` |
+| Root directory (Cloudflare calls it *Path*) | `/infra/notifications-sweep-worker` |
+| Build command | **empty — leave it empty** |
+| Deploy command | `npx wrangler deploy` |
 
-# 2. bind the secret — encrypted at rest, never readable again, never in Git
-npx wrangler secret put NOTIFICATIONS_SWEEP_SECRET
-#    paste the 64-char value when prompted, or:  npx wrangler secret put NOTIFICATIONS_SWEEP_SECRET < secret.txt
+The build command matters. Cloudflare defaults it to `npm run build`, which at
+the repository root is an npm-workspaces fan-out: it tries to build the NestJS
+API, fails on 19 TypeScript errors because Prisma has not been generated, and
+takes the Worker down with it. This Worker has no dependencies and needs no
+build — clearing the field is the fix.
 
-# 3. ship
-npx wrangler deploy
-```
-
-The same value must already be set on Railway as `NOTIFICATIONS_SWEEP_SECRET`
-(service `fortune-app-sprint04`, environment `production`).
+`NOTIFICATIONS_SWEEP_SECRET` is set in the dashboard under **Settings →
+Variables and secrets** with type **Secret**, never as a `[vars]` entry.
+Cloudflare stores it encrypted and will not show it again; changing it later
+means **Rotate**, not edit. The same value must be set on Railway
+(service `fortune-app-sprint04`, environment `production`) — if the two ever
+drift apart the symptom is exactly the log line
+`sweep refused with 403 (not retried)`.
 
 ## Verify, in the order that risks least
 
 There is **one Railway environment (`production`)** — no staging exists — so
 "test in staging first" is not available here. What replaces it is that the
-feature flag makes production itself safe to test against:
+feature flag makes production itself safe to test against.
 
 **1. Chain test, zero messages.** With the flag `notifications.smart` off (its
 default), `sweep()` returns `{considered:0,sent:0,skipped:0}` without reading a
 single user. So a successful pass proves Cron → Worker → Railway → secret
 check → sweep, while it is impossible for anyone to be messaged.
 
-```bash
-npx wrangler dev --test-scheduled          # then, in another shell:
-curl "http://localhost:8787/__scheduled?cron=*/15+*+*+*+*"
-npx wrangler tail                          # after deploy, watch the real ticks
+Done on 2026-07-26. The 17:45 PDT tick logged, on the first attempt:
+
+```json
+{ "event": "sweep.ok", "attempt": 1, "considered": 0, "sent": 0, "skipped": 0 }
 ```
 
-Expect a `sweep.ok` log line with `considered: 0`.
+Watch it under **Observability → Logs** in the dashboard; every tick writes one
+line, and a failure writes the reason rather than a stack trace.
 
 **2. Selection and Telegram.** Only this last hop needs the flag on. Turn it on
 deliberately and watch:
