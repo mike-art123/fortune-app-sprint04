@@ -187,15 +187,16 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    // Const even though the chip watches the profile: Riverpod marks the
+    // chip's own element dirty, so it rebuilds without this Row being rebuilt.
+    // AmbientAudioCard on the profile page is the same shape and updates fine.
+    return const Row(
       children: [
-        // Not const: the chip watches the profile, so this Row rebuilds when
-        // the name changes.
-        const _ProfileChip(),
-        const Spacer(),
+        _ProfileChip(),
+        Spacer(),
         // Nothing is sold while monetization is paused, so nothing advertises
         // it either.
-        if (kMonetizationEnabled) const _VipChip(),
+        if (kMonetizationEnabled) _VipChip(),
       ],
     );
   }
