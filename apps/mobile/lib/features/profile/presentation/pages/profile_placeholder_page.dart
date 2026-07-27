@@ -152,6 +152,19 @@ class ProfilePlaceholderPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
+          // Said first and said plainly, because it is the sentence the owner
+          // wants nobody to be able to miss.
+          Text(
+            'بخت‌نگار فقط یک برنامهٔ فال است و هیچ‌گونه مسئولیتِ حقوقی '
+            'بر عهده نمی‌گیرد.',
+            style: TextStyle(
+              color: c.textPrimary,
+              fontSize: 13,
+              height: 1.9,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
           for (final line in lines) ...[
             Text(
               '• $line',
