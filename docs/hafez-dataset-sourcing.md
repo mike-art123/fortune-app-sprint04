@@ -57,3 +57,35 @@ licence pages read, not assumed.
    something true to protect
 5. The Hafez schema: `{ghazalId, poem, selectedVerses, messageOfThePoem,
    interpretationForIntention, hope, caution, practicalAdvice}`
+
+## Status — 2026-07-27
+
+Steps 1–2 of the order above are in the repo; the dump itself is a hand-off.
+
+**Landed:** the `Ghazal` model (migration `20260727000000_hafez_ghazals`) —
+`(edition, number)` unique, verses stored as JSON text, corpus rows written
+only by the seed. `seedHafezGhazals()` in `prisma/seed.ts` reads
+`prisma/data/hafez-ghazals.json`, asserts the count the file itself claims,
+gapless numbering `1..count`, and opening-line/first-hemistich agreement,
+then upserts per `(edition, number)`. While the JSON is absent the import
+skips with one line, so the seed stays runnable everywhere today.
+
+**Blocked on the dump** — the cloud workspace cannot download from GitHub,
+so, by hand:
+
+1. Download the archived repo: `github.com/ganjoor/ganjoor-db` → **Code →
+   Download ZIP**.
+2. Drop it, unextracted, at `data/hafez/ganjoor-db.zip` (`data/` is now
+   gitignored). If the ZIP is unreasonably large, extract locally and drop
+   only the `data/*.sql` dump files from inside it.
+3. Next session: inspect the dump's real structure, write the extraction
+   script against it (a MySQL dump, per that repo's README), emit the JSON
+   with the same counts asserted at extraction time, and add the Ganjoor MIT
+   attribution line to the terms card in the same change.
+
+Open question, deliberately left undecided: how the corpus reaches the
+production database. `railway.json` runs `prisma migrate deploy` on boot but
+never the seed, so landing the JSON does not by itself populate prod. Options
+priced so far: a data migration (rides the existing deploy, bloats migration
+history), a boot-time import behind the engine's flag, or a one-off run. To
+be settled when the selection step wires in.

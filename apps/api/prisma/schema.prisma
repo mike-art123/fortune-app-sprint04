@@ -206,6 +206,28 @@ model OutboxEvent {
   @@map("outbox_events")
 }
 
+/// The Divan itself, one ghazal per row (docs/hafez-dataset-sourcing.md).
+///
+/// Corpus, not user data: rows are written by the seed import and never by the
+/// app — a fal draws from the Divan, it does not edit it. `verses` holds the
+/// couplets as JSON text, `[["hemistich","hemistich"],…]` in reading order —
+/// the same store-as-text pattern `Reading.inputJson` uses. `edition` names
+/// the dump a row came from, so a re-import is a visible replacement under a
+/// new tag rather than a silent drift, and `(edition, number)` is the identity
+/// selection will resolve against: whatever count the seed asserted is the
+/// whole range a fal may draw from.
+model Ghazal {
+  id          String   @id @default(cuid())
+  number      Int
+  openingLine String   @map("opening_line")
+  verses      String
+  edition     String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([edition, number])
+  @@map("ghazals")
+}
+
 /// One generated reading. Sprint 04: new rows always carry the owner; null
 /// userId only survives on pre-auth legacy rows.
 model Reading {

@@ -17,6 +17,10 @@ coverage/
 # Prisma
 apps/api/prisma/*.db
 
+# Local corpus drops (docs/hafez-dataset-sourcing.md): raw dumps stay out of
+# git; what ships is the extracted, counted JSON under apps/api/prisma/data.
+/data/
+
 # Flutter / Dart
 apps/mobile/.dart_tool/
 apps/mobile/.flutter-plugins
