@@ -27,6 +27,12 @@ class NoHistory implements HistoryRepository {
   Future<Result<Reading>> byId(String id) async => const ResultFailure(
         AppFailure(kind: FailureKind.notFound, messageKey: 'notFound'),
       );
+
+  @override
+  Future<Result<int>> clear() async => const Success(0);
+
+  @override
+  Future<Result<int>> deleteById(String id) async => const Success(0);
 }
 
 /// A journal with nothing in it, which is what a test that is not about the

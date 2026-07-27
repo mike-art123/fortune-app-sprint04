@@ -34,13 +34,37 @@ class HistoryPage extends ConsumerWidget {
     }
   }
 
+  Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
+    final s = context.strings;
+    final ok = await _confirmDestructive(
+      context,
+      title: s.historyClearTitle,
+      body: s.historyClearBody,
+      confirmLabel: s.historyClearConfirm,
+    );
+    if (ok && context.mounted) {
+      await ref.read(historyControllerProvider.notifier).clearHistory();
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = context.strings;
     final state = ref.watch(historyControllerProvider);
+    final canClear = state is HistoryLoaded && state.items.isNotEmpty;
 
     return FortuneScaffold(
-      appBar: FortuneAppBar(title: Text(s.historyTitle)),
+      appBar: FortuneAppBar(
+        title: Text(s.historyTitle),
+        actions: [
+          if (canClear)
+            IconButton(
+              tooltip: s.historyClearTooltip,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () => _confirmClear(context, ref),
+            ),
+        ],
+      ),
       // History is a destination, not a detour — it was losing the tabs
       // the moment you arrived, so the only way out was Telegram's Close.
       bottomNavigationBar: PremiumBottomNavigation(
@@ -67,10 +91,56 @@ class HistoryPage extends ConsumerWidget {
   }
 }
 
+/// One confirmation gate for every permanent delete on this surface — a
+/// clear-all or a single reading. Returns true only on an explicit yes.
+Future<bool> _confirmDestructive(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String confirmLabel,
+}) async {
+  final s = context.strings;
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(s.actionCancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(confirmLabel),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}
+
 class _HistoryList extends ConsumerWidget {
   const _HistoryList({required this.state});
 
   final HistoryLoaded state;
+
+  Future<void> _confirmDeleteOne(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
+    final s = context.strings;
+    final ok = await _confirmDestructive(
+      context,
+      title: s.historyDeleteTitle,
+      body: s.historyDeleteBody,
+      confirmLabel: s.historyDeleteConfirm,
+    );
+    if (ok && context.mounted) {
+      await ref.read(historyControllerProvider.notifier).deleteOne(id);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -116,6 +186,7 @@ class _HistoryList extends ConsumerWidget {
             reading: reading,
             onOpen: () =>
                 context.push(AppRoutes.reading(reading.id), extra: reading),
+            onDelete: () => _confirmDeleteOne(context, ref, reading.id),
           ),
         );
       },

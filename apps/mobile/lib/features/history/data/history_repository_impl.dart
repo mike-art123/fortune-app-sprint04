@@ -55,4 +55,23 @@ class HistoryRepositoryImpl implements HistoryRepository {
       onFailure: ResultFailure.new,
     );
   }
+
+  @override
+  Future<Result<int>> clear() => _delete('/readings');
+
+  @override
+  Future<Result<int>> deleteById(String id) => _delete('/readings/$id');
+
+  /// Both deletes share one shape: the server answers `{ deleted: n }`; the
+  /// count is handy but the caller mostly cares that it succeeded.
+  Future<Result<int>> _delete(String path) async {
+    final result = await _api.delete(path);
+    return result.fold(
+      onSuccess: (data) {
+        final count = data['deleted'];
+        return Success(count is int ? count : 0);
+      },
+      onFailure: ResultFailure.new,
+    );
+  }
 }

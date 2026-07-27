@@ -13,9 +13,12 @@ import '../../app/navigation/app_back.dart';
 /// only its action is redirected to the shared handler (which also falls back
 /// to Explore when there is no previous route, e.g. a cold deep link).
 class FortuneAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const FortuneAppBar({super.key, this.title});
+  const FortuneAppBar({super.key, this.title, this.actions});
 
   final Widget? title;
+
+  /// Trailing controls (e.g. a clear-history button); null shows none.
+  final List<Widget>? actions;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -27,6 +30,7 @@ class FortuneAppBar extends StatelessWidget implements PreferredSizeWidget {
     final showBack = AppBack.showBack(location: location, canPop: canPop);
     return AppBar(
       title: title,
+      actions: actions,
       automaticallyImplyLeading: false,
       leading: showBack
           ? BackButton(onPressed: () => AppBack.goBack(context))

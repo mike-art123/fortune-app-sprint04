@@ -74,6 +74,22 @@ class AppStrings {
   String get historyEmptyAction =>
       _fa ? 'گرفتن اولین فال' : 'Receive your first reading';
   String get historyLoadMore => _fa ? 'بیشتر' : 'More';
+  String get historyClearTooltip => _fa ? 'پاک‌کردن تاریخچه' : 'Clear history';
+  String get historyClearTitle =>
+      _fa ? 'همهٔ تاریخچه پاک شود؟' : 'Clear all history?';
+  String get historyClearBody => _fa
+      ? 'همهٔ خوانش‌های گذشته‌ات برای همیشه پاک می‌شوند و بازگشتی ندارد.'
+      : 'This permanently deletes your whole history.';
+  String get historyClearConfirm => _fa ? 'پاک کن' : 'Clear';
+  String get historyDeleteTooltip =>
+      _fa ? 'پاک‌کردن این خوانش' : 'Delete this reading';
+  String get historyDeleteTitle =>
+      _fa ? 'این خوانش پاک شود؟' : 'Delete this reading?';
+  String get historyDeleteBody => _fa
+      ? 'این خوانش برای همیشه پاک می‌شود.'
+      : 'This reading will be permanently deleted.';
+  String get historyDeleteConfirm => _fa ? 'پاک کن' : 'Delete';
+  String get actionCancel => _fa ? 'انصراف' : 'Cancel';
   String get walletBalanceUnit => _fa ? 'سکه' : 'coins';
   String get walletDailyRewardTitle => _fa ? 'هدیه‌ی روزانه' : 'Daily gift';
   String get walletDailyRewardBody => _fa

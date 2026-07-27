@@ -15,4 +15,11 @@ class ReadingListPage {
 abstract interface class HistoryRepository {
   Future<Result<ReadingListPage>> list({String? cursor});
   Future<Result<Reading>> byId(String id);
+
+  /// Permanently delete every reading the caller owns. The int is how many
+  /// rows went — the caller only cares that it succeeded.
+  Future<Result<int>> clear();
+
+  /// Permanently delete one reading the caller owns.
+  Future<Result<int>> deleteById(String id);
 }

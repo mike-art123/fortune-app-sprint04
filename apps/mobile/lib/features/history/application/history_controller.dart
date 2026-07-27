@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/app_failure.dart';
+import '../../../core/result/result.dart';
 import '../../../shared/providers/shared_providers.dart';
 import '../../reading/domain/reading.dart';
 import '../data/history_repository_impl.dart';
@@ -88,6 +89,33 @@ class HistoryController extends AutoDisposeNotifier<HistoryState> {
       ),
       onFailure: (_) => current.copyWith(isLoadingMore: false),
     );
+  }
+
+  /// Wipes the whole journal. On success the surface becomes an empty loaded
+  /// state; a failure leaves what the user had exactly as it was.
+  Future<bool> clearHistory() async {
+    if (state is! HistoryLoaded) return false;
+    final result = await ref.read(historyRepositoryProvider).clear();
+    if (result is Success<int>) {
+      state = const HistoryLoaded(items: [], nextCursor: null);
+      return true;
+    }
+    return false;
+  }
+
+  /// Removes one reading. On success it leaves the list; a failure keeps it
+  /// exactly where it was, so a network blip never looks like data loss.
+  Future<bool> deleteOne(String id) async {
+    final current = state;
+    if (current is! HistoryLoaded) return false;
+    final result = await ref.read(historyRepositoryProvider).deleteById(id);
+    if (result is Success<int>) {
+      state = current.copyWith(
+        items: current.items.where((r) => r.id != id).toList(growable: false),
+      );
+      return true;
+    }
+    return false;
   }
 }
 

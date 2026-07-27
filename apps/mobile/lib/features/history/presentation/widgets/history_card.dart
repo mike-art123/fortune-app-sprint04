@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../design_system/components/fortune_art.dart';
 import '../../../../design_system/foundations/app_colors.dart';
@@ -19,10 +20,19 @@ const _overArt = [Shadow(color: Color(0xCC000000), blurRadius: 8)];
 /// The journal used to be a column of identical navy panels, so recognising a
 /// reading meant reading it. The picture does that work at a glance.
 class HistoryCard extends StatelessWidget {
-  const HistoryCard({super.key, required this.reading, required this.onOpen});
+  const HistoryCard({
+    super.key,
+    required this.reading,
+    required this.onOpen,
+    this.onDelete,
+  });
 
   final Reading reading;
   final VoidCallback onOpen;
+
+  /// When set, a small delete control rides in the card's header row; null
+  /// keeps the card read-only.
+  final VoidCallback? onDelete;
 
   String _date(BuildContext context) {
     final d = reading.createdAt;
@@ -126,6 +136,7 @@ class HistoryCard extends StatelessWidget {
                 shadows: _overArt,
               ),
             ),
+            if (onDelete != null) _deleteButton(context),
           ],
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -151,6 +162,21 @@ class HistoryCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ],
+    );
+  }
+
+  /// A compact trash control that sits at the header's trailing edge and
+  /// takes its own taps, so touching it deletes rather than opens the card.
+  Widget _deleteButton(BuildContext context) {
+    return IconButton(
+      onPressed: onDelete,
+      tooltip: context.strings.historyDeleteTooltip,
+      icon: const Icon(Icons.delete_outline),
+      iconSize: 18,
+      color: Colors.white.withValues(alpha: 0.7),
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
     );
   }
 }
