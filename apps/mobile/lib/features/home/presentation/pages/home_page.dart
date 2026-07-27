@@ -165,7 +165,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 }
 
 /// Accent for a catalog id, falling back to gold when it is not a live ritual.
