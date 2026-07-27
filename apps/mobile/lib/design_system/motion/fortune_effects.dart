@@ -21,7 +21,7 @@ const Size kFortuneArtSize = Size(640, 498);
 
 /// What a layer paints. Kinds are deliberately few; cards differ by anchor,
 /// colour and intensity, not by bespoke code.
-enum FortuneEffectKind { steam, flame, sparkle, glow, mist }
+enum FortuneEffectKind { steam, flame, sparkle, glow }
 
 /// One layer of ambient motion, anchored in image space.
 class FortuneEffectLayerSpec {
@@ -182,19 +182,13 @@ const Map<String, FortuneEffectSpec> _effects = {
       count: 10,
     ),
   ]),
-  // Moon halo breathing over drifting cloud-mist; faint stars.
+  // Moon halo breathing over the cloudbank; faint stars.
   'dream': FortuneEffectSpec([
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.55, 0.34),
       color: _paleMoon,
       intensity: 0.8,
-    ),
-    FortuneEffectLayerSpec(
-      kind: FortuneEffectKind.mist,
-      anchor: Offset(0.5, 0.72),
-      color: _violet,
-      intensity: 0.7,
     ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.sparkle,
@@ -280,16 +274,16 @@ const Map<String, FortuneEffectSpec> _effects = {
     ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.steam,
-      anchor: Offset(0.6, 0.32),
+      anchor: Offset(0.615, 0.34),
       color: _smoke,
-      intensity: 0.7,
+      intensity: 0.45,
     ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.sparkle,
       anchor: Offset(0.62, 0.55),
       spread: Offset(0.18, 0.15),
       color: _flame,
-      intensity: 0.7,
+      intensity: 0.5,
       count: 6,
     ),
   ]),
@@ -339,12 +333,6 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _gold,
       intensity: 0.7,
       count: 10,
-    ),
-    FortuneEffectLayerSpec(
-      kind: FortuneEffectKind.mist,
-      anchor: Offset(0.5, 0.7),
-      color: _smoke,
-      intensity: 0.5,
     ),
   ]),
   // A dark candle over the broken heart — quiet, not dramatic.
@@ -462,12 +450,6 @@ const Map<String, FortuneEffectSpec> _effects = {
       intensity: 0.6,
       count: 8,
     ),
-    FortuneEffectLayerSpec(
-      kind: FortuneEffectKind.mist,
-      anchor: Offset(0.5, 0.8),
-      color: _smoke,
-      intensity: 0.5,
-    ),
   ]),
   // The sealed letter radiates; something is on its way.
   'message': FortuneEffectSpec([
@@ -569,12 +551,6 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _gold,
       intensity: 0.6,
       count: 8,
-    ),
-    FortuneEffectLayerSpec(
-      kind: FortuneEffectKind.mist,
-      anchor: Offset(0.5, 0.68),
-      color: _smoke,
-      intensity: 0.5,
     ),
   ]),
   // The amulet’s eye holds a steady, breathing light.
@@ -717,12 +693,6 @@ const Map<String, FortuneEffectSpec> _effects = {
       intensity: 0.75,
     ),
     FortuneEffectLayerSpec(
-      kind: FortuneEffectKind.mist,
-      anchor: Offset(0.5, 0.72),
-      color: _smoke,
-      intensity: 0.5,
-    ),
-    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.sparkle,
       anchor: Offset(0.5, 0.4),
       spread: Offset(0.24, 0.2),
@@ -782,19 +752,13 @@ const Map<String, FortuneEffectSpec> _effects = {
       count: 10,
     ),
   ]),
-  // The wolf’s ring glows; night mist passes below.
+  // The wolf’s ring glows in the night; a few far stars.
   'spiritanimal': FortuneEffectSpec([
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.42),
       color: _paleMoon,
       intensity: 0.7,
-    ),
-    FortuneEffectLayerSpec(
-      kind: FortuneEffectKind.mist,
-      anchor: Offset(0.5, 0.7),
-      color: _violet,
-      intensity: 0.4,
     ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.sparkle,

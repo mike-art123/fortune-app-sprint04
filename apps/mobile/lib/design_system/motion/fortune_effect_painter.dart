@@ -35,7 +35,11 @@ class FortuneEffectPainter extends CustomPainter {
 
   static const MaskFilter _softBlur = MaskFilter.blur(BlurStyle.normal, 5);
 
-  final Paint _dotPaint = Paint()..blendMode = BlendMode.plus;
+  static const MaskFilter _dotBlur = MaskFilter.blur(BlurStyle.normal, 1);
+
+  final Paint _dotPaint = Paint()
+    ..maskFilter = _dotBlur
+    ..blendMode = BlendMode.plus;
   final Paint _wispPaint = Paint()
     ..maskFilter = _softBlur
     ..blendMode = BlendMode.plus;
@@ -57,8 +61,6 @@ class FortuneEffectPainter extends CustomPainter {
           _paintSparkle(canvas, size, layer, layerSeed, t);
         case FortuneEffectKind.glow:
           _paintGlow(canvas, size, layer, layerSeed, t);
-        case FortuneEffectKind.mist:
-          _paintMist(canvas, size, layer, layerSeed, t);
       }
     }
   }
@@ -99,10 +101,10 @@ class FortuneEffectPainter extends CustomPainter {
         final dx = (wave + ripple * 0.35) * sway;
         final position = Offset(anchor.dx + dx, anchor.dy - u * height);
         final fade = math.sin(math.pi * u) * (1 - 0.4 * u);
-        final alpha = 0.2 * layer.intensity * fade;
+        final alpha = 0.12 * layer.intensity * fade;
         if (alpha <= 0.005) continue;
         _wispPaint.color = color.withValues(alpha: alpha);
-        canvas.drawCircle(position, (1.5 + u * 9) * weight, _wispPaint);
+        canvas.drawCircle(position, (1.5 + u * 7) * weight, _wispPaint);
       }
     }
   }
@@ -124,9 +126,9 @@ class FortuneEffectPainter extends CustomPainter {
     flicker += 0.14 * math.sin(t * 6.8 + phaseA);
     flicker += 0.08 * math.sin(t * 11.4 + phaseB);
     final level = flicker.clamp(0.5, 1.1).toDouble();
-    final radius = size.shortestSide * 0.15 * layer.intensity * level;
-    _drawRadialGlow(canvas, anchor, radius, color, 0.34 * level);
-    _drawRadialGlow(canvas, anchor, radius * 0.38, color, 0.5 * level);
+    final radius = size.shortestSide * 0.11 * layer.intensity * level;
+    _drawRadialGlow(canvas, anchor, radius, color, 0.22 * level);
+    _drawRadialGlow(canvas, anchor, radius * 0.38, color, 0.34 * level);
     for (var e = 0; e < 4; e += 1) {
       final life = 2.6 + effectRandom(layerSeed, e, 23) * 1.8;
       final u = _frac(t / life + effectRandom(layerSeed, e, 24));
@@ -135,7 +137,7 @@ class FortuneEffectPainter extends CustomPainter {
         anchor.dx + drift * (0.4 + 0.6 * u),
         anchor.dy - u * size.shortestSide * 0.18,
       );
-      final alpha = 0.5 * layer.intensity * math.sin(math.pi * u);
+      final alpha = 0.3 * layer.intensity * math.sin(math.pi * u);
       if (alpha <= 0.01) continue;
       _dotPaint.color = color.withValues(alpha: alpha);
       canvas.drawCircle(position, 1.2 * weight, _dotPaint);
@@ -168,14 +170,14 @@ class FortuneEffectPainter extends CustomPainter {
       final period = 2.2 + effectRandom(layerSeed, i, 4) * 2.6;
       final beat = t / period + effectRandom(layerSeed, i, 5);
       final twinkle = 0.5 + 0.5 * math.sin(_tau * beat);
-      final alpha = layer.intensity * 0.75 * twinkle * twinkle;
+      final alpha = layer.intensity * 0.4 * twinkle * twinkle;
       if (alpha <= 0.01) continue;
-      final radius = (0.8 + effectRandom(layerSeed, i, 6) * 1.4) * weight;
+      final radius = (0.65 + effectRandom(layerSeed, i, 6) * 1.1) * weight;
       _dotPaint.color = color.withValues(alpha: alpha);
       canvas.drawCircle(position, radius, _dotPaint);
       if (i % 4 == 0) {
-        _wispPaint.color = color.withValues(alpha: alpha * 0.22);
-        canvas.drawCircle(position, radius * 3, _wispPaint);
+        _wispPaint.color = color.withValues(alpha: alpha * 0.12);
+        canvas.drawCircle(position, radius * 2.4, _wispPaint);
       }
     }
   }
@@ -193,37 +195,11 @@ class FortuneEffectPainter extends CustomPainter {
     final beat = t / period + effectRandom(layerSeed, 0, 32);
     final breath = 0.5 + 0.5 * math.sin(_tau * beat);
     final reach = 0.9 + 0.12 * breath;
-    final radius = size.shortestSide * 0.3 * layer.intensity * reach;
-    final alpha = 0.3 * layer.intensity * (0.65 + 0.35 * breath);
+    final radius = size.shortestSide * 0.2 * layer.intensity * reach;
+    final alpha = 0.14 * layer.intensity * (0.65 + 0.35 * breath);
     _drawRadialGlow(canvas, anchor, radius, _tint(layer), alpha);
   }
 
-  /// Wide, thin veils drifting sideways — cloudbanks and table haze.
-  void _paintMist(
-    Canvas canvas,
-    Size size,
-    FortuneEffectLayerSpec layer,
-    int layerSeed,
-    double t,
-  ) {
-    final anchor = mapCoverPoint(layer.anchor, size, alignment);
-    final color = _tint(layer);
-    final width = size.width * 0.28;
-    final span = size.width + 2 * width;
-    for (var m = 0; m < 3; m += 1) {
-      final travel = 26.0 - m * 5;
-      final shift = _frac(effectRandom(layerSeed, m, 41) + t / travel);
-      final x = shift * span - width;
-      final bob = math.sin(t * 0.5 + effectRandom(layerSeed, m, 42) * _tau);
-      final y = anchor.dy + bob * size.height * 0.02;
-      final alpha = 0.1 * layer.intensity * (1 - m * 0.2);
-      canvas.save();
-      canvas.translate(x, y);
-      canvas.scale(1, 0.35);
-      _drawRadialGlow(canvas, Offset.zero, width, color, alpha);
-      canvas.restore();
-    }
-  }
 
   void _drawRadialGlow(
     Canvas canvas,
@@ -236,7 +212,12 @@ class FortuneEffectPainter extends CustomPainter {
     _glowPaint.shader = ui.Gradient.radial(
       center,
       radius,
-      [color.withValues(alpha: alpha), color.withValues(alpha: 0)],
+      [
+        color.withValues(alpha: alpha),
+        color.withValues(alpha: alpha * 0.45),
+        color.withValues(alpha: 0),
+      ],
+      [0, 0.55, 1],
     );
     canvas.drawCircle(center, radius, _glowPaint);
   }
