@@ -131,7 +131,12 @@ void main() {
   });
 
   testWidgets('paints the tea warp mesh with an image', (tester) async {
-    final image = await createTestImage(width: 640, height: 498);
+    // Decoding an image is real async work: without runAsync it never
+    // completes under the test's fake clock and the whole test times out.
+    final image = await tester.runAsync(
+      () => createTestImage(width: 640, height: 498),
+    );
+    expect(image, isNotNull);
     final painter = FortuneEffectPainter(
       spec: fortuneEffectSpec('tea')!,
       accent: const Color(0xFFEFC97F),
@@ -143,7 +148,7 @@ void main() {
     final recorder = ui.PictureRecorder();
     painter.paint(Canvas(recorder), const Size(300, 220));
     recorder.endRecording().dispose();
-    image.dispose();
+    image!.dispose();
   });
 
   testWidgets('reduced motion never starts the ticker', (tester) async {
