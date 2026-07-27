@@ -8,12 +8,19 @@ import type {
   ReadingProfileContext,
   ReadingProvider,
 } from './reading-provider.interface';
-import { MockReadingProvider } from './mock-reading.provider';
 import { buildPrompt } from './prompt-builder';
 import { extractJsonObject } from '../../../common/json/extract-json-object';
 
 /** Statuses worth a second attempt. Everything else fails fast. */
 const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
+
+/**
+ * Statuses that mean *we* are wrong, not the weather: a bad key, a bad base
+ * URL, or a model id that does not exist. These get their own loud log line,
+ * because the one that actually happened — `LLM_MODEL=gbt_40_mini` — was
+ * invisible for as long as a fallback was quietly answering in its place.
+ */
+const MISCONFIGURED_STATUS = new Set([400, 401, 403, 404]);
 
 /** Guards against a model that ignores the length contract. */
 const MAX_TITLE_CHARS = 80;
@@ -33,9 +40,15 @@ class AiRequestError extends Error {
 /**
  * Real generation against an OpenAI-compatible endpoint (doc 56).
  *
- * Degrades gracefully by design: if the model is unreachable, slow, or returns
- * something we cannot trust, the user still receives the calm mock reading
- * rather than an error screen. The fallback is logged, never surfaced.
+ * This provider fails. That is the design. It used to "degrade gracefully" by
+ * answering with a canned mock reading, which sounds kind and was in fact the
+ * whole bug: a mistyped model id meant every request 404'd, every 404 became
+ * the same three paragraphs, and thirty-eight different fortunes returned one
+ * text — with HTTP 200 on it, so nobody could see anything was wrong.
+ *
+ * A reading that is not this person's reading is worth less than an honest
+ * "دوباره تلاش کن". `ReadingsService` already turns a throw here into exactly
+ * that, and gives back the rewarded-ad entitlement while it does.
  *
  * The offering text is never logged — only shapes, timings and outcomes.
  */
@@ -43,7 +56,6 @@ class AiRequestError extends Error {
 export class AiReadingProvider implements ReadingProvider {
   constructor(
     private readonly config: AiConfig,
-    private readonly fallback: MockReadingProvider,
     private readonly logger: AppLoggerService,
   ) {}
 
@@ -79,13 +91,19 @@ export class AiReadingProvider implements ReadingProvider {
       }
     }
 
-    this.logger.warn('reading.ai.fell_back_to_mock', {
+    // Error, not warn, and the model id is in it: a failure nobody can see is
+    // how one typo survived in production.
+    this.logger.error('reading.ai.failed', {
       fortuneId: fortune.id,
+      model: this.config.model,
+      attempts: maxAttempts,
       durationMs: Date.now() - startedAt,
       reason: lastError instanceof Error ? lastError.message : 'unknown',
     });
 
-    return this.fallback.generate(fortune, input, profile);
+    throw lastError instanceof Error
+      ? lastError
+      : new AiRequestError('generation failed for an unknown reason', false);
   }
 
   /** One HTTP round-trip, bounded by a hard deadline. */
@@ -115,6 +133,12 @@ export class AiReadingProvider implements ReadingProvider {
       });
 
       if (!response.ok) {
+        if (MISCONFIGURED_STATUS.has(response.status)) {
+          this.logger.error('reading.ai.misconfigured', {
+            status: response.status,
+            model: this.config.model,
+          });
+        }
         throw new AiRequestError(
           `upstream responded ${response.status}`,
           RETRYABLE_STATUS.has(response.status),

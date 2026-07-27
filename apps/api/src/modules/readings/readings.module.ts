@@ -22,8 +22,16 @@ import { READING_PROVIDER, type ReadingProvider } from './providers/reading-prov
       provide: READING_PROVIDER,
       inject: [AiConfig, MockReadingProvider, AppLoggerService],
       /**
-       * AI when it is configured, mock otherwise. The decision is made once at
-       * boot and logged, so the active provider is never a mystery in prod.
+       * AI when it is configured, mock otherwise — and the mock is now a
+       * development convenience only, never a safety net. `env.schema.ts`
+       * refuses to boot production without `LLM_BASE_URL` and `LLM_API_KEY`,
+       * so this branch cannot be reached there; the warning is for the local
+       * machine, where canned text is fine as long as nobody mistakes it for
+       * a reading.
+       *
+       * The AI provider no longer receives the mock. When generation fails the
+       * user gets an honest retry, because thirty-eight fortunes answering with
+       * one paragraph is a worse outcome than an error.
        */
       useFactory: (
         config: AiConfig,
@@ -33,7 +41,7 @@ import { READING_PROVIDER, type ReadingProvider } from './providers/reading-prov
         if (!config.isConfigured) {
           logger.warn('reading.provider.selected', {
             provider: 'mock',
-            reason: 'LLM_BASE_URL or LLM_API_KEY is not set',
+            reason: 'LLM_BASE_URL or LLM_API_KEY is not set — readings are canned, not real',
           });
           return mock;
         }
@@ -44,7 +52,7 @@ import { READING_PROVIDER, type ReadingProvider } from './providers/reading-prov
           timeoutMs: config.timeoutMs,
           maxRetries: config.maxRetries,
         });
-        return new AiReadingProvider(config, mock, logger);
+        return new AiReadingProvider(config, logger);
       },
     },
   ],

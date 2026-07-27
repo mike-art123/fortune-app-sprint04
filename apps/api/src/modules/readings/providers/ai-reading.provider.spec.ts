@@ -1,5 +1,4 @@
 import { AiReadingProvider, parseGeneratedReading } from './ai-reading.provider';
-import { MockReadingProvider } from './mock-reading.provider';
 import { findFortune } from '../fortune-catalog';
 import type { AiConfig } from '../../../config/ai.config';
 import type { AppLoggerService } from '../../../infrastructure/logging/app-logger.service';
@@ -18,17 +17,21 @@ function makeConfig(overrides: Partial<AiConfig> = {}): AiConfig {
   } as AiConfig;
 }
 
-function makeLogger(): AppLoggerService & { warns: string[]; infos: string[] } {
+type SpyLogger = AppLoggerService & { warns: string[]; infos: string[]; errors: string[] };
+
+function makeLogger(): SpyLogger {
   const warns: string[] = [];
   const infos: string[] = [];
+  const errors: string[] = [];
   return {
     warns,
     infos,
+    errors,
     debug: () => undefined,
     info: (message: string) => infos.push(message),
     warn: (message: string) => warns.push(message),
-    error: () => undefined,
-  } as unknown as AppLoggerService & { warns: string[]; infos: string[] };
+    error: (message: string) => errors.push(message),
+  } as unknown as SpyLogger;
 }
 
 function completion(content: string): Response {
@@ -101,7 +104,7 @@ describe('AiReadingProvider', () => {
 
   it('returns the parsed reading on success', async () => {
     global.fetch = jest.fn().mockResolvedValue(completion(VALID)) as never;
-    const provider = new AiReadingProvider(makeConfig(), new MockReadingProvider(), makeLogger());
+    const provider = new AiReadingProvider(makeConfig(), makeLogger());
 
     const out = await provider.generate(hafez, { intention: 'نیت' });
 
@@ -112,7 +115,7 @@ describe('AiReadingProvider', () => {
   it('calls the configured endpoint with bearer auth and json_object format', async () => {
     const fetchMock = jest.fn().mockResolvedValue(completion(VALID));
     global.fetch = fetchMock as never;
-    const provider = new AiReadingProvider(makeConfig(), new MockReadingProvider(), makeLogger());
+    const provider = new AiReadingProvider(makeConfig(), makeLogger());
 
     await provider.generate(hafez, { intention: 'نیت' });
 
@@ -131,7 +134,6 @@ describe('AiReadingProvider', () => {
     global.fetch = fetchMock as never;
     const provider = new AiReadingProvider(
       makeConfig({ baseUrl: 'https://proxy.example.com/v1/' }),
-      new MockReadingProvider(),
       makeLogger(),
     );
 
@@ -146,7 +148,7 @@ describe('AiReadingProvider', () => {
       .mockResolvedValueOnce(new Response('slow down', { status: 429 }))
       .mockResolvedValueOnce(completion(VALID));
     global.fetch = fetchMock as never;
-    const provider = new AiReadingProvider(makeConfig(), new MockReadingProvider(), makeLogger());
+    const provider = new AiReadingProvider(makeConfig(), makeLogger());
 
     const out = await provider.generate(hafez, {});
 
@@ -154,32 +156,45 @@ describe('AiReadingProvider', () => {
     expect(out.title).toBe('پیامی از دیوان');
   });
 
-  it('does not retry a 401 and falls back immediately', async () => {
-    const fetchMock = jest.fn().mockResolvedValue(new Response('bad key', { status: 401 }));
+  // The regression this file exists for. A mistyped LLM_MODEL made every
+  // request 404, every 404 became the same canned paragraphs, and the whole
+  // thing was served with 200 on it — so thirty-eight fortunes read alike and
+  // nothing in the logs objected. Failing has to be louder than succeeding
+  // falsely.
+  it('fails loudly on an unknown model instead of inventing a reading', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response('no such model', { status: 404 }));
     global.fetch = fetchMock as never;
-    const provider = new AiReadingProvider(makeConfig(), new MockReadingProvider(), makeLogger());
+    const logger = makeLogger();
+    const provider = new AiReadingProvider(makeConfig({ model: 'gbt_40_mini' }), logger);
 
-    const out = await provider.generate(hafez, { intention: 'نیت' });
+    await expect(provider.generate(hafez, { intention: 'نیت' })).rejects.toThrow('404');
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(out.reading.length).toBeGreaterThan(20);
+    expect(logger.errors).toContain('reading.ai.misconfigured');
+    expect(logger.errors).toContain('reading.ai.failed');
+  });
+
+  it('does not retry a 401', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response('bad key', { status: 401 }));
+    global.fetch = fetchMock as never;
+    const provider = new AiReadingProvider(makeConfig(), makeLogger());
+
+    await expect(provider.generate(hafez, { intention: 'نیت' })).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('respects maxRetries as an upper bound', async () => {
     const fetchMock = jest.fn().mockResolvedValue(new Response('boom', { status: 503 }));
     global.fetch = fetchMock as never;
-    const provider = new AiReadingProvider(
-      makeConfig({ maxRetries: 2 }),
-      new MockReadingProvider(),
-      makeLogger(),
-    );
+    const provider = new AiReadingProvider(makeConfig({ maxRetries: 2 }), makeLogger());
 
-    await provider.generate(hafez, {});
+    await expect(provider.generate(hafez, {})).rejects.toThrow();
 
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
-  it('aborts a slow request and falls back to the mock reading', async () => {
+  it('throws on a slow request rather than answering with something canned', async () => {
     global.fetch = jest.fn((_url: unknown, init: { signal?: AbortSignal } = {}) => {
       return new Promise<Response>((_resolve, reject) => {
         init.signal?.addEventListener('abort', () =>
@@ -189,57 +204,34 @@ describe('AiReadingProvider', () => {
     }) as never;
 
     const logger = makeLogger();
-    const provider = new AiReadingProvider(
-      makeConfig({ timeoutMs: 20, maxRetries: 0 }),
-      new MockReadingProvider(),
-      logger,
-    );
+    const provider = new AiReadingProvider(makeConfig({ timeoutMs: 20, maxRetries: 0 }), logger);
 
-    const out = await provider.generate(hafez, { intention: 'نیت' });
-
-    expect(out.reading.length).toBeGreaterThan(20);
-    expect(logger.warns).toContain('reading.ai.fell_back_to_mock');
+    await expect(provider.generate(hafez, { intention: 'نیت' })).rejects.toThrow('timed out');
+    expect(logger.errors).toContain('reading.ai.failed');
   });
 
-  it('falls back when the model returns malformed content', async () => {
+  it('throws when the model returns malformed content', async () => {
     global.fetch = jest.fn().mockResolvedValue(completion('این JSON نیست')) as never;
-    const provider = new AiReadingProvider(
-      makeConfig({ maxRetries: 0 }),
-      new MockReadingProvider(),
-      makeLogger(),
-    );
+    const provider = new AiReadingProvider(makeConfig({ maxRetries: 0 }), makeLogger());
 
-    const out = await provider.generate(hafez, {});
-    const mockOut = await new MockReadingProvider().generate(hafez, {});
-
-    expect(out.reading).toBe(mockOut.reading);
+    await expect(provider.generate(hafez, {})).rejects.toThrow();
   });
 
-  it('falls back on a network failure', async () => {
+  it('throws on a network failure', async () => {
     global.fetch = jest.fn().mockRejectedValue(new Error('ECONNRESET')) as never;
-    const provider = new AiReadingProvider(
-      makeConfig({ maxRetries: 0 }),
-      new MockReadingProvider(),
-      makeLogger(),
-    );
+    const provider = new AiReadingProvider(makeConfig({ maxRetries: 0 }), makeLogger());
 
-    const out = await provider.generate(hafez, {});
-
-    expect(out.title.length).toBeGreaterThan(0);
+    await expect(provider.generate(hafez, {})).rejects.toThrow('ECONNRESET');
   });
 
   it('never writes the offering into the logs', async () => {
     const secret = 'رازی که نباید لاگ شود';
     global.fetch = jest.fn().mockRejectedValue(new Error('ECONNRESET')) as never;
     const logger = makeLogger();
-    const provider = new AiReadingProvider(
-      makeConfig({ maxRetries: 0 }),
-      new MockReadingProvider(),
-      logger,
-    );
+    const provider = new AiReadingProvider(makeConfig({ maxRetries: 0 }), logger);
 
-    await provider.generate(hafez, { intention: secret });
+    await expect(provider.generate(hafez, { intention: secret })).rejects.toThrow();
 
-    expect([...logger.warns, ...logger.infos].join(' ')).not.toContain(secret);
+    expect([...logger.warns, ...logger.infos, ...logger.errors].join(' ')).not.toContain(secret);
   });
 });
