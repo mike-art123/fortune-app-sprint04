@@ -10,6 +10,10 @@ import { ReadingsService } from './readings.service';
 import { AiReadingProvider } from './providers/ai-reading.provider';
 import { MockReadingProvider } from './providers/mock-reading.provider';
 import { READING_PROVIDER, type ReadingProvider } from './providers/reading-provider.interface';
+import { MonetizationConfig } from '../../config/monetization.config';
+import { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-flags.service';
+import { HafezCorpusService } from './hafez/hafez-corpus.service';
+import { HafezReadingProvider } from './hafez/hafez-reading.provider';
 
 @Module({
   imports: [EntitlementsModule, AdsModule, UsersModule],
@@ -18,9 +22,17 @@ import { READING_PROVIDER, type ReadingProvider } from './providers/reading-prov
     ReadingsService,
     ReadingsRepository,
     MockReadingProvider,
+    HafezCorpusService,
     {
       provide: READING_PROVIDER,
-      inject: [AiConfig, MockReadingProvider, AppLoggerService],
+      inject: [
+        AiConfig,
+        MockReadingProvider,
+        AppLoggerService,
+        HafezCorpusService,
+        FeatureFlagsService,
+        MonetizationConfig,
+      ],
       /**
        * AI when it is configured, mock otherwise — and the mock is now a
        * development convenience only, never a safety net. `env.schema.ts`
@@ -37,22 +49,31 @@ import { READING_PROVIDER, type ReadingProvider } from './providers/reading-prov
         config: AiConfig,
         mock: MockReadingProvider,
         logger: AppLoggerService,
+        corpus: HafezCorpusService,
+        flags: FeatureFlagsService,
+        monetization: MonetizationConfig,
       ): ReadingProvider => {
+        let inner: ReadingProvider;
         if (!config.isConfigured) {
           logger.warn('reading.provider.selected', {
             provider: 'mock',
             reason: 'LLM_BASE_URL or LLM_API_KEY is not set — readings are canned, not real',
           });
-          return mock;
+          inner = mock;
+        } else {
+          logger.info('reading.provider.selected', {
+            provider: 'ai',
+            model: config.model,
+            timeoutMs: config.timeoutMs,
+            maxRetries: config.maxRetries,
+          });
+          inner = new AiReadingProvider(config, logger);
         }
 
-        logger.info('reading.provider.selected', {
-          provider: 'ai',
-          model: config.model,
-          timeoutMs: config.timeoutMs,
-          maxRetries: config.maxRetries,
-        });
-        return new AiReadingProvider(config, logger);
+        // The Hafez raw engine wraps whichever provider was chosen. While its
+        // flag is off this is a pass-through; when it is on, the hafez id is
+        // answered from the real Divan (docs/hafez-dataset-sourcing.md).
+        return new HafezReadingProvider(inner, corpus, flags, config, monetization, logger);
       },
     },
   ],

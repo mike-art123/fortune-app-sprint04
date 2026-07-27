@@ -93,12 +93,42 @@ repo at `docs/licenses/ganjoor-db-MIT.txt`, the JSON carries the copyright
 line in its `source` field, and the terms card on the profile screen now
 credits Ganjoor in plain Persian.
 
-Open question, deliberately left undecided: how the corpus reaches the
-production database. `railway.json` runs `prisma migrate deploy` on boot but
-never the seed, so landing the JSON does not by itself populate prod.
-Options priced so far: a data migration (rides the existing deploy, bloats
-migration history), a boot-time import behind the engine's flag, or a
-one-off run. To be settled when the selection step wires in.
+## The engine, wired — 2026-07-27, later that night
 
-Next, in the order already written above: stable selection, the real ghazal
-into the prompt, and the Hafez schema — items 3–5.
+Steps 3–5 now exist on the server, behind the flag `hafez.raw-engine`
+(off by default). `HafezReadingProvider` decorates the ordinary provider:
+every fortune that is not Hafez — and Hafez itself while the flag is off —
+passes through untouched, byte for byte.
+
+**Selection is global, not per-user.** The Divan is one book: the same words
+brought to it on the same day open the same page, and what differs between
+two readers is the interpretation, which is where the person belongs. The
+draw is SHA-256 over `edition + dateKey (app timezone) + normalized
+intention` — Arabic variants folded, digits unified, whitespace collapsed,
+so «سلامتي» and «سلامتی» are one intention — mapped into `1..count`.
+
+**The corpus reaches production lazily**, which settles the open question
+that used to sit here: the JSON already ships inside the deploy
+(`prisma/data` is copied into the image), and the first reading with the
+flag on validates the file and upserts all 495 rows idempotently. No seed
+step in the deploy, no data bloating the migration history, and a fresh
+environment heals itself. The seed keeps its own import for development
+databases.
+
+**The prompt carries the real ghazal**, and the reply is refused unless
+every quoted verse is found in that poem — matching ignores spacing and
+ZWNJ, and the canonical corpus text replaces whatever the model typed, so
+«بیت جعلی نساز» is enforced by the parser rather than requested in prose.
+The reply follows the step-5 schema; for now it is flattened into the
+reading text (the whole ghazal first, then its reading, ending on
+«برای امروز:») so the client needs no change today. Next: the client's own
+Hafez surface, rendering the schema fields as parts, and storing them.
+
+To turn it on later, from Railway → Postgres → Console (cached ~30s;
+`updated_at` is not optional — same lesson as the notifications flag):
+
+```sql
+insert into feature_flags (key, enabled, note, updated_at)
+values ('hafez.raw-engine', true, 'hafez raw engine on', now())
+on conflict (key) do update set enabled = true, updated_at = now();
+```

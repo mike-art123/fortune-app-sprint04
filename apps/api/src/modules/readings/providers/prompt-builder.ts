@@ -15,7 +15,7 @@ import type { ReadingProfileContext } from './reading-provider.interface';
  */
 
 /** Voice rules shared by every fortune kind. */
-const VOICE = [
+export const VOICE = [
   'تو صدای یک اپلیکیشن فال فارسی هستی.',
   'لحن تو: آرام، شاعرانه، سنجیده، امیدبخش، محترمانه.',
   'فال را واقعاً بگو: در زبان و سنتِ همان فال، مشخص و جسور بنویس.',
@@ -83,7 +83,7 @@ function offeringFor(fortune: FortuneCatalogEntry, input: ReadingInputDto): stri
  * model is told explicitly to treat it as data, use it at most once, never
  * translate or embellish it («کاربر عزیز …» is banned by the voice rules).
  */
-function personaFor(profile?: ReadingProfileContext): string | null {
+export function personaFor(profile?: ReadingProfileContext): string | null {
   const raw = profile?.displayName;
   if (!raw) return null;
   const safe = raw
