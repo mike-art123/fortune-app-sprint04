@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/config/monetization_switch.dart';
+import '../../../../core/platform/telegram_safe_area.dart';
+import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/luxury_card.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
@@ -22,8 +24,36 @@ import '../widgets/edit_profile_sheet.dart';
 /// Premium profile screen (BakhtNegar visual reference): the real name and
 /// birth month from the profile (scope §16, editable in place), journey
 /// stats, an ornate menu list and a VIP upsell card.
-class ProfilePlaceholderPage extends ConsumerWidget {
+class ProfilePlaceholderPage extends ConsumerStatefulWidget {
   const ProfilePlaceholderPage({super.key});
+
+  @override
+  ConsumerState<ProfilePlaceholderPage> createState() =>
+      _ProfilePlaceholderPageState();
+}
+
+class _ProfilePlaceholderPageState
+    extends ConsumerState<ProfilePlaceholderPage> {
+  // Telegram's control row (Close · ⌄ · …) floats over the mini app, so the
+  // header — and its avatar — sat underneath it. Listen for the inset the
+  // way Home and All-Fortunes do, and pad the top by the same amount.
+  final _safeArea = telegramSafeArea;
+
+  @override
+  void initState() {
+    super.initState();
+    _safeArea.addListener(_onSafeAreaChanged);
+  }
+
+  @override
+  void dispose() {
+    _safeArea.removeListener(_onSafeAreaChanged);
+    super.dispose();
+  }
+
+  void _onSafeAreaChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _tapNav(BuildContext context, int index) {
     if (index == 1) {
@@ -44,7 +74,7 @@ class ProfilePlaceholderPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final profile = ref.watch(profileControllerProvider).valueOrNull;
     return Scaffold(
       backgroundColor: AppPalette.nightDeep,
@@ -52,71 +82,73 @@ class ProfilePlaceholderPage extends ConsumerWidget {
         currentIndex: 0,
         onTap: (i) => _tapNav(context, i),
       ),
-      body: SafeArea(
-        bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: [
-            _header(context, profile),
-            const SizedBox(height: AppSpacing.md),
-            // Coins are gone: the only stats are the user's own journey.
-            Row(
-              children: [
-                _stat(context, Icons.auto_awesome, '۱۲۸', 'فال‌ها'),
-                const SizedBox(width: AppSpacing.xs),
-                _stat(context, Icons.local_fire_department, '۷', 'روز پیاپی'),
-                const SizedBox(width: AppSpacing.xs),
-                _stat(context, Icons.bookmark_border, '۱۲', 'نشان‌شده'),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _menu(
-              context,
-              Icons.history,
-              'تاریخچهٔ فال‌ها',
-              () => context.push(AppRoutes.historyPath),
-            ),
-            _menu(
-              context,
-              Icons.bookmark_border,
-              'فال‌های نشان‌شده',
-              () => _soon(context),
-            ),
-            _menu(
-              context,
-              Icons.favorite_border,
-              'نیت‌های من',
-              () => _soon(context),
-            ),
-            _menu(
-              context,
-              Icons.insights_outlined,
-              'آمار و دستاوردها',
-              () => _soon(context),
-            ),
-            _menu(
-              context,
-              Icons.settings_outlined,
-              'تنظیمات',
-              () => _soon(context),
-            ),
-            _menu(
-              context,
-              Icons.support_agent_outlined,
-              'پشتیبانی و درباره ما',
-              () => _soon(context),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _personalization(context, ref, profile),
-            const SizedBox(height: AppSpacing.sm),
-            const AmbientAudioCard(),
-            const NotificationSettingsCard(),
-            const SizedBox(height: AppSpacing.sm),
-            if (kMonetizationEnabled)
-              _vip(context, () => context.push(AppRoutes.vipPath)),
-            const SizedBox(height: AppSpacing.lg),
-          ],
+      body: ListView(
+        padding: const EdgeInsets.only(
+          left: AppSpacing.md,
+          right: AppSpacing.md,
+          bottom: AppSpacing.md,
         ),
+        children: [
+          SizedBox(height: telegramTopInset(context)),
+          _header(context, profile),
+          const SizedBox(height: AppSpacing.md),
+          // Coins are gone: the only stats are the user's own journey.
+          Row(
+            children: [
+              _stat(context, Icons.auto_awesome, '۱۲۸', 'فال‌ها'),
+              const SizedBox(width: AppSpacing.xs),
+              _stat(context, Icons.local_fire_department, '۷', 'روز پیاپی'),
+              const SizedBox(width: AppSpacing.xs),
+              _stat(context, Icons.bookmark_border, '۱۲', 'نشان‌شده'),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _menu(
+            context,
+            Icons.history,
+            'تاریخچهٔ فال‌ها',
+            () => context.push(AppRoutes.historyPath),
+          ),
+          _menu(
+            context,
+            Icons.bookmark_border,
+            'فال‌های نشان‌شده',
+            () => _soon(context),
+          ),
+          _menu(
+            context,
+            Icons.favorite_border,
+            'نیت‌های من',
+            () => _soon(context),
+          ),
+          _menu(
+            context,
+            Icons.insights_outlined,
+            'آمار و دستاوردها',
+            () => _soon(context),
+          ),
+          _menu(
+            context,
+            Icons.settings_outlined,
+            'تنظیمات',
+            () => _soon(context),
+          ),
+          _menu(
+            context,
+            Icons.support_agent_outlined,
+            'پشتیبانی و درباره ما',
+            () => _soon(context),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _personalization(context, ref, profile),
+          const SizedBox(height: AppSpacing.sm),
+          const AmbientAudioCard(),
+          const NotificationSettingsCard(),
+          const SizedBox(height: AppSpacing.sm),
+          if (kMonetizationEnabled)
+            _vip(context, () => context.push(AppRoutes.vipPath)),
+          const SizedBox(height: AppSpacing.lg),
+        ],
       ),
     );
   }
