@@ -24,7 +24,7 @@ const MISCONFIGURED_STATUS = new Set([400, 401, 403, 404]);
 
 /** Guards against a model that ignores the length contract. */
 const MAX_TITLE_CHARS = 80;
-const MAX_READING_CHARS = 4000;
+const MAX_READING_CHARS = 7000;
 const MIN_READING_CHARS = 40;
 
 class AiRequestError extends Error {
@@ -126,7 +126,7 @@ export class AiReadingProvider implements ReadingProvider {
         body: JSON.stringify({
           model: this.config.model,
           temperature: 0.85,
-          max_tokens: 900,
+          max_tokens: 2400,
           response_format: { type: 'json_object' },
           messages: buildPrompt(fortune, input, profile),
         }),
