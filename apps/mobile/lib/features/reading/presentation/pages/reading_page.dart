@@ -214,27 +214,6 @@ class _ReadingView extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: AppSpacing.sm),
-
-          // The reading speaks with conviction, so this line has to be here —
-          // fixed, under every reading, never written by the model. A footer
-          // the model composes is one it can also forget, shorten, or phrase
-          // away, and this is the one sentence that must never vary.
-          Padding(
-            padding: const EdgeInsetsDirectional.only(
-              start: AppSpacing.sm,
-              end: AppSpacing.sm,
-            ),
-            child: Text(
-              'فال، آینه‌ای برای تأمل است. تصمیمِ درست را باز هم خودت می‌گیری.',
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall?.copyWith(
-                color: context.fortuneColors.textMuted,
-                height: 1.8,
-              ),
-            ),
-          ),
-
           const SizedBox(height: AppSpacing.lg),
 
           Row(

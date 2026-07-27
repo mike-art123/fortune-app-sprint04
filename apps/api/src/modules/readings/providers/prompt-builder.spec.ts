@@ -23,7 +23,7 @@ describe('buildPrompt', () => {
         otherName: 'امیر',
       });
       expect(system.content).toContain('مشخص و جسور بنویس');
-      expect(system.content).toContain('آینده را قطعی نکن');
+      expect(system.content).toContain('تضمین نده');
       expect(system.content).toContain('"title"');
       expect(system.content).toContain('"reading"');
     }

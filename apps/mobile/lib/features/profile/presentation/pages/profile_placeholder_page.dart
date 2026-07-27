@@ -105,6 +105,8 @@ class ProfilePlaceholderPage extends ConsumerWidget {
               () => _soon(context),
             ),
             const SizedBox(height: AppSpacing.sm),
+            _terms(context),
+            const SizedBox(height: AppSpacing.sm),
             _personalization(context, ref, profile),
             const SizedBox(height: AppSpacing.sm),
             const AmbientAudioCard(),
@@ -115,6 +117,53 @@ class ProfilePlaceholderPage extends ConsumerWidget {
             const SizedBox(height: AppSpacing.lg),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Terms, in the reader's own language rather than a wall of legalese.
+  ///
+  /// This replaces the one-line reminder that used to sit under every reading.
+  /// It says the same thing with more room, in the place a person goes looking
+  /// for it — and it says it once, so the reading itself can stay a reading.
+  static Widget _terms(BuildContext context) {
+    final c = context.fortuneColors;
+    const lines = [
+      'بخت‌نگار برای سرگرمی و لحظه‌ای تأمل ساخته شده است. فال‌ها بر پایهٔ '
+          'سنت‌های کهن نوشته می‌شوند و ارزش علمی یا پیش‌بینانه ندارند.',
+      'هیچ فالی در این اپ پیش‌بینیِ قطعیِ آینده نیست و نباید مبنای تصمیم‌های '
+          'مهمِ زندگی، پزشکی، حقوقی یا مالی قرار بگیرد.',
+      'مسئولیتِ هر تصمیمی که می‌گیری با خودت است. بخت‌نگار و سازندگانش '
+          'هیچ‌گونه مسئولیتی در قبال نتیجهٔ آن تصمیم‌ها ندارند.',
+      'برای مسائل سلامتی، روانی، حقوقی یا مالی، به متخصصِ همان حوزه مراجعه کن. '
+          'فال جای مشاوره نمی‌نشیند.',
+      'استفاده از بخت‌نگار به معنای پذیرفتن همین شرط‌هاست.',
+    ];
+    return GoldBorderContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'قوانین و شرایط استفاده',
+            style: TextStyle(
+              color: c.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          for (final line in lines) ...[
+            Text(
+              '• $line',
+              style: TextStyle(
+                color: c.textMuted,
+                fontSize: 12,
+                height: 1.9,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+          ],
+        ],
       ),
     );
   }
