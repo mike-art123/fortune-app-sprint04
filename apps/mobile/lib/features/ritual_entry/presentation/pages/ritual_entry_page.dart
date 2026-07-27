@@ -23,6 +23,7 @@ import '../../../reading/application/reading_submission_controller.dart';
 import '../controllers/ritual_entry_controller.dart';
 import '../widgets/offering_strip.dart';
 import '../widgets/paired_names_field.dart';
+import '../widgets/ritual_orb.dart';
 import '../widgets/whisper_field.dart';
 
 /// Ritual Entry — a personal ritual, not a form. One still moon, one calm
@@ -191,11 +192,14 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
         children: [
           const SizedBox(height: AppSpacing.xl),
 
-          // The still anchor: a moon at rest, the glowing orb while sealing.
+          // The anchor: breathing at rest, transfigured while it listens.
           FortuneFadeIn(
             duration: pace.enter,
             child: Center(
-              child: _anchor(submission is SubmissionInFlight, fortune),
+              child: RitualOrb(
+                accent: fortune.accent,
+                sealing: submission is SubmissionInFlight,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -365,45 +369,6 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     _primary.text = value;
     _primary.selection = TextSelection.collapsed(offset: value.length);
     ref.read(ritualEntryControllerProvider(widget.fortuneId).notifier).soften();
-  }
-
-  // At rest the moon holds the gaze; while the reading is sealing, the golden
-  // orb takes its place. Both fall back to the moon if the art can't load.
-  Widget _anchor(bool loading, FortuneDefinition fortune) {
-    if (loading) {
-      return Image.asset(
-        'assets/misc/loading_orb.jpg',
-        width: 72,
-        height: 72,
-        errorBuilder: (context, error, stack) => _moon(fortune),
-      );
-    }
-    return _moon(fortune);
-  }
-
-  Widget _moon(FortuneDefinition fortune) {
-    return Container(
-      width: 72,
-      height: 72,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            fortune.accent.withValues(alpha: 0.28),
-            fortune.accent.withValues(alpha: 0.04),
-          ],
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Container(
-        width: 26,
-        height: 26,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: fortune.accent.withValues(alpha: 0.85),
-        ),
-      ),
-    );
   }
 }
 
