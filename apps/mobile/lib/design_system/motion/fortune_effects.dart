@@ -486,6 +486,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // Steam from the cup's mouth; the coffee's own light breathes softly.
   'coffee': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.504, 0.356),
+      warp: _coffeeWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.steam,
       anchor: Offset(0.5, 0.4),
       color: _warmWhite,
@@ -523,6 +528,16 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // Moon halo breathing over the cloudbank; faint stars.
   'dream': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.269, 0.793),
+      warp: _dreamWarpA,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.739, 0.781),
+      warp: _dreamWarpB,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.55, 0.34),
@@ -562,6 +577,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The sun-and-moon medallion breathes; sparks orbit its rim.
   'daily': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.5, 0.492),
+      swirl: _dailySwirl,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.5),
@@ -828,6 +848,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // Gold dust rises from the pouch; the coins keep their shine.
   'money': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.492, 0.151),
+      warp: _moneyWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.sparkle,
       anchor: Offset(0.5, 0.4),
       spread: Offset(0.2, 0.28),
@@ -939,6 +964,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The number breathes inside its seal.
   'luckynumber': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.5, 0.492),
+      swirl: _luckynumberSwirl,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.5),
@@ -1054,6 +1084,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // The lotus glows over its own reflection.
   'luckyflower': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.516, 0.84),
+      warp: _luckyflowerWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.42),
       color: _paleMoon,
@@ -1110,6 +1145,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The zodiac wheel breathes; signs glint in turn.
   'birthmonth': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.5, 0.486),
+      swirl: _birthmonthSwirl,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.42),
@@ -1320,6 +1360,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The beads keep a devotional shimmer.
   'tasbih': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.469, 0.458),
+      swirl: _tasbihSwirl,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.47, 0.5),

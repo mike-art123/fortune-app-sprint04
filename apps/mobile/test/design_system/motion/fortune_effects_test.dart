@@ -232,6 +232,41 @@ void main() {
     }
   });
 
+  test('every card promised a hero effect actually carries it', () {
+    // A guard against silently dropping a card while regenerating the
+    // catalog: each id here was approved with a specific hero motion.
+    const expected = <String, FortuneEffectKind>{
+      'tea': FortuneEffectKind.steamWarp,
+      'coffee': FortuneEffectKind.steamWarp,
+      'candle': FortuneEffectKind.steamWarp,
+      'dream': FortuneEffectKind.steamWarp,
+      'money': FortuneEffectKind.steamWarp,
+      'travel': FortuneEffectKind.steamWarp,
+      'luckyflower': FortuneEffectKind.steamWarp,
+      'abjad': FortuneEffectKind.steamWarp,
+      'friendship': FortuneEffectKind.steamWarp,
+      'hafez': FortuneEffectKind.steamWarp,
+      'yesno': FortuneEffectKind.swirlWarp,
+      'universe': FortuneEffectKind.swirlWarp,
+      'tasbih': FortuneEffectKind.swirlWarp,
+      'birthmonth': FortuneEffectKind.swirlWarp,
+      'daily': FortuneEffectKind.swirlWarp,
+      'luckynumber': FortuneEffectKind.swirlWarp,
+      'mirror': FortuneEffectKind.apparition,
+      'dailytalisman': FortuneEffectKind.blink,
+      'future': FortuneEffectKind.hourglass,
+    };
+    expected.forEach((id, kind) {
+      final spec = fortuneEffectSpec(id);
+      expect(spec, isNotNull, reason: id);
+      expect(
+        spec!.layers.any((l) => l.kind == kind),
+        isTrue,
+        reason: '$id must carry a ${kind.name} layer',
+      );
+    });
+  });
+
   test('an inverted warp pins above and moves below the waterline', () {
     final warp = fortuneEffectSpec('luckyflower')!
         .layers

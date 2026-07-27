@@ -219,3 +219,92 @@ const FortuneWarpGeometry _friendshipWarpB = FortuneWarpGeometry(
   maxAmplitude: 2.5,
   invert: true,
 );
+
+const FortuneWarpGeometry _coffeeWarp = FortuneWarpGeometry(
+  x0: 245,
+  x1: 400,
+  y0: 25,
+  y1: 330,
+  pinY: 330,
+  reach: 210,
+  maxAmplitude: 6.5,
+);
+
+const FortuneWarpGeometry _dreamWarpA = FortuneWarpGeometry(
+  x0: 122,
+  x1: 222,
+  y0: 300,
+  y1: 490,
+  pinY: 486,
+  reach: 150,
+  maxAmplitude: 6.5,
+);
+
+const FortuneWarpGeometry _dreamWarpB = FortuneWarpGeometry(
+  x0: 428,
+  x1: 518,
+  y0: 288,
+  y1: 490,
+  pinY: 486,
+  reach: 160,
+  maxAmplitude: 6,
+);
+
+const FortuneWarpGeometry _luckyflowerWarp = FortuneWarpGeometry(
+  x0: 150,
+  x1: 510,
+  y0: 345,
+  y1: 492,
+  pinY: 340,
+  reach: 130,
+  maxAmplitude: 4.5,
+  invert: true,
+);
+
+const FortuneWarpGeometry _moneyWarp = FortuneWarpGeometry(
+  x0: 225,
+  x1: 405,
+  y0: 5,
+  y1: 145,
+  pinY: 145,
+  reach: 120,
+  maxAmplitude: 5,
+);
+
+const FortuneSwirlGeometry _tasbihSwirl = FortuneSwirlGeometry(
+  centerX: 300,
+  centerY: 228,
+  fadeRadius: 120,
+  falloff: 55,
+  maxAngle: 0.05,
+);
+
+const FortuneSwirlGeometry _birthmonthSwirl = FortuneSwirlGeometry(
+  centerX: 320,
+  centerY: 242,
+  fadeRadius: 210,
+  falloff: 28,
+  maxAngle: 0.012,
+  breath: 0.004,
+  lagFactor: 0,
+);
+
+const FortuneSwirlGeometry _dailySwirl = FortuneSwirlGeometry(
+  centerX: 320,
+  centerY: 245,
+  fadeRadius: 195,
+  falloff: 26,
+  maxAngle: 0.01,
+  breath: 0.004,
+  lagFactor: 0,
+);
+
+const FortuneSwirlGeometry _luckynumberSwirl = FortuneSwirlGeometry(
+  centerX: 320,
+  centerY: 245,
+  fadeRadius: 165,
+  falloff: 24,
+  maxAngle: 0.01,
+  breath: 0.004,
+  lagFactor: 0,
+);
