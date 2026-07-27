@@ -18,6 +18,7 @@ import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entr
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/pump_ritual.dart';
 import '../support/reading_page_deps.dart';
 
 /// Final pre-push audit, client side: EVERY available fortune's ritual screen
@@ -156,7 +157,7 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(host(f.id));
-      await tester.pumpAndSettle();
+      await pumpRitual(tester);
 
       // Bespoke voice on screen — its own line and its own act.
       expect(find.text(f.ritualLine.resolve(fa)), findsOneWidget);
@@ -166,7 +167,7 @@ void main() {
       await _offerInput(tester, f);
       await tester.ensureVisible(find.text(cta));
       await tester.tap(find.text(cta));
-      await tester.pumpAndSettle();
+      await pumpRitual(tester);
 
       // Landed on the result screen of THIS fortune.
       expect(find.text('نتیجهٔ ${f.id}'), findsOneWidget);

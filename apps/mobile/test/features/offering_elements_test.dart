@@ -16,6 +16,7 @@ import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entr
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/paired_names_field.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/pump_ritual.dart';
 import '../support/reading_page_deps.dart';
 
 /// Phase 5 — bespoke offering elements. A chosen month, colour or quick intent
@@ -123,7 +124,7 @@ Widget _host(String fortuneId, _CapturingRepo repo) {
 Future<void> _submit(WidgetTester tester, String cta) async {
   await tester.ensureVisible(find.text(cta));
   await tester.tap(find.text(cta));
-  await tester.pumpAndSettle();
+  await pumpRitual(tester);
 }
 
 void main() {
@@ -139,7 +140,7 @@ void main() {
     await phone(tester);
     final repo = _CapturingRepo();
     await tester.pumpWidget(_host('birthmonth', repo));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('مهر'), findsOneWidget);
     await tester.ensureVisible(find.text('مهر'));
@@ -158,7 +159,7 @@ void main() {
     await phone(tester);
     final repo = _CapturingRepo();
     await tester.pumpWidget(_host('luckycolor', repo));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('فیروزه‌ای'), findsOneWidget);
     await tester.ensureVisible(find.text('فیروزه‌ای'));
@@ -175,7 +176,7 @@ void main() {
     await phone(tester);
     final repo = _CapturingRepo();
     await tester.pumpWidget(_host('yesno', repo));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('آیا پیش بروم؟'), findsOneWidget);
     await tester.ensureVisible(find.text('آیا پیش بروم؟'));
@@ -192,7 +193,7 @@ void main() {
     await phone(tester);
     final repo = _CapturingRepo();
     await tester.pumpWidget(_host('love', repo));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.byType(PairedNamesField), findsOneWidget);
     expect(find.text('و'), findsNothing);

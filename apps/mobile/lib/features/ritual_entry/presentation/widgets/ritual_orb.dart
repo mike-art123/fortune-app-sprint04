@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 
 /// The anchor at the head of every ritual: a painted orb that is alive before
@@ -49,15 +50,38 @@ class _RitualOrbState extends State<RitualOrb> with TickerProviderStateMixin {
     _slow = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 14),
-    )..repeat();
+    );
     _fast = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3200),
-    )..repeat();
+    );
     _breath = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2600),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Started here rather than in initState because the answer depends on
+    // MediaQuery, which initState cannot read.
+    _syncMotion(context.reduceMotion);
+  }
+
+  /// The app's motion contract, which FortuneFadeIn already keeps: when the
+  /// reader has asked their device for less movement, the orb holds still. It
+  /// stays lit and stays the fortune's colour — only the turning stops.
+  void _syncMotion(bool still) {
+    if (still) {
+      _slow.stop();
+      _fast.stop();
+      _breath.stop();
+      return;
+    }
+    if (!_slow.isAnimating) _slow.repeat();
+    if (!_fast.isAnimating) _fast.repeat();
+    if (!_breath.isAnimating) _breath.repeat(reverse: true);
   }
 
   @override

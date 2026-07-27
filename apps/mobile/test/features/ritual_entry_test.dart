@@ -8,6 +8,8 @@ import 'package:fortune_app/features/ritual_entry/presentation/widgets/paired_na
 import 'package:fortune_app/features/ritual_entry/presentation/widgets/whisper_field.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/pump_ritual.dart';
+
 /// The page now renders its back affordance through the router (FortuneAppBar
 /// reads GoRouter/GoRouterState), so the host must provide a real GoRouter —
 /// the same shape the CI-green smoke suite uses.
@@ -43,7 +45,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(host('hafez'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('نیتت را در دل نگه دار.'), findsOneWidget);
     expect(find.byType(WhisperField), findsOneWidget);
@@ -54,7 +56,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(host('love'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     // Interior phase 5: the two whispers are joined by the bond element in
     // the family accent — the lone «و» between form fields is gone.
@@ -67,11 +69,11 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(host('love'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     await tester.enterText(find.byType(WhisperField).first, 'سارا');
     await tester.tap(find.text('سازگاری را ببین'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(
       find.text('برای دیدنِ سازگاری، هر دو نام را بنویس.'),
@@ -83,18 +85,18 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(host('hafez'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     await tester.ensureVisible(find.text('بازگشت'));
     await tester.tap(find.text('بازگشت'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('explore-stub'), findsOneWidget);
   });
 
   testWidgets('unknown fortune id shows branded recovery', (tester) async {
     await tester.pumpWidget(host('nonsense'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('این صفحه پیدا نشد'), findsOneWidget);
   });
@@ -103,7 +105,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(host('hafez'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     final context = tester.element(find.byType(RitualEntryPage));
     expect(Directionality.of(context), TextDirection.rtl);

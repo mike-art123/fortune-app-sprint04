@@ -15,6 +15,7 @@ import 'package:fortune_app/features/reading/presentation/pages/reading_page.dar
 import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entry_page.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/pump_ritual.dart';
 import '../support/reading_page_deps.dart';
 
 class _FakeRepo implements ReadingRepository {
@@ -122,10 +123,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(host());
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     await tester.tap(find.text('فال حافظ را باز کن'));
-    await tester.pumpAndSettle();
+    await pumpRitual(tester);
 
     expect(find.text('پیامی از دیوان'), findsOneWidget);
     expect(find.textContaining('متنِ خوانش'), findsOneWidget);
