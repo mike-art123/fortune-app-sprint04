@@ -10,6 +10,7 @@ import '../../../../design_system/components/fortune_error_state.dart';
 import '../../../../design_system/components/fortune_loading.dart';
 import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
+import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../application/history_controller.dart';
@@ -21,6 +22,16 @@ import '../widgets/history_summary_card.dart';
 class HistoryPage extends ConsumerWidget {
   const HistoryPage({super.key});
 
+  void _tapNav(BuildContext context, int index) {
+    if (index == 0) {
+      context.go(AppRoutes.profilePath);
+    } else if (index == 1) {
+      context.go(AppRoutes.allFortunesPath);
+    } else if (index == 2) {
+      context.go(AppRoutes.homePath);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = context.strings;
@@ -28,6 +39,12 @@ class HistoryPage extends ConsumerWidget {
 
     return FortuneScaffold(
       appBar: FortuneAppBar(title: Text(s.historyTitle)),
+      // History is a destination, not a detour — it was losing the tabs
+      // the moment you arrived, so the only way out was Telegram's Close.
+      bottomNavigationBar: PremiumBottomNavigation(
+        currentIndex: 3,
+        onTap: (i) => _tapNav(context, i),
+      ),
       child: switch (state) {
         HistoryLoading() => const Center(child: FortuneLoading()),
         HistoryFailed(:final failure) => FortuneErrorState(

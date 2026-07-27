@@ -14,6 +14,7 @@ class FortuneScaffold extends StatelessWidget {
     this.padding,
     this.constrainWidth = true,
     this.background,
+    this.bottomNavigationBar,
   });
 
   final Widget child;
@@ -25,6 +26,10 @@ class FortuneScaffold extends StatelessWidget {
   /// Optional full-bleed layer painted behind the body (below the app bar).
   /// Null keeps the plain solid background — existing pages are unaffected.
   final Widget? background;
+
+  /// Tabs for pages that are a destination rather than a detour.
+  /// Null keeps the bare shell, so nothing that does not ask changes.
+  final Widget? bottomNavigationBar;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +73,7 @@ class FortuneScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: context.fortuneColors.backgroundPrimary,
         appBar: appBar,
+        bottomNavigationBar: bottomNavigationBar,
         body: body,
       ),
     );
