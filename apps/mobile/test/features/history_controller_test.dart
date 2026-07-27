@@ -195,7 +195,8 @@ void main() {
   test('a failed clear keeps every reading', () async {
     final repo = _FakeHistoryRepository({
       null: Success(ReadingListPage(items: [_reading('c1')], nextCursor: null)),
-    })..clearResult = _boom;
+    });
+    repo.clearResult = _boom;
     final container = _container(repo);
     final sub = container.listen(historyControllerProvider, (_, __) {});
     await _settle();
@@ -231,7 +232,8 @@ void main() {
   test('a failed deleteOne keeps the reading in place', () async {
     final repo = _FakeHistoryRepository({
       null: Success(ReadingListPage(items: [_reading('c1')], nextCursor: null)),
-    })..deleteResult = _boom;
+    });
+    repo.deleteResult = _boom;
     final container = _container(repo);
     final sub = container.listen(historyControllerProvider, (_, __) {});
     await _settle();
