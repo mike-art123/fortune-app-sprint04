@@ -255,7 +255,11 @@ class _ProfileChip extends ConsumerWidget {
     // The confirmed name from onboarding — the same source the profile page
     // and the readings use, so the greeting cannot drift from the settings.
     // It is already persisted server-side, so it survives every return.
-    final name = ref.watch(profileControllerProvider).valueOrNull?.displayName;
+    final profileName =
+        ref.watch(profileControllerProvider).valueOrNull?.displayName?.trim();
+    final greeting = (profileName == null || profileName.isEmpty)
+        ? 'مسافرِ بخت'
+        : profileName;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -276,9 +280,7 @@ class _ProfileChip extends ConsumerWidget {
         ),
         const SizedBox(width: AppSpacing.xs),
         Text(
-          (name != null && name.trim().isNotEmpty)
-              ? name.trim()
-              : 'مسافرِ بخت',
+          greeting,
           style: TextStyle(
             color: c.textPrimary,
             fontSize: 13,
