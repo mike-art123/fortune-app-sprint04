@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/localization/app_strings.dart';
@@ -16,6 +17,7 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_catalog.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
+import '../../../profile/application/profile_controller.dart';
 
 /// The premium landing screen: a cinematic featured fortune, a compact quick
 /// action row, a curated horizontal rail and one asymmetric editorial section
@@ -185,16 +187,15 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Const all the way down now that nothing here reads the theme:
-    // `kMonetizationEnabled` is a compile-time bool, so the collection-if
-    // survives inside a const list.
-    return const Row(
+    return Row(
       children: [
-        _ProfileChip(),
-        Spacer(),
+        // Not const: the chip watches the profile, so this Row rebuilds when
+        // the name changes.
+        const _ProfileChip(),
+        const Spacer(),
         // Nothing is sold while monetization is paused, so nothing advertises
         // it either.
-        if (kMonetizationEnabled) _VipChip(),
+        if (kMonetizationEnabled) const _VipChip(),
       ],
     );
   }
@@ -245,12 +246,16 @@ class _VipChip extends StatelessWidget {
   }
 }
 
-class _ProfileChip extends StatelessWidget {
+class _ProfileChip extends ConsumerWidget {
   const _ProfileChip();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fortuneColors;
+    // The confirmed name from onboarding — the same source the profile page
+    // and the readings use, so the greeting cannot drift from the settings.
+    // It is already persisted server-side, so it survives every return.
+    final name = ref.watch(profileControllerProvider).valueOrNull?.displayName;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -271,7 +276,9 @@ class _ProfileChip extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.xs),
         Text(
-          'نیلوفر',
+          (name != null && name.trim().isNotEmpty)
+              ? name.trim()
+              : 'مسافرِ بخت',
           style: TextStyle(
             color: c.textPrimary,
             fontSize: 13,
