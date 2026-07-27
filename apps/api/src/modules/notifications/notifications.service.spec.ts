@@ -12,7 +12,11 @@ const logger = {
   error: jest.fn(),
 } as unknown as AppLoggerService;
 
-const config = { sweepSecret: 's', sweepBatch: 50 } as unknown as NotificationsConfig;
+const config = {
+  sweepSecret: 's',
+  sweepBatch: 50,
+  sweepBudgetMs: 60000,
+} as unknown as NotificationsConfig;
 
 function flags(enabled: boolean): FeatureFlagsService {
   return { isEnabled: jest.fn().mockResolvedValue(enabled) } as unknown as FeatureFlagsService;

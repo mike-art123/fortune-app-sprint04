@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { NotificationPreference } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-flags.service';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
@@ -25,6 +26,13 @@ export interface NotificationPreferencePatch {
   timeZone?: string;
   /** Hours of silence from now; 0 lifts the mute. */
   muteHours?: number;
+}
+
+/** The columns a sweep pass needs, so the page type is stated once. */
+interface SweepUser {
+  id: string;
+  telegramId: string;
+  notificationPreference: NotificationPreference | null;
 }
 
 export interface SweepResult {
@@ -115,13 +123,57 @@ export class NotificationsService {
     const enabled = await this.flags.isEnabled(SMART_NOTIFICATIONS_FLAG);
     if (!enabled) return { considered: 0, sent: 0, skipped: 0 };
 
-    const users = await this.prisma.user.findMany({
-      where: { onboardingCompleted: true },
-      orderBy: { createdAt: 'asc' },
-      take: this.config.sweepBatch,
-      select: { id: true, telegramId: true, notificationPreference: true },
-    });
+    // Page all the way through, rather than looking at the same first N
+    // readers on every tick. The old `take` with no cursor meant reader 201
+    // was never considered — not delayed, never — and nothing said so.
+    const pageSize = this.config.sweepBatch;
+    const deadline = Date.now() + this.config.sweepBudgetMs;
 
+    let considered = 0;
+    let sent = 0;
+    let skipped = 0;
+    let cursor: string | null = null;
+    let exhausted = false;
+
+    while (!exhausted) {
+      const page: SweepUser[] = await this.prisma.user.findMany({
+        where: { onboardingCompleted: true },
+        orderBy: { id: 'asc' },
+        take: pageSize,
+        ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        select: { id: true, telegramId: true, notificationPreference: true },
+      });
+
+      if (page.length === 0) break;
+      cursor = page.at(-1)?.id ?? null;
+      considered += page.length;
+      if (page.length < pageSize) exhausted = true;
+
+      const outcome = await this.sweepPage(page, now);
+      sent += outcome.sent;
+      skipped += outcome.skipped;
+
+      // A pass that runs out of time is not a pass that loses work: the
+      // delivery row is unique per (user, kind, local day), so the next tick
+      // fifteen minutes from now picks up where this one stopped without
+      // messaging anyone twice.
+      if (!exhausted && Date.now() > deadline) break;
+    }
+
+    this.logger.info('notifications.sweep.done', {
+      considered,
+      sent,
+      skipped,
+      exhausted,
+    });
+    return { considered, sent, skipped };
+  }
+
+  /** One page of readers. Pure fan-out; the decision core stays untouched. */
+  private async sweepPage(
+    users: SweepUser[],
+    now: Date,
+  ): Promise<{ sent: number; skipped: number }> {
     let sent = 0;
     let skipped = 0;
 
@@ -161,12 +213,7 @@ export class NotificationsService {
       }
     }
 
-    this.logger.info('notifications.sweep.done', {
-      considered: users.length,
-      sent,
-      skipped,
-    });
-    return { considered: users.length, sent, skipped };
+    return { sent, skipped };
   }
 
   /**

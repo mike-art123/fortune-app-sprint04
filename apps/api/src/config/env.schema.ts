@@ -100,6 +100,7 @@ export const envSchema = z
     NOTIFICATIONS_SWEEP_SECRET: z.string().default(''),
     /** How many readers one sweep may consider. Bounded on purpose. */
     NOTIFICATIONS_SWEEP_BATCH: z.coerce.number().int().min(1).max(2000).default(200),
+    NOTIFICATIONS_SWEEP_BUDGET_MS: z.coerce.number().int().positive().default(60000),
 
     /** VIP plan prices in Telegram Stars (XTR). */
     VIP_MONTHLY_STARS: z.coerce.number().int().positive().default(250),
