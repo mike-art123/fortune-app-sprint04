@@ -125,15 +125,20 @@ Note this is a real send to real readers, so pick the moment: with default
 preferences nobody is eligible between 22:00 and 08:00 Tehran time, and the cap
 of 1 means at most one message per reader per day.
 
-## Two limits worth knowing before there are many readers
+## The one limit left
 
-- **The sweep does not paginate.** It takes the oldest `NOTIFICATIONS_SWEEP_BATCH`
-  users by `createdAt` (default 200) on every pass, with no cursor. Past 200
-  onboarded readers, the ones after the first 200 are never considered.
-- **200 readers may not fit in 30s.** Each is two queries plus a possible
-  Telegram call, against a 30s request timeout. The unique index means a
-  timeout is harmless — the pass simply stops partway and the next tick
-  continues — but it is worth watching `considered` against the real user
-  count.
+- **A pass is bounded by time, not by reader count.** It walks a cursor through
+  every onboarded reader and stops when the table is exhausted or
+  `NOTIFICATIONS_SWEEP_BUDGET_MS` (60s) runs out — comfortably under the
+  server's own 80s request timeout, so the sweep ends itself rather than being
+  cut off mid-page. The log line carries `exhausted`, so a pass that ran out of
+  room says so instead of looking complete.
 
-Neither blocks launch at today's size. Both want a cursor before it grows.
+  Stopping early costs nothing: the delivery row is unique on
+  `(user, kind, local day)`, so the next tick re-walks from the start, serves
+  everyone still owed a message, and is rejected by the index for everyone
+  already served.
+
+  At roughly two queries per reader that is several thousand readers per pass.
+  If `exhausted: false` starts appearing in the logs, the fix is to batch the
+  per-reader queries — not to raise the budget past the request timeout.
