@@ -185,13 +185,16 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    // Const all the way down now that nothing here reads the theme:
+    // `kMonetizationEnabled` is a compile-time bool, so the collection-if
+    // survives inside a const list.
+    return const Row(
       children: [
-        const _ProfileChip(),
-        const Spacer(),
+        _ProfileChip(),
+        Spacer(),
         // Nothing is sold while monetization is paused, so nothing advertises
         // it either.
-        if (kMonetizationEnabled) const _VipChip(),
+        if (kMonetizationEnabled) _VipChip(),
       ],
     );
   }
