@@ -185,18 +185,13 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.fortuneColors;
     return Row(
       children: [
         const _ProfileChip(),
         const Spacer(),
         // Nothing is sold while monetization is paused, so nothing advertises
         // it either.
-        if (kMonetizationEnabled) ...[
-          const _VipChip(),
-          const SizedBox(width: AppSpacing.xs),
-        ],
-        Icon(Icons.menu, color: c.goldWarm),
+        if (kMonetizationEnabled) const _VipChip(),
       ],
     );
   }
