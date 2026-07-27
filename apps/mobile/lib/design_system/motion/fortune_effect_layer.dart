@@ -35,10 +35,15 @@ class _FortuneEffectLayerState extends State<FortuneEffectLayer> {
   ImageStreamListener? _listener;
   ImageInfo? _art;
 
+  bool _isWarpKind(FortuneEffectKind kind) {
+    return kind == FortuneEffectKind.steamWarp ||
+        kind == FortuneEffectKind.swirlWarp;
+  }
+
   bool _wantsArt(FortuneEffectSpec? spec) {
     if (spec == null) return false;
     for (final layer in spec.layers) {
-      if (layer.kind == FortuneEffectKind.steamWarp) return true;
+      if (_isWarpKind(layer.kind)) return true;
     }
     return false;
   }

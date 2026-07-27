@@ -79,6 +79,8 @@ class FortuneEffectPainter extends CustomPainter {
           _paintHourglass(canvas, size, layer, t);
         case FortuneEffectKind.steamWarp:
           _paintSteamWarp(canvas, size, layer, t);
+        case FortuneEffectKind.swirlWarp:
+          _paintSwirlWarp(canvas, size, layer, t);
       }
     }
   }
@@ -837,11 +839,9 @@ class FortuneEffectPainter extends CustomPainter {
   ui.ImageShader? _warpShader;
   ui.Image? _warpShaderImage;
 
-  /// The painted plume itself billows: a triangle mesh over the warp box,
-  /// texture pinned to the artwork, vertices carried by the traveling
-  /// wave. Edge vertices never move, so the mesh blends seamlessly into
-  /// the still image around it. Until the decoded artwork arrives this
-  /// paints nothing — the card simply stays still.
+  /// The painted plume itself billows: the warp mesh carried by the
+  /// traveling wave. Edge vertices never move, so the mesh blends
+  /// seamlessly into the still image around it.
   void _paintSteamWarp(
     Canvas canvas,
     Size size,
@@ -849,19 +849,64 @@ class FortuneEffectPainter extends CustomPainter {
     double t,
   ) {
     final warp = layer.warp;
+    if (warp == null) return;
+    _paintWarpMesh(
+      canvas,
+      size,
+      warp.x0,
+      warp.x1,
+      warp.y0,
+      warp.y1,
+      (x, y) => Offset(warp.warpDx(x, y, t), warp.warpDy(x, y, t)),
+    );
+  }
+
+  /// The galaxy inside the orb stirs: the warp mesh carried by the
+  /// differential rotation, pinned before it reaches the glass.
+  void _paintSwirlWarp(
+    Canvas canvas,
+    Size size,
+    FortuneEffectLayerSpec layer,
+    double t,
+  ) {
+    final swirl = layer.swirl;
+    if (swirl == null) return;
+    final reach = swirl.fadeRadius + 8;
+    _paintWarpMesh(
+      canvas,
+      size,
+      swirl.centerX - reach,
+      swirl.centerX + reach,
+      swirl.centerY - reach,
+      swirl.centerY + reach,
+      (x, y) => swirl.swirlDelta(x, y, t),
+    );
+  }
+
+  /// A triangle mesh over an artwork box, texture pinned to the artwork
+  /// via [ui.ImageShader], vertices moved by [delta]. Until the decoded
+  /// artwork arrives this paints nothing — the card simply stays still.
+  void _paintWarpMesh(
+    Canvas canvas,
+    Size size,
+    double x0,
+    double x1,
+    double y0,
+    double y1,
+    Offset Function(double x, double y) delta,
+  ) {
     final image = artImage;
-    if (warp == null || image == null) return;
+    if (image == null) return;
     final texX = image.width / kFortuneArtSize.width;
     final texY = image.height / kFortuneArtSize.height;
     final positions = <Offset>[];
     final texCoords = <Offset>[];
     for (var r = 0; r < _warpRows; r += 1) {
       for (var c = 0; c < _warpCols; c += 1) {
-        final gx = warp.x0 + (warp.x1 - warp.x0) * c / (_warpCols - 1);
-        final gy = warp.y0 + (warp.y1 - warp.y0) * r / (_warpRows - 1);
-        final dx = warp.warpDx(gx, gy, t);
-        final dy = warp.warpDy(gx, gy, t);
-        positions.add(_artPoint(size, gx + dx, gy + dy));
+        final gx = x0 + (x1 - x0) * c / (_warpCols - 1);
+        final gy = y0 + (y1 - y0) * r / (_warpRows - 1);
+        final d = delta(gx, gy);
+        positions.add(_artPoint(size, gx + d.dx, gy + d.dy));
         texCoords.add(Offset(gx * texX, gy * texY));
       }
     }

@@ -31,6 +31,7 @@ enum FortuneEffectKind {
   blink,
   hourglass,
   steamWarp,
+  swirlWarp,
 }
 
 /// One layer of ambient motion, anchored in image space.
@@ -45,6 +46,7 @@ class FortuneEffectLayerSpec {
     this.eye,
     this.hourglass,
     this.warp,
+    this.swirl,
   });
 
   final FortuneEffectKind kind;
@@ -74,6 +76,71 @@ class FortuneEffectLayerSpec {
   /// Warp-region geometry; only [FortuneEffectKind.steamWarp] layers
   /// carry one.
   final FortuneWarpGeometry? warp;
+
+  /// Swirl geometry; only [FortuneEffectKind.swirlWarp] layers carry one.
+  final FortuneSwirlGeometry? swirl;
+}
+
+/// A disc of the artwork that stirs: differential rotation around a
+/// centre — strongest at the core, zero from [fadeRadius] outward — with
+/// a whisper of radial breathing. The glass sheen and rim around it never
+/// move. Artwork pixels; loops exactly every [loopSeconds].
+class FortuneSwirlGeometry {
+  const FortuneSwirlGeometry({
+    required this.centerX,
+    required this.centerY,
+    this.fadeRadius = 96,
+    this.falloff = 60,
+    this.maxAngle = 0.13,
+    this.breath = 0.012,
+    this.loopSeconds = 8,
+  });
+
+  /// The stirring centre — the galaxy's core.
+  final double centerX;
+  final double centerY;
+
+  /// The envelope is zero at this radius and beyond.
+  final double fadeRadius;
+
+  /// How quickly the envelope fades approaching [fadeRadius].
+  final double falloff;
+
+  /// Rotation at the very core, radians.
+  final double maxAngle;
+
+  /// Radial in/out, as a fraction of the radius.
+  final double breath;
+
+  /// The pattern repeats exactly this often.
+  final double loopSeconds;
+
+  /// 1 at the core, 0 at [fadeRadius] and beyond.
+  double envelope(double r) {
+    final e = ((fadeRadius - r) / falloff).clamp(0.0, 1.0);
+    return math.pow(e, 1.4).toDouble();
+  }
+
+  /// Where the artwork point (x, y) sits at second [t], minus where it
+  /// rests — the mesh displacement.
+  Offset swirlDelta(double x, double y, double t) {
+    final dx = x - centerX;
+    final dy = y - centerY;
+    final r = math.sqrt(dx * dx + dy * dy);
+    final env = envelope(r);
+    if (env <= 0) return Offset.zero;
+    final ph1 = _tau * t / loopSeconds;
+    final ph2 = _tau * t / (loopSeconds / 2);
+    final wa = 0.75 * math.sin(ph1 - r * 0.045);
+    final wb = 0.35 * math.sin(ph2 - r * 0.03 + 1.3);
+    final theta = maxAngle * env * (wa + wb);
+    final scale = 1 + breath * env * math.sin(ph1 - r * 0.02 + 2.0);
+    final cosT = math.cos(theta);
+    final sinT = math.sin(theta);
+    final nx = centerX + (dx * cosT - dy * sinT) * scale;
+    final ny = centerY + (dx * sinT + dy * cosT) * scale;
+    return Offset(nx - x, ny - y);
+  }
 }
 
 /// A region of the artwork that billows: a traveling wave rises through
@@ -282,6 +349,13 @@ const FortuneWarpGeometry _teaSteamWarp = FortuneWarpGeometry(
   y1: 175,
 );
 
+/// The crystal ball's galaxy: core located at the artwork's brightest
+/// interior blob; the envelope dies out well inside the glass sheen.
+const FortuneSwirlGeometry _ballSwirl = FortuneSwirlGeometry(
+  centerX: 316,
+  centerY: 235,
+);
+
 /// The talisman's eye opening, fitted on the artwork's inner gold rims
 /// (max residual under 1.5px against the measured edge points).
 const FortuneEyeGeometry _talismanEye = FortuneEyeGeometry(
@@ -427,6 +501,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The crystal ball's galaxy shimmers inside a breathing violet halo.
   'yesno': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.494, 0.472),
+      swirl: _ballSwirl,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.47),

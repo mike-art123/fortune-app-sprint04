@@ -175,6 +175,39 @@ void main() {
     expect(warp.amplitude(300, 60), greaterThan(1));
   });
 
+  test('the ball swirl loops, stays put at the glass and stirs inside', () {
+    final spec = fortuneEffectSpec('yesno')!;
+    final layer = spec.layers.firstWhere(
+      (l) => l.kind == FortuneEffectKind.swirlWarp,
+    );
+    final swirl = layer.swirl!;
+    expect(swirl.envelope(0), 1);
+    expect(swirl.envelope(swirl.fadeRadius), 0);
+    expect(swirl.envelope(swirl.fadeRadius + 30), 0);
+    var moved = 0.0;
+    for (var i = 0; i < 60; i += 1) {
+      final angle = effectRandom(9, i, 1) * 6.28318;
+      final r = effectRandom(9, i, 2) * (swirl.fadeRadius + 40);
+      final x = swirl.centerX + r * 0.99;
+      final y = swirl.centerY + r * 0.14 * (angle - 3);
+      final t = 16 * effectRandom(9, i, 3);
+      final d = swirl.swirlDelta(x, y, t);
+      expect(d.distance, lessThan(16));
+      final again = swirl.swirlDelta(x, y, t + swirl.loopSeconds);
+      expect(d.dx, closeTo(again.dx, 1e-6));
+      expect(d.dy, closeTo(again.dy, 1e-6));
+      if (d.distance > moved) moved = d.distance;
+    }
+    expect(moved, greaterThan(1));
+    final far = swirl.swirlDelta(
+      swirl.centerX + swirl.fadeRadius + 5,
+      swirl.centerY,
+      2.7,
+    );
+    expect(far, Offset.zero);
+    expect(swirl.swirlDelta(swirl.centerX, swirl.centerY, 2.7), Offset.zero);
+  });
+
   test('cover mapping matches the centre-cover crop', () {
     const size = Size(300, 300);
     final centre = mapCoverPoint(

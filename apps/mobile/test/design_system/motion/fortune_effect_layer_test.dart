@@ -151,6 +151,25 @@ void main() {
     image!.dispose();
   });
 
+  testWidgets('paints the ball swirl mesh with an image', (tester) async {
+    final image = await tester.runAsync(
+      () => createTestImage(width: 640, height: 498),
+    );
+    expect(image, isNotNull);
+    final painter = FortuneEffectPainter(
+      spec: fortuneEffectSpec('yesno')!,
+      accent: const Color(0xFFC5A0FF),
+      seed: effectSeedFor('yesno'),
+      alignment: Alignment.center,
+      artImage: image,
+      stillSeconds: 2.6,
+    );
+    final recorder = ui.PictureRecorder();
+    painter.paint(Canvas(recorder), const Size(300, 220));
+    recorder.endRecording().dispose();
+    image!.dispose();
+  });
+
   testWidgets('reduced motion never starts the ticker', (tester) async {
     await tester.pumpWidget(
       MediaQuery(
