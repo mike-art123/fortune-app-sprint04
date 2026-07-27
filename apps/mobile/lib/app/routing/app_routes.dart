@@ -32,6 +32,9 @@ abstract final class AppRoutes {
   static const historyName = 'history';
   static const historyPath = '/history';
 
+  static const termsName = 'terms';
+  static const termsPath = '/terms';
+
   static const profileName = 'profile';
   static const profilePath = '/profile';
 

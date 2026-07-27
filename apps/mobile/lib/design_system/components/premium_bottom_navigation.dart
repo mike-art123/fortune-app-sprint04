@@ -23,7 +23,7 @@ class PremiumBottomNavigation extends StatelessWidget {
     (icon: Icons.auto_awesome_outlined, label: 'فال‌ها'),
     (icon: Icons.home_rounded, label: 'خانه'),
     (icon: Icons.menu_book_outlined, label: 'تاریخچه'),
-    (icon: Icons.more_horiz, label: 'بیشتر'),
+    (icon: Icons.gavel_rounded, label: 'قوانین'),
   ];
 
   @override

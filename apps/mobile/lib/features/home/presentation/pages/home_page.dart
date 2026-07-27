@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
     } else if (index == 3) {
       context.go(AppRoutes.historyPath);
     } else if (index == 4) {
-      _soon(context);
+      context.go(AppRoutes.termsPath);
     }
   }
 

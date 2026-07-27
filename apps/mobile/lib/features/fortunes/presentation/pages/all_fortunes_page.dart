@@ -45,6 +45,8 @@ class AllFortunesPage extends StatelessWidget {
       context.go(AppRoutes.homePath);
     } else if (index == 3) {
       context.go(AppRoutes.historyPath);
+    } else if (index == 4) {
+      context.go(AppRoutes.termsPath);
     }
   }
 

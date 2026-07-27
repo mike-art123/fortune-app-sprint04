@@ -29,6 +29,8 @@ class HistoryPage extends ConsumerWidget {
       context.go(AppRoutes.allFortunesPath);
     } else if (index == 2) {
       context.go(AppRoutes.homePath);
+    } else if (index == 4) {
+      context.go(AppRoutes.termsPath);
     }
   }
 

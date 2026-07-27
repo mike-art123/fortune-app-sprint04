@@ -8,6 +8,7 @@ import '../../features/fortunes/presentation/pages/coffee_guide_page.dart';
 import '../../features/fortunes/presentation/pages/elements_guide_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
+import '../../features/terms/presentation/pages/terms_page.dart';
 import '../../features/profile/application/profile_controller.dart';
 import '../../features/profile/domain/user_profile.dart';
 import '../../features/profile/presentation/pages/onboarding_page.dart';
@@ -163,6 +164,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.historyPath,
         name: AppRoutes.historyName,
         builder: (_, __) => const HistoryPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.termsPath,
+        name: AppRoutes.termsName,
+        builder: (_, __) => const TermsPage(),
       ),
       GoRoute(
         path: AppRoutes.vipPath,
