@@ -100,13 +100,26 @@ line, and a failure writes the reason rather than a stack trace.
 deliberately and watch:
 
 ```sql
-insert into feature_flags (key, enabled) values ('notifications.smart', true)
-  on conflict (key) do update set enabled = true;
+insert into feature_flags (key, enabled, note, updated_at)
+values ('notifications.smart', true, 'smart notifications on', now())
+on conflict (key) do update set enabled = true, updated_at = now();
 ```
 
-The flag is cached in Redis for 30s, so allow half a minute. Turning it off is
-the same statement with `false` and is the fastest kill switch — faster than
-touching the Worker.
+`updated_at` is not optional. Prisma declares it `@updatedAt`, which it fills
+in application code — the column itself is `NOT NULL` with **no** database
+default, so raw SQL that omits it fails outright. The same applies to any other
+flag added by hand.
+
+Run it from **Railway → Postgres → Console**, where `psql` is already
+authenticated; the Data tab's browser connection is slower to come up.
+
+The flag is cached in Redis for 30s, so allow half a minute. The kill switch is
+one statement and does not need a deploy:
+
+```sql
+update feature_flags set enabled = false, updated_at = now()
+where key = 'notifications.smart';
+```
 
 Note this is a real send to real readers, so pick the moment: with default
 preferences nobody is eligible between 22:00 and 08:00 Tehran time, and the cap
