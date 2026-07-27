@@ -1,7 +1,11 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/design_system/motion/ambient_motion.dart';
 import 'package:fortune_app/design_system/motion/fortune_effect_layer.dart';
+import 'package:fortune_app/design_system/motion/fortune_effect_painter.dart';
+import 'package:fortune_app/design_system/motion/fortune_effects.dart';
 
 void main() {
   Widget frame(Widget child) {
@@ -116,6 +120,30 @@ void main() {
     }
     expect(find.byType(CustomPaint), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('the tea card settles with its warp layer', (tester) async {
+    await tester.pumpWidget(
+      frame(const FortuneEffectLayer(id: 'tea', accent: Color(0xFFEFC97F))),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(CustomPaint), findsOneWidget);
+  });
+
+  testWidgets('paints the tea warp mesh with an image', (tester) async {
+    final image = await createTestImage(width: 640, height: 498);
+    final painter = FortuneEffectPainter(
+      spec: fortuneEffectSpec('tea')!,
+      accent: const Color(0xFFEFC97F),
+      seed: effectSeedFor('tea'),
+      alignment: Alignment.center,
+      artImage: image,
+      stillSeconds: 1.7,
+    );
+    final recorder = ui.PictureRecorder();
+    painter.paint(Canvas(recorder), const Size(300, 220));
+    recorder.endRecording().dispose();
+    image.dispose();
   });
 
   testWidgets('reduced motion never starts the ticker', (tester) async {

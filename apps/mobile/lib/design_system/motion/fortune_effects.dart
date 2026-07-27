@@ -23,7 +23,15 @@ const Size kFortuneArtSize = Size(640, 498);
 
 /// What a layer paints. Kinds are deliberately few; cards differ by anchor,
 /// colour and intensity, not by bespoke code.
-enum FortuneEffectKind { steam, flame, sparkle, glow, blink, hourglass }
+enum FortuneEffectKind {
+  steam,
+  flame,
+  sparkle,
+  glow,
+  blink,
+  hourglass,
+  steamWarp,
+}
 
 /// One layer of ambient motion, anchored in image space.
 class FortuneEffectLayerSpec {
@@ -36,6 +44,7 @@ class FortuneEffectLayerSpec {
     this.count = 0,
     this.eye,
     this.hourglass,
+    this.warp,
   });
 
   final FortuneEffectKind kind;
@@ -61,7 +70,77 @@ class FortuneEffectLayerSpec {
   /// Hourglass geometry; only [FortuneEffectKind.hourglass] layers carry
   /// one.
   final FortuneHourglassGeometry? hourglass;
+
+  /// Warp-region geometry; only [FortuneEffectKind.steamWarp] layers
+  /// carry one.
+  final FortuneWarpGeometry? warp;
 }
+
+/// A region of the artwork that billows: a traveling wave rises through
+/// it, so the painted steam itself undulates — a cinemagraph, not a
+/// particle. Everything below [pinY] and every box edge holds perfectly
+/// still; amplitude grows with height. Artwork pixels throughout.
+class FortuneWarpGeometry {
+  const FortuneWarpGeometry({
+    required this.x0,
+    required this.x1,
+    required this.y0,
+    required this.y1,
+    this.pinY = 170,
+    this.reach = 130,
+    this.maxAmplitude = 7,
+    this.loopSeconds = 6,
+  });
+
+  /// The warped box.
+  final double x0;
+  final double x1;
+  final double y0;
+  final double y1;
+
+  /// Below this row nothing moves — the plume stays attached to its cup.
+  final double pinY;
+
+  /// Rows over which the amplitude grows from the pin toward full.
+  final double reach;
+
+  /// Peak envelope, artwork pixels (waves may sum to 1.1x briefly).
+  final double maxAmplitude;
+
+  /// The wave pattern repeats exactly this often.
+  final double loopSeconds;
+
+  /// Displacement envelope at (x, y): zero on every box edge and below
+  /// the pin, rising with height.
+  double amplitude(double x, double y) {
+    var h = ((pinY - y) / reach).clamp(0.0, 1.0);
+    h = math.pow(h, 1.25).toDouble();
+    h *= ((y - y0) / 12).clamp(0.0, 1.0);
+    final sideL = ((x - x0) / 25).clamp(0.0, 1.0);
+    final sideR = ((x1 - x) / 25).clamp(0.0, 1.0);
+    return maxAmplitude * h * sideL * sideR;
+  }
+
+  /// Horizontal displacement at second [t] — two waves traveling upward.
+  double warpDx(double x, double y, double t) {
+    final ph1 = _tau * t / loopSeconds;
+    final ph2 = _tau * t / (loopSeconds / 2);
+    final a = 0.75 * math.sin(ph1 - y * 0.030 + x * 0.010 + 0.8);
+    final b = 0.35 * math.sin(ph2 - y * 0.017 + x * 0.006 + 2.1);
+    return amplitude(x, y) * (a + b);
+  }
+
+  /// Vertical displacement at second [t] — gentler than the sway.
+  double warpDy(double x, double y, double t) {
+    final ph1 = _tau * t / loopSeconds;
+    final ph2 = _tau * t / (loopSeconds / 2);
+    final a = 0.7 * math.sin(ph1 - y * 0.026 + x * 0.008 + 2.9);
+    final b = 0.3 * math.sin(ph2 - y * 0.021 + 5.0);
+    return 0.55 * amplitude(x, y) * (a + b);
+  }
+}
+
+const double _tau = math.pi * 2;
 
 /// The eye opening of a card that blinks, measured in artwork pixels.
 ///
@@ -193,6 +272,15 @@ const Color _smoke = Color(0xFFB9AFA4);
 const Color _rose = Color(0xFFFF9FB0);
 const Color _violet = Color(0xFFC5A0FF);
 const Color _paleMoon = Color(0xFFF4EBCF);
+
+/// The tea card's steam plume, measured off the artwork: the box the wave
+/// lives in; the cup rim it stays pinned to comes with the defaults.
+const FortuneWarpGeometry _teaSteamWarp = FortuneWarpGeometry(
+  x0: 215,
+  x1: 415,
+  y0: 22,
+  y1: 175,
+);
 
 /// The talisman's eye opening, fitted on the artwork's inner gold rims
 /// (max residual under 1.5px against the measured edge points).
@@ -739,6 +827,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // Steam from the cup’s mouth — the example this began with.
   'tea': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.46, 0.2),
+      warp: _teaSteamWarp,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.steam,
       anchor: Offset(0.46, 0.4),

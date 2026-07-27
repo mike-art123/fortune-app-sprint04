@@ -24,6 +24,7 @@ class FortuneEffectPainter extends CustomPainter {
     required this.seed,
     required this.alignment,
     this.clock,
+    this.artImage,
     this.stillSeconds = 8,
   }) : super(repaint: clock);
 
@@ -32,6 +33,11 @@ class FortuneEffectPainter extends CustomPainter {
   final int seed;
   final Alignment alignment;
   final AmbientMotionClock? clock;
+
+  /// The card's decoded artwork — only warp layers need it; everything
+  /// else paints happily without.
+  final ui.Image? artImage;
+
   final double stillSeconds;
 
   static const MaskFilter _softBlur = MaskFilter.blur(BlurStyle.normal, 5);
@@ -71,6 +77,8 @@ class FortuneEffectPainter extends CustomPainter {
           _paintBlink(canvas, size, layer, blink);
         case FortuneEffectKind.hourglass:
           _paintHourglass(canvas, size, layer, t);
+        case FortuneEffectKind.steamWarp:
+          _paintSteamWarp(canvas, size, layer, t);
       }
     }
   }
@@ -820,6 +828,72 @@ class FortuneEffectPainter extends CustomPainter {
     streak(352, 4, 0.12, 302, 345);
   }
 
+  // The steam-warp mesh: 17x15 keeps the linearized wave within a third
+  // of a pixel of the analytic field.
+  static const int _warpCols = 17;
+  static const int _warpRows = 15;
+  static final _noTransform = Matrix4.identity().storage;
+  final Paint _warpPaint = Paint()..filterQuality = FilterQuality.low;
+  ui.ImageShader? _warpShader;
+  ui.Image? _warpShaderImage;
+
+  /// The painted plume itself billows: a triangle mesh over the warp box,
+  /// texture pinned to the artwork, vertices carried by the traveling
+  /// wave. Edge vertices never move, so the mesh blends seamlessly into
+  /// the still image around it. Until the decoded artwork arrives this
+  /// paints nothing — the card simply stays still.
+  void _paintSteamWarp(
+    Canvas canvas,
+    Size size,
+    FortuneEffectLayerSpec layer,
+    double t,
+  ) {
+    final warp = layer.warp;
+    final image = artImage;
+    if (warp == null || image == null) return;
+    final texX = image.width / kFortuneArtSize.width;
+    final texY = image.height / kFortuneArtSize.height;
+    final positions = <Offset>[];
+    final texCoords = <Offset>[];
+    for (var r = 0; r < _warpRows; r += 1) {
+      for (var c = 0; c < _warpCols; c += 1) {
+        final gx = warp.x0 + (warp.x1 - warp.x0) * c / (_warpCols - 1);
+        final gy = warp.y0 + (warp.y1 - warp.y0) * r / (_warpRows - 1);
+        final dx = warp.warpDx(gx, gy, t);
+        final dy = warp.warpDy(gx, gy, t);
+        positions.add(_artPoint(size, gx + dx, gy + dy));
+        texCoords.add(Offset(gx * texX, gy * texY));
+      }
+    }
+    final indices = <int>[];
+    for (var r = 0; r < _warpRows - 1; r += 1) {
+      for (var c = 0; c < _warpCols - 1; c += 1) {
+        final i0 = r * _warpCols + c;
+        final i1 = i0 + 1;
+        final i2 = i0 + _warpCols;
+        final i3 = i2 + 1;
+        indices.addAll([i0, i2, i1, i1, i2, i3]);
+      }
+    }
+    if (!identical(_warpShaderImage, image)) {
+      _warpShaderImage = image;
+      _warpShader = ui.ImageShader(
+        image,
+        TileMode.clamp,
+        TileMode.clamp,
+        _noTransform,
+      );
+    }
+    _warpPaint.shader = _warpShader;
+    final vertices = ui.Vertices(
+      ui.VertexMode.triangles,
+      positions,
+      textureCoordinates: texCoords,
+      indices: indices,
+    );
+    canvas.drawVertices(vertices, BlendMode.srcOver, _warpPaint);
+  }
+
   /// Falling grains between the neck and wherever the crest stands now.
   void _paintHourglassStream(
     Canvas canvas,
@@ -886,7 +960,8 @@ class FortuneEffectPainter extends CustomPainter {
         oldDelegate.accent != accent ||
         oldDelegate.seed != seed ||
         oldDelegate.alignment != alignment ||
-        oldDelegate.clock != clock;
+        oldDelegate.clock != clock ||
+        oldDelegate.artImage != artImage;
   }
 }
 

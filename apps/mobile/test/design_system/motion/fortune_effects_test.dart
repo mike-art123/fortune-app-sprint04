@@ -150,6 +150,31 @@ void main() {
     expect(hg.crestTone.length % 3, 0);
   });
 
+  test('the tea steam wave loops, stays bounded and holds its pins', () {
+    final spec = fortuneEffectSpec('tea')!;
+    final layer = spec.layers.firstWhere(
+      (l) => l.kind == FortuneEffectKind.steamWarp,
+    );
+    final warp = layer.warp!;
+    final bound = warp.maxAmplitude * 1.1 + 0.001;
+    for (var i = 0; i < 60; i += 1) {
+      final x = warp.x0 + (warp.x1 - warp.x0) * effectRandom(7, i, 1);
+      final y = warp.y0 + (warp.y1 - warp.y0) * effectRandom(7, i, 2);
+      final t = 12 * effectRandom(7, i, 3);
+      final dx = warp.warpDx(x, y, t);
+      final dy = warp.warpDy(x, y, t);
+      expect(dx.abs(), lessThanOrEqualTo(bound));
+      expect(dy.abs(), lessThanOrEqualTo(bound));
+      expect(dx, closeTo(warp.warpDx(x, y, t + warp.loopSeconds), 1e-6));
+      expect(dy, closeTo(warp.warpDy(x, y, t + warp.loopSeconds), 1e-6));
+    }
+    expect(warp.amplitude(warp.x0, 100), 0);
+    expect(warp.amplitude(warp.x1, 100), 0);
+    expect(warp.amplitude(300, warp.pinY), 0);
+    expect(warp.amplitude(300, warp.pinY + 3), 0);
+    expect(warp.amplitude(300, 60), greaterThan(1));
+  });
+
   test('cover mapping matches the centre-cover crop', () {
     const size = Size(300, 300);
     final centre = mapCoverPoint(
