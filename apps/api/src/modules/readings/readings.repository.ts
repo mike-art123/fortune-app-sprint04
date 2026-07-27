@@ -36,6 +36,23 @@ export class ReadingsRepository {
     return this.prisma.reading.findUnique({ where: { id } });
   }
 
+  /** Erase every reading the caller owns. Returns how many rows went. */
+  async deleteAllForUser(userId: string): Promise<number> {
+    const { count } = await this.prisma.reading.deleteMany({ where: { userId } });
+    return count;
+  }
+
+  /**
+   * Delete one reading, but only if this user owns it. Scoping the delete by
+   * userId (rather than a separate ownership read) means another user's id
+   * simply matches nothing and removes nothing — count 0, and no way to learn
+   * whether that id exists for someone else.
+   */
+  async deleteOwned(id: string, userId: string): Promise<number> {
+    const { count } = await this.prisma.reading.deleteMany({ where: { id, userId } });
+    return count;
+  }
+
   /**
    * Everything this reader saw since an instant, reduced to what a summary is
    * allowed to know (scope §6): which fortune, and when. The text column is

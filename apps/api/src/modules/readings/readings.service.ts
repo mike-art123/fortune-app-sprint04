@@ -31,6 +31,11 @@ export interface ReadingListPage {
   nextCursor: string | null;
 }
 
+/** How many rows a delete removed — 0 is a valid, quiet outcome. */
+export interface DeleteResult {
+  deleted: number;
+}
+
 const DEFAULT_PAGE_SIZE = 20;
 const IDEMPOTENCY_OPERATION = 'reading.create';
 
@@ -198,6 +203,26 @@ export class ReadingsService {
       });
     }
     return this.shape(record);
+  }
+
+  /**
+   * Erase the caller's whole history. Permanent, and only ever their own
+   * rows. Returns how many readings were removed.
+   */
+  async clearHistory(principal: AuthenticatedPrincipal): Promise<DeleteResult> {
+    const deleted = await this.repository.deleteAllForUser(principal.userId);
+    this.logger.info('reading.history.cleared', { userId: principal.userId, deleted });
+    return { deleted };
+  }
+
+  /**
+   * Delete one reading the caller owns. An id that is unknown or belongs to
+   * someone else removes nothing and reports zero — a quiet, idempotent
+   * delete, never a way to probe another user's ids.
+   */
+  async deleteReading(id: string, principal: AuthenticatedPrincipal): Promise<DeleteResult> {
+    const deleted = await this.repository.deleteOwned(id, principal.userId);
+    return { deleted };
   }
 
   /** Give a consumed ad entitlement back; failures are logged, never thrown. */
