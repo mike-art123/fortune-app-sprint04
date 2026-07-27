@@ -49,7 +49,16 @@ class FortuneScaffold extends StatelessWidget {
     );
     final bg = background;
     if (bg != null) {
+      // `expand`, not the default `loose`. The backdrop sits in a
+      // Positioned.fill, so it does not count towards the Stack's size — the
+      // scroll view is the only child that does, and under loose constraints
+      // a SingleChildScrollView shrink-wraps its content. The Stack then ends
+      // where the content ends, the backdrop with it, and everything below is
+      // the Scaffold's flat background showing through. Expanding makes the
+      // Stack take the full viewport and hand tight constraints down, so the
+      // image reaches the bottom of the screen on every fortune.
       body = Stack(
+        fit: StackFit.expand,
         children: [Positioned.fill(child: bg), body],
       );
     }
