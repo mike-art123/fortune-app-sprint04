@@ -60,32 +60,45 @@ licence pages read, not assumed.
 
 ## Status — 2026-07-27
 
-Steps 1–2 of the order above are in the repo; the dump itself is a hand-off.
+Steps 1–2 are done and the corpus is in the repo.
 
-**Landed:** the `Ghazal` model (migration `20260727000000_hafez_ghazals`) —
-`(edition, number)` unique, verses stored as JSON text, corpus rows written
-only by the seed. `seedHafezGhazals()` in `prisma/seed.ts` reads
-`prisma/data/hafez-ghazals.json`, asserts the count the file itself claims,
-gapless numbering `1..count`, and opening-line/first-hemistich agreement,
-then upserts per `(edition, number)`. While the JSON is absent the import
-skips with one line, so the seed stays runnable everywhere today.
+**Model + migration** `20260727000000_hafez_ghazals` and the counting seed
+landed first. Then the dump itself: `ganjoor-db` at commit `7ce93971`
+(data dated **2017-11-09**), fetched straight into `data/hafez/` on the
+owner's machine; sha256
+`b222390c610755eaeeff87c0854bd7450691cf208f9f47078e130f91ffc7deb1`,
+verified identical after transfer to the workspace.
 
-**Blocked on the dump** — the cloud workspace cannot download from GitHub,
-so, by hand:
+**Extraction** — `scripts/extract-hafez-ghazals.mjs` (node, zero
+dependencies) parses the MySQL dump character by character and emits
+`apps/api/prisma/data/hafez-ghazals.json`: **495 ghazals** — the
+Qazvini-Ghani count — numbered 1..495 with no gaps, 4192 couplets. It
+refuses to emit unless every check holds: the غزلیات category found by
+content rather than remembered ids, each ghazal's number proved twice (the
+url's `sh<N>` against the Persian numeral in its title), hemistich positions
+alternating 0/1, nothing empty.
 
-1. Download the archived repo: `github.com/ganjoor/ganjoor-db` → **Code →
-   Download ZIP**.
-2. Drop it, unextracted, at `data/hafez/ganjoor-db.zip` (`data/` is now
-   gitignored). If the ZIP is unreasonably large, extract locally and drop
-   only the `data/*.sql` dump files from inside it.
-3. Next session: inspect the dump's real structure, write the extraction
-   script against it (a MySQL dump, per that repo's README), emit the JSON
-   with the same counts asserted at extraction time, and add the Ganjoor MIT
-   attribution line to the terms card in the same change.
+**Verified against the world:** the JSON round-trips byte-identically
+through a real Postgres 16 `ghazals` table built from the committed
+migration, and ghazals 1, 255 and 495 were compared with the live Ganjoor
+API — word for word identical. One knowing difference: the live corpus has
+gained tashkeel and punctuation since 2017 («یوسفِ گم‌گشته … کنعان، غم مخور»
+against the dump's plain «یوسف گمگشته … کنعان غم مخور»). The plain text is
+the classic form and ships as edition `ganjoor-db-2017`; if diacritics are
+ever wanted, a re-import from the live API is a new edition tag — visible by
+design, never a silent drift.
+
+**Attribution (the MIT obligation):** the full licence text travels with the
+repo at `docs/licenses/ganjoor-db-MIT.txt`, the JSON carries the copyright
+line in its `source` field, and the terms card on the profile screen now
+credits Ganjoor in plain Persian.
 
 Open question, deliberately left undecided: how the corpus reaches the
 production database. `railway.json` runs `prisma migrate deploy` on boot but
-never the seed, so landing the JSON does not by itself populate prod. Options
-priced so far: a data migration (rides the existing deploy, bloats migration
-history), a boot-time import behind the engine's flag, or a one-off run. To
-be settled when the selection step wires in.
+never the seed, so landing the JSON does not by itself populate prod.
+Options priced so far: a data migration (rides the existing deploy, bloats
+migration history), a boot-time import behind the engine's flag, or a
+one-off run. To be settled when the selection step wires in.
+
+Next, in the order already written above: stable selection, the real ghazal
+into the prompt, and the Hafez schema — items 3–5.
