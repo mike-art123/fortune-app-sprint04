@@ -124,9 +124,7 @@ class _HomePageState extends State<HomePage> {
                       FeaturedWideFortuneCard(
                         id: hafez.id,
                         title: 'فال حافظ',
-                        subtitle: 'نیت کن و از دیوان بپرس',
                         accent: hafez.accent,
-                        cta: 'فال حافظ را باز کن',
                         onTap: () => _openId(context, hafez.id, true),
                       ),
                     const SizedBox(height: AppLayout.sectionGap),

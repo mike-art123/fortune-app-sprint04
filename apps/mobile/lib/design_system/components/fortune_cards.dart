@@ -104,18 +104,22 @@ class FeaturedWideFortuneCard extends StatelessWidget {
     super.key,
     required this.id,
     required this.title,
-    required this.subtitle,
     required this.accent,
-    required this.cta,
     required this.onTap,
+    this.subtitle,
+    this.cta,
   });
 
   final String id;
   final String title;
-  final String subtitle;
   final Color accent;
-  final String cta;
   final VoidCallback onTap;
+
+  /// Both optional: the artwork already says which fortune this is, so a
+  /// card can carry just its name and let the whole surface be the tap
+  /// target instead of repeating itself in a subtitle and a button.
+  final String? subtitle;
+  final String? cta;
 
   @override
   Widget build(BuildContext context) {
@@ -136,15 +140,19 @@ class FeaturedWideFortuneCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title, style: _titleStyle(21)),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: _descStyle(12.5),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _CtaPill(label: cta),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: _descStyle(12.5),
+                      ),
+                    ],
+                    if (cta != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _CtaPill(label: cta!),
+                    ],
                   ],
                 ),
               ),
