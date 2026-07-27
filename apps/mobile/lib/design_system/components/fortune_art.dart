@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../foundations/app_colors.dart';
 import '../foundations/app_layout.dart';
 import '../foundations/fortune_focus.dart';
+import '../motion/fortune_effect_layer.dart';
 
 /// The image layer shared by every fortune card: the approved artwork filling
 /// the card with a per-asset focal crop, plus an optional bottom scrim so text
@@ -32,6 +33,10 @@ class FortuneArt extends StatelessWidget {
           alignment: fortuneFocalAlignment(id),
           errorBuilder: (context, error, stack) => _fallback(),
         ),
+        // The living layer: ambient motion anchored to this artwork's own
+        // geometry. Still when there is no AmbientMotion above, or when
+        // the platform asks for reduced motion.
+        FortuneEffectLayer(id: id, accent: accent),
         if (scrim)
           DecoratedBox(
             decoration: BoxDecoration(
