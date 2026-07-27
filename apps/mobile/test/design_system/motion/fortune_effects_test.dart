@@ -10,17 +10,28 @@ void main() {
     }
   });
 
+  test('every catalog card carries an effect spec', () {
+    for (final group in FortuneCatalog.groups) {
+      for (final item in group.items) {
+        expect(fortuneEffectSpec(item.$1), isNotNull, reason: item.$1);
+      }
+    }
+  });
+
   test('anchors and fields stay inside the artwork', () {
-    for (final id in FortuneCatalog.popularIds) {
-      final spec = fortuneEffectSpec(id)!;
-      expect(spec.layers, isNotEmpty, reason: id);
-      for (final layer in spec.layers) {
-        expect(layer.anchor.dx, inInclusiveRange(0, 1), reason: id);
-        expect(layer.anchor.dy, inInclusiveRange(0, 1), reason: id);
-        expect(layer.spread.dx, inInclusiveRange(0, 0.5), reason: id);
-        expect(layer.spread.dy, inInclusiveRange(0, 0.5), reason: id);
-        expect(layer.intensity, inInclusiveRange(0.1, 1.3), reason: id);
-        expect(layer.count, inInclusiveRange(0, 24), reason: id);
+    for (final group in FortuneCatalog.groups) {
+      for (final item in group.items) {
+        final id = item.$1;
+        final spec = fortuneEffectSpec(id)!;
+        expect(spec.layers, isNotEmpty, reason: id);
+        for (final layer in spec.layers) {
+          expect(layer.anchor.dx, inInclusiveRange(0, 1), reason: id);
+          expect(layer.anchor.dy, inInclusiveRange(0, 1), reason: id);
+          expect(layer.spread.dx, inInclusiveRange(0, 0.5), reason: id);
+          expect(layer.spread.dy, inInclusiveRange(0, 0.5), reason: id);
+          expect(layer.intensity, inInclusiveRange(0.1, 1.3), reason: id);
+          expect(layer.count, inInclusiveRange(0, 24), reason: id);
+        }
       }
     }
   });

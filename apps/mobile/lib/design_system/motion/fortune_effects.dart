@@ -115,9 +115,9 @@ const Color _rose = Color(0xFFFF9FB0);
 const Color _violet = Color(0xFFC5A0FF);
 const Color _paleMoon = Color(0xFFF4EBCF);
 
-/// Phase 1: the ten cards of the home carousel. Anchors were read off the
-/// real artwork, one image at a time — a wrong anchor is worse than no
-/// effect, because steam rising from a saucer breaks the spell.
+/// All forty cards of the catalog. Anchors were read off the real artwork,
+/// one image at a time — a wrong anchor is worse than no effect, because
+/// steam rising from a saucer breaks the spell.
 const Map<String, FortuneEffectSpec> _effects = {
   // Candle upper-left; gold dust breathes over the open book.
   'hafez': FortuneEffectSpec([
@@ -291,6 +291,540 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _flame,
       intensity: 0.7,
       count: 6,
+    ),
+  ]),
+  // Rings under a small flame; rose petals rest around them.
+  'marriage': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.27, 0.16),
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.6),
+      spread: Offset(0.28, 0.2),
+      color: _rose,
+      intensity: 0.7,
+      count: 8,
+    ),
+  ]),
+  // Two little candles over the golden shoes; soft gold dust.
+  'child': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.42, 0.16),
+      intensity: 0.5,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.58, 0.16),
+      intensity: 0.5,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.55),
+      spread: Offset(0.24, 0.18),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // The red thread between two hands, in gentle haze.
+  'friendship': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.3, 0.25),
+      color: _gold,
+      intensity: 0.7,
+      count: 10,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.mist,
+      anchor: Offset(0.5, 0.7),
+      color: _smoke,
+      intensity: 0.5,
+    ),
+  ]),
+  // A dark candle over the broken heart — quiet, not dramatic.
+  'separation': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.52, 0.11),
+      intensity: 0.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.55),
+      spread: Offset(0.22, 0.18),
+      color: _gold,
+      intensity: 0.5,
+      count: 6,
+    ),
+  ]),
+  // The dove breathes light inside its golden ring.
+  'reconcile': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.52, 0.38),
+      color: _paleMoon,
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.5),
+      spread: Offset(0.26, 0.22),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // A flame over the parchment; the emblem keeps a soft glint.
+  'name': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.52, 0.13),
+      intensity: 0.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.45, 0.55),
+      spread: Offset(0.25, 0.2),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // The chest’s rays breathe; work-worn gold sparks.
+  'job': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.38),
+      color: _flame,
+      intensity: 0.75,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.26, 0.24),
+      color: _gold,
+      intensity: 0.7,
+      count: 10,
+    ),
+  ]),
+  // Gold dust rises from the pouch; the coins keep their shine.
+  'money': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.4),
+      spread: Offset(0.2, 0.28),
+      color: _gold,
+      intensity: 0.9,
+      count: 14,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.55, 0.62),
+      color: _flame,
+      intensity: 0.5,
+    ),
+  ]),
+  // The little lamp burns beside the map.
+  'travel': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.63, 0.83),
+      intensity: 0.5,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.42, 0.45),
+      spread: Offset(0.26, 0.22),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // The hourglass sand glows; stars hold still around it.
+  'future': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.68, 0.55),
+      color: _flame,
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.45, 0.35),
+      spread: Offset(0.28, 0.22),
+      color: _paleMoon,
+      intensity: 0.6,
+      count: 8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.mist,
+      anchor: Offset(0.5, 0.8),
+      color: _smoke,
+      intensity: 0.5,
+    ),
+  ]),
+  // The sealed letter radiates; something is on its way.
+  'message': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.41, 0.52),
+      color: _flame,
+      intensity: 0.8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.4),
+      spread: Offset(0.26, 0.22),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // The orb in cupped hands breathes; intent drifts upward.
+  'intention': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.47, 0.62),
+      color: _flame,
+      intensity: 0.85,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.47, 0.4),
+      spread: Offset(0.18, 0.2),
+      color: _gold,
+      intensity: 0.7,
+      count: 8,
+    ),
+  ]),
+  // The number breathes inside its seal.
+  'luckynumber': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.5),
+      color: _gold,
+      intensity: 0.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.26, 0.24),
+      color: _gold,
+      intensity: 0.7,
+      count: 10,
+    ),
+  ]),
+  // Gem glints across the fan of colours.
+  'luckycolor': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.5),
+      spread: Offset(0.3, 0.25),
+      color: _warmWhite,
+      intensity: 0.8,
+      count: 14,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.55, 0.65),
+      color: _violet,
+      intensity: 0.5,
+    ),
+  ]),
+  // The crystals hum violet; facets catch light.
+  'luckystone': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.5),
+      color: _violet,
+      intensity: 0.8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.24, 0.22),
+      color: _warmWhite,
+      intensity: 0.8,
+      count: 12,
+    ),
+  ]),
+  // The lotus glows over its own reflection.
+  'luckyflower': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.42),
+      color: _paleMoon,
+      intensity: 0.8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.35),
+      spread: Offset(0.26, 0.2),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.mist,
+      anchor: Offset(0.5, 0.68),
+      color: _smoke,
+      intensity: 0.5,
+    ),
+  ]),
+  // The amulet’s eye holds a steady, breathing light.
+  'dailytalisman': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.4),
+      color: _violet,
+      intensity: 0.55,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.42),
+      spread: Offset(0.24, 0.24),
+      color: _gold,
+      intensity: 0.7,
+      count: 10,
+    ),
+  ]),
+  // Gold dust over the dice — chance, mid-air.
+  'lots': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.5),
+      spread: Offset(0.28, 0.24),
+      color: _gold,
+      intensity: 0.8,
+      count: 12,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.47, 0.42),
+      color: _flame,
+      intensity: 0.5,
+    ),
+  ]),
+  // The zodiac wheel breathes; signs glint in turn.
+  'birthmonth': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.42),
+      color: _gold,
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.27, 0.27),
+      color: _gold,
+      intensity: 0.7,
+      count: 12,
+    ),
+  ]),
+  // Four medallions glint; the fire one actually flickers.
+  'elements': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.5),
+      spread: Offset(0.3, 0.3),
+      color: _gold,
+      intensity: 0.7,
+      count: 10,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.72, 0.28),
+      intensity: 0.5,
+    ),
+  ]),
+  // The galaxy’s heart breathes; violet stars drift.
+  'universe': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.47, 0.47),
+      color: _paleMoon,
+      intensity: 0.8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.4),
+      spread: Offset(0.28, 0.26),
+      color: _violet,
+      intensity: 0.7,
+      count: 12,
+    ),
+  ]),
+  // Steam from the cup’s mouth — the example this began with.
+  'tea': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steam,
+      anchor: Offset(0.46, 0.4),
+      color: _warmWhite,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.47, 0.52),
+      color: _flame,
+      intensity: 0.4,
+    ),
+  ]),
+  // The glass holds a pale, breathing light.
+  'mirror': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.35),
+      color: _paleMoon,
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.4),
+      spread: Offset(0.22, 0.22),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // The candle over the spread; the cards keep a low glint.
+  'lenormand': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.55, 0.21),
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.62),
+      spread: Offset(0.3, 0.18),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // The runes burn amber in the standing stone.
+  'rune': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.55, 0.5),
+      color: _flame,
+      intensity: 0.75,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.mist,
+      anchor: Offset(0.5, 0.72),
+      color: _smoke,
+      intensity: 0.5,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.4),
+      spread: Offset(0.24, 0.2),
+      color: _gold,
+      intensity: 0.5,
+      count: 6,
+    ),
+  ]),
+  // The oracle backs glint along their gilded edges.
+  'cards': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.5),
+      spread: Offset(0.3, 0.22),
+      color: _gold,
+      intensity: 0.7,
+      count: 10,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.55),
+      color: _gold,
+      intensity: 0.5,
+    ),
+  ]),
+  // The beads keep a devotional shimmer.
+  'tasbih': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.47, 0.5),
+      color: _gold,
+      intensity: 0.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.26, 0.22),
+      color: _gold,
+      intensity: 0.6,
+      count: 8,
+    ),
+  ]),
+  // Light between the wings; a feather’s worth of sparks.
+  'angel': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.42),
+      color: _paleMoon,
+      intensity: 0.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.45),
+      spread: Offset(0.28, 0.25),
+      color: _paleMoon,
+      intensity: 0.7,
+      count: 10,
+    ),
+  ]),
+  // The wolf’s ring glows; night mist passes below.
+  'spiritanimal': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.42),
+      color: _paleMoon,
+      intensity: 0.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.mist,
+      anchor: Offset(0.5, 0.7),
+      color: _violet,
+      intensity: 0.4,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.4),
+      spread: Offset(0.24, 0.22),
+      color: _gold,
+      intensity: 0.5,
+      count: 6,
+    ),
+  ]),
+  // The crown breathes; the chakra line sparks; base candles burn.
+  'meditation': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.5, 0.28),
+      color: _violet,
+      intensity: 0.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.sparkle,
+      anchor: Offset(0.5, 0.55),
+      spread: Offset(0.12, 0.25),
+      color: _flame,
+      intensity: 0.7,
+      count: 8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.3, 0.77),
+      intensity: 0.4,
     ),
   ]),
 };
