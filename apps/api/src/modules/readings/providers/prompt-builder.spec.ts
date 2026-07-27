@@ -22,8 +22,8 @@ describe('buildPrompt', () => {
         selfName: 'سارا',
         otherName: 'امیر',
       });
-      expect(system.content).toContain('پیش‌بینی نمی‌کنیم');
-      expect(system.content).toContain('هرگز ادعای قطعیت');
+      expect(system.content).toContain('مشخص و جسور بنویس');
+      expect(system.content).toContain('آینده را قطعی نکن');
       expect(system.content).toContain('"title"');
       expect(system.content).toContain('"reading"');
     }
@@ -53,7 +53,7 @@ describe('buildPrompt', () => {
 
   it('forbids a compatibility score in the love reading', () => {
     const [system] = buildPrompt(love, { selfName: 'سارا', otherName: 'امیر' });
-    expect(system.content).toContain('درصد یا نمره‌ی سازگاری');
+    expect(system.content).toContain('درصد و نمرهٔ سازگاری');
   });
 
   it('includes the intention when it is offered', () => {
