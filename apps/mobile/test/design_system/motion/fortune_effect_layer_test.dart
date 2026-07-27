@@ -72,6 +72,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(clock!.elapsedSeconds, held);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    // A restarted ticker anchors to its first frame (elapsed zero), so one
+    // pump proves nothing moved; the second proves the clock runs again.
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(clock!.elapsedSeconds, greaterThan(held));
     await tester.pumpWidget(const SizedBox.shrink());
