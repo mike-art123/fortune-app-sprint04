@@ -81,6 +81,8 @@ class FortuneEffectPainter extends CustomPainter {
           _paintSteamWarp(canvas, size, layer, t);
         case FortuneEffectKind.swirlWarp:
           _paintSwirlWarp(canvas, size, layer, t);
+        case FortuneEffectKind.apparition:
+          _paintApparition(canvas, size, layer, t);
       }
     }
   }
@@ -226,7 +228,8 @@ class FortuneEffectPainter extends CustomPainter {
     double dim = 0,
   }) {
     final anchor = mapCoverPoint(layer.anchor, size, alignment);
-    final period = 4.5 + effectRandom(layerSeed, 0, 31) * 2;
+    final fixed = layer.periodSeconds;
+    final period = fixed ?? 4.5 + effectRandom(layerSeed, 0, 31) * 2;
     final beat = t / period + effectRandom(layerSeed, 0, 32);
     final breath = 0.5 + 0.5 * math.sin(_tau * beat);
     final reach = 0.9 + 0.12 * breath;
@@ -937,6 +940,77 @@ class FortuneEffectPainter extends CustomPainter {
       indices: indices,
     );
     canvas.drawVertices(vertices, BlendMode.srcOver, _warpPaint);
+  }
+
+  // The mirror's visitor: shade body tone and the burn of its eyes.
+  static const Color _ghostShade = Color(0xFF1A1E2C);
+  static const Color _ghostEyeRed = Color(0xFFD61A16);
+  final Paint _ghostPaint = Paint();
+
+  /// A hooded shade gathers in the glass, opens two burning eyes, and
+  /// dissolves. Dark blobs blend over the artwork; the eyes burn
+  /// additively. Between visits this paints nothing at all.
+  void _paintApparition(
+    Canvas canvas,
+    Size size,
+    FortuneEffectLayerSpec layer,
+    double t,
+  ) {
+    final ghost = layer.apparition;
+    if (ghost == null) return;
+    final body = ghostBody(t, period: ghost.period);
+    final eyes = ghostEyes(t, period: ghost.period);
+    if (body <= 0.004 && eyes <= 0.004) return;
+    final progress = ghostProgress(t, period: ghost.period);
+    final scale = coverScale(size);
+    final x = ghost.centerX + 1.5 * math.sin(_tau * t / 2.3);
+    final hy = ghost.headY - 6.0 * progress;
+
+    void shade(double dx, double dy, double radius, double alpha) {
+      _drawDarkRadial(
+        canvas,
+        _artPoint(size, x + dx, hy + dy),
+        radius * scale,
+        alpha * body,
+      );
+    }
+
+    shade(0, 0, 16, 0.40);
+    shade(-9, 6, 12, 0.28);
+    shade(9, 6, 12, 0.28);
+    shade(0, 2, 8, 0.22);
+    shade(0, 30, 22, 0.30);
+    shade(0, 48, 18, 0.20);
+    shade(0, 62, 13, 0.12);
+
+    for (final ex in const [-5.5, 5.5]) {
+      final centre = _artPoint(size, x + ex, hy + 1);
+      _drawRadialGlow(canvas, centre, 4.5 * scale, _ghostEyeRed, 0.35 * eyes);
+      _dotPaint.color = _ghostEyeRed.withValues(alpha: 0.95 * eyes);
+      canvas.drawCircle(centre, 1.7 * scale, _dotPaint);
+    }
+  }
+
+  /// Like [_drawRadialGlow], but blended over the artwork instead of
+  /// added to it — a soft patch of dusk.
+  void _drawDarkRadial(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double alpha,
+  ) {
+    if (radius <= 0 || alpha <= 0.004) return;
+    _ghostPaint.shader = ui.Gradient.radial(
+      center,
+      radius,
+      [
+        _ghostShade.withValues(alpha: alpha),
+        _ghostShade.withValues(alpha: alpha * 0.45),
+        _ghostShade.withValues(alpha: 0),
+      ],
+      [0, 0.55, 1],
+    );
+    canvas.drawCircle(center, radius, _ghostPaint);
   }
 
   /// Falling grains between the neck and wherever the crest stands now.

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/design_system/motion/fortune_effects.dart';
@@ -206,6 +208,70 @@ void main() {
     );
     expect(far, Offset.zero);
     expect(swirl.swirlDelta(swirl.centerX, swirl.centerY, 2.7), Offset.zero);
+  });
+
+  test('the mirror shade visits on schedule and leaves cleanly', () {
+    final spec = fortuneEffectSpec('mirror')!;
+    final layer = spec.layers.firstWhere(
+      (l) => l.kind == FortuneEffectKind.apparition,
+    );
+    expect(layer.apparition, isNotNull);
+    expect(ghostBody(0), 0);
+    expect(ghostBody(1.5), 1);
+    expect(ghostBody(5.5), 0);
+    expect(ghostEyes(0.5), 0);
+    expect(ghostEyes(2.0), 1);
+    expect(ghostEyes(6.0), 0);
+    for (var i = 0; i < 100; i += 1) {
+      final t = i * 0.14;
+      expect(ghostBody(t), inInclusiveRange(0, 1));
+      expect(ghostEyes(t), inInclusiveRange(0, 1));
+      expect(ghostBody(t + 7), closeTo(ghostBody(t), 1e-9));
+      expect(ghostEyes(t + 7), closeTo(ghostEyes(t), 1e-9));
+      expect(ghostEyes(t), lessThanOrEqualTo(ghostBody(t) + 1e-9));
+    }
+  });
+
+  test('an inverted warp pins above and moves below the waterline', () {
+    final warp = fortuneEffectSpec('luckyflower')!
+        .layers
+        .firstWhere((l) => l.kind == FortuneEffectKind.steamWarp)
+        .warp!;
+    expect(warp.invert, isTrue);
+    final midX = (warp.x0 + warp.x1) / 2;
+    expect(warp.amplitude(midX, warp.pinY - 5), 0);
+    expect(warp.amplitude(midX, warp.pinY + 60), greaterThan(1));
+    expect(warp.amplitude(warp.x0, warp.pinY + 60), 0);
+    expect(warp.amplitude(midX, warp.y1), 0);
+  });
+
+  test('a rigid swirl turns its emblem as one piece', () {
+    final swirl = fortuneEffectSpec('birthmonth')!
+        .layers
+        .firstWhere((l) => l.kind == FortuneEffectKind.swirlWarp)
+        .swirl!;
+    expect(swirl.lagFactor, 0);
+    double angleAt(double r, double t) {
+      final d = swirl.swirlDelta(swirl.centerX + r, swirl.centerY, t);
+      return math.atan2(d.dy, r + d.dx);
+    }
+
+    for (final t in const [0.7, 2.9, 5.1]) {
+      expect(angleAt(60, t), closeTo(angleAt(140, t), 1e-9));
+    }
+  });
+
+  test('meaning layers landed: flames dance and pulses keep time', () {
+    final candleWarps = fortuneEffectSpec('candle')!
+        .layers
+        .where((l) => l.kind == FortuneEffectKind.steamWarp)
+        .toList();
+    expect(candleWarps.length, 3);
+    final flame = candleWarps.last.warp!;
+    expect(flame.loopSeconds, closeTo(1.2, 1e-9));
+    final love = fortuneEffectSpec('love')!.layers.last;
+    expect(love.kind, FortuneEffectKind.glow);
+    expect(love.periodSeconds, closeTo(1.15, 1e-9));
   });
 
   test('cover mapping matches the centre-cover crop', () {

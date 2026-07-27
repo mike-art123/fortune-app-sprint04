@@ -4,6 +4,8 @@ import 'package:flutter/painting.dart';
 
 import 'fortune_hourglass.dart';
 
+part 'fortune_motion_data.dart';
+
 /// The ambient-effect vocabulary and the per-card map (scope: living cards).
 ///
 /// Every fortune card may carry a few effect layers — steam over a cup,
@@ -32,6 +34,7 @@ enum FortuneEffectKind {
   hourglass,
   steamWarp,
   swirlWarp,
+  apparition,
 }
 
 /// One layer of ambient motion, anchored in image space.
@@ -43,10 +46,12 @@ class FortuneEffectLayerSpec {
     this.color,
     this.intensity = 1,
     this.count = 0,
+    this.periodSeconds,
     this.eye,
     this.hourglass,
     this.warp,
     this.swirl,
+    this.apparition,
   });
 
   final FortuneEffectKind kind;
@@ -66,6 +71,10 @@ class FortuneEffectLayerSpec {
   /// Particle count; 0 means the kind's default.
   final int count;
 
+  /// Fixed breathing period for [FortuneEffectKind.glow] layers — a
+  /// heartbeat, a pulsing seal. Null lets the seed pick one (4.5–6.5s).
+  final double? periodSeconds;
+
   /// Eye-opening geometry; only [FortuneEffectKind.blink] layers carry one.
   final FortuneEyeGeometry? eye;
 
@@ -79,6 +88,58 @@ class FortuneEffectLayerSpec {
 
   /// Swirl geometry; only [FortuneEffectKind.swirlWarp] layers carry one.
   final FortuneSwirlGeometry? swirl;
+
+  /// Apparition geometry; only [FortuneEffectKind.apparition] layers
+  /// carry one.
+  final FortuneApparitionGeometry? apparition;
+}
+
+/// A momentary apparition in the glass: a hooded shade that gathers,
+/// opens two burning eyes, and dissolves again. Artwork pixels.
+class FortuneApparitionGeometry {
+  const FortuneApparitionGeometry({
+    required this.centerX,
+    required this.headY,
+    this.period = 7,
+  });
+
+  /// Where the shade stands.
+  final double centerX;
+  final double headY;
+
+  /// Seconds between visits.
+  final double period;
+}
+
+/// How present the shade's body is at second [t] — 0 gone, 1 fully there.
+double ghostBody(double t, {double period = 7}) {
+  final s = t - (t / period).floorToDouble() * period;
+  if (s < 0.9) return _smoothstep(s / 0.9);
+  if (s < 2.5) return 1;
+  if (s < 4.3) return 1 - _smoothstep((s - 2.5) / 1.8);
+  return 0;
+}
+
+/// The eyes open late, burn while the body holds, and die a little first.
+double ghostEyes(double t, {double period = 7}) {
+  final s = t - (t / period).floorToDouble() * period;
+  if (s < 0.6) return 0;
+  if (s < 1.1) return _smoothstep((s - 0.6) / 0.5);
+  if (s < 2.5) return 1;
+  if (s < 4.0) return 1 - _smoothstep((s - 2.5) / 1.5);
+  return 0;
+}
+
+/// How far through its visit the shade is — it drifts upward as it goes.
+double ghostProgress(double t, {double period = 7}) {
+  final s = t - (t / period).floorToDouble() * period;
+  final p = s / 4.3;
+  return p < 1 ? p : 1;
+}
+
+double _smoothstep(double u) {
+  final v = u.clamp(0.0, 1.0);
+  return v * v * (3 - 2 * v);
 }
 
 /// A disc of the artwork that stirs: differential rotation around a
@@ -93,7 +154,8 @@ class FortuneSwirlGeometry {
     this.falloff = 60,
     this.maxAngle = 0.13,
     this.breath = 0.012,
-    this.loopSeconds = 8,
+    this.loopSeconds = 6.5,
+    this.lagFactor = 1,
   });
 
   /// The stirring centre — the galaxy's core.
@@ -115,6 +177,10 @@ class FortuneSwirlGeometry {
   /// The pattern repeats exactly this often.
   final double loopSeconds;
 
+  /// Scales how much the wave's phase trails with radius. 1 stirs like a
+  /// liquid; 0 turns the whole disc as one rigid piece (an emblem).
+  final double lagFactor;
+
   /// 1 at the core, 0 at [fadeRadius] and beyond.
   double envelope(double r) {
     final e = ((fadeRadius - r) / falloff).clamp(0.0, 1.0);
@@ -131,8 +197,8 @@ class FortuneSwirlGeometry {
     if (env <= 0) return Offset.zero;
     final ph1 = _tau * t / loopSeconds;
     final ph2 = _tau * t / (loopSeconds / 2);
-    final wa = 0.75 * math.sin(ph1 - r * 0.045);
-    final wb = 0.35 * math.sin(ph2 - r * 0.03 + 1.3);
+    final wa = 0.75 * math.sin(ph1 - r * 0.045 * lagFactor);
+    final wb = 0.35 * math.sin(ph2 - r * 0.03 * lagFactor + 1.3);
     final theta = maxAngle * env * (wa + wb);
     final scale = 1 + breath * env * math.sin(ph1 - r * 0.02 + 2.0);
     final cosT = math.cos(theta);
@@ -156,7 +222,8 @@ class FortuneWarpGeometry {
     this.pinY = 170,
     this.reach = 130,
     this.maxAmplitude = 7,
-    this.loopSeconds = 6,
+    this.loopSeconds = 5,
+    this.invert = false,
   });
 
   /// The warped box.
@@ -177,12 +244,21 @@ class FortuneWarpGeometry {
   /// The wave pattern repeats exactly this often.
   final double loopSeconds;
 
-  /// Displacement envelope at (x, y): zero on every box edge and below
-  /// the pin, rising with height.
+  /// False: pinned below [pinY], moving above (steam, smoke, clouds).
+  /// True: pinned above [pinY], moving below (a reflection, a hanging
+  /// thread).
+  final bool invert;
+
+  /// Displacement envelope at (x, y): zero on every box edge and at the
+  /// pin, rising away from it.
   double amplitude(double x, double y) {
-    var h = ((pinY - y) / reach).clamp(0.0, 1.0);
+    var h = invert
+        ? ((y - pinY) / reach).clamp(0.0, 1.0)
+        : ((pinY - y) / reach).clamp(0.0, 1.0);
     h = math.pow(h, 1.25).toDouble();
-    h *= ((y - y0) / 12).clamp(0.0, 1.0);
+    h *= invert
+        ? ((y1 - y) / 12).clamp(0.0, 1.0)
+        : ((y - y0) / 12).clamp(0.0, 1.0);
     final sideL = ((x - x0) / 25).clamp(0.0, 1.0);
     final sideR = ((x1 - x) / 25).clamp(0.0, 1.0);
     return maxAmplitude * h * sideL * sideR;
@@ -339,6 +415,7 @@ const Color _smoke = Color(0xFFB9AFA4);
 const Color _rose = Color(0xFFFF9FB0);
 const Color _violet = Color(0xFFC5A0FF);
 const Color _paleMoon = Color(0xFFF4EBCF);
+const Color _teal = Color(0xFF7FE0D8);
 
 /// The tea card's steam plume, measured off the artwork: the box the wave
 /// lives in; the cup rim it stays pinned to comes with the defaults.
@@ -371,6 +448,11 @@ const FortuneEyeGeometry _talismanEye = FortuneEyeGeometry(
 const Map<String, FortuneEffectSpec> _effects = {
   // Candle upper-left; gold dust breathes over the open book.
   'hafez': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.203, 0.243),
+      warp: _hafezWarp,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.185, 0.15),
@@ -431,6 +513,13 @@ const Map<String, FortuneEffectSpec> _effects = {
       intensity: 0.8,
       count: 10,
     ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.494, 0.438),
+      color: _teal,
+      intensity: 0.55,
+      periodSeconds: 1.15,
+    ),
   ]),
   // Moon halo breathing over the cloudbank; faint stars.
   'dream': FortuneEffectSpec([
@@ -451,6 +540,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The quill's tip glints; glyph-dust hangs over the scroll.
   'abjad': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.795, 0.472),
+      warp: _abjadWarp,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.53, 0.79),
@@ -523,6 +617,21 @@ const Map<String, FortuneEffectSpec> _effects = {
   // Mike's example, in full: flame flicker, curling smoke, warm embers.
   'candle': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.377, 0.244),
+      warp: _candleWarpA,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.576, 0.336),
+      warp: _candleWarpB,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.489, 0.345),
+      warp: _candleWarpC,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.635, 0.45),
       intensity: 1.15,
@@ -545,6 +654,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // Rings under a small flame; rose petals rest around them.
   'marriage': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.508, 0.225),
+      warp: _marriageWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.27, 0.16),
       intensity: 0.7,
@@ -557,9 +671,24 @@ const Map<String, FortuneEffectSpec> _effects = {
       intensity: 0.7,
       count: 8,
     ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.505, 0.257),
+      intensity: 0.5,
+    ),
   ]),
   // Two little candles over the golden shoes; soft gold dust.
   'child': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.43, 0.563),
+      warp: _childWarpA,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.545, 0.565),
+      warp: _childWarpB,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.42, 0.16),
@@ -578,9 +707,29 @@ const Map<String, FortuneEffectSpec> _effects = {
       intensity: 0.6,
       count: 8,
     ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.431, 0.566),
+      intensity: 0.4,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.545, 0.57),
+      intensity: 0.4,
+    ),
   ]),
   // The red thread between two hands, in gentle haze.
   'friendship': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.331, 0.639),
+      warp: _friendshipWarpA,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.531, 0.716),
+      warp: _friendshipWarpB,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.sparkle,
       anchor: Offset(0.5, 0.45),
@@ -593,6 +742,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // A dark candle over the broken heart — quiet, not dramatic.
   'separation': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.494, 0.296),
+      warp: _separationWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.52, 0.11),
       intensity: 0.6,
@@ -604,6 +758,11 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _gold,
       intensity: 0.5,
       count: 6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.494, 0.301),
+      intensity: 0.45,
     ),
   ]),
   // The dove breathes light inside its golden ring.
@@ -626,6 +785,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // A flame over the parchment; the emblem keeps a soft glint.
   'name': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.517, 0.213),
+      warp: _nameWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.52, 0.13),
       intensity: 0.6,
@@ -637,6 +801,11 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _gold,
       intensity: 0.6,
       count: 8,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.516, 0.215),
+      intensity: 0.45,
     ),
   ]),
   // The chest’s rays breathe; work-worn gold sparks.
@@ -675,6 +844,16 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The little lamp burns beside the map.
   'travel': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.418, 0.148),
+      warp: _travelWarpA,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.771, 0.803),
+      warp: _travelWarpB,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.63, 0.83),
@@ -728,9 +907,21 @@ const Map<String, FortuneEffectSpec> _effects = {
       intensity: 0.6,
       count: 8,
     ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.495, 0.568),
+      color: _flame,
+      intensity: 0.6,
+      periodSeconds: 2.6,
+    ),
   ]),
   // The orb in cupped hands breathes; intent drifts upward.
   'intention': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.486, 0.564),
+      warp: _intentionWarp,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.47, 0.62),
@@ -779,6 +970,48 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _violet,
       intensity: 0.5,
     ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.834, 0.424),
+      color: _warmWhite,
+      intensity: 0.28,
+      periodSeconds: 2,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.527, 0.205),
+      color: _warmWhite,
+      intensity: 0.28,
+      periodSeconds: 2.3,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.463, 0.193),
+      color: _warmWhite,
+      intensity: 0.28,
+      periodSeconds: 2.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.391, 0.215),
+      color: _warmWhite,
+      intensity: 0.28,
+      periodSeconds: 2.9,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.258, 0.552),
+      color: _warmWhite,
+      intensity: 0.28,
+      periodSeconds: 3.2,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.489, 0.785),
+      color: _warmWhite,
+      intensity: 0.28,
+      periodSeconds: 3.5,
+    ),
   ]),
   // The crystals hum violet; facets catch light.
   'luckystone': FortuneEffectSpec([
@@ -795,6 +1028,27 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _warmWhite,
       intensity: 0.8,
       count: 12,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.378, 0.237),
+      color: _violet,
+      intensity: 0.35,
+      periodSeconds: 2.4,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.577, 0.345),
+      color: _warmWhite,
+      intensity: 0.3,
+      periodSeconds: 2.9,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.483, 0.707),
+      color: _violet,
+      intensity: 0.35,
+      periodSeconds: 3.4,
     ),
   ]),
   // The lotus glows over its own reflection.
@@ -886,9 +1140,47 @@ const Map<String, FortuneEffectSpec> _effects = {
       anchor: Offset(0.72, 0.28),
       intensity: 0.5,
     ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.384, 0.261),
+      color: _gold,
+      intensity: 0.3,
+      periodSeconds: 3.6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.644, 0.255),
+      color: _gold,
+      intensity: 0.45,
+      periodSeconds: 2.4,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.384, 0.683),
+      color: _gold,
+      intensity: 0.3,
+      periodSeconds: 4.2,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.644, 0.669),
+      color: _gold,
+      intensity: 0.3,
+      periodSeconds: 3,
+    ),
   ]),
   // The galaxy’s heart breathes; violet stars drift.
   'universe': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.547, 0.506),
+      swirl: _universeSwirl,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.552, 0.507),
+      warp: _universeWarp,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.47, 0.47),
@@ -926,6 +1218,16 @@ const Map<String, FortuneEffectSpec> _effects = {
   // The glass holds a pale, breathing light.
   'mirror': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.swirlWarp,
+      anchor: Offset(0.519, 0.317),
+      swirl: _mirrorSwirl,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.apparition,
+      anchor: Offset(0.519, 0.285),
+      apparition: _mirrorGhost,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.35),
       color: _paleMoon,
@@ -942,6 +1244,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   ]),
   // The candle over the spread; the cards keep a low glint.
   'lenormand': FortuneEffectSpec([
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.488, 0.215),
+      warp: _lenormandWarp,
+    ),
     FortuneEffectLayerSpec(
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.55, 0.21),
@@ -971,6 +1278,27 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _gold,
       intensity: 0.5,
       count: 6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.491, 0.321),
+      color: _gold,
+      intensity: 0.35,
+      periodSeconds: 2.2,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.486, 0.482),
+      color: _gold,
+      intensity: 0.35,
+      periodSeconds: 2.7,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.489, 0.689),
+      color: _gold,
+      intensity: 0.35,
+      periodSeconds: 3.1,
     ),
   ]),
   // The oracle backs glint along their gilded edges.
@@ -1010,6 +1338,11 @@ const Map<String, FortuneEffectSpec> _effects = {
   // Light between the wings; a feather’s worth of sparks.
   'angel': FortuneEffectSpec([
     FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.steamWarp,
+      anchor: Offset(0.498, 0.653),
+      warp: _angelWarp,
+    ),
+    FortuneEffectLayerSpec(
       kind: FortuneEffectKind.glow,
       anchor: Offset(0.5, 0.42),
       color: _paleMoon,
@@ -1022,6 +1355,11 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _paleMoon,
       intensity: 0.7,
       count: 10,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.506, 0.637),
+      intensity: 0.5,
     ),
   ]),
   // The wolf’s ring glows in the night; a few far stars.
@@ -1039,6 +1377,13 @@ const Map<String, FortuneEffectSpec> _effects = {
       color: _gold,
       intensity: 0.5,
       count: 6,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.484, 0.353),
+      color: _gold,
+      intensity: 0.35,
+      periodSeconds: 3,
     ),
   ]),
   // The crown breathes; the chakra line sparks; base candles burn.
@@ -1061,6 +1406,30 @@ const Map<String, FortuneEffectSpec> _effects = {
       kind: FortuneEffectKind.flame,
       anchor: Offset(0.3, 0.77),
       intensity: 0.4,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.419, 0.622),
+      intensity: 0.35,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.flame,
+      anchor: Offset(0.58, 0.627),
+      intensity: 0.35,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.497, 0.482),
+      color: _gold,
+      intensity: 0.5,
+      periodSeconds: 3.2,
+    ),
+    FortuneEffectLayerSpec(
+      kind: FortuneEffectKind.glow,
+      anchor: Offset(0.497, 0.301),
+      color: _gold,
+      intensity: 0.4,
+      periodSeconds: 4.1,
     ),
   ]),
 };
