@@ -9,7 +9,6 @@ import { MonetizationConfig } from '../../config/monetization.config';
 import { IdempotencyService } from '../../infrastructure/idempotency/idempotency.service';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
 import { MediationService } from '../ads/mediation.service';
-import { EntitlementsService } from '../entitlements/entitlements.service';
 import { FreeDailyService } from '../entitlements/free-daily.service';
 import { UsersService } from '../users/users.service';
 import type { CreateReadingDto, ReadingInputDto } from './dto/create-reading.dto';
@@ -48,11 +47,11 @@ const DEFAULT_PAGE_SIZE = 20;
 const INTENTION_SCAN = 100;
 const IDEMPOTENCY_OPERATION = 'reading.create';
 
-type AccessMethod = 'vip' | 'free_daily' | 'rewarded_ad' | 'free';
+type AccessMethod = 'free_daily' | 'rewarded_ad' | 'free';
 
 /**
  * Orchestrates one reading (coins removed):
- * validate → access decision (VIP → free daily → ad entitlement) → generate →
+ * validate → access decision (free daily → ad entitlement) → generate →
  * persist → count. The free-daily allowance is counted only AFTER a successful
  * reading; a consumed ad entitlement is restored when generation fails, so the
  * user never re-watches an ad for a reading they did not receive.
@@ -62,7 +61,6 @@ export class ReadingsService {
   constructor(
     private readonly repository: ReadingsRepository,
     @Inject(READING_PROVIDER) private readonly provider: ReadingProvider,
-    private readonly entitlements: EntitlementsService,
     private readonly freeDaily: FreeDailyService,
     private readonly mediation: MediationService,
     private readonly monetization: MonetizationConfig,
@@ -100,26 +98,21 @@ export class ReadingsService {
       }
     }
 
-    // ── access decision (spec order: VIP → free daily → rewarded ad) ──
-    const isVip = await this.entitlements.hasActiveVip(userId);
+    // ── access decision (spec order: free daily → rewarded ad) ──
     let accessMethod: AccessMethod = 'free';
     let consumedAdEntitlementId: string | null = null;
 
-    if (isVip) {
-      accessMethod = 'vip';
-    } else {
-      const freeRemaining = await this.freeDaily.freeUsesRemainingToday(userId, fortune.id);
-      if (freeRemaining > 0) {
-        accessMethod = 'free_daily';
-      } else if (dto.adEntitlementId) {
-        await this.mediation.consumeEntitlement(userId, dto.adEntitlementId, fortune.id);
-        consumedAdEntitlementId = dto.adEntitlementId;
-        accessMethod = 'rewarded_ad';
-      } else if (this.monetization.enforceAccessLimits) {
-        throw new DomainException('ACCESS_REQUIRED', 'برای این فال، تبلیغ ببین یا عضو ویژه شو.', {
-          status: HttpStatus.PAYMENT_REQUIRED,
-        });
-      }
+    const freeRemaining = await this.freeDaily.freeUsesRemainingToday(userId, fortune.id);
+    if (freeRemaining > 0) {
+      accessMethod = 'free_daily';
+    } else if (dto.adEntitlementId) {
+      await this.mediation.consumeEntitlement(userId, dto.adEntitlementId, fortune.id);
+      consumedAdEntitlementId = dto.adEntitlementId;
+      accessMethod = 'rewarded_ad';
+    } else if (this.monetization.enforceAccessLimits) {
+      throw new DomainException('ACCESS_REQUIRED', 'برای این فال، اول تبلیغ را ببین.', {
+        status: HttpStatus.PAYMENT_REQUIRED,
+      });
     }
 
     let record: Reading;

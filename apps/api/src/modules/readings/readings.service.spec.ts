@@ -28,10 +28,6 @@ const repository = {
   findById: jest.fn(),
 };
 
-const entitlements = {
-  hasActiveVip: jest.fn(),
-};
-
 const freeDaily = {
   freeUsesRemainingToday: jest.fn(),
   consumeFreeToday: jest.fn(),
@@ -58,7 +54,6 @@ const users = {
 const service = new ReadingsService(
   repository as never,
   provider as never,
-  entitlements as never,
   freeDaily as never,
   mediation as never,
   monetization as never,
@@ -76,7 +71,6 @@ function resetHappyPath(): void {
   );
   repository.list.mockResolvedValue([]);
   repository.findById.mockResolvedValue(null);
-  entitlements.hasActiveVip.mockResolvedValue(false);
   freeDaily.freeUsesRemainingToday.mockResolvedValue(0);
   freeDaily.consumeFreeToday.mockResolvedValue(undefined);
   mediation.consumeEntitlement.mockResolvedValue(undefined);
@@ -95,16 +89,6 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
       expect.objectContaining({ userId: 'u1', fortuneId: 'hafez', requestId: 'req-1' }),
     );
     expect(res.fortune).toBe('hafez');
-    expect(mediation.consumeEntitlement).not.toHaveBeenCalled();
-  });
-
-  it('VIP readings never touch the free allowance or entitlements', async () => {
-    entitlements.hasActiveVip.mockResolvedValue(true);
-
-    await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null);
-
-    expect(freeDaily.freeUsesRemainingToday).not.toHaveBeenCalled();
-    expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
     expect(mediation.consumeEntitlement).not.toHaveBeenCalled();
   });
 
@@ -233,7 +217,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
     await expect(
       service.create({ fortuneId: 'nope', input: {} }, null, principal, null),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
-    expect(entitlements.hasActiveVip).not.toHaveBeenCalled();
+    expect(freeDaily.freeUsesRemainingToday).not.toHaveBeenCalled();
   });
 
   it('validates the offering (dream needs words; love needs both names)', async () => {

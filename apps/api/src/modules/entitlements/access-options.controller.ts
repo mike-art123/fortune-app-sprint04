@@ -7,9 +7,9 @@ import { AccessOptionsService, type AccessOptionsView } from './access-options.s
 
 /**
  * The client calls this AFTER the user taps «گرفتن فال» — never on page open —
- * and renders per accessState: vip/free start immediately; choice opens the
- * two-option sheet; vip_only shows the VIP prompt. All decisions are computed
- * server-side.
+ * and renders per accessState: `free` starts immediately; `ad_required` opens
+ * the rewarded-ad flow; `unavailable` means no ad can be served right now. All
+ * decisions are computed server-side.
  */
 @ApiTags('entitlements')
 @ApiBearerAuth()
