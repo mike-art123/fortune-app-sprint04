@@ -34,11 +34,13 @@ void main() {
     expect(FortuneRegistry.byId('nope'), isNull);
   });
 
-  test('photo fortunes are marked soon in Sprint 01', () {
-    for (final f in FortuneRegistry.all.where(
+  test('photo fortunes (coffee) are live and read a cup photo', () {
+    final photos = FortuneRegistry.all.where(
       (f) => f.inputKind == FortuneInputKind.photo,
-    )) {
-      expect(f.isAvailable, isFalse, reason: '${f.id} photo input lands later');
+    );
+    expect(photos, isNotEmpty);
+    for (final f in photos) {
+      expect(f.isAvailable, isTrue, reason: '${f.id} reads a cup photo now');
     }
   });
 }

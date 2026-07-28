@@ -134,7 +134,7 @@ Future<void> _offerInput(WidgetTester tester, FortuneDefinition f) async {
       await tester.enterText(find.byType(WhisperField).last, 'امیر');
       return;
     case FortuneInputKind.photo:
-      return; // photo fortunes are «soon» and never reach this suite
+      return; // coffee needs a camera; a dedicated test covers it below
   }
 }
 
@@ -143,11 +143,13 @@ void main() {
   final available =
       FortuneRegistry.all.where((f) => f.isAvailable).toList(growable: false);
 
-  test('audit precondition: 38 live rituals exist', () {
-    expect(available.length, 38);
+  test('audit precondition: 39 live rituals exist', () {
+    expect(available.length, 39);
   });
 
   for (final f in available) {
+    // Photo rituals (coffee) need a real camera; a dedicated test covers it.
+    if (f.inputKind == FortuneInputKind.photo) continue;
     testWidgets('ritual «${f.id}» opens, speaks, accepts input, resolves', (
       tester,
     ) async {
@@ -173,4 +175,21 @@ void main() {
       expect(find.text('نتیجهٔ ${f.id}'), findsOneWidget);
     });
   }
+
+  testWidgets('coffee ritual shows the camera and the symbol guide', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
+
+    final coffee = FortuneRegistry.byId('coffee')!;
+    await tester.pumpWidget(host('coffee'));
+    await pumpRitual(tester);
+
+    expect(find.text(coffee.ritualLine.resolve(fa)), findsOneWidget);
+    expect(find.text(coffee.cta.resolve(fa)), findsOneWidget);
+    expect(find.text('گرفتن عکس'), findsOneWidget);
+    expect(find.text('راهنمای نشانه‌ها'), findsOneWidget);
+  });
 }

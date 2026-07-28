@@ -14,6 +14,7 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
+import '../../../../core/platform/cup_photo.dart';
 import '../../../access/application/access_flow_controller.dart';
 import '../../../access/presentation/widgets/access_sheet.dart';
 import '../../../fortunes/domain/fal_input.dart';
@@ -21,6 +22,8 @@ import '../../../fortunes/domain/fortune_definition.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../reading/application/reading_submission_controller.dart';
 import '../controllers/ritual_entry_controller.dart';
+import '../widgets/coffee_symbol_guide.dart';
+import '../widgets/cup_photo_field.dart';
 import '../widgets/offering_strip.dart';
 import '../widgets/paired_names_field.dart';
 import '../widgets/ritual_orb.dart';
@@ -45,6 +48,10 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   /// VIP purchase flow — the user never types anything twice.
   FalInput? _pendingInput;
 
+  /// The captured cup photo (coffee) as a downscaled data URL, held until the
+  /// offering is sealed. Never logged; stripped from storage server-side.
+  String? _imageDataUrl;
+
   @override
   void dispose() {
     _primary.dispose();
@@ -58,12 +65,22 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
               fortune: fortune,
               primary: _primary.text,
               secondary: _secondary.text,
+              imageDataUrl: _imageDataUrl,
             );
     if (input != null) {
       // Access first (VIP → free daily → sheet); submission follows access.
       _pendingInput = input;
       ref.read(accessFlowControllerProvider(fortune.id).notifier).begin();
     }
+  }
+
+  /// Opens the camera/gallery for the coffee ritual and keeps the downscaled
+  /// photo. A dismissed picker leaves the previous choice untouched.
+  Future<void> _pickPhoto() async {
+    final data = await captureCupPhoto();
+    if (!mounted || data == null) return;
+    setState(() => _imageDataUrl = data);
+    ref.read(ritualEntryControllerProvider(widget.fortuneId).notifier).soften();
   }
 
   AccessFlowController _access(FortuneDefinition fortune) {
@@ -349,8 +366,17 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
         );
 
       case FortuneInputKind.photo:
-        // Guarded above by `isAvailable`; unreachable in Sprint 01.
-        return const SizedBox.shrink();
+        return Column(
+          children: [
+            CupPhotoField(
+              imageDataUrl: _imageDataUrl,
+              onPick: _pickPhoto,
+              accent: fortune.accent,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            CoffeeSymbolGuide(accent: fortune.accent),
+          ],
+        );
     }
   }
 

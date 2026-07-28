@@ -92,6 +92,15 @@ class AppStrings {
   String get savedToast => _fa ? 'در نشان‌شده‌ها ذخیره شد' : 'Saved';
   String get savedError => _fa ? 'ذخیره نشد؛ دوباره تلاش کن' : 'Could not save';
   String get historyClearTooltip => _fa ? 'پاک‌کردن تاریخچه' : 'Clear history';
+  String get coffeeCaptureHint => _fa
+      ? 'فنجان را وارونه کن، بگذار ته‌نشین شود، بعد از تهِ فنجان یک عکس بگیر.'
+      : 'Flip the cup, let it settle, then photograph the bottom.';
+  String get coffeeTakePhoto => _fa ? 'گرفتن عکس' : 'Take a photo';
+  String get coffeeRetake => _fa ? 'عکس دیگر' : 'Retake';
+  String get coffeeGuideTitle => _fa ? 'راهنمای نشانه‌ها' : 'Symbol guide';
+  String get coffeeGuideIntro => _fa
+      ? 'اگر خواستی خودت هم فنجان را بخوانی، این نشانه‌ها راهنمایت می‌کنند.'
+      : 'Read it yourself with these symbols.';
   String get historyClearTitle =>
       _fa ? 'همهٔ تاریخچه پاک شود؟' : 'Clear all history?';
   String get historyClearBody => _fa

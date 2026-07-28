@@ -31,11 +31,13 @@ class RitualEntryController extends FamilyNotifier<RitualEntryState, String> {
     required FortuneDefinition fortune,
     required String primary,
     required String secondary,
+    String? imageDataUrl,
   }) {
     final outcome = FalInputFactory.build(
       fortune: fortune,
       primary: primary,
       secondary: secondary,
+      imageDataUrl: imageDataUrl,
     );
     switch (outcome) {
       case OfferingReady(:final input):

@@ -31,6 +31,13 @@ final class LoveInput extends FalInput {
   final String otherName;
 }
 
+/// A cup photo (Coffee). The downscaled image rides as a data URL and is never
+/// stored — the server reads it once and discards it.
+final class CoffeeInput extends FalInput {
+  const CoffeeInput({required super.fortuneId, required this.imageDataUrl});
+  final String imageDataUrl;
+}
+
 /// Outcome of gentle validation: either the offering is ready, or the user
 /// receives calm guidance (never an error, never blame).
 sealed class OfferingOutcome {
@@ -55,10 +62,16 @@ abstract final class FalInputFactory {
     en: 'A few words here are enough to continue.',
   );
 
+  static const _photoGuide = LocalizedText(
+    fa: 'برای شروع، یک عکس از ته فنجان لازم است.',
+    en: 'Start with a photo of the bottom of the cup.',
+  );
+
   static OfferingOutcome build({
     required FortuneDefinition fortune,
     String primary = '',
     String secondary = '',
+    String? imageDataUrl,
   }) {
     final first = primary.trim();
     final second = secondary.trim();
@@ -90,9 +103,13 @@ abstract final class FalInputFactory {
         );
 
       case FortuneInputKind.photo:
-        // Photo offerings arrive in a later sprint; the registry keeps these
-        // families marked `soon`, so entry never reaches this branch.
-        return const OfferingNeedsMore(_fallbackGuide);
+        final image = imageDataUrl?.trim() ?? '';
+        if (image.isEmpty) {
+          return OfferingNeedsMore(fortune.guide ?? _photoGuide);
+        }
+        return OfferingReady(
+          CoffeeInput(fortuneId: fortune.id, imageDataUrl: image),
+        );
     }
   }
 }
@@ -104,5 +121,6 @@ extension FalInputRedacted on FalInput {
           'IntentionInput(${i == null ? 'silent' : 'written'})',
         DreamInput() => 'DreamInput([redacted])',
         LoveInput() => 'LoveInput([redacted])',
+        CoffeeInput() => 'CoffeeInput([redacted])',
       };
 }

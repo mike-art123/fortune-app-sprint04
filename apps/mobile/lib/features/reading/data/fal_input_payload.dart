@@ -14,6 +14,7 @@ abstract final class FalInputPayload {
               'selfName': selfName,
               'otherName': otherName,
             },
+          CoffeeInput(:final imageDataUrl) => {'imageDataUrl': imageDataUrl},
         },
       };
 }

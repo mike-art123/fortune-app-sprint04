@@ -156,7 +156,7 @@ abstract final class FortuneRegistry {
         en: 'Turn your cup over and take a photo.',
       ),
       cta: LocalizedText(fa: 'فنجان را بخوان', en: 'Read the cup'),
-      availability: FortuneAvailability.soon,
+      availability: FortuneAvailability.available,
       pace: RitualPace(
         enter: Duration(milliseconds: 500),
         step: Duration(milliseconds: 150),
