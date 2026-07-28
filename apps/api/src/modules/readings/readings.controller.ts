@@ -10,6 +10,7 @@ import { ListReadingsQueryDto } from './dto/list-readings.query.dto';
 import {
   ReadingsService,
   type DeleteResult,
+  type IntentionResponse,
   type ReadingListPage,
   type ReadingResponse,
 } from './readings.service';
@@ -43,6 +44,41 @@ export class ReadingsController {
     @CurrentUser() principal: AuthenticatedPrincipal | undefined,
   ): Promise<ReadingListPage> {
     return this.readings.list(query, this.required(principal));
+  }
+
+  /** The caller's saved readings, newest-saved-first. */
+  @Get('saved')
+  listSaved(
+    @Query() query: ListReadingsQueryDto,
+    @CurrentUser() principal: AuthenticatedPrincipal | undefined,
+  ): Promise<ReadingListPage> {
+    return this.readings.listSaved(query, this.required(principal));
+  }
+
+  /** The intentions the caller has whispered before their readings. */
+  @Get('intentions')
+  listIntentions(
+    @CurrentUser() principal: AuthenticatedPrincipal | undefined,
+  ): Promise<IntentionResponse[]> {
+    return this.readings.listIntentions(this.required(principal));
+  }
+
+  /** Save (bookmark) one reading — only the caller's own. */
+  @Post(':id/save')
+  save(
+    @Param('id') id: string,
+    @CurrentUser() principal: AuthenticatedPrincipal | undefined,
+  ): Promise<{ saved: boolean }> {
+    return this.readings.setSaved(id, true, this.required(principal));
+  }
+
+  /** Remove one reading from saved — only the caller's own. */
+  @Delete(':id/save')
+  unsave(
+    @Param('id') id: string,
+    @CurrentUser() principal: AuthenticatedPrincipal | undefined,
+  ): Promise<{ saved: boolean }> {
+    return this.readings.setSaved(id, false, this.required(principal));
   }
 
   /** Wipe the caller's whole history. Permanent; only ever their own rows. */

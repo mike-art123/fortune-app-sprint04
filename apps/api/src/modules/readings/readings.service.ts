@@ -36,7 +36,16 @@ export interface DeleteResult {
   deleted: number;
 }
 
+/** One whispered intention, drawn from a reading's stored offering. */
+export interface IntentionResponse {
+  id: string;
+  fortune: string;
+  intention: string;
+  createdAt: string;
+}
+
 const DEFAULT_PAGE_SIZE = 20;
+const INTENTION_SCAN = 100;
 const IDEMPOTENCY_OPERATION = 'reading.create';
 
 type AccessMethod = 'vip' | 'free_daily' | 'rewarded_ad' | 'free';
@@ -273,6 +282,67 @@ export class ReadingsService {
         }
         return;
       }
+    }
+  }
+
+  /** Save (bookmark) or unsave one reading the caller owns. Unknown or foreign
+   *  ids change nothing and report saved:false — a quiet, idempotent toggle. */
+  async setSaved(
+    id: string,
+    saved: boolean,
+    principal: AuthenticatedPrincipal,
+  ): Promise<{ saved: boolean }> {
+    const changed = await this.repository.setSaved(id, principal.userId, saved);
+    return { saved: saved && changed > 0 };
+  }
+
+  /** Newest-saved-first page of the caller's saved readings. */
+  async listSaved(
+    query: { limit?: number; cursor?: string },
+    principal: AuthenticatedPrincipal,
+  ): Promise<ReadingListPage> {
+    const limit = query.limit ?? DEFAULT_PAGE_SIZE;
+    const cursorId = decodeCursor(query.cursor);
+    const rows = await this.repository.listSaved({
+      userId: principal.userId,
+      limit,
+      cursorId,
+    });
+    const hasMore = rows.length > limit;
+    const pageRows = hasMore ? rows.slice(0, limit) : rows;
+    const last = pageRows.at(-1);
+    return {
+      items: pageRows.map((row) => this.shape(row)),
+      nextCursor: hasMore && last ? encodeCursor(last.id) : null,
+    };
+  }
+
+  /** The intentions the caller has whispered, newest first (capped). Silence
+   *  is a valid offering, so readings without one are simply left out. */
+  async listIntentions(principal: AuthenticatedPrincipal): Promise<IntentionResponse[]> {
+    const rows = await this.repository.recentForUser(principal.userId, INTENTION_SCAN);
+    const out: IntentionResponse[] = [];
+    for (const row of rows) {
+      const intention = this.readIntention(row.inputJson);
+      if (intention) {
+        out.push({
+          id: row.id,
+          fortune: row.fortuneId,
+          intention,
+          createdAt: row.createdAt ? toIso(row.createdAt) : nowIso(),
+        });
+      }
+    }
+    return out;
+  }
+
+  private readIntention(inputJson: string): string | null {
+    try {
+      const parsed = JSON.parse(inputJson) as { intention?: unknown };
+      const value = typeof parsed.intention === 'string' ? parsed.intention.trim() : '';
+      return value.length > 0 ? value : null;
+    } catch {
+      return null;
     }
   }
 }

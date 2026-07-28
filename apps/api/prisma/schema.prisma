@@ -231,16 +231,18 @@ model Ghazal {
 /// One generated reading. Sprint 04: new rows always carry the owner; null
 /// userId only survives on pre-auth legacy rows.
 model Reading {
-  id        String   @id @default(cuid())
-  userId    String?  @map("user_id")
-  fortuneId String   @map("fortune_id")
+  id        String    @id @default(cuid())
+  userId    String?   @map("user_id")
+  fortuneId String    @map("fortune_id")
   title     String
   content   String
-  inputJson String   @map("input_json")
-  requestId String?  @map("request_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  inputJson String    @map("input_json")
+  requestId String?   @map("request_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  savedAt   DateTime? @map("saved_at")
 
   @@index([userId, createdAt])
+  @@index([userId, savedAt])
   @@map("readings")
 }
 

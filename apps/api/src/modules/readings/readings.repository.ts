@@ -84,4 +84,33 @@ export class ReadingsRepository {
       ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
     });
   }
+
+  /** Mark or clear one reading as saved — only if this user owns it. */
+  async setSaved(id: string, userId: string, saved: boolean): Promise<number> {
+    const { count } = await this.prisma.reading.updateMany({
+      where: { id, userId },
+      data: { savedAt: saved ? new Date() : null },
+    });
+    return count;
+  }
+
+  /** Newest-saved-first page of the caller's saved readings. */
+  listSaved(params: { userId: string; limit: number; cursorId?: string }): Promise<Reading[]> {
+    const { userId, limit, cursorId } = params;
+    return this.prisma.reading.findMany({
+      where: { userId, savedAt: { not: null } },
+      orderBy: [{ savedAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+    });
+  }
+
+  /** The caller's most recent readings (capped), for deriving intentions. */
+  recentForUser(userId: string, take: number): Promise<Reading[]> {
+    return this.prisma.reading.findMany({
+      where: { userId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+    });
+  }
 }
