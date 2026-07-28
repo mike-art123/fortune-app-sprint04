@@ -172,14 +172,6 @@ export class AiReadingProvider implements ReadingProvider {
   }
 }
 
-/** One part of a multimodal user turn: the prompt text, or the inline image. */
-type ContentPart =
-  | { type: 'text'; text: string }
-  | { type: 'image_url'; image_url: { url: string } };
-
-/** A wire message — a plain text message, or a multimodal one for vision. */
-type WireMessage = PromptMessage | { role: 'user'; content: ContentPart[] };
-
 /**
  * Coffee is the one fortune the model must SEE. When a cup photo is offered,
  * the user turn becomes a multimodal message — the text prompt plus the image
@@ -187,23 +179,25 @@ type WireMessage = PromptMessage | { role: 'user'; content: ContentPart[] };
  * Every other fortune passes straight through, so the wire shape and all the
  * existing behaviour stay identical for text readings.
  *
- * The image rides through here and is never logged or stored (privacy §16).
+ * The result is serialized straight into the request body, so a plain array is
+ * enough here. The image rides through and is never logged or stored (§16).
  */
 function withImage(
   messages: PromptMessage[],
   fortune: FortuneCatalogEntry,
   input: ReadingInputDto,
-): WireMessage[] {
+): unknown[] {
   const image = input.imageDataUrl;
   if (fortune.inputKind !== 'photo' || !image) return messages;
   return messages.map((message) => {
     if (message.role !== 'user') return message;
-    const content: ContentPart[] = [
-      { type: 'text', text: message.content },
-      { type: 'image_url', image_url: { url: image } },
-    ];
-    const withPhoto: WireMessage = { role: 'user', content };
-    return withPhoto;
+    return {
+      role: 'user',
+      content: [
+        { type: 'text', text: message.content },
+        { type: 'image_url', image_url: { url: image } },
+      ],
+    };
   });
 }
 
