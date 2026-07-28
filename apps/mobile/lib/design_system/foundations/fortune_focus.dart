@@ -15,6 +15,7 @@ const Map<String, Alignment> _focus = {
   // Keep the flame + subject high in the frame.
   'hafez': Alignment(0, -0.12), // candle + open book near the top
   'marriage': Alignment(0, -0.12), // candle flame above the rings
+  'dream': Alignment(0, -0.9), // crescent moon sits high in the frame
   'yesno': Alignment(0, -0.06), // crystal ball sits a touch high
   'love': Alignment(0, -0.04), // symmetrical heart, near-centre
   // Keep the subject that sits low from being clipped.
