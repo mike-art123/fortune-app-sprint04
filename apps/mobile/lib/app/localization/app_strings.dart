@@ -90,8 +90,7 @@ class AppStrings {
   String get savedRemoveTooltip =>
       _fa ? 'برداشتن از نشان‌شده‌ها' : 'Remove from saved';
   String get savedToast => _fa ? 'در نشان‌شده‌ها ذخیره شد' : 'Saved';
-  String get savedError =>
-      _fa ? 'ذخیره نشد؛ دوباره تلاش کن' : 'Could not save';
+  String get savedError => _fa ? 'ذخیره نشد؛ دوباره تلاش کن' : 'Could not save';
   String get historyClearTooltip => _fa ? 'پاک‌کردن تاریخچه' : 'Clear history';
   String get historyClearTitle =>
       _fa ? 'همهٔ تاریخچه پاک شود؟' : 'Clear all history?';

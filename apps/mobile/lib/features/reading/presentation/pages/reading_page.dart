@@ -157,7 +157,7 @@ class _ReadingView extends ConsumerWidget {
           IconButton(
             onPressed: () => _save(context, ref, current.id),
             tooltip: s.savedSaveTooltip,
-            icon: const Icon(Icons.bookmark_add_outlined),
+            icon: const Icon(Icons.bookmark_border),
           ),
         ],
       ),

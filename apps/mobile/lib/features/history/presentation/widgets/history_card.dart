@@ -174,7 +174,7 @@ class HistoryCard extends StatelessWidget {
     return IconButton(
       onPressed: onUnsave,
       tooltip: context.strings.savedRemoveTooltip,
-      icon: const Icon(Icons.bookmark_remove_outlined),
+      icon: const Icon(Icons.bookmark),
       iconSize: 18,
       color: Colors.white.withValues(alpha: 0.7),
       visualDensity: VisualDensity.compact,

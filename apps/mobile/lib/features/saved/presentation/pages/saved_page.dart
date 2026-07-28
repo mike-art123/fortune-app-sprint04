@@ -60,8 +60,7 @@ class _SavedCard extends ConsumerWidget {
     final saved = ref.read(savedControllerProvider.notifier);
     return HistoryCard(
       reading: reading,
-      onOpen: () =>
-          context.push(AppRoutes.reading(reading.id), extra: reading),
+      onOpen: () => context.push(AppRoutes.reading(reading.id), extra: reading),
       onUnsave: () => saved.unsave(reading.id),
     );
   }
