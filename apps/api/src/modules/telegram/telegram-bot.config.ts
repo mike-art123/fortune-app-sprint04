@@ -21,7 +21,7 @@ export class TelegramBotConfig {
   }
 
   get miniAppUrl(): string {
-    return this.config.get<string>('TELEGRAM_MINIAPP_URL') ?? 'https://bakhtnegar.pages.dev';
+    return this.config.get<string>('TELEGRAM_MINIAPP_URL') ?? 'https://app.bakhtnegar.com';
   }
 
   /** `/api/v1/telegram/webhook` — global prefix + URI version + route path. */

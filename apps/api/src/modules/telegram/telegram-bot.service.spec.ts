@@ -15,7 +15,7 @@ function makeLogger(): AppLoggerService {
 function makeConfig(overrides: Partial<TelegramBotConfig> = {}): TelegramBotConfig {
   const base = {
     botToken: '123:ABC',
-    miniAppUrl: 'https://bakhtnegar.pages.dev',
+    miniAppUrl: 'https://app.bakhtnegar.com',
     webhookPath: '/api/v1/telegram/webhook',
     publicBaseUrl: 'https://api.example.com',
     webhookUrl: 'https://api.example.com/api/v1/telegram/webhook',
@@ -84,9 +84,7 @@ describe('TelegramBotService', () => {
       reply_markup: { inline_keyboard: Array<Array<{ web_app: { url: string } }>> };
     };
     expect(body.chat_id).toBe(42);
-    expect(body.reply_markup.inline_keyboard[0][0].web_app.url).toBe(
-      'https://bakhtnegar.pages.dev',
-    );
+    expect(body.reply_markup.inline_keyboard[0][0].web_app.url).toBe('https://app.bakhtnegar.com');
   });
 
   it('ignores messages that are not /start', async () => {
