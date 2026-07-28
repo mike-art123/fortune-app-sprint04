@@ -40,6 +40,9 @@ describe('all fortunes (e2e) — every catalog entry yields a real reading', () 
     if (kind === 'twoNames') {
       return { selfName: 'سارا', otherName: 'امیر' };
     }
+    if (kind === 'photo') {
+      return { imageDataUrl: 'data:image/jpeg;base64,AAAA' };
+    }
     return { intention: 'دلم روشن شود' };
   }
 
