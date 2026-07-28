@@ -14,6 +14,7 @@ export class FeatureFlagsService {
   /** Safe defaults — a missing flag never breaks a request. */
   private readonly defaults: Record<string, boolean> = {
     'system.maintenance-banner': false,
+    'hafez.raw-engine': true,
   };
 
   constructor(
