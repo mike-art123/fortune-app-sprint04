@@ -19,7 +19,6 @@ const service = new ReadingsService(
   {} as never,
   {} as never,
   {} as never,
-  {} as never,
   logger as never,
 );
 
