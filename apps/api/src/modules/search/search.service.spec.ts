@@ -118,7 +118,7 @@ describe('SearchService', () => {
   });
 
   it('never writes the question into the logs', async () => {
-    global.fetch = answering('{"kind":"screen","screen":"vip"}') as unknown as typeof fetch;
+    global.fetch = answering('{"kind":"screen","screen":"profile"}') as unknown as typeof fetch;
 
     const service = new SearchService(config(), flags(true), logger);
     await service.interpret('اشتراکم تمام شده و اسمم مریم است');

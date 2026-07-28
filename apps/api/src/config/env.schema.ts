@@ -78,7 +78,7 @@ export const envSchema = z
     FREE_DAILY_ALLOWANCES: z.string().default('hafez:2'),
     /** Max rewarded-ad unlocks per user per day. */
     REWARDED_ADS_DAILY_LIMIT: z.coerce.number().int().min(0).max(1000).default(5),
-    /** Enforce free/ad/VIP gating. Off until the client + ad + Stars ship. */
+    /** Enforce free/ad gating. Off until the client + ad providers ship. */
     ENFORCE_ACCESS_LIMITS: z.coerce.boolean().default(false),
 
     /** Rewarded-ad mediation. Ordered provider priority (backend-owned). */
@@ -101,11 +101,6 @@ export const envSchema = z
     /** How many readers one sweep may consider. Bounded on purpose. */
     NOTIFICATIONS_SWEEP_BATCH: z.coerce.number().int().min(1).max(2000).default(200),
     NOTIFICATIONS_SWEEP_BUDGET_MS: z.coerce.number().int().positive().default(60000),
-
-    /** VIP plan prices in Telegram Stars (XTR). */
-    VIP_MONTHLY_STARS: z.coerce.number().int().positive().default(250),
-    VIP_QUARTERLY_STARS: z.coerce.number().int().positive().default(600),
-    VIP_ANNUAL_STARS: z.coerce.number().int().positive().default(2000),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production') {

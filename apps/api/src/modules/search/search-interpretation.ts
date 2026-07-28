@@ -4,7 +4,7 @@ import { FORTUNE_CATALOG } from '../readings/fortune-catalog';
  * Screens a search answer is allowed to point at. A closed list, written here
  * and nowhere else — a model can only ever pick from it.
  */
-export const SEARCH_SCREENS = ['history', 'profile', 'vip', 'fortunes'] as const;
+export const SEARCH_SCREENS = ['history', 'profile', 'fortunes'] as const;
 
 export type SearchScreen = (typeof SEARCH_SCREENS)[number];
 

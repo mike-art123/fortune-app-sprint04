@@ -4,7 +4,6 @@ import { ApiExcludeController } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
 import { TelegramBotService } from './telegram-bot.service';
-import { TelegramPaymentsService } from './telegram-payments.service';
 import type { TelegramUpdate } from './telegram-update.types';
 
 /**
@@ -18,7 +17,6 @@ import type { TelegramUpdate } from './telegram-update.types';
 export class TelegramWebhookController {
   constructor(
     private readonly bot: TelegramBotService,
-    private readonly payments: TelegramPaymentsService,
     private readonly logger: AppLoggerService,
   ) {}
 
@@ -38,7 +36,6 @@ export class TelegramWebhookController {
     }
     // Handle out of band; a handler error must never become a Telegram retry.
     void this.bot.handleUpdate(update).catch(() => undefined);
-    void this.payments.handleUpdate(update).catch(() => undefined);
     return { ok: true };
   }
 }

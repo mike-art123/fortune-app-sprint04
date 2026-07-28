@@ -40,7 +40,7 @@ export function buildSearchPrompt(query: string): PromptMessage[] {
         catalogLines(),
         '',
         'screen meanings: history = past readings, profile = name and birth',
-        'month, vip = subscription, fortunes = the full list.',
+        'month, fortunes = the full list.',
         '',
         'Rules: never invent an id. Never answer with a path, a URL or prose.',
         'If the request is unclear, unrelated, or asks for the reading itself',
