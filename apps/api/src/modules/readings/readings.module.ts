@@ -15,6 +15,7 @@ import { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-
 import { HafezCorpusService } from './hafez/hafez-corpus.service';
 import { HafezReadingProvider } from './hafez/hafez-reading.provider';
 import { AbjadReadingProvider } from './abjad/abjad-reading.provider';
+import { TarotReadingProvider } from './tarot/tarot-reading.provider';
 
 @Module({
   imports: [EntitlementsModule, AdsModule, UsersModule],
@@ -73,8 +74,8 @@ import { AbjadReadingProvider } from './abjad/abjad-reading.provider';
 
         // The raw engines wrap whichever provider was chosen, one fortune id
         // each. While a flag is off its engine is a pass-through; when it is
-        // on, hafez answers from the real Divan and abjad from the counted
-        // number (docs/hafez-dataset-sourcing.md).
+        // on, hafez answers from the real Divan, abjad from the counted number
+        // and tarot from the drawn card (docs/hafez-dataset-sourcing.md).
         const withHafez = new HafezReadingProvider(
           inner,
           corpus,
@@ -83,7 +84,8 @@ import { AbjadReadingProvider } from './abjad/abjad-reading.provider';
           monetization,
           logger,
         );
-        return new AbjadReadingProvider(withHafez, flags, config, logger);
+        const withAbjad = new AbjadReadingProvider(withHafez, flags, config, logger);
+        return new TarotReadingProvider(withAbjad, flags, config, monetization, logger);
       },
     },
   ],
