@@ -24,8 +24,6 @@ abstract final class AppRoutes {
   static const readingName = 'reading';
   static const readingPath = '/reading/:readingId';
 
-  static const walletName = 'wallet';
-  static const walletPath = '/wallet';
   static const vipName = 'vip';
   static const vipPath = '/vip';
 

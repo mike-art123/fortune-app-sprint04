@@ -49,11 +49,6 @@ class ExplorePage extends StatelessWidget {
                   icon: const Icon(Icons.auto_stories_outlined),
                   tooltip: s.historyTitle,
                 ),
-                IconButton(
-                  onPressed: () => context.push(AppRoutes.walletPath),
-                  icon: const Icon(Icons.toll_outlined),
-                  tooltip: s.walletTitle,
-                ),
               ],
             ),
           ),

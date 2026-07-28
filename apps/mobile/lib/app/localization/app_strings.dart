@@ -26,7 +26,6 @@ class AppStrings {
   String get exploreTitle => _fa ? 'کاوش' : 'Explore';
   String get ritualTitle => _fa ? 'آیین' : 'Ritual';
   String get readingTitle => _fa ? 'فال تو' : 'Your Reading';
-  String get walletTitle => _fa ? 'کیف سکه' : 'Wallet';
   String get profileTitle => _fa ? 'پروفایل' : 'Profile';
   String get placeholderNotice => _fa
       ? 'این بخش در مرحله‌های بعد ساخته می‌شود.'
@@ -116,23 +115,6 @@ class AppStrings {
       : 'This reading will be permanently deleted.';
   String get historyDeleteConfirm => _fa ? 'پاک کن' : 'Delete';
   String get actionCancel => _fa ? 'انصراف' : 'Cancel';
-  String get walletBalanceUnit => _fa ? 'سکه' : 'coins';
-  String get walletDailyRewardTitle => _fa ? 'هدیه‌ی روزانه' : 'Daily gift';
-  String get walletDailyRewardBody => _fa
-      ? 'هر روز، چند سکه برای یک فالِ تازه.'
-      : 'A few coins each day, for a fresh reading.';
-  String get walletHistoryTitle => _fa ? 'تراکنش‌ها' : 'Transactions';
-  String get walletHistoryEmpty =>
-      _fa ? 'هنوز تراکنشی ثبت نشده.' : 'No transactions yet.';
-  String get walletKindStarter => _fa ? 'اعتبار آغازین' : 'Starter credit';
-  String get walletKindDaily => _fa ? 'هدیه‌ی روزانه' : 'Daily gift';
-  String get walletKindSpend => _fa ? 'گرفتن فال' : 'Reading';
-  String get walletKindRefund => _fa ? 'برگشت سکه' : 'Refund';
-  String get walletSubscriptionActive => _fa
-      ? 'اشتراکت فعال است؛ خوانش‌ها آزادند.'
-      : 'Your subscription is active — readings are covered.';
-  String walletReadingCost(String cost) =>
-      _fa ? 'هر خوانش $cost سکه' : 'Each reading costs $cost coins';
   String get authOutsideTelegramBody => _fa
       ? 'برای ورود، اپ را از داخل تلگرام باز کن.'
       : 'Open the app from inside Telegram to sign in.';
