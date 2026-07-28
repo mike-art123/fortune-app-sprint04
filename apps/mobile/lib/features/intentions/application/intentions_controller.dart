@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/app_failure.dart';
-import '../../../core/result/result.dart';
 import '../../../shared/providers/shared_providers.dart';
 import '../data/intention_repository_impl.dart';
 import '../domain/intention.dart';
