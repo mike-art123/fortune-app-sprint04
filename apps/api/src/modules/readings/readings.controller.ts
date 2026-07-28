@@ -59,7 +59,7 @@ export class ReadingsController {
   @Get('intentions')
   listIntentions(
     @CurrentUser() principal: AuthenticatedPrincipal | undefined,
-  ): Promise<IntentionResponse[]> {
+  ): Promise<{ items: IntentionResponse[] }> {
     return this.readings.listIntentions(this.required(principal));
   }
 

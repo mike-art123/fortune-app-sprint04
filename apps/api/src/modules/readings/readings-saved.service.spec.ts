@@ -96,8 +96,8 @@ describe('ReadingsService.listIntentions', () => {
 
     const out = await service.listIntentions(principal as never);
 
-    expect(out.map((i) => i.id)).toEqual(['c3']);
-    expect(out[0]).toMatchObject({ fortune: 'hafez', intention: 'دلم آرام بگیرد' });
+    expect(out.items.map((i) => i.id)).toEqual(['c3']);
+    expect(out.items[0]).toMatchObject({ fortune: 'hafez', intention: 'دلم آرام بگیرد' });
   });
 
   it('bad input JSON is skipped, never thrown', async () => {
@@ -107,6 +107,6 @@ describe('ReadingsService.listIntentions', () => {
 
     const out = await service.listIntentions(principal as never);
 
-    expect(out).toEqual([]);
+    expect(out.items).toEqual([]);
   });
 });

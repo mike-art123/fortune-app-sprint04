@@ -319,7 +319,7 @@ export class ReadingsService {
 
   /** The intentions the caller has whispered, newest first (capped). Silence
    *  is a valid offering, so readings without one are simply left out. */
-  async listIntentions(principal: AuthenticatedPrincipal): Promise<IntentionResponse[]> {
+  async listIntentions(principal: AuthenticatedPrincipal): Promise<{ items: IntentionResponse[] }> {
     const rows = await this.repository.recentForUser(principal.userId, INTENTION_SCAN);
     const out: IntentionResponse[] = [];
     for (const row of rows) {
@@ -333,7 +333,7 @@ export class ReadingsService {
         });
       }
     }
-    return out;
+    return { items: out };
   }
 
   private readIntention(inputJson: string): string | null {
