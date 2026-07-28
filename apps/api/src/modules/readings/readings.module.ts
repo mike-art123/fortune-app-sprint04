@@ -16,6 +16,7 @@ import { HafezCorpusService } from './hafez/hafez-corpus.service';
 import { HafezReadingProvider } from './hafez/hafez-reading.provider';
 import { AbjadReadingProvider } from './abjad/abjad-reading.provider';
 import { TarotReadingProvider } from './tarot/tarot-reading.provider';
+import { LenormandReadingProvider } from './lenormand/lenormand-reading.provider';
 
 @Module({
   imports: [EntitlementsModule, AdsModule, UsersModule],
@@ -74,8 +75,9 @@ import { TarotReadingProvider } from './tarot/tarot-reading.provider';
 
         // The raw engines wrap whichever provider was chosen, one fortune id
         // each. While a flag is off its engine is a pass-through; when it is
-        // on, hafez answers from the real Divan, abjad from the counted number
-        // and tarot from the drawn card (docs/hafez-dataset-sourcing.md).
+        // on, each answers its own fortune from the real source — hafez the
+        // Divan, abjad the counted number, tarot and lenormand the drawn card
+        // (docs/hafez-dataset-sourcing.md).
         const withHafez = new HafezReadingProvider(
           inner,
           corpus,
@@ -85,7 +87,8 @@ import { TarotReadingProvider } from './tarot/tarot-reading.provider';
           logger,
         );
         const withAbjad = new AbjadReadingProvider(withHafez, flags, config, logger);
-        return new TarotReadingProvider(withAbjad, flags, config, monetization, logger);
+        const withTarot = new TarotReadingProvider(withAbjad, flags, config, monetization, logger);
+        return new LenormandReadingProvider(withTarot, flags, config, monetization, logger);
       },
     },
   ],
