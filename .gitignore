@@ -43,3 +43,6 @@ apps/mobile/windows/
 .idea/
 .vscode/
 .DS_Store
+
+# Scratch: swept git locks + files staged for removal (device mount can't unlink)
+_to_delete/
