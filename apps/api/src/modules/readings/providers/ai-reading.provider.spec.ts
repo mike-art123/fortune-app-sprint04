@@ -112,6 +112,37 @@ describe('AiReadingProvider', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
+  it('attaches the cup photo as a vision part for coffee', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(completion(VALID));
+    global.fetch = fetchMock as never;
+    const coffee = findFortune('coffee')!;
+    const provider = new AiReadingProvider(makeConfig(), makeLogger());
+
+    await provider.generate(coffee, { imageDataUrl: 'data:image/jpeg;base64,AAAA' });
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    const body = JSON.parse(init.body as string);
+    const userContent = body.messages[1].content;
+    expect(Array.isArray(userContent)).toBe(true);
+    expect(userContent[0].type).toBe('text');
+    expect(userContent[1]).toEqual({
+      type: 'image_url',
+      image_url: { url: 'data:image/jpeg;base64,AAAA' },
+    });
+  });
+
+  it('sends plain string content for a text fortune with no photo', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(completion(VALID));
+    global.fetch = fetchMock as never;
+    const provider = new AiReadingProvider(makeConfig(), makeLogger());
+
+    await provider.generate(hafez, { intention: 'نیت' });
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    const body = JSON.parse(init.body as string);
+    expect(typeof body.messages[1].content).toBe('string');
+  });
+
   it('calls the configured endpoint with bearer auth and json_object format', async () => {
     const fetchMock = jest.fn().mockResolvedValue(completion(VALID));
     global.fetch = fetchMock as never;

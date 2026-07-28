@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AiConfig } from '../../../config/ai.config';
 import { AppLoggerService } from '../../../infrastructure/logging/app-logger.service';
+import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { FortuneCatalogEntry } from '../fortune-catalog';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type {
@@ -128,7 +129,7 @@ export class AiReadingProvider implements ReadingProvider {
           temperature: 0.85,
           max_tokens: 2400,
           response_format: { type: 'json_object' },
-          messages: buildPrompt(fortune, input, profile),
+          messages: withImage(buildPrompt(fortune, input, profile), fortune, input),
         }),
       });
 
@@ -169,6 +170,44 @@ export class AiReadingProvider implements ReadingProvider {
   private baseUrl(): string {
     return this.config.baseUrl.replace(/\/+$/, '');
   }
+}
+
+/** One part of a multimodal user turn: the prompt text, or the inline image. */
+type ContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } };
+
+/** A wire message — a plain text message, or a multimodal one for vision. */
+type WireMessage = PromptMessage | { role: 'user'; content: ContentPart[] };
+
+/**
+ * Coffee is the one fortune the model must SEE. When a cup photo is offered,
+ * the user turn becomes a multimodal message — the text prompt plus the image
+ * inline — exactly the shape an OpenAI-compatible vision endpoint expects.
+ * Every other fortune passes straight through, so the wire shape and all the
+ * existing behaviour stay identical for text readings.
+ *
+ * The image rides through here and is never logged or stored (privacy §16).
+ */
+function withImage(
+  messages: PromptMessage[],
+  fortune: FortuneCatalogEntry,
+  input: ReadingInputDto,
+): WireMessage[] {
+  const image = input.imageDataUrl;
+  if (fortune.inputKind !== 'photo' || !image) return messages;
+  return messages.map(
+    (message): WireMessage =>
+      message.role === 'user'
+        ? {
+            role: 'user',
+            content: [
+              { type: 'text', text: message.content },
+              { type: 'image_url', image_url: { url: image } },
+            ],
+          }
+        : message,
+  );
 }
 
 /**

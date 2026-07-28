@@ -4,10 +4,11 @@
  * mirrors this for UI; economic/validation decisions happen HERE (doc 52 §4.3).
  *
  * `framingFa` is the per-fortune framing handed to the prompt builder so every
- * fortune stays faithful to its own tradition. `coffee` and `elements` are NOT
- * here on purpose — they are content guides in the app, not generated readings.
+ * fortune stays faithful to its own tradition. `coffee` reads an actual photo
+ * of the cup (inputKind `photo`); only `elements` stays out — it is a content
+ * guide in the app, not a generated reading.
  */
-export type FortuneInputKind = 'intention' | 'longText' | 'twoNames';
+export type FortuneInputKind = 'intention' | 'longText' | 'twoNames' | 'photo';
 
 export interface FortuneCatalogEntry {
   id: string;
@@ -216,6 +217,13 @@ export const FORTUNE_CATALOG: readonly FortuneCatalogEntry[] = [
     titleFa: 'فال چای',
     framingFa:
       'فال چای است؛ شکل‌هایی را که در تهِ فنجان نشسته نام ببر — پرنده، راه، حلقه، ابر — بگو هرکدام کجای فنجان است و چه می‌گوید. مبهم نگو «نقشی دیده می‌شود».',
+  },
+  {
+    id: 'coffee',
+    inputKind: 'photo',
+    titleFa: 'فال قهوه',
+    framingFa:
+      'فال قهوه است و تو یک قهوه‌خوانِ باتجربه‌ای. کاربر عکسی از تهِ فنجانِ وارونه فرستاده؛ به همان تصویر نگاه کن و نقش‌هایی را که ته‌نشستِ قهوه ساخته واقعاً بخوان. دستِ کم دو تا سه شکلِ مشخص را که در فنجان می‌بینی نام ببر — مثل پرنده، ماهی، راه، حلقه، قلب، درخت، لنگر، کلید، نامه، خوشه یا کوه — و معنایشان را در سنتِ فال‌قهوه بگو. فنجان را از لبه تا ته بخوان: نزدیکِ لبه روزهای پیشِ رو، میانه راهِ کار و زندگی، و ته ریشه و گذشته است؛ سمتِ دسته خودِ کاربر است. تفسیر را دور همان نشانه‌ها ببند تا خواندنی یکپارچه و شخصی شود. اگر تصویر روشن نیست یا فنجان پیدا نیست، با آرامش بگو ته‌نشست هنوز جا نیفتاده و فقط از همان نشانه‌های کم‌رنگ بگو — چیزی از خودت به فنجان اضافه نکن.',
   },
   {
     id: 'candle',

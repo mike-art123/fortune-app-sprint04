@@ -74,6 +74,8 @@ function offeringFor(fortune: FortuneCatalogEntry, input: ReadingInputDto): stri
         `نام اول: ${(input.selfName ?? '').trim()}`,
         `نام دوم: ${(input.otherName ?? '').trim()}`,
       ].join('\n');
+    case 'photo':
+      return 'کاربر عکسی از تهِ فنجانِ قهوه‌اش فرستاده است؛ همان تصویر را بخوان و نقش‌های ته‌نشست را نام ببر.';
   }
 }
 

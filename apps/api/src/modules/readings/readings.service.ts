@@ -136,7 +136,7 @@ export class ReadingsService {
         fortuneId: fortune.id,
         title: generated.title,
         content: generated.reading,
-        inputJson: JSON.stringify(dto.input),
+        inputJson: JSON.stringify(this.forStorage(dto.input)),
         requestId,
       });
     } catch (error) {
@@ -258,6 +258,15 @@ export class ReadingsService {
     };
   }
 
+  /** The offering as stored. The cup photo (coffee) is read once by the
+   *  provider and never persisted — privacy, and it would bloat every row. */
+  private forStorage(input: ReadingInputDto): ReadingInputDto {
+    if (input.imageDataUrl === undefined) return input;
+    const stored: ReadingInputDto = { ...input };
+    delete stored.imageDataUrl;
+    return stored;
+  }
+
   /** Gentle-but-firm server-side completeness checks (backend authority). */
   private assertOfferingComplete(fortune: FortuneCatalogEntry, input: ReadingInputDto): void {
     const invalid = (message: string): never => {
@@ -279,6 +288,12 @@ export class ReadingsService {
       case 'twoNames': {
         if (!input.selfName?.trim() || !input.otherName?.trim()) {
           invalid('برای دیدنِ سازگاری، هر دو نام لازم است.');
+        }
+        return;
+      }
+      case 'photo': {
+        if (!input.imageDataUrl?.trim()) {
+          invalid('برای فال قهوه، یک عکس از تهِ فنجان لازم است.');
         }
         return;
       }

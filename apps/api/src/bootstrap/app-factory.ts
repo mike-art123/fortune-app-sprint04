@@ -31,8 +31,10 @@ export function configureApplication(app: INestApplication): INestApplication {
   app.enableShutdownHooks();
   app.use(helmet());
   app.use(compression());
-  app.use(json({ limit: '1mb' }));
-  app.use(urlencoded({ extended: true, limit: '1mb' }));
+  // 6mb headroom so a downscaled coffee-cup photo (base64) fits; text routes
+  // send only a few KB and are unaffected by the larger bound.
+  app.use(json({ limit: '6mb' }));
+  app.use(urlencoded({ extended: true, limit: '6mb' }));
 
   const origins = appConfig.corsAllowedOrigins;
   app.enableCors({

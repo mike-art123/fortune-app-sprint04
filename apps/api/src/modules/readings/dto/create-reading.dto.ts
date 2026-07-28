@@ -3,6 +3,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
   ValidateNested,
@@ -15,6 +16,18 @@ export class ReadingInputDto {
   @IsOptional() @IsString() @MaxLength(2000) narration?: string;
   @IsOptional() @IsString() @MaxLength(60) selfName?: string;
   @IsOptional() @IsString() @MaxLength(60) otherName?: string;
+
+  /** Coffee only: a downscaled cup photo as a data URL. The vision model reads
+   *  it once; it is NEVER persisted (privacy, and it would bloat every row) —
+   *  the service strips it before storing. Bound generously because the client
+   *  already downscales; the bound only guards against abuse. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(5_000_000)
+  @Matches(/^data:image\/(jpeg|png|webp);base64,/, {
+    message: 'imageDataUrl must be a base64 image data URL',
+  })
+  imageDataUrl?: string;
 }
 
 export class CreateReadingDto {
