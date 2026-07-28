@@ -122,6 +122,11 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
   }) {
     final featured = group.items.first;
     final rest = group.items.skip(1).toList();
+    // A lone last card would sit half-width beside an empty cell. Pull it
+    // out and give it the same full-width feature treatment as the hero,
+    // so every row stays filled and its image leads the whole frame.
+    final tail = rest.length.isOdd ? rest.last : null;
+    final gridItems = tail == null ? rest : rest.sublist(0, rest.length - 1);
     const pad = EdgeInsets.symmetric(horizontal: AppLayout.pageMargin);
     return [
       SliverPadding(
@@ -146,13 +151,7 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
       SliverPadding(
         padding: pad,
         sliver: SliverToBoxAdapter(
-          child: SectionFeatureCard(
-            id: featured.$1,
-            title: featured.$2,
-            subtitle: featured.$3,
-            accent: _accentFor(featured.$1),
-            onTap: () => _open(context, featured),
-          ),
+          child: _featureCard(context, featured),
         ),
       ),
       const SliverToBoxAdapter(
@@ -169,7 +168,7 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
           ),
           delegate: SliverChildBuilderDelegate(
             (context, i) {
-              final item = rest[i];
+              final item = gridItems[i];
               final id = item.$1;
               final openable = FortuneDestinations.pathFor(id) != null;
               return PortraitFortuneCard(
@@ -182,13 +181,34 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
                 onTap: () => _open(context, item),
               );
             },
-            childCount: rest.length,
+            childCount: gridItems.length,
           ),
         ),
       ),
+      if (tail != null) ...[
+        const SliverToBoxAdapter(
+          child: SizedBox(height: AppLayout.cardGap),
+        ),
+        SliverPadding(
+          padding: pad,
+          sliver: SliverToBoxAdapter(
+            child: _featureCard(context, tail),
+          ),
+        ),
+      ],
       const SliverToBoxAdapter(
         child: SizedBox(height: AppLayout.sectionGap),
       ),
     ];
+  }
+
+  Widget _featureCard(BuildContext context, FortuneItem item) {
+    return SectionFeatureCard(
+      id: item.$1,
+      title: item.$2,
+      subtitle: item.$3,
+      accent: _accentFor(item.$1),
+      onTap: () => _open(context, item),
+    );
   }
 }
