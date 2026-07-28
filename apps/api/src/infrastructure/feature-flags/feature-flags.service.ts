@@ -16,7 +16,7 @@ export class FeatureFlagsService {
     'system.maintenance-banner': false,
     'hafez.raw-engine': true,
     'abjad.raw-engine': true,
-    'tarot.raw-engine': false,
+    'tarot.raw-engine': true,
   };
 
   constructor(
