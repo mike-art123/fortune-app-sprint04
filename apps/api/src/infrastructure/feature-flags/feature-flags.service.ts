@@ -18,7 +18,7 @@ export class FeatureFlagsService {
     'abjad.raw-engine': true,
     'tarot.raw-engine': true,
     'lenormand.raw-engine': true,
-    'rune.raw-engine': false,
+    'rune.raw-engine': true,
   };
 
   constructor(
