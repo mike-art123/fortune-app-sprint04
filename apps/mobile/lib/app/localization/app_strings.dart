@@ -74,6 +74,12 @@ class AppStrings {
   String get historyEmptyAction =>
       _fa ? 'گرفتن اولین فال' : 'Receive your first reading';
   String get historyLoadMore => _fa ? 'بیشتر' : 'More';
+  String get intentionsTitle => _fa ? 'نیت‌های من' : 'My intentions';
+  String get intentionsEmptyTitle =>
+      _fa ? 'هنوز نیتی نداری' : 'No intentions yet';
+  String get intentionsEmptyBody => _fa
+      ? 'هر نیتی که پیش از فال زمزمه کنی این‌جا می‌ماند.'
+      : 'Every intention you whisper before a fortune is kept here.';
   String get historyClearTooltip => _fa ? 'پاک‌کردن تاریخچه' : 'Clear history';
   String get historyClearTitle =>
       _fa ? 'همهٔ تاریخچه پاک شود؟' : 'Clear all history?';

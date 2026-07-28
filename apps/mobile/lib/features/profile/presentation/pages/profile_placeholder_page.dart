@@ -117,7 +117,7 @@ class _ProfilePlaceholderPageState
             context,
             Icons.favorite_border,
             'نیت‌های من',
-            () => _soon(context),
+            () => context.push(AppRoutes.intentionsPath),
           ),
           _menu(
             context,
