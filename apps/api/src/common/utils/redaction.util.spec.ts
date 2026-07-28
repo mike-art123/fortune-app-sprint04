@@ -10,6 +10,12 @@ describe('redaction', () => {
   it('redacts token json fields', () => {
     expect(redact('{"refreshToken":"secret"}')).not.toContain('secret');
   });
+  it('redacts the notifications sweep secret header', () => {
+    expect(redact('"x-sweep-secret":"abc123def"')).not.toContain('abc123def');
+  });
+  it('redacts the telegram webhook secret header', () => {
+    expect(redact('"x-telegram-bot-api-secret-token":"tok987"')).not.toContain('tok987');
+  });
   it('leaves normal text intact', () => {
     expect(redact('hello world')).toBe('hello world');
   });
