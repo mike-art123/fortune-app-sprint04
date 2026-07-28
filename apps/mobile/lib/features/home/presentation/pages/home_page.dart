@@ -13,7 +13,6 @@ import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/section_title.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 import '../../../../design_system/foundations/app_layout.dart';
-import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_catalog.dart';
