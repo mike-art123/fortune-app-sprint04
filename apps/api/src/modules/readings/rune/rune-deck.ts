@@ -1,0 +1,208 @@
+/** One rune of the Elder Futhark. Meanings are faithful Persian renderings
+ *  of the standard upright divinatory meanings, grounded in the rune poems
+ *  (read upright only). nameFa is a Persian transliteration; nameEn the Latin. */
+export interface RuneCard {
+  id: string;
+  order: number;
+  nameFa: string;
+  nameEn: string;
+  sound: string;
+  meaningFa: string;
+}
+
+/** The 24 Elder Futhark runes, in the standard order. Held in code — small
+ *  and static, so no database; the draw indexes straight into this array. */
+export const RUNE_DECK: readonly RuneCard[] = [
+  {
+    id: 'rune-01',
+    order: 1,
+    nameFa: 'فِهو',
+    nameEn: 'Fehu',
+    sound: 'F',
+    meaningFa: 'ثروت، رونق، سودِ مالی، فراوانی، کامیابیِ مادیِ حاصلِ تلاش',
+  },
+  {
+    id: 'rune-02',
+    order: 2,
+    nameFa: 'اوروز',
+    nameEn: 'Uruz',
+    sound: 'U',
+    meaningFa: 'نیرو، سرزندگی، سلامتی، قدرتِ خام و رام‌نشده، پایداری، عزم',
+  },
+  {
+    id: 'rune-03',
+    order: 3,
+    nameFa: 'توریساز',
+    nameEn: 'Thurisaz',
+    sound: 'TH',
+    meaningFa: 'نیروی واکنشی، دفاع، ستیز، چالش یا دروازه‌ای که احتیاط می‌طلبد',
+  },
+  {
+    id: 'rune-04',
+    order: 4,
+    nameFa: 'آنسوز',
+    nameEn: 'Ansuz',
+    sound: 'A',
+    meaningFa: 'ارتباط، خرد، بصیرتِ الهی، پیام، الهام، کلامِ گفته‌شده',
+  },
+  {
+    id: 'rune-05',
+    order: 5,
+    nameFa: 'رایدو',
+    nameEn: 'Raidho',
+    sound: 'R',
+    meaningFa: 'سفر، مسافرت، حرکت، کنشِ درست، در دست گرفتنِ مسیرِ خود',
+  },
+  {
+    id: 'rune-06',
+    order: 6,
+    nameFa: 'کِناز',
+    nameEn: 'Kenaz',
+    sound: 'K',
+    meaningFa: 'روشنایی، دانش، خلاقیت، الهام، مکاشفه، آموختن، وضوحِ دید',
+  },
+  {
+    id: 'rune-07',
+    order: 7,
+    nameFa: 'گِبو',
+    nameEn: 'Gebo',
+    sound: 'G',
+    meaningFa: 'هدیه، سخاوت، شراکت، تبادل، تعادل، پیوندِ برابر',
+  },
+  {
+    id: 'rune-08',
+    order: 8,
+    nameFa: 'وونیو',
+    nameEn: 'Wunjo',
+    sound: 'W',
+    meaningFa: 'شادی، خوشبختی، هماهنگی، خرسندی، همدلی، کامیابی، بهروزی',
+  },
+  {
+    id: 'rune-09',
+    order: 9,
+    nameFa: 'هاگالاز',
+    nameEn: 'Hagalaz',
+    sound: 'H',
+    meaningFa: 'آشفتگی، تغییرِ ناگهانی، نیروهای طبیعت، آزمونی که راهِ نو را می‌گشاید',
+  },
+  {
+    id: 'rune-10',
+    order: 10,
+    nameFa: 'نائوتیز',
+    nameEn: 'Nauthiz',
+    sound: 'N',
+    meaningFa: 'نیاز، تنگنا، سختی، صبر، پایداری، درسی که از مقاومت آموخته می‌شود',
+  },
+  {
+    id: 'rune-11',
+    order: 11,
+    nameFa: 'ایسا',
+    nameEn: 'Isa',
+    sound: 'I',
+    meaningFa: 'سکون، ایست، رکود، صبر، درون‌نگری، زمانِ انتظار',
+  },
+  {
+    id: 'rune-12',
+    order: 12,
+    nameFa: 'یِرا',
+    nameEn: 'Jera',
+    sound: 'J/Y',
+    meaningFa: 'برداشت، پاداش، به‌ثمر نشستن، چرخه‌ها، نتیجهٔ تلاش در زمانِ خود',
+  },
+  {
+    id: 'rune-13',
+    order: 13,
+    nameFa: 'آیواز',
+    nameEn: 'Eihwaz',
+    sound: 'EI',
+    meaningFa: 'پایداری، اتکاپذیری، استحکام، محافظت، دگرگونی، پیوندِ میانِ جهان‌ها',
+  },
+  {
+    id: 'rune-14',
+    order: 14,
+    nameFa: 'پِرترو',
+    nameEn: 'Perthro',
+    sound: 'P',
+    meaningFa: 'راز، سرنوشت، بخت، چیزهای پنهان، تفأل، ناشناخته‌ای که آشکار می‌شود',
+  },
+  {
+    id: 'rune-15',
+    order: 15,
+    nameFa: 'الگیز',
+    nameEn: 'Algiz',
+    sound: 'Z',
+    meaningFa: 'محافظت، دفاع، سپر، پیوندِ برتر، پناه، نگهبانی',
+  },
+  {
+    id: 'rune-16',
+    order: 16,
+    nameFa: 'سوویلو',
+    nameEn: 'Sowilo',
+    sound: 'S',
+    meaningFa: 'کامیابی، پیروزی، سرزندگی، تمامیت، راهنمایی، نیروی زندگی، افتخار',
+  },
+  {
+    id: 'rune-17',
+    order: 17,
+    nameFa: 'تیواز',
+    nameEn: 'Tiwaz',
+    sound: 'T',
+    meaningFa: 'عدالت، افتخار، شجاعت، پیروزی، رهبری، ازخودگذشتگی برای حق',
+  },
+  {
+    id: 'rune-18',
+    order: 18,
+    nameFa: 'بِرکانو',
+    nameEn: 'Berkano',
+    sound: 'B',
+    meaningFa: 'تولد، باروری، رشد، آغازِ تازه، پرورش، نوزایی',
+  },
+  {
+    id: 'rune-19',
+    order: 19,
+    nameFa: 'اِهواز',
+    nameEn: 'Ehwaz',
+    sound: 'E',
+    meaningFa: 'حرکت، پیش‌رفت، همراهی، اعتماد، وفاداری، هم‌کاریِ هماهنگ',
+  },
+  {
+    id: 'rune-20',
+    order: 20,
+    nameFa: 'ماناز',
+    nameEn: 'Mannaz',
+    sound: 'M',
+    meaningFa: 'خود، انسانیت، اجتماع، هم‌کاری، هوش، پیوندهای اجتماعی',
+  },
+  {
+    id: 'rune-21',
+    order: 21,
+    nameFa: 'لاگوز',
+    nameEn: 'Laguz',
+    sound: 'L',
+    meaningFa: 'جریان، شهود، احساس، ناخودآگاه، رؤیا، سازگاری',
+  },
+  {
+    id: 'rune-22',
+    order: 22,
+    nameFa: 'اینگواز',
+    nameEn: 'Ingwaz',
+    sound: 'NG',
+    meaningFa: 'باروری، پرورش، رشدِ درونی، توانِ ذخیره‌شده، کمال، انرژیِ نو',
+  },
+  {
+    id: 'rune-23',
+    order: 23,
+    nameFa: 'داگاز',
+    nameEn: 'Dagaz',
+    sound: 'D',
+    meaningFa: 'گشایش، بیداری، دگرگونی، امید، وضوح، سپیده‌دمِ نو',
+  },
+  {
+    id: 'rune-24',
+    order: 24,
+    nameFa: 'اوتالا',
+    nameEn: 'Othala',
+    sound: 'O',
+    meaningFa: 'میراث، ارث، سرزمینِ نیاکان، خانه، تبار، سنت، تعلق',
+  },
+];
