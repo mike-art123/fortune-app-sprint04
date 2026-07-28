@@ -19,8 +19,9 @@ export class FeatureFlagsService {
     'tarot.raw-engine': true,
     'lenormand.raw-engine': true,
     'rune.raw-engine': true,
-    'cards.raw-engine': false,
-    'tasbih.raw-engine': false,
+    'cards.raw-engine': true,
+    'tasbih.raw-engine': true,
+    'quran.raw-engine': false,
   };
 
   constructor(
