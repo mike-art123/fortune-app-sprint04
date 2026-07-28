@@ -15,7 +15,7 @@ export class FeatureFlagsService {
   private readonly defaults: Record<string, boolean> = {
     'system.maintenance-banner': false,
     'hafez.raw-engine': true,
-    'abjad.raw-engine': false,
+    'abjad.raw-engine': true,
   };
 
   constructor(
