@@ -9,8 +9,7 @@ const prisma = {
 
 const monetization = {
   appTimezone: 'UTC',
-  freeDailyFortuneIds: ['hafez', 'daily'],
-  isFreeDaily: (id: string) => id === 'hafez' || id === 'daily',
+  freeDailyAllowance: (id: string) => (id === 'hafez' ? 2 : 0),
 };
 
 const service = new FreeDailyService(prisma as never, monetization as never);
@@ -24,12 +23,18 @@ describe('FreeDailyService', () => {
     prisma.dailyFortuneUsage.upsert.mockResolvedValue({});
   });
 
-  it('grants one free use when nothing was used today', async () => {
+  it('grants the full daily allowance when nothing was used today', async () => {
+    await expect(service.freeUsesRemainingToday('u1', 'hafez', NOW)).resolves.toBe(2);
+  });
+
+  it('counts down as the daily allowance is spent', async () => {
+    prisma.dailyFortuneUsage.findUnique.mockResolvedValue({ successfulFreeUsageCount: 1 });
+
     await expect(service.freeUsesRemainingToday('u1', 'hafez', NOW)).resolves.toBe(1);
   });
 
-  it('reports zero once today’s free reading was used', async () => {
-    prisma.dailyFortuneUsage.findUnique.mockResolvedValue({ successfulFreeUsageCount: 1 });
+  it('reports zero once the whole allowance is used', async () => {
+    prisma.dailyFortuneUsage.findUnique.mockResolvedValue({ successfulFreeUsageCount: 2 });
 
     await expect(service.freeUsesRemainingToday('u1', 'hafez', NOW)).resolves.toBe(0);
   });
@@ -37,18 +42,6 @@ describe('FreeDailyService', () => {
   it('non-free fortunes never expose an allowance', async () => {
     await expect(service.freeUsesRemainingToday('u1', 'tarot', NOW)).resolves.toBe(0);
     expect(prisma.dailyFortuneUsage.findUnique).not.toHaveBeenCalled();
-  });
-
-  it('allowances are independent per fortune (hafez vs daily)', async () => {
-    prisma.dailyFortuneUsage.findUnique.mockImplementation(
-      (args: { where: { userId_dateKey_fortuneId: { fortuneId: string } } }) => {
-        const used = args.where.userId_dateKey_fortuneId.fortuneId === 'daily';
-        return Promise.resolve(used ? { successfulFreeUsageCount: 1 } : null);
-      },
-    );
-
-    await expect(service.freeUsesRemainingToday('u1', 'daily', NOW)).resolves.toBe(0);
-    await expect(service.freeUsesRemainingToday('u1', 'hafez', NOW)).resolves.toBe(1);
   });
 
   it('consume writes the per-day bucket keyed by the app timezone', async () => {

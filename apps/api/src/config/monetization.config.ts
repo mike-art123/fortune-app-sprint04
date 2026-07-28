@@ -17,11 +17,20 @@ export class MonetizationConfig {
     return this.config.get<string>('APP_TIMEZONE') ?? 'Asia/Tehran';
   }
 
-  /** Fortune ids that grant one free successful reading per calendar day. */
-  get freeDailyFortuneIds(): string[] {
-    const raw = this.config.get<string>('FREE_DAILY_FORTUNE_IDS') ?? 'hafez,daily';
-    const ids = raw.split(',').map((id) => id.trim());
-    return ids.filter((id) => id.length > 0);
+  /**
+   * Free-daily allowance per fortune, as `id:count` pairs. Hafez grants two free
+   * successful readings per calendar day; every other fortune grants zero (a
+   * rewarded ad unlocks each result). Tunable via FREE_DAILY_ALLOWANCES.
+   */
+  get freeDailyAllowances(): Map<string, number> {
+    const raw = this.config.get<string>('FREE_DAILY_ALLOWANCES') ?? 'hafez:2';
+    const out = new Map<string, number>();
+    for (const pair of raw.split(',')) {
+      const [id, count] = pair.split(':').map((part) => part.trim());
+      const n = Number(count);
+      if (id && Number.isInteger(n) && n > 0) out.set(id, n);
+    }
+    return out;
   }
 
   /** Maximum rewarded-ad unlocks per user per day. */
@@ -38,8 +47,8 @@ export class MonetizationConfig {
     return this.config.get<boolean>('ENFORCE_ACCESS_LIMITS') ?? false;
   }
 
-  /** True when this fortune carries a free daily allowance. */
-  isFreeDaily(fortuneId: string): boolean {
-    return this.freeDailyFortuneIds.includes(fortuneId);
+  /** Free successful readings allowed today for this fortune (0 = ad required). */
+  freeDailyAllowance(fortuneId: string): number {
+    return this.freeDailyAllowances.get(fortuneId) ?? 0;
   }
 }

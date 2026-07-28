@@ -74,8 +74,8 @@ export const envSchema = z
     /** Access model (coins removed). IANA timezone anchoring the daily
      * free-allowance reset — the day boundary is computed server-side. */
     APP_TIMEZONE: z.string().default('Asia/Tehran'),
-    /** Comma-separated fortune ids that get one free reading per day. */
-    FREE_DAILY_FORTUNE_IDS: z.string().default('hafez,daily'),
+    /** Free-daily allowance as `id:count` pairs (Hafez two; others need an ad). */
+    FREE_DAILY_ALLOWANCES: z.string().default('hafez:2'),
     /** Max rewarded-ad unlocks per user per day. */
     REWARDED_ADS_DAILY_LIMIT: z.coerce.number().int().min(0).max(1000).default(5),
     /** Enforce free/ad/VIP gating. Off until the client + ad + Stars ship. */

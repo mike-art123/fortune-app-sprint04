@@ -68,13 +68,13 @@ describe('entitlements (e2e) — Sprint 04', () => {
       const view = res.body.data;
       expect(view.accessState).toBe('free');
       expect(view.isFreeNow).toBe(true);
-      expect(view.freeUsesRemainingToday).toBe(1);
+      expect(view.freeUsesRemainingToday).toBe(2);
       expect(new Date(view.nextFreeResetAt).getTime()).toBeGreaterThan(Date.now());
       expect(view).not.toHaveProperty('coinCost');
       expect(view).not.toHaveProperty('coinBalance');
     });
 
-    it('a successful hafez reading consumes ONLY the hafez allowance', async () => {
+    it('hafez has two free per day; daily always needs an ad', async () => {
       const session = await loginAs(app, { id: freshTelegramId(), first_name: 'مستقل' });
       const auth = { authorization: `Bearer ${session.accessToken}` };
 
@@ -88,15 +88,15 @@ describe('entitlements (e2e) — Sprint 04', () => {
         .get('/api/v1/access-options/hafez')
         .set(auth)
         .expect(200);
-      expect(hafez.body.data.isFreeNow).toBe(false);
-      expect(hafez.body.data.freeUsesRemainingToday).toBe(0);
+      expect(hafez.body.data.isFreeNow).toBe(true);
+      expect(hafez.body.data.freeUsesRemainingToday).toBe(1);
 
       const daily = await request(app.getHttpServer())
         .get('/api/v1/access-options/daily')
         .set(auth)
         .expect(200);
-      expect(daily.body.data.isFreeNow).toBe(true);
-      expect(daily.body.data.freeUsesRemainingToday).toBe(1);
+      expect(daily.body.data.isFreeNow).toBe(false);
+      expect(daily.body.data.freeUsesRemainingToday).toBe(0);
     });
 
     it('an unknown fortune yields the 404 contract', async () => {
