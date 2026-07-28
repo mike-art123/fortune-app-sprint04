@@ -196,18 +196,15 @@ function withImage(
 ): WireMessage[] {
   const image = input.imageDataUrl;
   if (fortune.inputKind !== 'photo' || !image) return messages;
-  return messages.map(
-    (message): WireMessage =>
-      message.role === 'user'
-        ? {
-            role: 'user',
-            content: [
-              { type: 'text', text: message.content },
-              { type: 'image_url', image_url: { url: image } },
-            ],
-          }
-        : message,
-  );
+  return messages.map((message) => {
+    if (message.role !== 'user') return message;
+    const content: ContentPart[] = [
+      { type: 'text', text: message.content },
+      { type: 'image_url', image_url: { url: image } },
+    ];
+    const withPhoto: WireMessage = { role: 'user', content };
+    return withPhoto;
+  });
 }
 
 /**
