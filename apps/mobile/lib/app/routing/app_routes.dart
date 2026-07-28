@@ -44,6 +44,9 @@ abstract final class AppRoutes {
   static const intentionsName = 'intentions';
   static const intentionsPath = '/intentions';
 
+  static const savedName = 'saved';
+  static const savedPath = '/saved';
+
   static const onboardingName = 'onboarding';
   static const onboardingPath = '/onboarding';
 

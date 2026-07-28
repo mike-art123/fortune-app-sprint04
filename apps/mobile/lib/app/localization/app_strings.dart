@@ -80,6 +80,18 @@ class AppStrings {
   String get intentionsEmptyBody => _fa
       ? 'هر نیتی که پیش از فال زمزمه کنی این‌جا می‌ماند.'
       : 'Every intention you whisper before a fortune is kept here.';
+  String get savedTitle => _fa ? 'فال‌های نشان‌شده' : 'Saved fortunes';
+  String get savedEmptyTitle =>
+      _fa ? 'هنوز چیزی نشان نکرده‌ای' : 'Nothing saved yet';
+  String get savedEmptyBody => _fa
+      ? 'هر فالی را که بخواهی نگه داری، این‌جا جمع می‌شود.'
+      : 'Every fortune you keep is gathered here.';
+  String get savedSaveTooltip => _fa ? 'ذخیره در نشان‌شده‌ها' : 'Save';
+  String get savedRemoveTooltip =>
+      _fa ? 'برداشتن از نشان‌شده‌ها' : 'Remove from saved';
+  String get savedToast => _fa ? 'در نشان‌شده‌ها ذخیره شد' : 'Saved';
+  String get savedError =>
+      _fa ? 'ذخیره نشد؛ دوباره تلاش کن' : 'Could not save';
   String get historyClearTooltip => _fa ? 'پاک‌کردن تاریخچه' : 'Clear history';
   String get historyClearTitle =>
       _fa ? 'همهٔ تاریخچه پاک شود؟' : 'Clear all history?';

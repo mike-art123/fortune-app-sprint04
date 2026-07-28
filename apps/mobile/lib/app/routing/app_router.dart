@@ -9,6 +9,7 @@ import '../../features/fortunes/presentation/pages/elements_guide_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/intentions/presentation/pages/intentions_page.dart';
+import '../../features/saved/presentation/pages/saved_page.dart';
 import '../../features/terms/presentation/pages/terms_page.dart';
 import '../../features/profile/application/profile_controller.dart';
 import '../../features/profile/domain/user_profile.dart';
@@ -205,6 +206,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.intentionsPath,
         name: AppRoutes.intentionsName,
         builder: (_, __) => const IntentionsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.savedPath,
+        name: AppRoutes.savedName,
+        builder: (_, __) => const SavedPage(),
       ),
       GoRoute(
         path: AppRoutes.onboardingPath,

@@ -111,7 +111,7 @@ class _ProfilePlaceholderPageState
             context,
             Icons.bookmark_border,
             'فال‌های نشان‌شده',
-            () => _soon(context),
+            () => context.push(AppRoutes.savedPath),
           ),
           _menu(
             context,

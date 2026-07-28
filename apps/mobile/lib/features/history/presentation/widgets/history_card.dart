@@ -25,6 +25,7 @@ class HistoryCard extends StatelessWidget {
     required this.reading,
     required this.onOpen,
     this.onDelete,
+    this.onUnsave,
   });
 
   final Reading reading;
@@ -33,6 +34,9 @@ class HistoryCard extends StatelessWidget {
   /// When set, a small delete control rides in the card's header row; null
   /// keeps the card read-only.
   final VoidCallback? onDelete;
+
+  /// When set, a small "remove from saved" control rides in the header row.
+  final VoidCallback? onUnsave;
 
   String _date(BuildContext context) {
     final d = reading.createdAt;
@@ -136,6 +140,7 @@ class HistoryCard extends StatelessWidget {
                 shadows: _overArt,
               ),
             ),
+            if (onUnsave != null) _unsaveButton(context),
             if (onDelete != null) _deleteButton(context),
           ],
         ),
@@ -162,6 +167,19 @@ class HistoryCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ],
+    );
+  }
+
+  Widget _unsaveButton(BuildContext context) {
+    return IconButton(
+      onPressed: onUnsave,
+      tooltip: context.strings.savedRemoveTooltip,
+      icon: const Icon(Icons.bookmark_remove_outlined),
+      iconSize: 18,
+      color: Colors.white.withValues(alpha: 0.7),
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
     );
   }
 

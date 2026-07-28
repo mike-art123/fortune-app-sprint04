@@ -21,6 +21,7 @@ import '../../../../design_system/components/fortune_loading.dart';
 import '../../../../shared/providers/shared_providers.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../history/application/history_controller.dart';
+import '../../../saved/application/saved_controller.dart';
 import '../../../profile/application/profile_controller.dart';
 import '../../../profile/domain/user_profile.dart';
 import '../../../recommendations/presentation/widgets/next_fortunes_strip.dart';
@@ -125,6 +126,19 @@ class _ReadingView extends ConsumerWidget {
     );
   }
 
+  Future<void> _save(BuildContext context, WidgetRef ref, String id) async {
+    final result = await ref.read(savedRepositoryProvider).save(id);
+    if (!context.mounted) return;
+    final s = context.strings;
+    final message = result.fold(
+      onSuccess: (_) => s.savedToast,
+      onFailure: (_) => s.savedError,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = context.strings;
@@ -139,6 +153,13 @@ class _ReadingView extends ConsumerWidget {
     return FortuneScaffold(
       appBar: FortuneAppBar(
         title: Text(fortune?.title.resolve(locale) ?? s.readingTitle),
+        actions: [
+          IconButton(
+            onPressed: () => _save(context, ref, current.id),
+            tooltip: s.savedSaveTooltip,
+            icon: const Icon(Icons.bookmark_add_outlined),
+          ),
+        ],
       ),
       scrollable: true,
       child: Column(
