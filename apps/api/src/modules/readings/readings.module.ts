@@ -14,6 +14,7 @@ import { MonetizationConfig } from '../../config/monetization.config';
 import { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-flags.service';
 import { HafezCorpusService } from './hafez/hafez-corpus.service';
 import { HafezReadingProvider } from './hafez/hafez-reading.provider';
+import { AbjadReadingProvider } from './abjad/abjad-reading.provider';
 
 @Module({
   imports: [EntitlementsModule, AdsModule, UsersModule],
@@ -70,10 +71,19 @@ import { HafezReadingProvider } from './hafez/hafez-reading.provider';
           inner = new AiReadingProvider(config, logger);
         }
 
-        // The Hafez raw engine wraps whichever provider was chosen. While its
-        // flag is off this is a pass-through; when it is on, the hafez id is
-        // answered from the real Divan (docs/hafez-dataset-sourcing.md).
-        return new HafezReadingProvider(inner, corpus, flags, config, monetization, logger);
+        // The raw engines wrap whichever provider was chosen, one fortune id
+        // each. While a flag is off its engine is a pass-through; when it is
+        // on, hafez answers from the real Divan and abjad from the counted
+        // number (docs/hafez-dataset-sourcing.md).
+        const withHafez = new HafezReadingProvider(
+          inner,
+          corpus,
+          flags,
+          config,
+          monetization,
+          logger,
+        );
+        return new AbjadReadingProvider(withHafez, flags, config, logger);
       },
     },
   ],
