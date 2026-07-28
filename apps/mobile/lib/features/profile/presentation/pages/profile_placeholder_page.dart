@@ -90,17 +90,6 @@ class _ProfilePlaceholderPageState
           SizedBox(height: telegramTopInset(context)),
           _header(context, profile),
           const SizedBox(height: AppSpacing.md),
-          // Coins are gone: the only stats are the user's own journey.
-          Row(
-            children: [
-              _stat(context, Icons.auto_awesome, '۱۲۸', 'فال‌ها'),
-              const SizedBox(width: AppSpacing.xs),
-              _stat(context, Icons.local_fire_department, '۷', 'روز پیاپی'),
-              const SizedBox(width: AppSpacing.xs),
-              _stat(context, Icons.bookmark_border, '۱۲', 'نشان‌شده'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
           _menu(
             context,
             Icons.history,
@@ -234,35 +223,6 @@ class _ProfilePlaceholderPageState
           style: TextStyle(color: c.textMuted, fontSize: 11),
         ),
         activeTrackColor: c.goldWarm.withValues(alpha: 0.5),
-      ),
-    );
-  }
-
-  Widget _stat(
-    BuildContext context,
-    IconData icon,
-    String value,
-    String label,
-  ) {
-    final c = context.fortuneColors;
-    return Expanded(
-      child: GoldBorderContainer(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-        child: Column(
-          children: [
-            Icon(icon, color: c.goldWarm, size: 22),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                color: c.textPrimary,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(label, style: TextStyle(color: c.textMuted, fontSize: 10)),
-          ],
-        ),
       ),
     );
   }
