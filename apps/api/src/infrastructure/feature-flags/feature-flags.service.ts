@@ -17,7 +17,7 @@ export class FeatureFlagsService {
     'hafez.raw-engine': true,
     'abjad.raw-engine': true,
     'tarot.raw-engine': true,
-    'lenormand.raw-engine': false,
+    'lenormand.raw-engine': true,
   };
 
   constructor(
