@@ -21,7 +21,7 @@ export class FeatureFlagsService {
     'rune.raw-engine': true,
     'cards.raw-engine': true,
     'tasbih.raw-engine': true,
-    'quran.raw-engine': false,
+    'quran.raw-engine': true,
   };
 
   constructor(
