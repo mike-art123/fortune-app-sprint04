@@ -21,6 +21,7 @@ import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_catalog.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../profile/application/profile_controller.dart';
+import '../../../profile/presentation/widgets/personalize_prompt.dart';
 import '../../../search/application/search_providers.dart';
 import '../../../search/presentation/widgets/fortune_search_bar.dart';
 
@@ -28,15 +29,16 @@ import '../../../search/presentation/widgets/fortune_search_bar.dart';
 /// action row, a curated horizontal rail and one asymmetric editorial section
 /// over a deep night canvas. Composition-only; routes and backend contracts are
 /// unchanged. The first viewport stays calm — not every fortune shows at once.
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   final _safeArea = telegramSafeArea;
+  bool _promptShown = false;
 
   @override
   void initState() {
@@ -88,8 +90,38 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// Shows the gentle personalization card once per home mount, and only to a
+  /// visitor who has neither completed onboarding nor opted out for good. It
+  /// floats centered over home (a dialog, not a gate); saving or opting out
+  /// both dismiss it, and the opt-out is remembered server-side so it never
+  /// returns on any device.
+  void _maybePromptPersonalize() {
+    if (_promptShown) return;
+    final profile = ref.watch(profileControllerProvider).valueOrNull;
+    if (profile == null) return;
+    if (profile.onboardingCompleted) return;
+    if (profile.personalizationOptOut) return;
+    _promptShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.black.withValues(alpha: 0.62),
+        builder: (_) {
+          return const Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.all(AppSpacing.lg),
+            child: SingleChildScrollView(child: PersonalizePrompt()),
+          );
+        },
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _maybePromptPersonalize();
     final topInset = telegramTopInset(context);
 
     return Scaffold(

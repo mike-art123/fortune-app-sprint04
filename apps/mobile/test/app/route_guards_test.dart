@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/app_startup_state.dart';
 import 'package:fortune_app/app/routing/route_guards.dart';
 
-/// The onboarding gate (scope §16): startup first, then profile. The main UI
-/// must never flash before onboarding is decided, deep links must continue to
-/// their original destination, and a completed profile makes /onboarding
-/// unreachable.
+/// Onboarding is no longer a gate (scope §16): startup decides first, then the
+/// profile only holds the splash while it loads. Once known, the app always
+/// goes home — an incomplete profile is invited to personalize from a card on
+/// home, never redirected to a full-screen step.
 void main() {
   String? redirect(
     AppStartupState startup,
@@ -42,23 +42,17 @@ void main() {
     });
   });
 
-  group('onboarding incomplete', () {
-    test('splash flows into onboarding with home as the destination', () {
-      expect(
-        redirect(const StartupReady(), false, '/splash'),
-        '/onboarding?next=%2Fhome',
-      );
+  group('onboarding incomplete is no longer a gate', () {
+    test('splash resolves straight to home', () {
+      expect(redirect(const StartupReady(), false, '/splash'), '/home');
     });
 
-    test('a deep link rides along encoded and continues afterwards', () {
-      expect(
-        redirect(const StartupReady(), false, '/ritual/hafez'),
-        '/onboarding?next=%2Fritual%2Fhafez',
-      );
+    test('a deep link is left untouched — no onboarding detour', () {
+      expect(redirect(const StartupReady(), false, '/ritual/hafez'), isNull);
     });
 
-    test('already at onboarding stays put', () {
-      expect(redirect(const StartupReady(), false, '/onboarding'), isNull);
+    test('home is reachable directly', () {
+      expect(redirect(const StartupReady(), false, '/home'), isNull);
     });
   });
 
