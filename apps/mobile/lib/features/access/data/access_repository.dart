@@ -73,7 +73,6 @@ class AccessRepository {
   AccessOptions _optionsFromJson(Map<String, dynamic> json) {
     return AccessOptions(
       fortuneId: json['fortuneId'] as String,
-      isVip: json['isVip'] == true,
       isFreeNow: json['isFreeNow'] == true,
       freeUsesRemainingToday:
           (json['freeUsesRemainingToday'] as num?)?.toInt() ?? 0,

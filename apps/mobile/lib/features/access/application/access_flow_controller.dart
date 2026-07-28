@@ -33,7 +33,7 @@ final class AccessChecking extends AccessFlowState {
   const AccessChecking();
 }
 
-/// Show the two-choice sheet (rewarded ad / VIP).
+/// Show the rewarded-ad sheet.
 final class AccessSheet extends AccessFlowState {
   const AccessSheet(this.options);
   final AccessOptions options;
@@ -44,12 +44,12 @@ final class AccessPreparingAd extends AccessFlowState {
   const AccessPreparingAd();
 }
 
-/// The global BakhtNegar daily rewarded-ad limit is spent — VIP only.
+/// The global daily rewarded-ad limit is spent — come back tomorrow.
 final class AccessLimitReached extends AccessFlowState {
   const AccessLimitReached();
 }
 
-/// Every eligible provider failed — offer retry or VIP.
+/// Every eligible provider failed — offer a retry.
 final class AccessAdsExhausted extends AccessFlowState {
   const AccessAdsExhausted();
 }
@@ -65,7 +65,7 @@ final class AccessError extends AccessFlowState {
   final AppFailure failure;
 }
 
-/// Orchestrates «گرفتن فال» access: backend decision first (VIP → free →
+/// Orchestrates «گرفتن فال» access: backend decision first (free → ad
 /// sheet), then — only when the user chooses the ad — the mediation loop.
 /// Provider order, verification and the reward itself are all backend-owned;
 /// this controller merely executes and reports.
@@ -82,11 +82,11 @@ class AccessFlowController
   @override
   AccessFlowState build(String arg) => const AccessIdle();
 
-  /// Backend decision order: vip/free start immediately; otherwise the sheet.
+  /// Backend decision order: free starts immediately; otherwise the ad sheet.
   ///
   /// While monetization is paused this is the single place that knows it: the
   /// ritual proceeds without asking the server anything, so no sheet, no ad
-  /// and no subscription prompt can appear anywhere downstream.
+  /// and no quota prompt can appear anywhere downstream.
   Future<void> begin() async {
     if (state is AccessChecking || state is AccessPreparingAd) return;
     if (!kMonetizationEnabled) {
@@ -101,10 +101,9 @@ class AccessFlowController
       onSuccess: (options) {
         _lastOptions = options;
         switch (options.accessState) {
-          case 'vip':
           case 'free':
             return const AccessProceed();
-          case 'choice':
+          case 'ad_required':
             return AccessSheet(options);
           default:
             return const AccessLimitReached();

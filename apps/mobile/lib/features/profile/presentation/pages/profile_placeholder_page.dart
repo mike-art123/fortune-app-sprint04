@@ -3,15 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/config/monetization_switch.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/luxury_card.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
-import '../../../../design_system/components/premium_button.dart';
 import '../../../../design_system/foundations/app_colors.dart';
-import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
@@ -21,7 +18,7 @@ import '../widgets/edit_profile_sheet.dart';
 
 /// Premium profile screen (BakhtNegar visual reference): the real name and
 /// birth month from the profile (scope §16, editable in place), journey
-/// stats, an ornate menu list and a VIP upsell card.
+/// stats and an ornate menu list.
 class ProfilePlaceholderPage extends ConsumerStatefulWidget {
   const ProfilePlaceholderPage({super.key});
 
@@ -122,9 +119,6 @@ class _ProfilePlaceholderPageState
           ),
           const SizedBox(height: AppSpacing.sm),
           _personalization(context, ref, profile),
-          const SizedBox(height: AppSpacing.sm),
-          if (kMonetizationEnabled)
-            _vip(context, () => context.push(AppRoutes.vipPath)),
           const SizedBox(height: AppSpacing.lg),
         ],
       ),
@@ -255,46 +249,6 @@ class _ProfilePlaceholderPageState
             Icon(Icons.chevron_left, color: c.textMuted, size: 20),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _vip(BuildContext context, VoidCallback onTap) {
-    final c = context.fortuneColors;
-    return GoldBorderContainer(
-      gradient: AppGradients.rewardWash,
-      glow: true,
-      child: Row(
-        children: [
-          const Icon(
-            Icons.workspace_premium,
-            color: AppPalette.goldHi,
-            size: 40,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'نسخهٔ VIP',
-                  style: TextStyle(
-                    color: c.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'بدون تبلیغ، امکاناتِ بیشتر',
-                  style: TextStyle(color: c.textMuted, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          PremiumButton(label: 'ارتقا', onPressed: onTap),
-        ],
       ),
     );
   }

@@ -7,8 +7,8 @@ import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 
-/// The two-choice access sheet (spec copy, verbatim). Returns 'ad', 'vip' or
-/// null when dismissed. Exactly two options — no coins, ever.
+/// The rewarded-ad access sheet (spec copy). Returns 'ad' when the user
+/// chooses to watch, or null when dismissed. No VIP, no coins, ever.
 Future<String?> showAccessSheet(
   BuildContext context, {
   required String fortuneName,
@@ -69,23 +69,6 @@ class _AccessSheetBody extends StatelessWidget {
                   'یک تبلیغ کوتاه ببینید و فال خود را رایگان دریافت کنید.',
               buttonLabel: 'دیدن تبلیغ و گرفتن فال',
               onPressed: () => Navigator.of(context).pop('ad'),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _Option(
-              icon: Icons.workspace_premium,
-              title: 'عضویت ویژه بخت‌نگار',
-              description:
-                  'همه فال‌های شامل اشتراک را بدون تبلیغ و با دسترسی کامل '
-                  'دریافت کنید.',
-              buttonLabel: 'خرید عضویت VIP',
-              onPressed: () => Navigator.of(context).pop('vip'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'اعضای VIP فال‌ها را بدون تبلیغ و محدودیت‌های عادی دریافت '
-              'می‌کنند.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: c.textMuted, fontSize: 11),
             ),
           ],
         ),
@@ -149,9 +132,10 @@ class _Option extends StatelessWidget {
   }
 }
 
-/// «سهمیه فال رایگان امروز تمام شده است» — VIP is the only path (spec copy).
-Future<bool> showAdLimitDialog(BuildContext context) async {
-  final goVip = await showDialog<bool>(
+/// «سهمیه فال رایگان امروز تمام شده است» — the daily quota is spent; there is
+/// nothing to buy, so the reader simply comes back tomorrow (spec copy).
+Future<void> showAdLimitDialog(BuildContext context) {
+  return showDialog<void>(
     context: context,
     builder: (dialogContext) => AlertDialog(
       backgroundColor: AppPalette.nightPanel,
@@ -161,23 +145,22 @@ Future<bool> showAdLimitDialog(BuildContext context) async {
         style: TextStyle(fontSize: 16),
       ),
       content: const Text(
-        'برای دریافت فال‌های بیشتر، عضویت ویژه بخت‌نگار را فعال کنید.',
+        'فردا دوباره سر بزنید تا فال‌های تازه را رایگان دریافت کنید.',
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 13),
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         PremiumButton(
-          label: 'مشاهده عضویت VIP',
-          onPressed: () => Navigator.of(dialogContext).pop(true),
+          label: 'باشه',
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     ),
   );
-  return goVip ?? false;
 }
 
-/// «در حال حاضر تبلیغی در دسترس نیست» — retry or VIP (spec copy).
+/// «در حال حاضر تبلیغی در دسترس نیست» — retry a little later (spec copy).
 Future<String?> showAdsExhaustedDialog(BuildContext context) {
   return showDialog<String>(
     context: context,
@@ -189,20 +172,15 @@ Future<String?> showAdsExhaustedDialog(BuildContext context) {
         style: TextStyle(fontSize: 16),
       ),
       content: const Text(
-        'کمی بعد دوباره تلاش کنید یا با عضویت ویژه، فال‌ها را بدون تبلیغ '
-        'دریافت کنید.',
+        'کمی بعد دوباره امتحان کنید.',
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 13),
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop('retry'),
-          child: const Text('تلاش دوباره'),
-        ),
         PremiumButton(
-          label: 'مشاهده عضویت VIP',
-          onPressed: () => Navigator.of(dialogContext).pop('vip'),
+          label: 'تلاش دوباره',
+          onPressed: () => Navigator.of(dialogContext).pop('retry'),
         ),
       ],
     ),

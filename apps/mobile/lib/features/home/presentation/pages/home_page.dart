@@ -6,14 +6,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/config/monetization_switch.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/fortune_cards.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/components/section_title.dart';
 import '../../../../design_system/foundations/app_colors.dart';
-import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_layout.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
@@ -329,55 +327,7 @@ class _TopBar extends StatelessWidget {
             ),
           ),
         ),
-        // Nothing is sold while monetization is paused, so nothing advertises
-        // it either.
-        if (kMonetizationEnabled) const _VipChip(),
       ],
-    );
-  }
-}
-
-/// The only header status: a quiet VIP entry (no coin or gem balances exist).
-class _VipChip extends StatelessWidget {
-  const _VipChip();
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.pill),
-      onTap: () => context.push(AppRoutes.vipPath),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          gradient: AppGradients.rewardWash,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(
-            color: AppPalette.goldMid.withValues(alpha: 0.5),
-          ),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.workspace_premium,
-              size: 16,
-              color: AppPalette.goldHi,
-            ),
-            SizedBox(width: 4),
-            Text(
-              'VIP',
-              style: TextStyle(
-                color: AppPalette.goldHi,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,5 +1,4 @@
 import '../../../app/routing/app_routes.dart';
-import '../../../core/config/monetization_switch.dart';
 import '../../fortunes/domain/fortune_registry.dart';
 import 'fa_text.dart';
 import 'search_action.dart';
@@ -53,11 +52,6 @@ const Map<String, AppScreenTarget> kSearchScreens = {
     label: 'پروفایل من',
     hint: 'نام و ماه تولدت',
   ),
-  'vip': AppScreenTarget(
-    path: AppRoutes.vipPath,
-    label: 'اشتراک ویژه',
-    hint: 'دسترسی بی‌وقفه به فال‌ها',
-  ),
   'fortunes': AppScreenTarget(
     path: AppRoutes.allFortunesPath,
     label: 'همه فال‌ها',
@@ -97,7 +91,6 @@ const List<_RouteRule> _routeRules = [
     triggers: ['پروفایل', 'حساب من', 'تنظیمات', 'اسمم عوض'],
     screen: 'profile',
   ),
-  _RouteRule(triggers: ['اشتراک', 'vip', 'عضویت'], screen: 'vip'),
   _RouteRule(
     triggers: ['همه فال ها', 'لیست فال ها', 'فهرست', 'چی داری', 'چه فالی داری'],
     screen: 'fortunes',
@@ -166,9 +159,6 @@ abstract final class SearchIntents {
   /// that wants to open a screen — the rules here, or an answer from the
   /// server — goes through this, so no stage can name a screen we do not have.
   static SearchIntentMatch? forScreen(String screen) {
-    // Nothing is sold while monetization is paused, so the subscription screen
-    // is not something a search may lead to either.
-    if (screen == 'vip' && !kMonetizationEnabled) return null;
     final target = kSearchScreens[screen];
     if (target == null) return null;
     return SearchIntentMatch(

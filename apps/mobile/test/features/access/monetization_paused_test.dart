@@ -38,13 +38,13 @@ class _NeverAsked implements AccessRepository {
       throw StateError('an ad session was cancelled while ads are paused');
 }
 
-/// Ads and VIP are paused, not deleted — the model, the mediation chain and the
-/// subscription flow are all still here and still tested. What this file proves
-/// is the other half: while the switch is off, none of it is ever reached.
+/// Ads are paused, not deleted — the access model and the mediation chain are
+/// still here and still tested. (VIP was removed entirely.) What this file
+/// proves is the other half: while the switch is off, none of it is reached.
 void main() {
   // A deliberate tripwire. When monetization comes back this fails, and it
   // fails pointing at every assumption in this file that must be revisited.
-  test('ads and VIP are paused in this build', () {
+  test('ads are paused in this build', () {
     expect(kMonetizationEnabled, isFalse);
   });
 
@@ -62,7 +62,7 @@ void main() {
     expect(container.read(flow), isA<AccessProceed>());
   });
 
-  test('nothing points a reader at a subscription that is not for sale', () {
+  test('nothing points a reader at the removed subscription screen', () {
     if (kMonetizationEnabled) return;
 
     expect(SearchIntents.forScreen('vip'), isNull);

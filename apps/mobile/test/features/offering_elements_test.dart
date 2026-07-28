@@ -51,7 +51,6 @@ class _FreeAccessRepo implements AccessRepository {
     return Success(
       AccessOptions(
         fortuneId: fortuneId,
-        isVip: false,
         isFreeNow: true,
         freeUsesRemainingToday: 1,
         rewardedAdAvailable: false,

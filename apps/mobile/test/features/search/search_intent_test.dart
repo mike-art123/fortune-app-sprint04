@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/routing/fortune_destinations.dart';
-import 'package:fortune_app/core/config/monetization_switch.dart';
 import 'package:fortune_app/features/fortunes/domain/fortune_registry.dart';
 import 'package:fortune_app/features/search/domain/search_action.dart';
 import 'package:fortune_app/features/search/domain/search_intent.dart';
@@ -42,16 +41,10 @@ void main() {
       expect(_path('پروفایلم'), '/profile');
     });
 
-    // «اشتراکم تمام شده» is a real sentence with a real destination — but only
-    // while there is something to subscribe to. With monetization paused the
-    // app offers nothing rather than a screen that cannot do anything.
-    test('the subscription screen is offered only while it exists', () {
-      final match = SearchIntents.match('اشتراکم تمام شده');
-      if (kMonetizationEnabled) {
-        expect(_path('اشتراکم تمام شده'), '/vip');
-      } else {
-        expect(match, isNull);
-      }
+    // «اشتراکم تمام شده» once pointed at the subscription screen; with VIP
+    // removed there is no such screen, so the sentence resolves to nothing.
+    test('the removed subscription screen is never offered', () {
+      expect(SearchIntents.match('اشتراکم تمام شده'), isNull);
     });
 
     test('a match always says what it will open', () {
@@ -80,7 +73,7 @@ void main() {
 
   group('guardrail', () {
     test('a sentence can never invent a destination', () {
-      const screens = {'/history', '/profile', '/vip', '/fortunes'};
+      const screens = {'/history', '/profile', '/fortunes'};
       for (final ask in _asks.keys) {
         final action = SearchIntents.match(ask)!.action;
         switch (action) {

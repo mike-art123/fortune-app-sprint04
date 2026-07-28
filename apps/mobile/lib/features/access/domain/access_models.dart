@@ -2,7 +2,6 @@
 class AccessOptions {
   const AccessOptions({
     required this.fortuneId,
-    required this.isVip,
     required this.isFreeNow,
     required this.freeUsesRemainingToday,
     required this.rewardedAdAvailable,
@@ -11,13 +10,12 @@ class AccessOptions {
   });
 
   final String fortuneId;
-  final bool isVip;
   final bool isFreeNow;
   final int freeUsesRemainingToday;
   final bool rewardedAdAvailable;
   final int rewardedAdsRemainingToday;
 
-  /// vip | free | choice | vip_only — the server's word, never recomputed.
+  /// free | ad_required | unavailable — the server's word, never recomputed.
   final String accessState;
 }
 

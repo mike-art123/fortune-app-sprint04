@@ -24,9 +24,6 @@ abstract final class AppRoutes {
   static const readingName = 'reading';
   static const readingPath = '/reading/:readingId';
 
-  static const vipName = 'vip';
-  static const vipPath = '/vip';
-
   static const historyName = 'history';
   static const historyPath = '/history';
 

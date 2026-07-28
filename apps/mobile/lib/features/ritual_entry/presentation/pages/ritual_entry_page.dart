@@ -44,8 +44,8 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
   final _primary = TextEditingController();
   final _secondary = TextEditingController();
 
-  /// The sealed offering, preserved across the access sheet, the ad and the
-  /// VIP purchase flow — the user never types anything twice.
+  /// The sealed offering, preserved across the access sheet and the ad — the
+  /// user never types anything twice.
   FalInput? _pendingInput;
 
   /// The captured cup photo (coffee) as a downscaled data URL, held until the
@@ -68,7 +68,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
               imageDataUrl: _imageDataUrl,
             );
     if (input != null) {
-      // Access first (VIP → free daily → sheet); submission follows access.
+      // Access first (free daily → ad sheet); submission follows access.
       _pendingInput = input;
       ref.read(accessFlowControllerProvider(fortune.id).notifier).begin();
     }
@@ -111,26 +111,18 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
         if (!mounted) return;
         if (choice == 'ad') {
           await _access(fortune).watchAd();
-        } else if (choice == 'vip') {
-          await _goVipAndRecheck(fortune);
         } else {
           _access(fortune).reset();
         }
       case AccessLimitReached():
-        final goVip = await showAdLimitDialog(context);
+        await showAdLimitDialog(context);
         if (!mounted) return;
-        if (goVip) {
-          await _goVipAndRecheck(fortune);
-        } else {
-          _access(fortune).reset();
-        }
+        _access(fortune).reset();
       case AccessAdsExhausted():
         final action = await showAdsExhaustedDialog(context);
         if (!mounted) return;
         if (action == 'retry') {
           await _access(fortune).watchAd();
-        } else if (action == 'vip') {
-          await _goVipAndRecheck(fortune);
         } else {
           _access(fortune).reset();
         }
@@ -144,14 +136,6 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
       case AccessPreparingAd():
         break;
     }
-  }
-
-  /// VIP purchase keeps the pending offering; on return, re-check access and
-  /// continue automatically when the subscription now covers it.
-  Future<void> _goVipAndRecheck(FortuneDefinition fortune) async {
-    await context.push(AppRoutes.vipPath);
-    if (!mounted || _pendingInput == null) return;
-    await _access(fortune).begin();
   }
 
   @override
