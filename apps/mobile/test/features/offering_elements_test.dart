@@ -83,6 +83,11 @@ class _FreeAccessRepo implements AccessRepository {
   }
 
   @override
+  Future<Result<MediationStatus>> complete(String sessionId) async {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> cancel(String sessionId) async {}
 }
 

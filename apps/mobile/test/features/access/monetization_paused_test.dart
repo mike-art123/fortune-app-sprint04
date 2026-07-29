@@ -34,6 +34,10 @@ class _NeverAsked implements AccessRepository {
       throw StateError('an ad session was polled while ads are paused');
 
   @override
+  Future<Result<MediationStatus>> complete(String sessionId) async =>
+      throw StateError('an ad reward was claimed while ads are paused');
+
+  @override
   Future<void> cancel(String sessionId) async =>
       throw StateError('an ad session was cancelled while ads are paused');
 }
