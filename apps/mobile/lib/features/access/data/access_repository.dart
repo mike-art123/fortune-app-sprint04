@@ -59,6 +59,14 @@ class AccessRepository {
     await _api.post('/ads/mediation/$sessionId/cancel');
   }
 
+  Future<Result<MediationStatus>> complete(String sessionId) async {
+    final result = await _api.post('/ads/mediation/$sessionId/complete');
+    return result.fold(
+      onSuccess: (data) => _parse(data, _statusFromJson),
+      onFailure: ResultFailure.new,
+    );
+  }
+
   Result<T> _parse<T>(
     Map<String, dynamic> data,
     T Function(Map<String, dynamic>) fromJson,

@@ -145,12 +145,17 @@ class AccessFlowController
       );
 
       if (outcome == 'completed') {
-        final unlock = await _awaitVerification(repo, sid, current);
+        // AdsGram's standard reward is the client-side signal; grant from it
+        // directly. If the client grant is disabled server-side (or an older
+        // backend), fall back to polling for the provider's server callback.
+        final claimed = await repo.complete(sid);
+        var unlock = claimed.valueOrNull?.entitlementId;
+        unlock ??= await _awaitVerification(repo, sid, current);
         if (unlock != null) {
           state = AccessProceed(adEntitlementId: unlock);
           return;
         }
-        // Server never confirmed: no unlock, and NO fallback to another
+        // Neither path confirmed: no unlock, and NO fallback to another
         // provider (could double-show ads for one reward).
         await repo.reportFailure(
           sid,
