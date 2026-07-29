@@ -379,13 +379,13 @@ class _ProfilePlaceholderPageState
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: gradient,
-        borderRadius: const BorderRadius.circular(AppRadius.xl),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
       ),
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
-          borderRadius: const BorderRadius.circular(AppRadius.xl),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
