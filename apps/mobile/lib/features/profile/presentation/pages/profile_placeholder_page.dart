@@ -9,9 +9,11 @@ import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/luxury_card.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/foundations/app_colors.dart';
+import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../../shared/providers/shared_providers.dart';
 import '../../application/profile_controller.dart';
 import '../../domain/user_profile.dart';
 import '../widgets/edit_profile_sheet.dart';
@@ -119,6 +121,10 @@ class _ProfilePlaceholderPageState
           ),
           const SizedBox(height: AppSpacing.sm),
           _personalization(context, ref, profile),
+          const SizedBox(height: AppSpacing.lg),
+          _inviteCard(context),
+          const SizedBox(height: AppSpacing.sm),
+          _socialRow(),
           const SizedBox(height: AppSpacing.lg),
         ],
       ),
@@ -248,6 +254,153 @@ class _ProfilePlaceholderPageState
             ),
             Icon(Icons.chevron_left, color: c.textMuted, size: 20),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Invite: share the Mini App with friends through the Telegram share dialog.
+  Future<void> _shareApp() async {
+    final bridge = ref.read(telegramBridgeProvider);
+    final url = Uri(
+      scheme: 'https',
+      host: 't.me',
+      path: 'share/url',
+      queryParameters: {
+        'url': 'https://t.me/Bakhtnegarbot/Bakhtnegar',
+        'text': 'با بخت‌نگار هر روز فال و استخاره بگیر ✨',
+      },
+    ).toString();
+    await bridge.openTelegramLink(url);
+  }
+
+  Future<void> _openUrl(String url, {bool telegram = false}) async {
+    final bridge = ref.read(telegramBridgeProvider);
+    if (telegram) {
+      await bridge.openTelegramLink(url);
+    } else {
+      await bridge.openLink(url);
+    }
+  }
+
+  Widget _inviteCard(BuildContext context) {
+    final c = context.fortuneColors;
+    return LuxuryCard(
+      glow: true,
+      onTap: _shareApp,
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              gradient: AppGradients.goldSheen,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.ios_share,
+              color: AppPalette.nightDeep,
+              size: 26,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'دعوت از دوستان',
+                  style: TextStyle(
+                    color: c.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'بخت‌نگار را با دوستانت به اشتراک بگذار',
+                  style: TextStyle(color: c.textMuted, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_left, color: c.textMuted, size: 20),
+        ],
+      ),
+    );
+  }
+
+  /// Telegram channel + Instagram as two full-bleed, brand-coloured tiles.
+  Widget _socialRow() {
+    return SizedBox(
+      height: 132,
+      child: Row(
+        children: [
+          Expanded(
+            child: _socialCard(
+              icon: Icons.send_rounded,
+              label: 'کانال تلگرام',
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF2AABEE), Color(0xFF229ED9)],
+              ),
+              onTap: () => _openUrl('https://t.me/bakhtnegar', telegram: true),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _socialCard(
+              icon: Icons.camera_alt_rounded,
+              label: 'اینستاگرام',
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF833AB4),
+                  Color(0xFFE1306C),
+                  Color(0xFFF77737),
+                ],
+              ),
+              onTap: () => _openUrl('https://instagram.com/bakhtnegar_fal'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _socialCard({
+    required IconData icon,
+    required String label,
+    required Gradient gradient,
+    required VoidCallback onTap,
+  }) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: const BorderRadius.circular(AppRadius.xl),
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: const BorderRadius.circular(AppRadius.xl),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 44),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
