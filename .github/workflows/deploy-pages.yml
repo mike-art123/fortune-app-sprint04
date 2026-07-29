@@ -58,6 +58,7 @@ jobs:
           -t lib/main_production.dart
           --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
           --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
+          --dart-define=ENABLE_MONETIZATION=${{ vars.ENABLE_MONETIZATION || 'true' }}
 
       - name: SPA routing fallback (deep links / refresh must not 404)
         working-directory: apps/mobile
