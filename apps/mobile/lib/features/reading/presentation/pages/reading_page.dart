@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/extensions/string_extensions.dart';
@@ -149,6 +150,8 @@ class _ReadingView extends ConsumerWidget {
     final fortune = FortuneRegistry.byId(current.fortuneId);
     final accent = fortune?.accent ?? c.goldWarm;
     final textTheme = Theme.of(context).textTheme;
+    final headline = textTheme.headlineMedium?.copyWith(height: 1.5);
+    final titleStyle = GoogleFonts.getFont('Gulzar', textStyle: headline);
 
     return FortuneScaffold(
       appBar: FortuneAppBar(
@@ -203,7 +206,7 @@ class _ReadingView extends ConsumerWidget {
             child: Text(
               current.title,
               textAlign: TextAlign.center,
-              style: textTheme.headlineMedium?.copyWith(height: 1.5),
+              style: titleStyle,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),

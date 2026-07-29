@@ -30,6 +30,9 @@ dependencies:
   intl: any # let flutter_localizations pin the version (Sprint 04B)
   uuid: ^4.4.2                     # request correlation ids
 
+  # Nastaliq accent face for display headlines (fetched + cached at runtime).
+  google_fonts: ^6.2.1
+
   # Serialization annotations (generators are dev-only)
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
