@@ -110,7 +110,7 @@ class _ReadingView extends ConsumerWidget {
         path: 'share/url',
         queryParameters: {'url': 'https://t.me/bakhtnegarbot', 'text': text},
       ).toString();
-      await bridge.openLink(url);
+      await bridge.openTelegramLink(url);
     }
     if (!context.mounted) return;
     final messenger = ScaffoldMessenger.maybeOf(context);

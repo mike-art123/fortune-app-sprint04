@@ -12,6 +12,10 @@ abstract interface class TelegramPlatformBridge {
   Future<void> close();
   Future<void> openLink(String url);
 
+  /// Open a t.me link inside Telegram (e.g. the share dialog); unlike
+  /// [openLink] this handles t.me schemes and keeps the Mini App open.
+  Future<void> openTelegramLink(String url);
+
   /// Show / hide the Telegram Mini App native back button. No-op off Telegram.
   Future<void> showBackButton();
   Future<void> hideBackButton();
@@ -38,6 +42,8 @@ class UnavailableTelegramBridge implements TelegramPlatformBridge {
   Future<void> close() async {}
   @override
   Future<void> openLink(String url) async {}
+  @override
+  Future<void> openTelegramLink(String url) async {}
   @override
   Future<void> showBackButton() async {}
   @override

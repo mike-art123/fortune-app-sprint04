@@ -82,6 +82,8 @@ class _FakeBridge implements TelegramPlatformBridge {
   Future<void> close() async {}
   @override
   Future<void> openLink(String url) async {}
+  @override
+  Future<void> openTelegramLink(String url) async {}
 }
 
 void main() {

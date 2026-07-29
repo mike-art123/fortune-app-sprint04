@@ -56,6 +56,8 @@ class _FakeBridge implements TelegramPlatformBridge {
   @override
   Future<void> openLink(String url) async {}
   @override
+  Future<void> openTelegramLink(String url) async {}
+  @override
   Future<void> showBackButton() async {}
   @override
   Future<void> hideBackButton() async {}

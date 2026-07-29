@@ -21,6 +21,7 @@ extension type _WebApp(JSObject _) implements JSObject {
   external void expand();
   external void close();
   external void openLink(String url);
+  external void openTelegramLink(String url);
   @JS('HapticFeedback')
   external _HapticFeedback? get hapticFeedback;
   @JS('BackButton')
@@ -97,6 +98,11 @@ class TelegramWebBridge implements TelegramPlatformBridge {
   @override
   Future<void> openLink(String url) async {
     _app()?.openLink(url);
+  }
+
+  @override
+  Future<void> openTelegramLink(String url) async {
+    _app()?.openTelegramLink(url);
   }
 
   @override
