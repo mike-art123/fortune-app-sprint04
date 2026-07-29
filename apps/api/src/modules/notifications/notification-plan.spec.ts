@@ -51,9 +51,11 @@ describe('notification rules', () => {
   });
 
   it('offers today’s fortune only after the day has started', () => {
-    // 04:30Z is 08:00 local: out of quiet hours, but too early to nudge.
-    expect(kinds(at('2026-07-26T04:30:00.000Z'), null)).toEqual([]);
+    // 04:30Z is 08:00 local: the quiet night has just ended, so the day begins.
+    expect(kinds(at('2026-07-26T04:30:00.000Z'), null)).toEqual(['dailyFortune']);
     expect(kinds(at('2026-07-26T06:30:00.000Z'), null)).toEqual(['dailyFortune']);
+    // 03:30Z is 07:00 local: still inside the quiet night, so nothing at all.
+    expect(kinds(at('2026-07-26T03:30:00.000Z'), null)).toEqual([]);
   });
 
   it('never suggests a fortune to someone who already read one today', () => {

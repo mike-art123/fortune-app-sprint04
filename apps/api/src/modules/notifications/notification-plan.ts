@@ -56,7 +56,7 @@ export interface NotificationContext {
  * screen is read by whoever is holding the phone.
  */
 const TEXT: Record<NotificationKind, string> = {
-  dailyFortune: 'فال امروزت آماده است. وقتی فرصت داشتی سر بزن.',
+  dailyFortune: 'بیا که فالِ روزتو بگیرم، ببینی امروز چی در انتظارته',
   streakReminder: 'چند روزی است سراغ فالی نرفته‌ای. هر وقت خواستی، همین‌جاست.',
   weeklySummary: 'یک نگاه به هفته‌ای که گذشت در تاریخچه‌ات آماده است.',
 };
@@ -145,7 +145,7 @@ export function decideNotifications(context: NotificationContext): NotificationP
 
   // Today's fortune, once the day has properly started and only when they have
   // not already read something today.
-  consider('dailyFortune', prefs.dailyFortune && hour >= 9 && !readToday);
+  consider('dailyFortune', prefs.dailyFortune && hour >= 8 && !readToday);
 
   // The week's look-back, on the Persian week's last day.
   consider('weeklySummary', prefs.weeklySummary && weekday === 'Fri');

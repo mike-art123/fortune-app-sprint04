@@ -122,7 +122,7 @@ describe('NotificationsService', () => {
     const [method, body] = api.mock.calls[0] as [string, { chat_id: string; text: string }];
     expect(method).toBe('sendMessage');
     expect(body.chat_id).toBe('4242');
-    expect(body.text).toContain('فال امروزت');
+    expect(body.text).toContain('در انتظارته');
   });
 
   it('claims the slot before sending, so a second sweep is silent', async () => {
