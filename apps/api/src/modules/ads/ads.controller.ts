@@ -12,8 +12,10 @@ import {
 
 /**
  * Client surface of rewarded-ad mediation. The client asks for a session,
- * reports availability failures, and polls status — it never claims a reward
- * itself; rewards arrive only via the provider server callback.
+ * reports availability failures, polls status, and — when the ad SDK confirms
+ * the ad was watched through — reports completion so the reward is granted from
+ * that client-side signal. The provider's server callback stays the second,
+ * authoritative path; the two share idempotency and can never double-reward.
  */
 @ApiTags('ads')
 @ApiBearerAuth()
@@ -45,6 +47,15 @@ export class AdsController {
     @Body() dto: ReportFailureDto,
   ): Promise<MediationSessionView> {
     return this.mediation.reportFailure(this.requireUser(principal), id, dto);
+  }
+
+  @Post(':id/complete')
+  @HttpCode(HttpStatus.OK)
+  complete(
+    @CurrentUser() principal: AuthenticatedPrincipal | undefined,
+    @Param('id') id: string,
+  ): Promise<MediationStatusView> {
+    return this.mediation.completeByClient(this.requireUser(principal), id);
   }
 
   @Post(':id/cancel')

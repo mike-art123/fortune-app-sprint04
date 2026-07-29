@@ -57,6 +57,16 @@ export class AdsConfig {
     return this.config.get<number>('AD_ENTITLEMENT_TTL_SECONDS') ?? 1800;
   }
 
+  /**
+   * Grant the reward from the client's completion signal (AdsGram's standard
+   * client-side callback), not only from the provider's server callback. On,
+   * small publishers reward correctly; off falls back to the server callback
+   * alone. Default on; set AD_CLIENT_REWARD_ENABLED=false to disable.
+   */
+  get clientRewardEnabled(): boolean {
+    return this.config.get<string>('AD_CLIENT_REWARD_ENABLED') !== 'false';
+  }
+
   /** Consecutive recent failures that demote a provider to the end. */
   get cooldownFailureThreshold(): number {
     return this.config.get<number>('AD_COOLDOWN_FAILURES') ?? 3;

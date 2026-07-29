@@ -216,6 +216,128 @@ export class MediationService {
   }
 
   /**
+   * Client-completion reward. AdsGram's standard reward is the client-side
+   * signal (the show() promise resolving); its server callback is an extra
+   * layer AdsGram frames around ~50k DAU. So when the ad SDK reports the ad was
+   * watched through, the client calls this and the reward is granted from that
+   * signal, while the server callback stays untouched and, at scale, confirms
+   * the same session.
+   *
+   * The two paths can never double-reward: they share one entitlement per
+   * session (mediationSessionId unique), the (provider, providerRewardId)
+   * unique key, and the attempting-to-rewarded flip. Whichever arrives first
+   * grants; the other is a no-op. Behind AdsConfig.clientRewardEnabled
+   * (default on) — off, this behaves like a status read and the client waits
+   * for the callback.
+   */
+  async completeByClient(
+    userId: string,
+    sessionId: string,
+    now: Date = new Date(),
+  ): Promise<MediationStatusView> {
+    if (!this.ads.clientRewardEnabled) {
+      return this.getStatus(userId, sessionId);
+    }
+
+    const session = await this.prisma.adMediationSession.findUnique({
+      where: { id: sessionId },
+      include: { attempts: true, entitlement: true },
+    });
+    if (!session || session.userId !== userId) {
+      throw new DomainException('NOT_FOUND', 'این جلسه را پیدا نکردیم.', {
+        status: HttpStatus.NOT_FOUND,
+      });
+    }
+
+    // Already rewarded (a prior completion, or the server callback beat us):
+    // return the existing entitlement, never grant a second.
+    if (session.status === SESSION_STATUS.rewarded) {
+      return this.toStatusView(session);
+    }
+
+    // Only an unexpired, still-attempting session with a current provider can
+    // reward; anything else is reported as-is (a raw path never guesses).
+    const provider = session.currentProvider;
+    if (
+      session.status !== SESSION_STATUS.attempting ||
+      session.expiresAt.getTime() <= now.getTime() ||
+      !provider
+    ) {
+      return this.toStatusView(session);
+    }
+
+    const attempt = [...session.attempts]
+      .filter((a) => a.provider === provider)
+      .sort((a, b) => b.attemptNumber - a.attemptNumber)[0];
+    if (!attempt) {
+      return this.toStatusView(session);
+    }
+
+    const entitlementExpiry = new Date(now.getTime() + this.ads.entitlementTtlSeconds * 1000);
+
+    try {
+      const [entitlement] = await this.prisma.$transaction([
+        this.prisma.rewardedAdEntitlement.create({
+          data: {
+            userId: session.userId,
+            fortuneId: session.fortuneId,
+            mediationSessionId: session.id,
+            provider,
+            providerRewardId: session.id,
+            status: ENTITLEMENT_STATUS.available,
+            expiresAt: entitlementExpiry,
+          },
+        }),
+        this.prisma.adMediationSession.update({
+          where: { id: session.id },
+          data: { status: SESSION_STATUS.rewarded, completedAt: now },
+        }),
+        this.prisma.adProviderAttempt.update({
+          where: {
+            mediationSessionId_attemptNumber: {
+              mediationSessionId: session.id,
+              attemptNumber: attempt.attemptNumber,
+            },
+          },
+          data: { status: ATTEMPT_STATUS.verified, verifiedAt: now, completedAt: now },
+        }),
+      ]);
+
+      this.logger.info('ads.reward.client_completed', { provider, sessionId: session.id });
+      return {
+        sessionId: session.id,
+        status: SESSION_STATUS.rewarded,
+        entitlementId: entitlement.id,
+        entitlementStatus: entitlement.status,
+      };
+    } catch (error) {
+      // The server callback (or a parallel completion) granted first — the
+      // shared unique keys collide. Return the entitlement that now exists.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const rewarded = await this.prisma.adMediationSession.findUnique({
+          where: { id: session.id },
+          include: { entitlement: true },
+        });
+        if (rewarded) return this.toStatusView(rewarded);
+      }
+      throw error;
+    }
+  }
+
+  private toStatusView(session: {
+    id: string;
+    status: string;
+    entitlement: { id: string; status: string } | null;
+  }): MediationStatusView {
+    return {
+      sessionId: session.id,
+      status: session.status,
+      entitlementId: session.entitlement?.id ?? null,
+      entitlementStatus: session.entitlement?.status ?? null,
+    };
+  }
+
+  /**
    * Provider server-to-server reward callback (the ONLY path that rewards).
    * Validates the shared secret, session binding, user binding and expiry;
    * the entitlement's unique keys make replays and double-rewards impossible.

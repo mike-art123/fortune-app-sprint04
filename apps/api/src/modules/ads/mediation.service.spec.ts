@@ -35,6 +35,7 @@ const ads = {
   entitlementTtlSeconds: 1800,
   cooldownFailureThreshold: 3,
   cooldownWindowSeconds: 300,
+  clientRewardEnabled: true,
 };
 
 const monetization = { appTimezone: 'UTC', rewardedAdsDailyLimit: 5 };
@@ -86,6 +87,96 @@ function resetMocks(): void {
   prisma.rewardedAdEntitlement.create.mockResolvedValue({ id: 'ent1' });
   prisma.rewardedAdEntitlement.updateMany.mockResolvedValue({ count: 1 });
 }
+
+describe('MediationService.completeByClient', () => {
+  beforeEach(resetMocks);
+
+  it('grants one entitlement for the caller attempting session', async () => {
+    prisma.adMediationSession.findUnique.mockResolvedValue(sessionRow({ entitlement: null }));
+
+    const view = await service.completeByClient('u1', 'ses1', NOW);
+
+    expect(view).toMatchObject({ status: 'rewarded', entitlementId: 'ent1' });
+    expect(prisma.rewardedAdEntitlement.create).toHaveBeenCalledTimes(1);
+    const createArg = prisma.rewardedAdEntitlement.create.mock.calls[0]?.[0] as WriteArgs;
+    expect(createArg.data).toMatchObject({
+      mediationSessionId: 'ses1',
+      providerRewardId: 'ses1',
+      provider: 'adsgram',
+      status: 'available',
+    });
+  });
+
+  it('is idempotent when the session is already rewarded', async () => {
+    prisma.adMediationSession.findUnique.mockResolvedValue(
+      sessionRow({ status: 'rewarded', entitlement: { id: 'ent1', status: 'available' } }),
+    );
+
+    const view = await service.completeByClient('u1', 'ses1', NOW);
+
+    expect(view).toMatchObject({ status: 'rewarded', entitlementId: 'ent1' });
+    expect(prisma.rewardedAdEntitlement.create).not.toHaveBeenCalled();
+  });
+
+  it('returns the existing entitlement if the callback granted first', async () => {
+    prisma.adMediationSession.findUnique
+      .mockResolvedValueOnce(sessionRow({ entitlement: null }))
+      .mockResolvedValueOnce(
+        sessionRow({ status: 'rewarded', entitlement: { id: 'ent1', status: 'available' } }),
+      );
+    prisma.$transaction.mockRejectedValueOnce(
+      new Prisma.PrismaClientKnownRequestError('dup', {
+        code: 'P2002',
+        clientVersion: '5',
+      }),
+    );
+
+    const view = await service.completeByClient('u1', 'ses1', NOW);
+
+    expect(view).toMatchObject({ status: 'rewarded', entitlementId: 'ent1' });
+    expect(prisma.rewardedAdEntitlement.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a session that is not the caller own', async () => {
+    prisma.adMediationSession.findUnique.mockResolvedValue(
+      sessionRow({ userId: 'someone-else', entitlement: null }),
+    );
+
+    await expect(service.completeByClient('u1', 'ses1', NOW)).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    expect(prisma.rewardedAdEntitlement.create).not.toHaveBeenCalled();
+  });
+
+  it('does not grant for an expired session', async () => {
+    prisma.adMediationSession.findUnique.mockResolvedValue(
+      sessionRow({ expiresAt: new Date('2026-07-25T09:00:00Z'), entitlement: null }),
+    );
+
+    const view = await service.completeByClient('u1', 'ses1', NOW);
+
+    expect(view.entitlementId).toBeNull();
+    expect(prisma.rewardedAdEntitlement.create).not.toHaveBeenCalled();
+  });
+
+  it('falls back to a status read when client reward is disabled', async () => {
+    const gated = new MediationService(
+      prisma as never,
+      { ...ads, clientRewardEnabled: false } as never,
+      monetization as never,
+      logger as never,
+    );
+    prisma.adMediationSession.findUnique.mockResolvedValue(
+      sessionRow({ status: 'attempting', entitlement: null }),
+    );
+
+    const view = await gated.completeByClient('u1', 'ses1', NOW);
+
+    expect(view.status).toBe('attempting');
+    expect(view.entitlementId).toBeNull();
+    expect(prisma.rewardedAdEntitlement.create).not.toHaveBeenCalled();
+  });
+});
 
 describe('MediationService.createSession', () => {
   beforeEach(resetMocks);
