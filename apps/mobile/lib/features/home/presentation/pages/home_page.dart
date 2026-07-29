@@ -160,10 +160,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       onOpen: (id, live) => _openId(context, id, live),
                     ),
                     const SizedBox(height: AppLayout.sectionGap),
-                    _QuickActionsRow(
-                      onOpen: (id) => _openId(context, id, true),
-                    ),
-                    const SizedBox(height: AppLayout.sectionGap),
                     SectionTitle(
                       title: 'فال‌های محبوب',
                       actionLabel: 'مشاهده همه',
@@ -370,47 +366,6 @@ class _ProfileChip extends ConsumerWidget {
             color: c.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// The daily reading and the istikhara as two FULL fortune cards — exactly
-/// the size and shape of every other fortune card (coffee, tarot, …), with
-/// their own Firefly artwork resolved from the fortunes art folder.
-class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow({required this.onOpen});
-
-  final void Function(String id) onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: PortraitFortuneCard(
-            id: 'daily',
-            title: 'فال روزانه',
-            subtitle: 'ویژهٔ امروز',
-            accent: _accentFor('daily'),
-            available: true,
-            soonLabel: 'به‌زودی',
-            onTap: () => onOpen('daily'),
-          ),
-        ),
-        const SizedBox(width: AppLayout.cardGap),
-        Expanded(
-          child: PortraitFortuneCard(
-            id: 'quran',
-            title: 'استخاره',
-            subtitle: 'استخارهٔ قرآن',
-            accent: _accentFor('quran'),
-            available: true,
-            soonLabel: 'به‌زودی',
-            onTap: () => onOpen('quran'),
           ),
         ),
       ],
