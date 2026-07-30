@@ -31,3 +31,18 @@
 
 /version.json
   Content-Type: application/json; charset=utf-8
+
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+
+/favicon.png
+  Cache-Control: public, max-age=86400
+
+/og-image.png
+  Cache-Control: public, max-age=86400
+
+/icons/*
+  Cache-Control: public, max-age=604800

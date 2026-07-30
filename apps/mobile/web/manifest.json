@@ -1,12 +1,31 @@
 {
-  "name": "Fortune",
-  "short_name": "Fortune",
+  "name": "بخت‌نگار — فال و اسرارِ زندگی",
+  "short_name": "بخت‌نگار",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0E0E12",
-  "theme_color": "#0E0E12",
-  "description": "A calm Telegram Mini App for reflective fortunes.",
+  "background_color": "#0E1230",
+  "theme_color": "#0E1230",
+  "description": "فال حافظ، تاروت، فال قهوه، استخاره و تعبیر خواب — آرام و فارسی.",
   "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "fa",
   "prefer_related_applications": false,
-  "icons": []
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }
