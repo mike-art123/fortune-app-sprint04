@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ClientPlatform } from '../../common/decorators/client-platform.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { IdempotencyKey } from '../../common/decorators/idempotency-key.decorator';
 import { RequestId } from '../../common/decorators/request-id.decorator';
@@ -28,12 +29,14 @@ export class ReadingsController {
     @RequestId() requestId: string,
     @CurrentUser() principal: AuthenticatedPrincipal | undefined,
     @IdempotencyKey() idempotencyKey: string | null,
+    @ClientPlatform() platform: string | null,
   ): Promise<ReadingResponse> {
     return this.readings.create(
       dto,
       requestId === 'unknown' ? null : requestId,
       this.required(principal),
       idempotencyKey,
+      platform,
     );
   }
 

@@ -40,6 +40,7 @@ const mediation = {
 
 const monetization = {
   enforceAccessLimits: false,
+  isPlatformUnlimited: jest.fn(),
 };
 
 const idempotency = {
@@ -65,6 +66,7 @@ const service = new ReadingsService(
 function resetHappyPath(): void {
   jest.clearAllMocks();
   monetization.enforceAccessLimits = false;
+  monetization.isPlatformUnlimited.mockReturnValue(false);
   provider.generate.mockResolvedValue({ title: 'عنوان', reading: 'متنِ خوانش' });
   repository.create.mockImplementation((r) =>
     Promise.resolve({ id: 'clx1', createdAt: new Date('2026-01-01T00:00:00Z'), ...r }),
@@ -83,7 +85,13 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
   beforeEach(resetHappyPath);
 
   it('persists the reading under the user with no coin machinery', async () => {
-    const res = await service.create({ fortuneId: 'hafez', input: {} }, 'req-1', principal, null);
+    const res = await service.create(
+      { fortuneId: 'hafez', input: {} },
+      'req-1',
+      principal,
+      null,
+      null,
+    );
 
     expect(repository.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'u1', fortuneId: 'hafez', requestId: 'req-1' }),
@@ -95,7 +103,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
   it('counts the free daily allowance only after a successful reading', async () => {
     freeDaily.freeUsesRemainingToday.mockResolvedValue(1);
 
-    await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null);
+    await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null, null);
 
     expect(freeDaily.consumeFreeToday).toHaveBeenCalledWith('u1', 'hafez');
   });
@@ -105,7 +113,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
     provider.generate.mockRejectedValue(new Error('provider exploded'));
 
     await expect(
-      service.create({ fortuneId: 'hafez', input: {} }, null, principal, null),
+      service.create({ fortuneId: 'hafez', input: {} }, null, principal, null, null),
     ).rejects.toMatchObject({ code: 'READING_FAILED' });
     expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
   });
@@ -114,7 +122,13 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
     freeDaily.freeUsesRemainingToday.mockResolvedValue(1);
     freeDaily.consumeFreeToday.mockRejectedValue(new Error('db blip'));
 
-    const res = await service.create({ fortuneId: 'hafez', input: {} }, null, principal, null);
+    const res = await service.create(
+      { fortuneId: 'hafez', input: {} },
+      null,
+      principal,
+      null,
+      null,
+    );
 
     expect(res.fortune).toBe('hafez');
     expect(logger.error).toHaveBeenCalledWith(
@@ -126,7 +140,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
   it('consumes the ad entitlement before generating when provided', async () => {
     const dto = { fortuneId: 'tarot', adEntitlementId: 'ent1', input: {} };
 
-    await service.create(dto, null, principal, null);
+    await service.create(dto, null, principal, null, null);
 
     expect(mediation.consumeEntitlement).toHaveBeenCalledWith('u1', 'ent1', 'tarot');
     const consumeOrder = mediation.consumeEntitlement.mock.invocationCallOrder[0] as number;
@@ -139,7 +153,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
   it('restores the ad entitlement when generation fails (retry entitlement)', async () => {
     provider.generate.mockRejectedValue(new Error('provider exploded'));
 
-    await expect(service.create(adDto, null, principal, null)).rejects.toMatchObject({
+    await expect(service.create(adDto, null, principal, null, null)).rejects.toMatchObject({
       code: 'READING_FAILED',
     });
     expect(mediation.restoreEntitlement).toHaveBeenCalledWith('ent1');
@@ -148,7 +162,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
   it('restores the ad entitlement when persistence fails', async () => {
     repository.create.mockRejectedValue(new Error('db down'));
 
-    await expect(service.create(adDto, null, principal, null)).rejects.toMatchObject({
+    await expect(service.create(adDto, null, principal, null, null)).rejects.toMatchObject({
       code: 'READING_FAILED',
     });
     expect(mediation.restoreEntitlement).toHaveBeenCalledWith('ent1');
@@ -158,7 +172,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
     provider.generate.mockRejectedValue(new Error('provider exploded'));
     mediation.restoreEntitlement.mockRejectedValue(new Error('restore infra down'));
 
-    await expect(service.create(adDto, null, principal, null)).rejects.toMatchObject({
+    await expect(service.create(adDto, null, principal, null, null)).rejects.toMatchObject({
       code: 'READING_FAILED',
     });
     expect(logger.error).toHaveBeenCalledWith(
@@ -171,13 +185,51 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
     monetization.enforceAccessLimits = true;
 
     await expect(
-      service.create({ fortuneId: 'tarot', input: {} }, null, principal, null),
+      service.create({ fortuneId: 'tarot', input: {} }, null, principal, null, null),
+    ).rejects.toMatchObject({ code: 'ACCESS_REQUIRED' });
+    expect(provider.generate).not.toHaveBeenCalled();
+  });
+
+  it('never gates an exempt platform (Android v1 ships ad-free)', async () => {
+    monetization.enforceAccessLimits = true;
+    monetization.isPlatformUnlimited.mockImplementation(
+      (platform: string | null) => platform === 'android',
+    );
+
+    const res = await service.create(
+      { fortuneId: 'tarot', input: {} },
+      null,
+      principal,
+      null,
+      'android',
+    );
+
+    expect(res.fortune).toBe('tarot');
+    expect(freeDaily.freeUsesRemainingToday).not.toHaveBeenCalled();
+    expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
+    expect(mediation.consumeEntitlement).not.toHaveBeenCalled();
+  });
+
+  it('keeps gating the other platforms while an exemption exists', async () => {
+    monetization.enforceAccessLimits = true;
+    monetization.isPlatformUnlimited.mockImplementation(
+      (platform: string | null) => platform === 'android',
+    );
+
+    await expect(
+      service.create({ fortuneId: 'tarot', input: {} }, null, principal, null, 'web'),
     ).rejects.toMatchObject({ code: 'ACCESS_REQUIRED' });
     expect(provider.generate).not.toHaveBeenCalled();
   });
 
   it('lets the reading through free while enforcement is off', async () => {
-    const res = await service.create({ fortuneId: 'tarot', input: {} }, null, principal, null);
+    const res = await service.create(
+      { fortuneId: 'tarot', input: {} },
+      null,
+      principal,
+      null,
+      null,
+    );
 
     expect(res.fortune).toBe('tarot');
     expect(freeDaily.consumeFreeToday).not.toHaveBeenCalled();
@@ -198,6 +250,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
       null,
       principal,
       'key-12345678',
+      null,
     );
 
     expect(res).toEqual(stored);
@@ -206,7 +259,7 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
   });
 
   it('records the idempotency result under the provided key', async () => {
-    await service.create({ fortuneId: 'hafez', input: {} }, null, principal, 'key-12345678');
+    await service.create({ fortuneId: 'hafez', input: {} }, null, principal, 'key-12345678', null);
 
     expect(idempotency.record).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'u1', operation: 'reading.create', key: 'key-12345678' }),
@@ -215,17 +268,29 @@ describe('ReadingsService.create — access orchestration (coins removed)', () =
 
   it('rejects an unknown fortune before touching access services', async () => {
     await expect(
-      service.create({ fortuneId: 'nope', input: {} }, null, principal, null),
+      service.create({ fortuneId: 'nope', input: {} }, null, principal, null, null),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
     expect(freeDaily.freeUsesRemainingToday).not.toHaveBeenCalled();
   });
 
   it('validates the offering (dream needs words; love needs both names)', async () => {
     await expect(
-      service.create({ fortuneId: 'dream', input: { narration: 'خواب' } }, null, principal, null),
+      service.create(
+        { fortuneId: 'dream', input: { narration: 'خواب' } },
+        null,
+        principal,
+        null,
+        null,
+      ),
     ).rejects.toBeInstanceOf(DomainException);
     await expect(
-      service.create({ fortuneId: 'love', input: { selfName: 'سارا' } }, null, principal, null),
+      service.create(
+        { fortuneId: 'love', input: { selfName: 'سارا' } },
+        null,
+        principal,
+        null,
+        null,
+      ),
     ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
     expect(provider.generate).not.toHaveBeenCalled();
   });

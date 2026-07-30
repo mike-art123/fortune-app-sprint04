@@ -51,4 +51,26 @@ export class MonetizationConfig {
   freeDailyAllowance(fortuneId: string): number {
     return this.freeDailyAllowances.get(fortuneId) ?? 0;
   }
+
+  /**
+   * Platforms (`x-platform` header values) exempt from free/ad gating. The
+   * Android v1 build ships without an ad surface, so its users must never
+   * dead-end on ACCESS_REQUIRED (decision 2026-07-30). Remove `android` from
+   * ACCESS_UNLIMITED_PLATFORMS once the mobile app gets its own ad path.
+   */
+  get unlimitedPlatforms(): ReadonlySet<string> {
+    const raw = this.config.get<string>('ACCESS_UNLIMITED_PLATFORMS') ?? 'android';
+    return new Set(
+      raw
+        .split(',')
+        .map((part) => part.trim().toLowerCase())
+        .filter((part) => part.length > 0),
+    );
+  }
+
+  /** True when this client platform is exempt from access gating. */
+  isPlatformUnlimited(platform: string | null | undefined): boolean {
+    if (!platform) return false;
+    return this.unlimitedPlatforms.has(platform.trim().toLowerCase());
+  }
 }

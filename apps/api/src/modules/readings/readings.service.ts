@@ -51,10 +51,11 @@ type AccessMethod = 'free_daily' | 'rewarded_ad' | 'free';
 
 /**
  * Orchestrates one reading (coins removed):
- * validate → access decision (free daily → ad entitlement) → generate →
- * persist → count. The free-daily allowance is counted only AFTER a successful
- * reading; a consumed ad entitlement is restored when generation fails, so the
- * user never re-watches an ad for a reading they did not receive.
+ * validate → access decision (platform exemption → free daily → ad
+ * entitlement) → generate → persist → count. The free-daily allowance is
+ * counted only AFTER a successful reading; a consumed ad entitlement is
+ * restored when generation fails, so the user never re-watches an ad for a
+ * reading they did not receive.
  */
 @Injectable()
 export class ReadingsService {
@@ -74,6 +75,7 @@ export class ReadingsService {
     requestId: string | null,
     principal: AuthenticatedPrincipal,
     idempotencyKey: string | null,
+    platform: string | null,
   ): Promise<ReadingResponse> {
     const fortune = findFortune(dto.fortuneId);
     if (!fortune) {
@@ -98,21 +100,28 @@ export class ReadingsService {
       }
     }
 
-    // ── access decision (spec order: free daily → rewarded ad) ──
+    // ── access decision (spec order: platform exemption → free daily → ad) ──
     let accessMethod: AccessMethod = 'free';
     let consumedAdEntitlementId: string | null = null;
 
-    const freeRemaining = await this.freeDaily.freeUsesRemainingToday(userId, fortune.id);
-    if (freeRemaining > 0) {
-      accessMethod = 'free_daily';
-    } else if (dto.adEntitlementId) {
-      await this.mediation.consumeEntitlement(userId, dto.adEntitlementId, fortune.id);
-      consumedAdEntitlementId = dto.adEntitlementId;
-      accessMethod = 'rewarded_ad';
-    } else if (this.monetization.enforceAccessLimits) {
-      throw new DomainException('ACCESS_REQUIRED', 'برای این فال، اول تبلیغ را ببین.', {
-        status: HttpStatus.PAYMENT_REQUIRED,
-      });
+    if (this.monetization.isPlatformUnlimited(platform)) {
+      // Decision 2026-07-30: the Android v1 build has no ad surface, so an
+      // exempt platform is never gated — otherwise its users would dead-end
+      // on ACCESS_REQUIRED with no ad to watch. Nothing is consumed here.
+      accessMethod = 'free';
+    } else {
+      const freeRemaining = await this.freeDaily.freeUsesRemainingToday(userId, fortune.id);
+      if (freeRemaining > 0) {
+        accessMethod = 'free_daily';
+      } else if (dto.adEntitlementId) {
+        await this.mediation.consumeEntitlement(userId, dto.adEntitlementId, fortune.id);
+        consumedAdEntitlementId = dto.adEntitlementId;
+        accessMethod = 'rewarded_ad';
+      } else if (this.monetization.enforceAccessLimits) {
+        throw new DomainException('ACCESS_REQUIRED', 'برای این فال، اول تبلیغ را ببین.', {
+          status: HttpStatus.PAYMENT_REQUIRED,
+        });
+      }
     }
 
     let record: Reading;

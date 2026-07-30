@@ -80,6 +80,10 @@ export const envSchema = z
     REWARDED_ADS_DAILY_LIMIT: z.coerce.number().int().min(0).max(1000).default(5),
     /** Enforce free/ad gating. Off until the client + ad providers ship. */
     ENFORCE_ACCESS_LIMITS: z.coerce.boolean().default(false),
+    /** Platforms (comma-separated `x-platform` values) exempt from gating.
+     * The Android v1 build ships without an ad surface, so its users must
+     * never dead-end on ACCESS_REQUIRED. Empty string exempts nothing. */
+    ACCESS_UNLIMITED_PLATFORMS: z.string().default('android'),
 
     /** Rewarded-ad mediation. Ordered provider priority (backend-owned). */
     REWARDED_AD_PROVIDERS: z.string().default('adsgram,monetag'),
