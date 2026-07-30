@@ -216,6 +216,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     final focused = _focus.hasFocus;
     final intent = _intent ?? _remote;
     final voiceLine = _listening ? s.voiceListening : _voiceNote;
+    final micTooltip = _listening ? s.voiceStopTooltip : s.voiceSearchTooltip;
     final canAsk = widget.remote != null && intent == null;
 
     return Column(
@@ -263,9 +264,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
               if (widget.speech.isSupported)
                 IconButton(
                   onPressed: _listening ? _stopListening : _startListening,
-                  tooltip: _listening
-                      ? s.voiceStopTooltip
-                      : s.voiceSearchTooltip,
+                  tooltip: micTooltip,
                   icon: Icon(
                     _listening ? Icons.stop_circle_outlined : Icons.mic_none,
                     size: 20,
