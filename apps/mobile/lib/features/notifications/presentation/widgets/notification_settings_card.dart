@@ -7,7 +7,6 @@ import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../application/notification_controller.dart';
-import '../../domain/notification_preferences.dart';
 
 /// «یادآوری‌ها» — what the app may say, and when it must stay quiet (scope §7).
 ///
