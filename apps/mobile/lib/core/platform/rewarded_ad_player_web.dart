@@ -8,21 +8,26 @@ import 'dart:js_interop_unsafe';
 ///
 /// Canonical outcomes: `completed`, `skipped`, `no_fill`, `load_timeout`,
 /// `ad_unavailable`, `temporary_provider_error`.
+///
+/// Timing model: [timeoutMs] (the server's AD_LOAD_TIMEOUT_MS) budgets the
+/// LOAD phase only — fetching the SDK and getting an ad ready to show. The
+/// WATCH phase is open-ended by design: Monetag's rewarded flow ends with a
+/// user tap, so cutting it with the load budget threw away real rewards
+/// (the ad outlived 12s, the app called it a timeout, and the resolution
+/// arrived with nobody listening). [_watchCap] only guards abandonment.
+const _watchCap = Duration(minutes: 4);
+
 Future<String> playRewardedAd({
   required String provider,
   required Map<String, String> config,
   required int timeoutMs,
 }) async {
   try {
-    final play = switch (provider) {
-      'adsgram' => _playAdsgram(config['blockId'] ?? ''),
-      'monetag' => _playMonetag(config['zoneId'] ?? ''),
-      _ => Future<String>.value('ad_unavailable'),
+    return switch (provider) {
+      'adsgram' => await _playAdsgram(config['blockId'] ?? '', timeoutMs),
+      'monetag' => await _playMonetag(config['zoneId'] ?? '', timeoutMs),
+      _ => 'ad_unavailable',
     };
-    return await play.timeout(
-      Duration(milliseconds: timeoutMs),
-      onTimeout: () => 'load_timeout',
-    );
   } catch (_) {
     return 'temporary_provider_error';
   }
@@ -71,71 +76,100 @@ Future<bool> _ensureScript(
   return completer.future;
 }
 
+/// Awaits the provider's show() promise — the watch phase. Distinguishes the
+/// three endings every SDK shares: settled fine, rejected, or left hanging.
+Future<String> _watch(
+  JSPromise<JSAny?> promise, {
+  required String onReject,
+}) async {
+  try {
+    await promise.toDart.timeout(_watchCap);
+    return 'completed';
+  } on TimeoutException {
+    // Open this long means abandoned, not unfilled. Never falls through to
+    // another provider — a second ad must not appear over a hung first one.
+    return 'skipped';
+  } catch (_) {
+    return onReject;
+  }
+}
+
 // ── AdsGram ────────────────────────────────────────────────────────────────
 
-Future<String> _playAdsgram(String blockId) async {
+Future<String> _playAdsgram(String blockId, int loadTimeoutMs) async {
   if (blockId.isEmpty) return 'ad_unavailable';
-  final loaded = await _ensureScript(
-    'adsgram-sdk',
-    'https://sad.adsgram.ai/js/sad.min.js',
-    const {},
-  );
-  if (!loaded) return 'ad_unavailable';
+
+  // Load = script + global only. show() must stay OUT of the timed phase: a
+  // future abandoned by timeout keeps running, and a show() inside it would
+  // pop a ghost ad later with nobody listening for the reward.
+  Future<bool> load() async {
+    final loaded = await _ensureScript(
+      'adsgram-sdk',
+      'https://sad.adsgram.ai/js/sad.min.js',
+      const {},
+    );
+    if (!loaded) return false;
+    return globalContext.hasProperty('Adsgram'.toJS).toDart;
+  }
+
+  bool ready;
+  try {
+    ready = await load().timeout(Duration(milliseconds: loadTimeoutMs));
+  } on TimeoutException {
+    return 'load_timeout';
+  }
+  if (!ready) return 'ad_unavailable';
 
   final adsgram = globalContext.getProperty<JSObject?>('Adsgram'.toJS);
   if (adsgram == null) return 'ad_unavailable';
+  final init = JSObject()..setProperty('blockId'.toJS, blockId.toJS);
+  final controller = adsgram.callMethod<JSObject?>('init'.toJS, init);
+  if (controller == null) return 'ad_unavailable';
+  final promise = controller.callMethod<JSPromise<JSAny?>?>('show'.toJS);
+  if (promise == null) return 'ad_unavailable';
 
-  try {
-    final init = JSObject()..setProperty('blockId'.toJS, blockId.toJS);
-    final controller = adsgram.callMethod<JSObject?>('init'.toJS, init);
-    if (controller == null) return 'ad_unavailable';
-    final promise = controller.callMethod<JSPromise<JSAny?>?>('show'.toJS);
-    if (promise == null) return 'ad_unavailable';
-    await promise.toDart;
-    // The AdsGram promise resolves only after the ad was watched through.
-    return 'completed';
-  } catch (_) {
-    // AdsGram rejects for both user skips and no-fill. Distinguishing them
-    // needs a JS-type runtime check that is not platform-consistent (analyzer:
-    // invalid_runtime_check_with_js_interop_types), so we take the safe side:
-    // treat every rejection as a user stop. Mediation never double-shows an
-    // ad this way; refining the mapping comes with live block-id testing.
-    return 'skipped';
-  }
+  // AdsGram rejects for both user skips and no-fill. Distinguishing them
+  // needs a JS-type runtime check that is not platform-consistent (analyzer:
+  // invalid_runtime_check_with_js_interop_types), so we take the safe side:
+  // treat every rejection as a user stop. Mediation never double-shows an
+  // ad this way; refining the mapping comes with live block-id testing.
+  return _watch(promise, onReject: 'skipped');
 }
 
 // ── Monetag ────────────────────────────────────────────────────────────────
 
-Future<String> _playMonetag(String zoneId) async {
+Future<String> _playMonetag(String zoneId, int loadTimeoutMs) async {
   if (zoneId.isEmpty) return 'ad_unavailable';
   final fnName = 'show_$zoneId';
-  final loaded = await _ensureScript(
-    'monetag-sdk-$zoneId',
-    'https://libtl.com/sdk.js',
-    {'data-zone': zoneId, 'data-sdk': fnName},
-  );
-  if (!loaded) return 'ad_unavailable';
 
-  // The loader defines window.show_<zone> shortly after the script arrives.
-  var defined = false;
-  for (var attempt = 0; attempt < 20; attempt++) {
-    if (globalContext.hasProperty(fnName.toJS).toDart) {
-      defined = true;
-      break;
+  Future<bool> load() async {
+    final loaded = await _ensureScript(
+      'monetag-sdk-$zoneId',
+      'https://libtl.com/sdk.js',
+      {'data-zone': zoneId, 'data-sdk': fnName},
+    );
+    if (!loaded) return false;
+    // The loader defines window.show_<zone> shortly after the script arrives.
+    for (var attempt = 0; attempt < 20; attempt++) {
+      if (globalContext.hasProperty(fnName.toJS).toDart) return true;
+      await Future<void>.delayed(const Duration(milliseconds: 150));
     }
-    await Future<void>.delayed(const Duration(milliseconds: 150));
+    return false;
   }
-  if (!defined) return 'ad_unavailable';
 
+  bool ready;
   try {
-    // Typed through the interop generic — no JS-type is/as runtime checks.
-    final promise = globalContext.callMethod<JSPromise<JSAny?>?>(fnName.toJS);
-    if (promise == null) return 'ad_unavailable';
-    await promise.toDart;
-    return 'completed';
-  } catch (_) {
-    // Monetag rejects for no-inventory and user-abort alike; without a
-    // distinguishing signal, treat it as no_fill so mediation may continue.
-    return 'no_fill';
+    ready = await load().timeout(Duration(milliseconds: loadTimeoutMs));
+  } on TimeoutException {
+    return 'load_timeout';
   }
+  if (!ready) return 'ad_unavailable';
+
+  // Typed through the interop generic — no JS-type is/as runtime checks.
+  final promise = globalContext.callMethod<JSPromise<JSAny?>?>(fnName.toJS);
+  if (promise == null) return 'ad_unavailable';
+
+  // Monetag rejects for no-inventory and user-abort alike; without a
+  // distinguishing signal, treat it as no_fill so mediation may continue.
+  return _watch(promise, onReject: 'no_fill');
 }
