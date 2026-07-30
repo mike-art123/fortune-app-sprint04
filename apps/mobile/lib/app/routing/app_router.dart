@@ -8,6 +8,9 @@ import '../../features/fortunes/presentation/pages/elements_guide_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 import '../../features/intentions/presentation/pages/intentions_page.dart';
+import '../../features/legal/presentation/pages/about_page.dart';
+import '../../features/legal/presentation/pages/contact_page.dart';
+import '../../features/legal/presentation/pages/privacy_page.dart';
 import '../../features/saved/presentation/pages/saved_page.dart';
 import '../../features/terms/presentation/pages/terms_page.dart';
 import '../../features/profile/application/profile_controller.dart';
@@ -195,6 +198,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.onboardingName,
         builder: (_, state) =>
             OnboardingPage(next: state.uri.queryParameters['next']),
+      ),
+      GoRoute(
+        path: AppRoutes.aboutPath,
+        name: AppRoutes.aboutName,
+        builder: (_, __) => const AboutPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.privacyPath,
+        name: AppRoutes.privacyName,
+        builder: (_, __) => const PrivacyPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.contactPath,
+        name: AppRoutes.contactName,
+        builder: (_, __) => const ContactPage(),
       ),
     ],
     errorBuilder: (_, __) => const _NotFoundPage(),

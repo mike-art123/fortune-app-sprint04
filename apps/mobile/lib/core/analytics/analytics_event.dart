@@ -47,3 +47,62 @@ class ThemeChanged extends AnalyticsEvent {
   @override
   Map<String, Object?> get parameters => {'mode': mode};
 }
+
+/// ── Rewarded-ad lifecycle (ids and reasons only; never content) ──
+
+class RewardRequested extends AnalyticsEvent {
+  const RewardRequested(this.fortuneId);
+  final String fortuneId;
+  @override
+  String get name => 'reward_requested';
+  @override
+  Map<String, Object?> get parameters => {'fortune': fortuneId};
+}
+
+class RewardShown extends AnalyticsEvent {
+  const RewardShown(this.provider);
+  final String provider;
+  @override
+  String get name => 'reward_shown';
+  @override
+  Map<String, Object?> get parameters => {'provider': provider};
+}
+
+class RewardCompleted extends AnalyticsEvent {
+  const RewardCompleted(this.provider);
+  final String provider;
+  @override
+  String get name => 'reward_completed';
+  @override
+  Map<String, Object?> get parameters => {'provider': provider};
+}
+
+/// The user closed the ad on purpose — an answer, not a failure.
+class RewardSkipped extends AnalyticsEvent {
+  const RewardSkipped(this.provider);
+  final String provider;
+  @override
+  String get name => 'reward_skipped';
+  @override
+  Map<String, Object?> get parameters => {'provider': provider};
+}
+
+class RewardFailed extends AnalyticsEvent {
+  const RewardFailed(this.provider, this.reason);
+  final String provider;
+  final String reason;
+  @override
+  String get name => 'reward_failed';
+  @override
+  Map<String, Object?> get parameters =>
+      {'provider': provider, 'reason': reason};
+}
+
+class FortuneUnlocked extends AnalyticsEvent {
+  const FortuneUnlocked(this.method);
+  final String method;
+  @override
+  String get name => 'fortune_unlocked';
+  @override
+  Map<String, Object?> get parameters => {'method': method};
+}

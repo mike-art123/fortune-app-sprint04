@@ -23,5 +23,8 @@ abstract final class PrefKeys {
   static const audioTheme = 'pref.audio_theme';
   static const audioVolume = 'pref.audio_volume';
   static const onboardingComplete = 'pref.onboarding_complete';
+
+  /// The one-time disclaimer before the very first reading was acknowledged.
+  static const disclaimerSeen = 'pref.disclaimer_seen';
   static const storageVersion = 'pref.storage_version';
 }

@@ -7,6 +7,7 @@ import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/components/premium_bottom_navigation.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../legal/presentation/widgets/legal_footer.dart';
 
 /// The terms, given a tab of their own.
 ///
@@ -65,6 +66,8 @@ class TermsPage extends StatelessWidget {
             _Section(title: section.title, lines: section.lines),
             const SizedBox(height: AppSpacing.sm),
           ],
+          const SizedBox(height: AppSpacing.md),
+          const LegalFooter(),
           const SizedBox(height: AppSpacing.lg),
         ],
       ),
@@ -95,6 +98,22 @@ const _sections = <_TermsSection>[
     'برای سلامتی جسمی یا روانی، به پزشک یا روان‌شناس مراجعه کن.',
     'برای مسائل حقوقی به وکیل، و برای مسائل مالی به مشاور مالی.',
     'فال جای هیچ‌کدام از این‌ها نمی‌نشیند.',
+  ]),
+  _TermsSection('تبلیغات', [
+    'بعضی فال‌ها با دیدن یک تبلیغ کوتاه باز می‌شوند؛ تبلیغ فقط با '
+        'انتخاب و لمس خودت پخش می‌شود، هرگز خودکار.',
+    'تبلیغ‌ها از شبکه‌های شخص ثالث (مانند AdsGram و Monetag) می‌آیند و '
+        'محتوایشان با آن شبکه‌هاست.',
+  ]),
+  _TermsSection('مالکیت معنوی', [
+    'نام، طراحی، متن‌ها و تصاویر بخت‌نگار متعلق به بخت‌نگار است.',
+    'فال‌هایی که می‌گیری برای استفادهٔ شخصی‌ات آزادند؛ استفادهٔ تجاری از '
+        'محتوای برنامه بدون اجازه مجاز نیست.',
+  ]),
+  _TermsSection('محدودیت استفاده', [
+    'استفادهٔ غیرمعمول — مانند درخواست خودکار یا تلاش برای دورزدن '
+        'محدودیت‌ها — ممکن است به محدودشدن دسترسی منجر شود.',
+    'سهمیهٔ فال رایگان و سقف روزانهٔ تبلیغ ممکن است تغییر کند.',
   ]),
   _TermsSection('پذیرش', [
     'استفاده از بخت‌نگار به معنای پذیرفتن همین شرط‌هاست.',

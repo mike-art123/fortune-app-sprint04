@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortune_app/app/localization/supported_locales.dart';
 import 'package:fortune_app/app/theme/app_theme.dart';
+import 'package:fortune_app/core/persistence/local_storage.dart';
 import 'package:fortune_app/core/result/result.dart';
 import 'package:fortune_app/features/access/application/access_flow_controller.dart';
 import 'package:fortune_app/features/access/data/access_repository.dart';
@@ -13,6 +14,7 @@ import 'package:fortune_app/features/reading/domain/reading.dart';
 import 'package:fortune_app/features/reading/domain/reading_repository.dart';
 import 'package:fortune_app/features/reading/presentation/pages/reading_page.dart';
 import 'package:fortune_app/features/ritual_entry/presentation/pages/ritual_entry_page.dart';
+import 'package:fortune_app/shared/providers/shared_providers.dart';
 import 'package:go_router/go_router.dart';
 
 import '../support/pump_ritual.dart';
@@ -110,6 +112,7 @@ Widget host() {
     overrides: [
       readingRepositoryProvider.overrideWithValue(_FakeRepo()),
       accessRepositoryProvider.overrideWithValue(_FakeAccessRepo()),
+      localStorageProvider.overrideWithValue(InMemoryStorage()),
       ...readingScreenDeps(),
     ],
     child: MaterialApp.router(
@@ -134,6 +137,12 @@ void main() {
     // of everything above it.
     await tester.ensureVisible(find.text('فال حافظ را باز کن'));
     await tester.tap(find.text('فال حافظ را باز کن'));
+    await pumpRitual(tester);
+
+    // The very first reading is preceded by the one-time disclaimer;
+    // acknowledging it lets the offering continue to the reading itself.
+    expect(find.text('متوجه شدم'), findsOneWidget);
+    await tester.tap(find.text('متوجه شدم'));
     await pumpRitual(tester);
 
     expect(find.text('پیامی از دیوان'), findsOneWidget);

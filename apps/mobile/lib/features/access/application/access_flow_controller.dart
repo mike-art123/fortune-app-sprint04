@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/analytics/analytics_event.dart';
 import '../../../core/config/monetization_switch.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../core/platform/rewarded_ad_player.dart';
@@ -79,6 +82,11 @@ class AccessFlowController
 
   String get _fortuneId => arg;
 
+  /// Fire-and-forget: analytics must never delay or fail the access flow.
+  void _track(AnalyticsEvent event) {
+    unawaited(ref.read(analyticsServiceProvider).track(event));
+  }
+
   @override
   AccessFlowState build(String arg) => const AccessIdle();
 
@@ -102,6 +110,7 @@ class AccessFlowController
         _lastOptions = options;
         switch (options.accessState) {
           case 'free':
+            _track(const FortuneUnlocked('free'));
             return const AccessProceed();
           case 'ad_required':
             return AccessSheet(options);
@@ -118,6 +127,7 @@ class AccessFlowController
   Future<void> watchAd() async {
     if (state is AccessPreparingAd) return;
     state = const AccessPreparingAd();
+    _track(RewardRequested(_fortuneId));
 
     final repo = ref.read(accessRepositoryProvider);
     final key = _idempotencyKey ??= const Uuid().v4();
@@ -138,6 +148,7 @@ class AccessFlowController
       if (current == null) break;
       final sid = session.sessionId;
 
+      _track(RewardShown(current.provider));
       final outcome = await playRewardedAd(
         provider: current.provider,
         config: current.clientConfig,
@@ -152,9 +163,12 @@ class AccessFlowController
         var unlock = claimed.valueOrNull?.entitlementId;
         unlock ??= await _awaitVerification(repo, sid, current);
         if (unlock != null) {
+          _track(RewardCompleted(current.provider));
+          _track(const FortuneUnlocked('rewarded_ad'));
           state = AccessProceed(adEntitlementId: unlock);
           return;
         }
+        _track(RewardFailed(current.provider, 'verification_failed'));
         // Neither path confirmed: no unlock, and NO fallback to another
         // provider (could double-show ads for one reward).
         await repo.reportFailure(
@@ -169,6 +183,7 @@ class AccessFlowController
 
       if (outcome == 'skipped') {
         // The user closed the ad — never auto-try another provider.
+        _track(RewardSkipped(current.provider));
         await repo.reportFailure(sid, current.attemptNumber, 'skipped');
         _rotateKey();
         final options = _lastOptions;
@@ -178,6 +193,7 @@ class AccessFlowController
 
       var reason = outcome;
       if (!_fallbackReasons.contains(outcome)) reason = 'ad_unavailable';
+      _track(RewardFailed(current.provider, reason));
       final reported = await repo.reportFailure(
         sid,
         current.attemptNumber,

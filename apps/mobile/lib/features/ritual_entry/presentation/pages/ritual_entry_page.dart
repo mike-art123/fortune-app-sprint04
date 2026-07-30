@@ -15,6 +15,8 @@ import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../core/platform/cup_photo.dart';
+import '../../../../core/constants/storage_keys.dart';
+import '../../../../shared/providers/shared_providers.dart';
 import '../../../access/application/access_flow_controller.dart';
 import '../../../access/presentation/widgets/access_sheet.dart';
 import '../../../fortunes/domain/fal_input.dart';
@@ -22,6 +24,7 @@ import '../../../fortunes/domain/fortune_definition.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../reading/application/reading_submission_controller.dart';
 import '../controllers/ritual_entry_controller.dart';
+import '../../../legal/presentation/widgets/first_reading_disclaimer.dart';
 import '../widgets/coffee_symbol_guide.dart';
 import '../widgets/cup_photo_field.dart';
 import '../widgets/offering_strip.dart';
@@ -59,7 +62,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     super.dispose();
   }
 
-  void _seal(FortuneDefinition fortune) {
+  Future<void> _seal(FortuneDefinition fortune) async {
     final input =
         ref.read(ritualEntryControllerProvider(fortune.id).notifier).seal(
               fortune: fortune,
@@ -67,11 +70,18 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
               secondary: _secondary.text,
               imageDataUrl: _imageDataUrl,
             );
-    if (input != null) {
-      // Access first (free daily → ad sheet); submission follows access.
-      _pendingInput = input;
-      ref.read(accessFlowControllerProvider(fortune.id).notifier).begin();
+    if (input == null) return;
+    // The one-time disclaimer (publisher policy): after a valid offering,
+    // before the very first reading ever — and never again once accepted.
+    final storage = ref.read(localStorageProvider);
+    if (storage.getBool(PrefKeys.disclaimerSeen) != true) {
+      final accepted = await showFirstReadingDisclaimer(context);
+      if (!mounted || !accepted) return;
+      await storage.setBool(PrefKeys.disclaimerSeen, true);
     }
+    // Access first (free daily → ad sheet); submission follows access.
+    _pendingInput = input;
+    ref.read(accessFlowControllerProvider(fortune.id).notifier).begin();
   }
 
   /// Opens the camera/gallery for the coffee ritual and keeps the downscaled
