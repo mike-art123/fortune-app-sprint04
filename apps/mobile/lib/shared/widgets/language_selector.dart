@@ -104,9 +104,7 @@ class _LanguageSheet extends ConsumerWidget {
               InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () {
-                  ref
-                      .read(localeControllerProvider.notifier)
-                      .select(locale);
+                  ref.read(localeControllerProvider.notifier).select(locale);
                   Navigator.of(context).pop();
                 },
                 child: Padding(
