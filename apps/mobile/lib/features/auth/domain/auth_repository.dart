@@ -19,4 +19,8 @@ abstract interface class AuthRepository {
   /// Exchanges raw Telegram initData for a verified session. The payload is
   /// opaque to the client; only the backend may judge it (doc 51 §32).
   Future<Result<AuthLogin>> loginWithTelegram(String initData);
+
+  /// Exchanges the install's stable device id for a guest session (the Play
+  /// build has no Telegram context). Identity still comes from the backend.
+  Future<Result<AuthLogin>> loginAsGuest(String deviceId);
 }

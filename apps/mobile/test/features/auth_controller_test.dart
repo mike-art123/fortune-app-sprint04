@@ -6,6 +6,7 @@ import 'package:fortune_app/core/config/app_config.dart';
 import 'package:fortune_app/core/config/app_flavor.dart';
 import 'package:fortune_app/core/config/feature_flags.dart';
 import 'package:fortune_app/core/errors/app_failure.dart';
+import 'package:fortune_app/core/persistence/local_storage.dart';
 import 'package:fortune_app/core/persistence/secure_storage.dart';
 import 'package:fortune_app/core/platform/telegram_platform_bridge.dart';
 import 'package:fortune_app/core/result/result.dart';
@@ -17,11 +18,12 @@ import 'package:fortune_app/shared/providers/shared_providers.dart';
 
 /// Builds an unsigned-but-well-formed JWT for claim decoding. The client
 /// never verifies signatures (the backend does), so 'sig' is enough here.
-String fakeJwt({required String sub, required String tid, required int exp}) {
+/// Guest tokens simply omit `tid`.
+String fakeJwt({required String sub, required int exp, String? tid}) {
   String b64(Map<String, Object> m) =>
       base64Url.encode(utf8.encode(json.encode(m))).replaceAll('=', '');
   final header = b64({'alg': 'EdDSA', 'typ': 'JWT'});
-  final payload = b64({'sub': sub, 'tid': tid, 'exp': exp});
+  final payload = b64({'sub': sub, if (tid != null) 'tid': tid, 'exp': exp});
   return '$header.$payload.sig';
 }
 
@@ -69,12 +71,21 @@ class _FakeAuthRepository implements AuthRepository {
   _FakeAuthRepository(this.result);
   Result<AuthLogin> result;
   int calls = 0;
+  int guestCalls = 0;
   String? lastInitData;
+  String? lastDeviceId;
 
   @override
   Future<Result<AuthLogin>> loginWithTelegram(String initData) async {
     calls++;
     lastInitData = initData;
+    return result;
+  }
+
+  @override
+  Future<Result<AuthLogin>> loginAsGuest(String deviceId) async {
+    guestCalls++;
+    lastDeviceId = deviceId;
     return result;
   }
 }
@@ -84,6 +95,12 @@ AuthLogin _login({String userId = 'u1'}) => AuthLogin(
       expiresInSeconds: 3600,
       session:
           AuthSession(userId: userId, telegramId: '42', displayName: 'سارا'),
+    );
+
+AuthLogin _guestLogin({String userId = 'g1'}) => AuthLogin(
+      accessToken: fakeJwt(sub: userId, exp: inOneHour()),
+      expiresInSeconds: 3600,
+      session: AuthSession(userId: userId),
     );
 
 AppConfig _config({String? devInitData}) => AppConfig(
@@ -105,6 +122,8 @@ void main() {
     required TelegramPlatformBridge bridge,
     required SecureStorage storage,
     String? devInitData,
+    LocalStorage? localStorage,
+    bool guestAuthEnabled = false,
   }) {
     final container = ProviderContainer(
       overrides: [
@@ -112,6 +131,9 @@ void main() {
         telegramBridgeProvider.overrideWithValue(bridge),
         secureStorageProvider.overrideWithValue(storage),
         appConfigProvider.overrideWithValue(_config(devInitData: devInitData)),
+        localStorageProvider
+            .overrideWithValue(localStorage ?? InMemoryStorage()),
+        guestAuthEnabledProvider.overrideWithValue(guestAuthEnabled),
       ],
     );
     addTearDown(container.dispose);
@@ -324,6 +346,91 @@ void main() {
         (c.read(authControllerProvider) as Authenticated).session.userId,
         'u-again',
       );
+    },
+  );
+
+  test('AccessTokenClaims tolerates a guest token with no tid', () {
+    final claims = AccessTokenClaims.decode(
+      fakeJwt(sub: 'g9', exp: inOneHour()),
+    );
+    expect(claims, isNotNull);
+    expect(claims!.userId, 'g9');
+    expect(claims.telegramId, isNull);
+    expect(claims.isFresh, isTrue);
+  });
+
+  test(
+    'guest build outside Telegram: signs in with a stable device id',
+    () async {
+      final repo = _FakeAuthRepository(Success(_guestLogin()));
+      final prefs = InMemoryStorage();
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge(null),
+        storage: _MemorySecureStorage(),
+        localStorage: prefs,
+        guestAuthEnabled: true,
+      );
+
+      await c.read(authControllerProvider.notifier).bootstrap();
+
+      final state = c.read(authControllerProvider);
+      expect(state, isA<Authenticated>());
+      expect((state as Authenticated).session.telegramId, isNull);
+      expect(repo.guestCalls, 1);
+      expect(repo.calls, 0);
+      expect(repo.lastDeviceId, isNotEmpty);
+      expect(prefs.getString('pref.guest_device_id'), repo.lastDeviceId);
+    },
+  );
+
+  test('the guest device id is minted once and then reused', () async {
+    final repo = _FakeAuthRepository(Success(_guestLogin()));
+    final prefs = InMemoryStorage();
+    await prefs.setString('pref.guest_device_id', 'existing-device-id-123');
+    final c = make(
+      repo: repo,
+      bridge: _FakeBridge(null),
+      storage: _MemorySecureStorage(),
+      localStorage: prefs,
+      guestAuthEnabled: true,
+    );
+
+    await c.read(authControllerProvider.notifier).bootstrap();
+
+    expect(repo.lastDeviceId, 'existing-device-id-123');
+    expect(prefs.getString('pref.guest_device_id'), 'existing-device-id-123');
+  });
+
+  test('Telegram wins over guest when initData is available', () async {
+    final repo = _FakeAuthRepository(Success(_login()));
+    final c = make(
+      repo: repo,
+      bridge: _FakeBridge('query_id=AA&hash=xx'),
+      storage: _MemorySecureStorage(),
+      guestAuthEnabled: true,
+    );
+
+    await c.read(authControllerProvider.notifier).bootstrap();
+
+    expect(repo.calls, 1);
+    expect(repo.guestCalls, 0);
+  });
+
+  test(
+    'without the guest switch, outside Telegram stays a calm dead end',
+    () async {
+      final repo = _FakeAuthRepository(Success(_guestLogin()));
+      final c = make(
+        repo: repo,
+        bridge: _FakeBridge(null),
+        storage: _MemorySecureStorage(),
+      );
+
+      await c.read(authControllerProvider.notifier).bootstrap();
+
+      expect(c.read(authControllerProvider), isA<Unauthenticated>());
+      expect(repo.guestCalls, 0);
     },
   );
 

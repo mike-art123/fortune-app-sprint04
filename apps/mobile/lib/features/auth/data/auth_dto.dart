@@ -1,7 +1,8 @@
 import '../domain/auth_repository.dart';
 import '../domain/auth_session.dart';
 
-/// Wire-format mapping for POST /auth/telegram (data layer only).
+/// Wire-format mapping for the login endpoints (data layer only) —
+/// /auth/telegram and /auth/guest share one response shape.
 abstract final class AuthDto {
   static AuthLogin fromJson(Map<String, dynamic> json) {
     final accessToken = json['accessToken'];
@@ -16,12 +17,15 @@ abstract final class AuthDto {
     }
 
     final id = user['id'];
-    final telegramId = user['telegramId'];
-    if (id is! String ||
-        id.isEmpty ||
-        telegramId is! String ||
-        telegramId.isEmpty) {
+    if (id is! String || id.isEmpty) {
       throw const FormatException('auth user missing required fields');
+    }
+
+    // Telegram logins carry the telegram id; guest (device-anchored) logins
+    // return null here. When present it must still be a non-empty string.
+    final telegramId = user['telegramId'];
+    if (telegramId != null && (telegramId is! String || telegramId.isEmpty)) {
+      throw const FormatException('auth user telegramId malformed');
     }
 
     final displayName = user['displayName'];
@@ -32,7 +36,7 @@ abstract final class AuthDto {
       expiresInSeconds: expiresIn,
       session: AuthSession(
         userId: id,
-        telegramId: telegramId,
+        telegramId: telegramId is String ? telegramId : null,
         displayName: displayName is String ? displayName : null,
         locale: locale is String ? locale : null,
       ),

@@ -1,5 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import '../../../core/config/guest_auth_switch.dart';
+import '../../../core/constants/storage_keys.dart';
 import '../../../core/errors/app_failure.dart';
+import '../../../core/result/result.dart';
 import '../../../shared/providers/shared_providers.dart';
 import '../data/auth_repository_impl.dart';
 import '../domain/access_token_claims.dart';
@@ -53,8 +57,9 @@ class AuthController extends Notifier<AuthState> {
   }
 
   /// Called once during startup (and by retry). A stored, unexpired token is
-  /// reused as-is; otherwise a fresh Telegram login is attempted. Failure is a
-  /// valid, calm end state — startup never crashes on auth.
+  /// reused as-is; otherwise a fresh login is attempted — Telegram inside the
+  /// Mini App, guest on the Play build. Failure is a valid, calm end state —
+  /// startup never crashes on auth.
   Future<void> bootstrap() async {
     if (state is AuthInProgress) return;
     state = const AuthInProgress();
@@ -71,13 +76,13 @@ class AuthController extends Notifier<AuthState> {
       await _runGuarded(() => ref.read(tokenStoreProvider).clear());
     }
 
-    await _loginViaTelegram();
+    await _establishSession();
   }
 
   Future<void> retry() async {
     if (state is AuthInProgress) return;
     state = const AuthInProgress();
-    await _loginViaTelegram();
+    await _establishSession();
   }
 
   /// Drops the session locally. (No backend session state exists to revoke —
@@ -87,15 +92,38 @@ class AuthController extends Notifier<AuthState> {
     state = const Unauthenticated(UnauthenticatedReason.outsideTelegram);
   }
 
-  Future<void> _loginViaTelegram() async {
+  /// Telegram when initData exists (inside the Mini App or via the dev seam);
+  /// otherwise the guest path on builds that enable it; otherwise a calm
+  /// Unauthenticated end state.
+  Future<void> _establishSession() async {
     final initData = _initData();
-    if (initData == null) {
-      state = const Unauthenticated(UnauthenticatedReason.outsideTelegram);
+    if (initData != null) {
+      await _loginWithTelegram(initData);
       return;
     }
+    if (ref.read(guestAuthEnabledProvider)) {
+      await _loginAsGuest();
+      return;
+    }
+    state = const Unauthenticated(UnauthenticatedReason.outsideTelegram);
+  }
 
+  Future<void> _loginWithTelegram(String initData) async {
     final result =
         await ref.read(authRepositoryProvider).loginWithTelegram(initData);
+    await _applyLoginResult(result);
+  }
+
+  /// Guest login (Play build): the install's stable device id is the whole
+  /// identity. The id is app-generated and never logged.
+  Future<void> _loginAsGuest() async {
+    final deviceId = await _guestDeviceId();
+    final result =
+        await ref.read(authRepositoryProvider).loginAsGuest(deviceId);
+    await _applyLoginResult(result);
+  }
+
+  Future<void> _applyLoginResult(Result<AuthLogin> result) async {
     state = await result.fold(
       onSuccess: (login) async {
         final store = ref.read(tokenStoreProvider);
@@ -106,13 +134,26 @@ class AuthController extends Notifier<AuthState> {
     );
   }
 
-  /// The backend refused our bearer token mid-session: drop it and attempt one
-  /// fresh Telegram login (initData may still be valid inside the Mini App).
+  /// The install's stable device id: minted once (UUID v4), then reused. A
+  /// failed preference write is tolerated — the next launch would mint a
+  /// fresh guest, a degraded but valid outcome.
+  Future<String> _guestDeviceId() async {
+    final storage = ref.read(localStorageProvider);
+    final existing = storage.getString(PrefKeys.guestDeviceId);
+    if (existing != null && existing.isNotEmpty) return existing;
+    final fresh = const Uuid().v4();
+    await _runGuarded(() => storage.setString(PrefKeys.guestDeviceId, fresh));
+    return fresh;
+  }
+
+  /// The backend refused our bearer token mid-session: drop it and attempt
+  /// one fresh login (initData may still be valid inside the Mini App; the
+  /// guest anchor never goes stale).
   Future<void> _onUnauthorized() async {
     if (state is AuthInProgress) return;
     await ref.read(tokenStoreProvider).clear();
     state = const AuthInProgress();
-    await _loginViaTelegram();
+    await _establishSession();
   }
 
   /// Raw initData: the Telegram bridge in production; inside development the
@@ -171,6 +212,10 @@ class AuthController extends Notifier<AuthState> {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(ref.watch(apiClientProvider));
 });
+
+/// Whether this build may establish a guest (device-anchored) session.
+/// Real builds inherit the compile-time switch; tests override the provider.
+final guestAuthEnabledProvider = Provider<bool>((ref) => kGuestAuthEnabled);
 
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,

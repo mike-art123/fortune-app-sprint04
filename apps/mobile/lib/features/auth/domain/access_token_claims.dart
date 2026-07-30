@@ -9,12 +9,14 @@ import 'dart:convert';
 class AccessTokenClaims {
   const AccessTokenClaims({
     required this.userId,
-    required this.telegramId,
     required this.expiresAt,
+    this.telegramId,
   });
 
   final String userId;
-  final String telegramId;
+
+  /// Absent on guest (device-anchored) tokens.
+  final String? telegramId;
   final DateTime expiresAt;
 
   /// Fresh enough to be worth sending (small margin so we never race expiry).
@@ -34,11 +36,12 @@ class AccessTokenClaims {
       final tid = payload['tid'];
       final exp = payload['exp'];
       if (sub is! String || sub.isEmpty) return null;
-      if (tid is! String || tid.isEmpty) return null;
+      // tid is optional (guest tokens); when present it must be sound.
+      if (tid != null && (tid is! String || tid.isEmpty)) return null;
       if (exp is! int || exp <= 0) return null;
       return AccessTokenClaims(
         userId: sub,
-        telegramId: tid,
+        telegramId: tid is String ? tid : null,
         expiresAt: DateTime.fromMillisecondsSinceEpoch(exp * 1000),
       );
     } catch (_) {
