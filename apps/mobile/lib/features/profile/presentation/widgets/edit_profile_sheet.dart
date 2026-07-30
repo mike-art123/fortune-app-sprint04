@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/foundations/app_colors.dart';
@@ -68,7 +69,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
     if (failure != null) {
       setState(() {
         _saving = false;
-        _error = FailureMessageResolver.resolve(failure);
+        _error = FailureMessageResolver.resolve(failure, context.strings);
       });
       return;
     }
@@ -79,6 +80,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
+    final s = context.strings;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.viewInsetsOf(context).bottom,
@@ -102,7 +104,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'نام و ماه تولد',
+              s.editProfileTitle,
               textAlign: TextAlign.center,
               style: textTheme.titleMedium,
             ),
@@ -110,7 +112,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             WhisperField(
               controller: _name,
               accent: c.goldWarm,
-              placeholder: 'نامت، یا نامی که دوستش داری',
+              placeholder: s.personalizeNameHint,
               maxLength: 40,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -140,13 +142,13 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             ],
             const SizedBox(height: AppSpacing.xl),
             FortuneButton(
-              label: _saving ? 'در حال ذخیره…' : 'ذخیره',
+              label: _saving ? s.personalizeSaving : s.actionSave,
               isLoading: _saving,
               onPressed: !_nameValid || _saving ? null : () => _save(),
             ),
             const SizedBox(height: AppSpacing.sm),
             FortuneButton(
-              label: 'انصراف',
+              label: s.actionCancel,
               variant: FortuneButtonVariant.text,
               onPressed: _saving ? null : () => Navigator.of(context).pop(),
             ),

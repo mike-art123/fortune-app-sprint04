@@ -67,7 +67,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       // The typed name and chosen month stay exactly as they were.
       setState(() {
         _saving = false;
-        _error = FailureMessageResolver.resolve(failure);
+        _error = FailureMessageResolver.resolve(failure, context.strings);
       });
       return;
     }

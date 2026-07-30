@@ -60,11 +60,15 @@ abstract final class FalInputFactory {
   static const _fallbackGuide = LocalizedText(
     fa: 'برای ادامه، همین‌جا چند کلمه بنویس.',
     en: 'A few words here are enough to continue.',
+    ar: 'بضع كلمات هنا تكفي للمتابعة.',
+    tr: 'Devam etmek için birkaç kelime yeterli.',
   );
 
   static const _photoGuide = LocalizedText(
     fa: 'برای شروع، یک عکس از ته فنجان لازم است.',
     en: 'Start with a photo of the bottom of the cup.',
+    ar: 'ابدأ بصورة لقاع الفنجان.',
+    tr: 'Fincanın dibinin bir fotoğrafıyla başla.',
   );
 
   static OfferingOutcome build({

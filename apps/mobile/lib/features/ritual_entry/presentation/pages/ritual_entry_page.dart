@@ -16,6 +16,7 @@ import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../core/platform/cup_photo.dart';
 import '../../../../core/constants/storage_keys.dart';
+import '../../../../shared/models/localized_text.dart';
 import '../../../../shared/providers/shared_providers.dart';
 import '../../../access/application/access_flow_controller.dart';
 import '../../../access/presentation/widgets/access_sheet.dart';
@@ -139,7 +140,11 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
       case AccessError(:final failure):
         _access(fortune).reset();
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(FailureMessageResolver.resolve(failure))),
+          SnackBar(
+            content: Text(
+              FailureMessageResolver.resolve(failure, context.strings),
+            ),
+          ),
         );
       case AccessIdle():
       case AccessChecking():
@@ -283,7 +288,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
           // Network failure — friendly Persian, retry stays one tap away.
           if (submission is SubmissionFailed) ...[
             Text(
-              FailureMessageResolver.resolve(submission.failure),
+              FailureMessageResolver.resolve(submission.failure, s),
               textAlign: TextAlign.center,
               style: textTheme.bodySmall?.copyWith(color: c.textSecondary),
             ),
@@ -294,7 +299,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             duration: pace.enter + pace.step * 3,
             child: FortuneButton(
               label: access is AccessPreparingAd
-                  ? 'در حال آماده‌سازی تبلیغ...'
+                  ? s.adPreparing
                   : fortune.cta.resolve(locale),
               isLoading: submission is SubmissionInFlight ||
                   access is AccessChecking ||
@@ -312,7 +317,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
           // fortune — the same quiet button family as the act itself, wired
           // to the shared back handler (pop, or Explore on a cold link).
           FortuneButton(
-            label: 'بازگشت',
+            label: s.actionBack,
             variant: FortuneButtonVariant.secondary,
             onPressed: () => AppBack.goBack(context),
           ),
@@ -456,12 +461,60 @@ class _DreamCategories extends StatelessWidget {
   final void Function(String label) onPick;
 
   static const _items = [
-    ('dc_nature', 'طبیعت'),
-    ('dc_objects', 'اشیا'),
-    ('dc_animals', 'حیوانات'),
-    ('dc_people', 'افراد'),
-    ('dc_emotions', 'احساسات'),
-    ('dc_events', 'حوادث'),
+    (
+      'dc_nature',
+      LocalizedText(
+        fa: 'طبیعت',
+        en: 'Nature',
+        ar: 'الطبيعة',
+        tr: 'Doğa',
+      ),
+    ),
+    (
+      'dc_objects',
+      LocalizedText(
+        fa: 'اشیا',
+        en: 'Objects',
+        ar: 'أشياء',
+        tr: 'Nesneler',
+      ),
+    ),
+    (
+      'dc_animals',
+      LocalizedText(
+        fa: 'حیوانات',
+        en: 'Animals',
+        ar: 'حيوانات',
+        tr: 'Hayvanlar',
+      ),
+    ),
+    (
+      'dc_people',
+      LocalizedText(
+        fa: 'افراد',
+        en: 'People',
+        ar: 'أشخاص',
+        tr: 'İnsanlar',
+      ),
+    ),
+    (
+      'dc_emotions',
+      LocalizedText(
+        fa: 'احساسات',
+        en: 'Emotions',
+        ar: 'مشاعر',
+        tr: 'Duygular',
+      ),
+    ),
+    (
+      'dc_events',
+      LocalizedText(
+        fa: 'حوادث',
+        en: 'Events',
+        ar: 'أحداث',
+        tr: 'Olaylar',
+      ),
+    ),
   ];
 
   @override
@@ -476,8 +529,9 @@ class _DreamCategories extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, i) {
           final item = _items[i];
+          final label = item.$2.resolve(Localizations.localeOf(context));
           return GestureDetector(
-            onTap: () => onPick(item.$2),
+            onTap: () => onPick(label),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -493,7 +547,7 @@ class _DreamCategories extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
-                Text(item.$2, style: textTheme.labelSmall),
+                Text(label, style: textTheme.labelSmall),
               ],
             ),
           );

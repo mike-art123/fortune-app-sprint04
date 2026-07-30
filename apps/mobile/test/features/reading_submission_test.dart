@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortune_app/app/localization/app_strings.dart';
 import 'package:fortune_app/core/errors/app_failure.dart';
 import 'package:fortune_app/core/errors/failure_message_resolver.dart';
 import 'package:fortune_app/core/result/result.dart';
@@ -82,6 +84,7 @@ void main() {
     expect(state, isA<SubmissionFailed>());
     final message = FailureMessageResolver.resolve(
       (state as SubmissionFailed).failure,
+      const AppStrings(Locale('fa')),
     );
     expect(message, contains('دوباره تلاش کن'));
   });

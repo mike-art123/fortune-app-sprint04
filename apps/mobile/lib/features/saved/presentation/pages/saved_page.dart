@@ -30,7 +30,7 @@ class SavedPage extends ConsumerWidget {
       child: switch (state) {
         SavedLoading() => const Center(child: FortuneLoading()),
         SavedFailed(:final failure) => FortuneErrorState(
-            message: FailureMessageResolver.resolve(failure),
+            message: FailureMessageResolver.resolve(failure, s),
             reassurance: s.errorReassurance,
             retryLabel: s.actionRetry,
             onRetry: () => ref.read(savedControllerProvider.notifier).retry(),

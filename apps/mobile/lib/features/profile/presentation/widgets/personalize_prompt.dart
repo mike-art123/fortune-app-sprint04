@@ -57,7 +57,7 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
     if (failure != null) {
       setState(() {
         _saving = false;
-        _error = FailureMessageResolver.resolve(failure);
+        _error = FailureMessageResolver.resolve(failure, context.strings);
       });
       return;
     }

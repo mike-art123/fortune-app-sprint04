@@ -26,7 +26,7 @@ class IntentionsPage extends ConsumerWidget {
       child: switch (state) {
         IntentionsLoading() => const Center(child: FortuneLoading()),
         IntentionsFailed(:final failure) => FortuneErrorState(
-            message: FailureMessageResolver.resolve(failure),
+            message: FailureMessageResolver.resolve(failure, s),
             reassurance: s.errorReassurance,
             retryLabel: s.actionRetry,
             onRetry: () =>

@@ -74,7 +74,7 @@ class HistoryPage extends ConsumerWidget {
       child: switch (state) {
         HistoryLoading() => const Center(child: FortuneLoading()),
         HistoryFailed(:final failure) => FortuneErrorState(
-            message: FailureMessageResolver.resolve(failure),
+            message: FailureMessageResolver.resolve(failure, s),
             reassurance: s.errorReassurance,
             retryLabel: s.actionRetry,
             onRetry: () => ref.read(historyControllerProvider.notifier).retry(),

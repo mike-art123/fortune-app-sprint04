@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/platform/speech_event.dart';
 import '../../../../core/platform/speech_input.dart';
 import '../../../../design_system/foundations/app_duration.dart';
@@ -26,12 +27,12 @@ class FortuneSearchBar extends StatefulWidget {
     super.key,
     this.speech = const PlatformSpeechInput(),
     this.remote,
-    this.hintText = 'دنبال چه فالی می‌گردی؟',
+    this.hintText,
   });
 
   /// The invitation. Shortened when the bar shares a row with a heading or a
   /// name, where the full question would be clipped rather than read.
-  final String hintText;
+  final String? hintText;
 
   /// The microphone. Injected so a test can speak without a browser.
   final SpeechInput speech;
@@ -165,23 +166,23 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     if (!mounted) return;
     setState(() {
       _listening = false;
-      _voiceNote = _noteFor(reason);
+      _voiceNote = _noteFor(context.strings, reason);
     });
   }
 
   /// What to say when listening ends badly. Never blames the person, and never
   /// leaves them without a next step.
-  static String? _noteFor(SpeechEndReason reason) {
+  static String? _noteFor(AppStrings strings, SpeechEndReason reason) {
     switch (reason) {
       case SpeechEndReason.denied:
-        return 'اجازهٔ میکروفون داده نشد؛ از تنظیمات مرورگر روشنش کن.';
+        return strings.voiceMicDenied;
       case SpeechEndReason.noSpeech:
       case SpeechEndReason.timeout:
-        return 'چیزی نشنیدم؛ دوباره بگو یا بنویس.';
+        return strings.voiceNothingHeard;
       case SpeechEndReason.unsupported:
-        return 'مرورگرت شنیدن را پشتیبانی نمی‌کند.';
+        return strings.voiceUnsupported;
       case SpeechEndReason.failed:
-        return 'الان نشد؛ یک‌بار دیگر امتحان کن.';
+        return strings.voiceFailed;
       case SpeechEndReason.finished:
       case SpeechEndReason.cancelled:
         return null;
@@ -202,7 +203,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
     }
     if (action is FortuneSoonAction) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        const SnackBar(content: Text('این فال به‌زودی فعال می‌شود')),
+        SnackBar(content: Text(context.strings.fortuneSoonToast)),
       );
     }
   }
@@ -210,10 +211,11 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
   @override
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
+    final s = context.strings;
     final textTheme = Theme.of(context).textTheme;
     final focused = _focus.hasFocus;
     final intent = _intent ?? _remote;
-    final voiceLine = _listening ? 'دارم گوش می‌دهم…' : _voiceNote;
+    final voiceLine = _listening ? s.voiceListening : _voiceNote;
     final canAsk = widget.remote != null && intent == null;
 
     return Column(
@@ -246,7 +248,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
                   style: textTheme.bodyLarge,
                   cursorColor: c.goldWarm,
                   decoration: InputDecoration(
-                    hintText: widget.hintText,
+                    hintText: widget.hintText ?? s.searchHintFull,
                     hintStyle: textTheme.bodyMedium?.copyWith(
                       color: c.textMuted,
                     ),
@@ -261,7 +263,9 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
               if (widget.speech.isSupported)
                 IconButton(
                   onPressed: _listening ? _stopListening : _startListening,
-                  tooltip: _listening ? 'توقف' : 'جست‌وجوی صوتی',
+                  tooltip: _listening
+                      ? s.voiceStopTooltip
+                      : s.voiceSearchTooltip,
                   icon: Icon(
                     _listening ? Icons.stop_circle_outlined : Icons.mic_none,
                     size: 20,
@@ -271,7 +275,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
               if (_asked)
                 IconButton(
                   onPressed: _clear,
-                  tooltip: 'پاک کردن',
+                  tooltip: s.clearTooltip,
                   icon: Icon(Icons.close, size: 18, color: c.textMuted),
                 ),
             ],
@@ -311,7 +315,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
                 horizontal: AppSpacing.sm,
               ),
               child: Text(
-                'با این نام چیزی پیدا نشد؛ از فهرست پایین انتخاب کن.',
+                s.searchNoMatch,
                 style: textTheme.bodyMedium?.copyWith(color: c.textSecondary),
               ),
             ),
@@ -320,7 +324,7 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
               alignment: AlignmentDirectional.centerStart,
               child: TextButton(
                 onPressed: _thinking ? null : _ask,
-                child: Text(_thinking ? 'دارم می‌پرسم…' : 'از دستیار بپرس'),
+                child: Text(_thinking ? s.searchAsking : s.searchAskAssistant),
               ),
             ),
         ],
@@ -386,7 +390,7 @@ class _SuggestionRow extends StatelessWidget {
                 ),
                 if (soon)
                   Text(
-                    'به‌زودی',
+                    context.strings.comingSoon,
                     style: textTheme.labelSmall?.copyWith(
                       color: c.textSecondary,
                     ),

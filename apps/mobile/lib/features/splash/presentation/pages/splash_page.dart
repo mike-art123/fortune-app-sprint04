@@ -199,10 +199,10 @@ class _BreathingText extends StatelessWidget {
       builder: (context, _) {
         return Opacity(
           opacity: 0.68 + 0.32 * breath.value,
-          child: const Text(
-            'در حال گشودن رازهای بخت شما…',
+          child: Text(
+            context.strings.splashTagline,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFFF6DF9A),
               fontSize: 14,
               fontWeight: FontWeight.w600,

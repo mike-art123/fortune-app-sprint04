@@ -58,7 +58,7 @@ class ReadingPage extends ConsumerWidget {
           appBar: const FortuneAppBar(),
           child: FortuneErrorState(
             message: error is AppFailure
-                ? FailureMessageResolver.resolve(error)
+                ? FailureMessageResolver.resolve(error, s)
                 : s.readingUnavailableTitle,
             reassurance: s.readingUnavailableBody,
             retryLabel: s.actionBackToExplore,

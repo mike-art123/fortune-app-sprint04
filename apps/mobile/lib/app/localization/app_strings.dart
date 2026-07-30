@@ -156,6 +156,37 @@ class AppStrings {
   String get actionContinue => 'ادامه';
   String reasonHabit(String when) => '$when بیشتر همین را می‌خوانی';
   String onboardingWelcome(String name) => 'خوش آمدی، $name.';
+  String get failureNetwork =>
+      'ارتباط برقرار نشد. اتصالت را بررسی کن و دوباره تلاش کن.';
+  String get failureTimeout => 'کمی طول کشید. دوباره تلاش کن.';
+  String get failureAuth => 'برای ادامه باید دوباره وارد شوی.';
+  String get failureNotFound => 'چیزی که دنبالش بودی پیدا نشد.';
+  String get failureValidation => 'ورودی کامل نیست؛ یک بار دیگر نگاهش کن.';
+  String get failureConflict => 'این درخواست قبلاً ثبت شده است.';
+  String get failureRateLimited => 'کمی صبر کن و دوباره تلاش کن.';
+  String get failureCoins =>
+      'سکه‌هایت برای این خوانش کافی نیست. اطلاعاتت محفوظ است.';
+  String get failureSubscription => 'این بخش با اشتراک باز می‌شود.';
+  String get failureStorage => 'ذخیره‌سازی ممکن نشد.';
+  String get failureUnknown =>
+      'مشکلی پیش آمد. اطلاعاتت محفوظ است؛ دوباره تلاش کن.';
+  String get searchHintFull => 'دنبال چه فالی می‌گردی؟';
+  String get voiceListening => 'دارم گوش می‌دهم…';
+  String get voiceMicDenied =>
+      'اجازهٔ میکروفون داده نشد؛ از تنظیمات مرورگر روشنش کن.';
+  String get voiceNothingHeard => 'چیزی نشنیدم؛ دوباره بگو یا بنویس.';
+  String get voiceUnsupported => 'مرورگرت شنیدن را پشتیبانی نمی‌کند.';
+  String get voiceFailed => 'الان نشد؛ یک‌بار دیگر امتحان کن.';
+  String get voiceStopTooltip => 'توقف';
+  String get voiceSearchTooltip => 'جست‌وجوی صوتی';
+  String get clearTooltip => 'پاک کردن';
+  String get searchNoMatch =>
+      'با این نام چیزی پیدا نشد؛ از فهرست پایین انتخاب کن.';
+  String get searchAsking => 'دارم می‌پرسم…';
+  String get searchAskAssistant => 'از دستیار بپرس';
+  String get adPreparing => 'در حال آماده‌سازی تبلیغ...';
+  String get splashTagline => 'در حال گشودن رازهای بخت شما…';
+  String get editProfileTitle => 'نام و ماه تولد';
 }
 
 /// English.
@@ -398,6 +429,65 @@ class EnStrings extends AppStrings {
   String reasonHabit(String when) => 'You mostly read this $when';
   @override
   String onboardingWelcome(String name) => 'Welcome, $name.';
+  @override
+  String get failureNetwork =>
+      'Couldn\'t connect. Check your connection and try again.';
+  @override
+  String get failureTimeout => 'That took a bit long. Try again.';
+  @override
+  String get failureAuth => 'Please sign in again to continue.';
+  @override
+  String get failureNotFound => 'What you were looking for wasn\'t found.';
+  @override
+  String get failureValidation =>
+      'The input isn\'t complete; take another look.';
+  @override
+  String get failureConflict => 'This request was already submitted.';
+  @override
+  String get failureRateLimited => 'Wait a moment, then try again.';
+  @override
+  String get failureCoins =>
+      'Not enough coins for this reading. Your data is safe.';
+  @override
+  String get failureSubscription => 'This area opens with a subscription.';
+  @override
+  String get failureStorage => 'Saving didn\'t work.';
+  @override
+  String get failureUnknown =>
+      'Something went wrong. Your data is safe — try again.';
+  @override
+  String get searchHintFull => 'What fortune are you looking for?';
+  @override
+  String get voiceListening => 'Listening…';
+  @override
+  String get voiceMicDenied =>
+      'Microphone permission was denied; enable it in your browser settings.';
+  @override
+  String get voiceNothingHeard =>
+      'I didn\'t catch that; say it again or type it.';
+  @override
+  String get voiceUnsupported => 'Your browser doesn\'t support voice input.';
+  @override
+  String get voiceFailed => 'That didn\'t work; give it another try.';
+  @override
+  String get voiceStopTooltip => 'Stop';
+  @override
+  String get voiceSearchTooltip => 'Voice search';
+  @override
+  String get clearTooltip => 'Clear';
+  @override
+  String get searchNoMatch =>
+      'Nothing matched that name; pick from the list below.';
+  @override
+  String get searchAsking => 'Asking…';
+  @override
+  String get searchAskAssistant => 'Ask the assistant';
+  @override
+  String get adPreparing => 'Preparing the ad...';
+  @override
+  String get splashTagline => 'Unveiling the secrets of your fortune…';
+  @override
+  String get editProfileTitle => 'Name and birth month';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -637,6 +727,59 @@ class ArStrings extends AppStrings {
   String reasonHabit(String when) => 'غالبًا تقرأ هذا $when';
   @override
   String onboardingWelcome(String name) => 'أهلًا بك يا $name.';
+  @override
+  String get failureNetwork => 'تعذّر الاتصال. تحقّق من اتصالك وحاول مجددًا.';
+  @override
+  String get failureTimeout => 'استغرق الأمر وقتًا طويلًا. حاول مجددًا.';
+  @override
+  String get failureAuth => 'سجّل الدخول مجددًا للمتابعة.';
+  @override
+  String get failureNotFound => 'لم نعثر على ما كنت تبحث عنه.';
+  @override
+  String get failureValidation => 'المدخلات غير مكتملة؛ ألقِ نظرة أخرى.';
+  @override
+  String get failureConflict => 'سبق تسجيل هذا الطلب.';
+  @override
+  String get failureRateLimited => 'انتظر قليلًا ثم حاول مجددًا.';
+  @override
+  String get failureCoins => 'عملاتك لا تكفي لهذه القراءة. بياناتك محفوظة.';
+  @override
+  String get failureSubscription => 'يفتح هذا القسم بالاشتراك.';
+  @override
+  String get failureStorage => 'تعذّر الحفظ.';
+  @override
+  String get failureUnknown => 'حدث خطأ ما. بياناتك محفوظة؛ حاول مجددًا.';
+  @override
+  String get searchHintFull => 'عن أي فأل تبحث؟';
+  @override
+  String get voiceListening => 'أستمع إليك…';
+  @override
+  String get voiceMicDenied =>
+      'لم يُسمح باستخدام الميكروفون؛ فعّله من إعدادات المتصفح.';
+  @override
+  String get voiceNothingHeard => 'لم أسمع شيئًا؛ قلها مجددًا أو اكتبها.';
+  @override
+  String get voiceUnsupported => 'متصفحك لا يدعم الإدخال الصوتي.';
+  @override
+  String get voiceFailed => 'لم ينجح الأمر الآن؛ جرّب مرة أخرى.';
+  @override
+  String get voiceStopTooltip => 'إيقاف';
+  @override
+  String get voiceSearchTooltip => 'بحث صوتي';
+  @override
+  String get clearTooltip => 'مسح';
+  @override
+  String get searchNoMatch => 'لم نجد شيئًا بهذا الاسم؛ اختر من القائمة أدناه.';
+  @override
+  String get searchAsking => 'أسأل الآن…';
+  @override
+  String get searchAskAssistant => 'اسأل المساعد';
+  @override
+  String get adPreparing => 'جارٍ تجهيز الإعلان...';
+  @override
+  String get splashTagline => 'نكشف أسرار بختك…';
+  @override
+  String get editProfileTitle => 'الاسم وشهر الميلاد';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -882,6 +1025,63 @@ class TrStrings extends AppStrings {
   String reasonHabit(String when) => 'Bunu en çok $when okuyorsun';
   @override
   String onboardingWelcome(String name) => 'Hoş geldin, $name.';
+  @override
+  String get failureNetwork =>
+      'Bağlantı kurulamadı. Bağlantını kontrol edip yeniden dene.';
+  @override
+  String get failureTimeout => 'Biraz uzun sürdü. Yeniden dene.';
+  @override
+  String get failureAuth => 'Devam etmek için yeniden giriş yap.';
+  @override
+  String get failureNotFound => 'Aradığın şey bulunamadı.';
+  @override
+  String get failureValidation => 'Girdi eksik; bir kez daha gözden geçir.';
+  @override
+  String get failureConflict => 'Bu istek zaten kaydedildi.';
+  @override
+  String get failureRateLimited => 'Biraz bekle ve yeniden dene.';
+  @override
+  String get failureCoins =>
+      'Bu okuma için jetonların yetmiyor. Bilgilerin güvende.';
+  @override
+  String get failureSubscription => 'Bu bölüm abonelikle açılır.';
+  @override
+  String get failureStorage => 'Kaydetme başarısız oldu.';
+  @override
+  String get failureUnknown =>
+      'Bir sorun oluştu. Bilgilerin güvende; yeniden dene.';
+  @override
+  String get searchHintFull => 'Hangi falı arıyorsun?';
+  @override
+  String get voiceListening => 'Dinliyorum…';
+  @override
+  String get voiceMicDenied =>
+      'Mikrofon izni verilmedi; tarayıcı ayarlarından aç.';
+  @override
+  String get voiceNothingHeard => 'Bir şey duyamadım; tekrar söyle ya da yaz.';
+  @override
+  String get voiceUnsupported => 'Tarayıcın sesli girişi desteklemiyor.';
+  @override
+  String get voiceFailed => 'Şu an olmadı; bir kez daha dene.';
+  @override
+  String get voiceStopTooltip => 'Durdur';
+  @override
+  String get voiceSearchTooltip => 'Sesli arama';
+  @override
+  String get clearTooltip => 'Temizle';
+  @override
+  String get searchNoMatch =>
+      'Bu adla bir şey bulunamadı; aşağıdaki listeden seç.';
+  @override
+  String get searchAsking => 'Soruyorum…';
+  @override
+  String get searchAskAssistant => 'Asistana sor';
+  @override
+  String get adPreparing => 'Reklam hazırlanıyor...';
+  @override
+  String get splashTagline => 'Bahtının sırları aralanıyor…';
+  @override
+  String get editProfileTitle => 'İsim ve doğum ayı';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {
