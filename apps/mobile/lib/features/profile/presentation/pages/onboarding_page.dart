@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../app/navigation/app_back.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../design_system/components/fortune_button.dart';
@@ -111,9 +112,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           FortuneFadeIn(
             child: Text(
               switch (_step) {
-                0 => 'دوست داری بخت‌نگار تو را با چه نامی صدا کند؟',
-                1 => 'ماه تولدت کدام است؟',
-                _ => 'خوش آمدی، $name.',
+                0 => context.strings.onboardingNameQuestion,
+                1 => context.strings.onboardingMonthQuestion,
+                _ => context.strings.onboardingWelcome(name),
               },
               textAlign: TextAlign.center,
               style: textTheme.titleLarge?.copyWith(height: 1.7),
@@ -124,7 +125,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             WhisperField(
               controller: _name,
               accent: c.goldWarm,
-              placeholder: 'نامت، یا نامی که دوستش داری',
+              placeholder: context.strings.personalizeNameHint,
               maxLength: 40,
             ),
           if (_step == 1)
@@ -135,7 +136,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               children: [
                 for (final m in kBirthMonths)
                   MonthPill(
-                    label: m.fa,
+                    label: monthLabel(
+                      m,
+                      Localizations.localeOf(context).languageCode,
+                    ),
                     selected: _month == m.value,
                     onTap: () => setState(() => _month = m.value),
                   ),
@@ -143,7 +147,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             ),
           if (_step == 2)
             Text(
-              'از این پس فال‌هایت کمی شخصی‌تر خواهند بود.',
+              context.strings.onboardingPersonalNote,
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(color: c.textSecondary),
             ),
@@ -158,24 +162,29 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           const SizedBox(height: AppSpacing.xl),
           if (_step == 0)
             FortuneButton(
-              label: 'ادامه',
+              label: context.strings.actionContinue,
               onPressed: _nameValid ? () => setState(() => _step = 1) : null,
             ),
           if (_step == 1) ...[
             FortuneButton(
-              label: _saving ? 'در حال ذخیره…' : 'ادامه',
+              label: _saving
+                  ? context.strings.personalizeSaving
+                  : context.strings.actionContinue,
               isLoading: _saving,
               onPressed: _month == null || _saving ? null : () => _finish(),
             ),
             const SizedBox(height: AppSpacing.sm),
             FortuneButton(
-              label: 'بازگشت',
+              label: context.strings.actionBack,
               variant: FortuneButtonVariant.text,
               onPressed: _saving ? null : () => setState(() => _step = 0),
             ),
           ],
           if (_step == 2)
-            FortuneButton(label: 'بریم', onPressed: _continueToApp),
+            FortuneButton(
+              label: context.strings.personalizeGo,
+              onPressed: _continueToApp,
+            ),
           const SizedBox(height: AppSpacing.lg),
         ],
       ),

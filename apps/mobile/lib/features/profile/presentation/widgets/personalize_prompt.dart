@@ -126,7 +126,10 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
             children: [
               for (final m in kBirthMonths)
                 MonthPill(
-                  label: m.fa,
+                  label: monthLabel(
+                    m,
+                    Localizations.localeOf(context).languageCode,
+                  ),
                   selected: _month == m.value,
                   onTap: () => setState(() => _month = m.value),
                 ),

@@ -134,7 +134,10 @@ class _ProfilePlaceholderPageState
 
   Widget _header(BuildContext context, UserProfile? profile) {
     final c = context.fortuneColors;
-    final month = birthMonthFa(profile?.birthMonth);
+    final month = birthMonthLabel(
+      profile?.birthMonth,
+      Localizations.localeOf(context).languageCode,
+    );
     return GoldBorderContainer(
       glow: true,
       child: Row(

@@ -1,3 +1,6 @@
+import 'dart:ui' show Locale;
+
+import '../../../app/localization/app_strings.dart';
 import '../../../app/routing/fortune_destinations.dart';
 import '../../fortunes/domain/fortune_catalog.dart';
 import '../../fortunes/domain/fortune_registry.dart';
@@ -39,13 +42,6 @@ DayPart dayPartOf(DateTime time) {
   return DayPart.night;
 }
 
-const Map<DayPart, String> _dayPartFa = {
-  DayPart.morning: 'صبح‌ها',
-  DayPart.noon: 'ظهرها',
-  DayPart.evening: 'عصرها',
-  DayPart.night: 'شب‌ها',
-};
-
 /// How far back «recently» reaches when avoiding a repeat.
 const int _recentWindow = 8;
 
@@ -62,8 +58,10 @@ List<NextFortune> nextFortunes({
   required String justRead,
   required List<ReadingMoment> history,
   required DateTime now,
+  Locale locale = const Locale('fa'),
   int limit = 3,
 }) {
+  final strings = AppStrings.forLocale(locale);
   final picked = <String>{justRead};
   final out = <NextFortune>[];
 
@@ -75,7 +73,7 @@ List<NextFortune> nextFortunes({
     if (out.length >= limit) return false;
     if (picked.contains(id)) return false;
     if (FortuneDestinations.pathFor(id) == null) return false;
-    final title = FortuneRegistry.byId(id)?.title.fa;
+    final title = FortuneRegistry.byId(id)?.title.resolve(locale);
     if (title == null) return false;
     picked.add(id);
     out.add(NextFortune(fortuneId: id, title: title, reason: reason));
@@ -88,37 +86,43 @@ List<NextFortune> nextFortunes({
   // 1. Its own family: the theme the reader is already inside.
   for (final id in family) {
     if (recent.contains(id)) continue;
-    if (add(id, _familyReason)) break;
+    if (add(id, strings.reasonFamily)) break;
   }
 
   // 2. Their own habit at this hour, if they have one.
   final part = dayPartOf(now);
   final habit = _habitAt(history, part);
   if (habit != null) {
-    add(habit, '${_dayPartFa[part]} بیشتر همین را می‌خوانی');
+    add(habit, strings.reasonHabit(_dayPartWord(strings, part)));
   }
 
   // 3. Something never tried, in the order the catalog presents fortunes.
   for (final id in _catalogOrder()) {
     if (known.contains(id)) continue;
-    if (add(id, _untriedReason)) break;
+    if (add(id, strings.reasonUntried)) break;
   }
 
   // Still short? Widen: more of the family (even if read recently), then
   // anything else the catalog offers.
   for (final id in family) {
-    add(id, _familyReason);
+    add(id, strings.reasonFamily);
   }
   for (final id in _catalogOrder()) {
-    add(id, known.contains(id) ? _againReason : _untriedReason);
+    add(id, known.contains(id) ? strings.reasonAgain : strings.reasonUntried);
   }
 
   return out;
 }
 
-const String _familyReason = 'هم‌خانوادهٔ چیزی که همین حالا خواندی';
-const String _untriedReason = 'هنوز امتحانش نکرده‌ای';
-const String _againReason = 'قبلاً خوانده‌ای؛ شاید دوباره';
+/// The reader's own wording for a part of the day, from the active language.
+String _dayPartWord(AppStrings strings, DayPart part) {
+  return switch (part) {
+    DayPart.morning => strings.dayPartMornings,
+    DayPart.noon => strings.dayPartNoons,
+    DayPart.evening => strings.dayPartEvenings,
+    DayPart.night => strings.dayPartNights,
+  };
+}
 
 /// The other fortunes in the same catalog group, in catalog order.
 List<String> _familyOf(String fortuneId) {

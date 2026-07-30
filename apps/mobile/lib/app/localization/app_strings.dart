@@ -18,6 +18,17 @@ class AppStrings {
       Localizations.of<AppStrings>(context, AppStrings) ??
       const AppStrings(Locale('fa'));
 
+  /// The strings for a locale, without a BuildContext — for layers (domain,
+  /// providers) that know the locale but have no widget tree.
+  static AppStrings forLocale(Locale locale) {
+    return switch (locale.languageCode) {
+      'en' => EnStrings(locale),
+      'ar' => ArStrings(locale),
+      'tr' => TrStrings(locale),
+      _ => AppStrings(locale),
+    };
+  }
+
   String get appTitle => 'فال';
   String get splashPreparing => 'در حال آماده‌سازی…';
   String get exploreTitle => 'کاوش';
@@ -129,6 +140,22 @@ class AppStrings {
   String get socialTelegram => 'کانال تلگرام';
   String get socialInstagram => 'اینستاگرام';
   String profileSeekerBorn(String month) => 'متولدِ $month · جست‌وجوگرِ حقیقت';
+  String get nextStripTitle => 'بعد از این';
+  String get reasonFamily => 'هم‌خانوادهٔ چیزی که همین حالا خواندی';
+  String get reasonUntried => 'هنوز امتحانش نکرده‌ای';
+  String get reasonAgain => 'قبلاً خوانده‌ای؛ شاید دوباره';
+  String get dayPartMornings => 'صبح‌ها';
+  String get dayPartNoons => 'ظهرها';
+  String get dayPartEvenings => 'عصرها';
+  String get dayPartNights => 'شب‌ها';
+  String get onboardingNameQuestion =>
+      'دوست داری بخت‌نگار تو را با چه نامی صدا کند؟';
+  String get onboardingMonthQuestion => 'ماه تولدت کدام است؟';
+  String get onboardingPersonalNote =>
+      'از این پس فال‌هایت کمی شخصی‌تر خواهند بود.';
+  String get actionContinue => 'ادامه';
+  String reasonHabit(String when) => '$when بیشتر همین را می‌خوانی';
+  String onboardingWelcome(String name) => 'خوش آمدی، $name.';
 }
 
 /// English.
@@ -341,6 +368,36 @@ class EnStrings extends AppStrings {
   String get socialInstagram => 'Instagram';
   @override
   String profileSeekerBorn(String month) => 'Born in $month · Seeker of truth';
+  @override
+  String get nextStripTitle => 'After this';
+  @override
+  String get reasonFamily => 'Kin to what you just read';
+  @override
+  String get reasonUntried => 'You have not tried it yet';
+  @override
+  String get reasonAgain => 'Read before; perhaps again';
+  @override
+  String get dayPartMornings => 'in the mornings';
+  @override
+  String get dayPartNoons => 'around noon';
+  @override
+  String get dayPartEvenings => 'in the evenings';
+  @override
+  String get dayPartNights => 'at night';
+  @override
+  String get onboardingNameQuestion =>
+      'What name would you like BakhtNegar to call you?';
+  @override
+  String get onboardingMonthQuestion => 'Which is your birth month?';
+  @override
+  String get onboardingPersonalNote =>
+      'From now on your readings will be a little more personal.';
+  @override
+  String get actionContinue => 'Continue';
+  @override
+  String reasonHabit(String when) => 'You mostly read this $when';
+  @override
+  String onboardingWelcome(String name) => 'Welcome, $name.';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -551,6 +608,35 @@ class ArStrings extends AppStrings {
   @override
   String profileSeekerBorn(String month) =>
       'من مواليد $month · باحث عن الحقيقة';
+  @override
+  String get nextStripTitle => 'بعد هذا';
+  @override
+  String get reasonFamily => 'من عائلة ما قرأته للتوّ';
+  @override
+  String get reasonUntried => 'لم تجرّبه بعد';
+  @override
+  String get reasonAgain => 'قرأته من قبل؛ ربما مجددًا';
+  @override
+  String get dayPartMornings => 'في الصباح';
+  @override
+  String get dayPartNoons => 'عند الظهيرة';
+  @override
+  String get dayPartEvenings => 'في المساء';
+  @override
+  String get dayPartNights => 'في الليل';
+  @override
+  String get onboardingNameQuestion => 'بأي اسم تحب أن يناديك بخت‌نگار؟';
+  @override
+  String get onboardingMonthQuestion => 'ما شهر ميلادك؟';
+  @override
+  String get onboardingPersonalNote =>
+      'من الآن ستكون فؤولك أكثر خصوصية قليلًا.';
+  @override
+  String get actionContinue => 'متابعة';
+  @override
+  String reasonHabit(String when) => 'غالبًا تقرأ هذا $when';
+  @override
+  String onboardingWelcome(String name) => 'أهلًا بك يا $name.';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -766,6 +852,36 @@ class TrStrings extends AppStrings {
   @override
   String profileSeekerBorn(String month) =>
       '$month doğumlu · Hakikat arayıcısı';
+  @override
+  String get nextStripTitle => 'Bundan sonra';
+  @override
+  String get reasonFamily => 'Az önce okuduğunla aynı aileden';
+  @override
+  String get reasonUntried => 'Henüz denemedin';
+  @override
+  String get reasonAgain => 'Daha önce okudun; belki yine';
+  @override
+  String get dayPartMornings => 'sabahları';
+  @override
+  String get dayPartNoons => 'öğlenleri';
+  @override
+  String get dayPartEvenings => 'akşamları';
+  @override
+  String get dayPartNights => 'geceleri';
+  @override
+  String get onboardingNameQuestion =>
+      'BakhtNegar sana hangi isimle seslensin?';
+  @override
+  String get onboardingMonthQuestion => 'Doğum ayın hangisi?';
+  @override
+  String get onboardingPersonalNote =>
+      'Bundan sonra falların biraz daha kişisel olacak.';
+  @override
+  String get actionContinue => 'Devam';
+  @override
+  String reasonHabit(String when) => 'Bunu en çok $when okuyorsun';
+  @override
+  String onboardingWelcome(String name) => 'Hoş geldin, $name.';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {
@@ -776,14 +892,7 @@ class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {
       const ['fa', 'en', 'ar', 'tr'].contains(locale.languageCode);
 
   @override
-  Future<AppStrings> load(Locale locale) async {
-    return switch (locale.languageCode) {
-      'en' => EnStrings(locale),
-      'ar' => ArStrings(locale),
-      'tr' => TrStrings(locale),
-      _ => AppStrings(locale),
-    };
-  }
+  Future<AppStrings> load(Locale locale) async => AppStrings.forLocale(locale);
 
   @override
   bool shouldReload(_AppStringsDelegate old) => false;

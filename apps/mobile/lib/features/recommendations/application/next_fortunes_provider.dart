@@ -1,3 +1,5 @@
+import 'dart:ui' show Locale;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../history/application/history_controller.dart';
@@ -24,9 +26,12 @@ final historyMomentsProvider = FutureProvider<List<ReadingMoment>>((ref) async {
 /// switched off the history is not even asked for — no request, no suggestion,
 /// no trace. A reading that opens before the app has settled simply ends the
 /// way it always did.
-final nextFortunesProvider = Provider.family<List<NextFortune>, String>((
+typedef NextFortunesRequest = ({String fortuneId, Locale locale});
+
+final nextFortunesProvider =
+    Provider.family<List<NextFortune>, NextFortunesRequest>((
   ref,
-  fortuneId,
+  request,
 ) {
   final profile = ref.watch(profileControllerProvider).valueOrNull;
   if (profile == null || profile.personalizationOptOut) return const [];
@@ -35,8 +40,9 @@ final nextFortunesProvider = Provider.family<List<NextFortune>, String>((
   if (history == null) return const [];
 
   return nextFortunes(
-    justRead: fortuneId,
+    justRead: request.fortuneId,
     history: history,
     now: DateTime.now(),
+    locale: request.locale,
   );
 });

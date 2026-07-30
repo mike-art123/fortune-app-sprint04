@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/fortune_destinations.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
@@ -22,7 +23,11 @@ class NextFortunesStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final list = ref.watch(nextFortunesProvider(fortuneId));
+    final list = ref.watch(
+      nextFortunesProvider(
+        (fortuneId: fortuneId, locale: Localizations.localeOf(context)),
+      ),
+    );
     if (list.isEmpty) return const SizedBox.shrink();
 
     final c = context.fortuneColors;
@@ -33,7 +38,7 @@ class NextFortunesStrip extends ConsumerWidget {
       children: [
         const SizedBox(height: AppSpacing.lg),
         Text(
-          'بعد از این',
+          context.strings.nextStripTitle,
           style: textTheme.titleMedium?.copyWith(color: c.textPrimary),
         ),
         const SizedBox(height: AppSpacing.sm),
