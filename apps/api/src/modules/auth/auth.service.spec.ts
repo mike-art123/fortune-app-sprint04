@@ -135,9 +135,12 @@ describe('AuthService.loginWithTelegram', () => {
 describe('AuthService.loginAsGuest', () => {
   const authConfig = { botToken: BOT_TOKEN, initDataMaxAgeSeconds: 3600 };
   const users = {
+    // A real id is an opaque cuid — deliberately NOT derived from the device
+    // id, so the "never logs the device id" assertion judges the service, not
+    // a harness artifact.
     upsertGuestUser: jest.fn().mockImplementation(({ deviceId }) =>
       Promise.resolve({
-        id: `guest-${deviceId}`,
+        id: 'guest-user-1',
         telegramId: null,
         deviceId,
         displayName: null,
@@ -172,7 +175,7 @@ describe('AuthService.loginAsGuest', () => {
 
     const verifier = new TelegramTokenVerifier(tokens);
     const principal = await verifier.verify(res.accessToken);
-    expect(principal?.userId).toBe('guest-device-1234567890abcdef');
+    expect(principal?.userId).toBe('guest-user-1');
     expect(principal?.telegramId).toBeUndefined();
     expect(principal?.roles).toEqual(['user']);
   });
