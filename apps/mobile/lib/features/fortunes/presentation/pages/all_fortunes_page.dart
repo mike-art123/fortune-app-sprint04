@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../app/routing/fortune_destinations.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
@@ -60,7 +61,7 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
       context.push(path);
     } else {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        const SnackBar(content: Text('این فال به‌زودی فعال می‌شود')),
+        SnackBar(content: Text(context.strings.fortuneSoonToast)),
       );
     }
   }
@@ -133,12 +134,12 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
         padding: pad,
         sliver: SliverToBoxAdapter(
           child: SectionTitle(
-            title: group.title,
+            title: group.title.resolve(Localizations.localeOf(context)),
             trailing: searchInTitle
                 ? Consumer(
                     builder: (context, ref, _) => FortuneSearchBar(
                       remote: ref.watch(searchRepositoryProvider),
-                      hintText: 'جست‌وجوی فال',
+                      hintText: context.strings.searchFortunesHint,
                     ),
                   )
                 : null,
@@ -171,13 +172,14 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
               final item = gridItems[i];
               final id = item.$1;
               final openable = FortuneDestinations.pathFor(id) != null;
+              final locale = Localizations.localeOf(context);
               return PortraitFortuneCard(
                 id: id,
-                title: item.$2,
-                subtitle: item.$3,
+                title: item.$2.resolve(locale),
+                subtitle: item.$3.resolve(locale),
                 accent: _accentFor(id),
                 available: openable,
-                soonLabel: 'به‌زودی',
+                soonLabel: context.strings.comingSoon,
                 onTap: () => _open(context, item),
               );
             },
@@ -203,10 +205,11 @@ class _AllFortunesPageState extends State<AllFortunesPage> {
   }
 
   Widget _featureCard(BuildContext context, FortuneItem item) {
+    final locale = Localizations.localeOf(context);
     return SectionFeatureCard(
       id: item.$1,
-      title: item.$2,
-      subtitle: item.$3,
+      title: item.$2.resolve(locale),
+      subtitle: item.$3.resolve(locale),
       accent: _accentFor(item.$1),
       onTap: () => _open(context, item),
     );

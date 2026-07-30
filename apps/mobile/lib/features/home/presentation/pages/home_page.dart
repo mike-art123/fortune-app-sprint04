@@ -16,11 +16,13 @@ import '../../../../design_system/foundations/app_layout.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_catalog.dart';
+import '../../../fortunes/domain/fortune_definition.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../../profile/application/profile_controller.dart';
 import '../../../profile/presentation/widgets/personalize_prompt.dart';
 import '../../../search/application/search_providers.dart';
 import '../../../search/presentation/widgets/fortune_search_bar.dart';
+import '../../../../shared/models/localized_text.dart';
 
 /// The premium landing screen: a cinematic featured fortune, a compact quick
 /// action row, a curated horizontal rail and one asymmetric editorial section
@@ -161,8 +163,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     const SizedBox(height: AppLayout.sectionGap),
                     SectionTitle(
-                      title: 'فال‌های محبوب',
-                      actionLabel: 'مشاهده همه',
+                      title: FortuneCatalog.groups[0].title
+                          .resolve(Localizations.localeOf(context)),
+                      actionLabel: context.strings.homeSeeAll,
                       onAction: () => context.go(AppRoutes.allFortunesPath),
                     ),
                     const SizedBox(height: AppLayout.headingGap),
@@ -172,8 +175,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     const SizedBox(height: AppLayout.sectionGap),
                     SectionTitle(
-                      title: 'عشق و روابط',
-                      actionLabel: 'مشاهده همه',
+                      title: FortuneCatalog.groups[1].title
+                          .resolve(Localizations.localeOf(context)),
+                      actionLabel: context.strings.homeSeeAll,
                       onAction: () => context.go(AppRoutes.allFortunesPath),
                     ),
                     const SizedBox(height: AppLayout.headingGap),
@@ -271,7 +275,7 @@ class _FeaturedCarouselState extends State<_FeaturedCarousel> {
               final item = _slides[i];
               return FeaturedWideFortuneCard(
                 id: item.$1,
-                title: item.$2,
+                title: item.$2.resolve(Localizations.localeOf(context)),
                 accent: _accentFor(item.$1),
                 onTap: () => widget.onOpen(item.$1, item.$4),
               );
@@ -318,7 +322,7 @@ class _TopBar extends StatelessWidget {
           child: Consumer(
             builder: (context, ref, _) => FortuneSearchBar(
               remote: ref.watch(searchRepositoryProvider),
-              hintText: 'جست‌وجوی فال',
+              hintText: context.strings.searchFortunesHint,
             ),
           ),
         ),
@@ -339,7 +343,7 @@ class _ProfileChip extends ConsumerWidget {
     final profileName =
         ref.watch(profileControllerProvider).valueOrNull?.displayName?.trim();
     final greeting = (profileName == null || profileName.isEmpty)
-        ? 'مسافرِ بخت'
+        ? context.strings.homeGuestName
         : profileName;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -404,8 +408,8 @@ class _CuratedRail extends StatelessWidget {
                 width: cardW,
                 child: CompactLandscapeFortuneCard(
                   id: it.$1,
-                  title: it.$2,
-                  subtitle: it.$3,
+                  title: it.$2.resolve(Localizations.localeOf(context)),
+                  subtitle: it.$3.resolve(Localizations.localeOf(context)),
                   accent: _accentFor(it.$1),
                   onTap: () => onOpen(it.$1, it.$4),
                 ),
@@ -430,8 +434,13 @@ class _EditorialLove extends StatelessWidget {
       children: [
         SectionFeatureCard(
           id: 'love',
-          title: 'فال عشق',
-          subtitle: 'دو نام، یک پیوند',
+          title: _registryText(context, 'love', (f) => f.title, 'فال عشق'),
+          subtitle: _registryText(
+            context,
+            'love',
+            (f) => f.subtitle,
+            'دو نام، یک پیوند',
+          ),
           accent: _accentFor('love'),
           onTap: () => onOpen('love'),
         ),
@@ -442,11 +451,21 @@ class _EditorialLove extends StatelessWidget {
             Expanded(
               child: PortraitFortuneCard(
                 id: 'marriage',
-                title: 'فال ازدواج',
-                subtitle: 'آیندهٔ ازدواج',
+                title: _registryText(
+                  context,
+                  'marriage',
+                  (f) => f.title,
+                  'فال ازدواج',
+                ),
+                subtitle: _registryText(
+                  context,
+                  'marriage',
+                  (f) => f.subtitle,
+                  'آیندهٔ ازدواج',
+                ),
                 accent: _accentFor('marriage'),
                 available: true,
-                soonLabel: 'به‌زودی',
+                soonLabel: context.strings.comingSoon,
                 onTap: () => onOpen('marriage'),
               ),
             ),
@@ -454,11 +473,21 @@ class _EditorialLove extends StatelessWidget {
             Expanded(
               child: PortraitFortuneCard(
                 id: 'child',
-                title: 'فال فرزند',
-                subtitle: 'فرزند داری؟',
+                title: _registryText(
+                  context,
+                  'child',
+                  (f) => f.title,
+                  'فال فرزند',
+                ),
+                subtitle: _registryText(
+                  context,
+                  'child',
+                  (f) => f.subtitle,
+                  'فرزند داری؟',
+                ),
                 accent: _accentFor('child'),
                 available: true,
-                soonLabel: 'به‌زودی',
+                soonLabel: context.strings.comingSoon,
                 onTap: () => onOpen('child'),
               ),
             ),
@@ -467,4 +496,18 @@ class _EditorialLove extends StatelessWidget {
       ],
     );
   }
+}
+
+/// A registry-backed, locale-aware string with a Persian fallback — the
+/// editorial cards can never show a different name than the ritual behind
+/// them, in any language.
+String _registryText(
+  BuildContext context,
+  String id,
+  LocalizedText Function(FortuneDefinition f) pick,
+  String fallback,
+) {
+  final fortune = FortuneRegistry.byId(id);
+  if (fortune == null) return fallback;
+  return pick(fortune).resolve(Localizations.localeOf(context));
 }

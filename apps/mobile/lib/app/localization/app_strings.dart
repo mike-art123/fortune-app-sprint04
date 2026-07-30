@@ -97,6 +97,10 @@ class AppStrings {
   String get personalizeGo => 'بریم';
   String get personalizeSaving => 'در حال ذخیره…';
   String get personalizeSkip => 'نمی‌خوام ثبت کنم';
+  String get homeSeeAll => 'مشاهده همه';
+  String get searchFortunesHint => 'جست‌وجوی فال';
+  String get homeGuestName => 'مسافرِ بخت';
+  String get fortuneSoonToast => 'این فال به‌زودی فعال می‌شود';
 }
 
 /// English.
@@ -247,6 +251,14 @@ class EnStrings extends AppStrings {
   String get personalizeSaving => 'Saving…';
   @override
   String get personalizeSkip => 'I\'d rather not';
+  @override
+  String get homeSeeAll => 'See all';
+  @override
+  String get searchFortunesHint => 'Search fortunes';
+  @override
+  String get homeGuestName => 'Fortune traveller';
+  @override
+  String get fortuneSoonToast => 'This fortune arrives soon';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -396,6 +408,14 @@ class ArStrings extends AppStrings {
   String get personalizeSaving => 'جارٍ الحفظ…';
   @override
   String get personalizeSkip => 'لا أريد التسجيل';
+  @override
+  String get homeSeeAll => 'عرض الكل';
+  @override
+  String get searchFortunesHint => 'ابحث عن فأل';
+  @override
+  String get homeGuestName => 'مسافر البخت';
+  @override
+  String get fortuneSoonToast => 'يتاح هذا الفأل قريبًا';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -550,6 +570,14 @@ class TrStrings extends AppStrings {
   String get personalizeSaving => 'Kaydediliyor…';
   @override
   String get personalizeSkip => 'Kaydetmek istemiyorum';
+  @override
+  String get homeSeeAll => 'Tümünü gör';
+  @override
+  String get searchFortunesHint => 'Fal ara';
+  @override
+  String get homeGuestName => 'Baht yolcusu';
+  @override
+  String get fortuneSoonToast => 'Bu fal yakında açılıyor';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {
