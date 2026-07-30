@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 
 import '../support/pump_ritual.dart';
 import '../support/reading_page_deps.dart';
+import '../support/seen_disclaimer.dart';
 
 /// Phase 5 — bespoke offering elements. A chosen month, colour or quick intent
 /// must actually seed the whisper (and reach the reading pipeline as the
@@ -113,6 +114,7 @@ Widget _host(String fortuneId, _CapturingRepo repo) {
     overrides: [
       readingRepositoryProvider.overrideWithValue(repo),
       accessRepositoryProvider.overrideWithValue(_FreeAccessRepo()),
+      seenDisclaimerStorage(),
       ...readingScreenDeps(),
     ],
     child: MaterialApp.router(

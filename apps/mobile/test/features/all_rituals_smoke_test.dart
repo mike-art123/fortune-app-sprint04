@@ -20,6 +20,7 @@ import 'package:go_router/go_router.dart';
 
 import '../support/pump_ritual.dart';
 import '../support/reading_page_deps.dart';
+import '../support/seen_disclaimer.dart';
 
 /// Final pre-push audit, client side: EVERY available fortune's ritual screen
 /// is really opened at phone size, shows its own bespoke voice, accepts its
@@ -111,6 +112,7 @@ Widget host(String fortuneId) {
     overrides: [
       readingRepositoryProvider.overrideWithValue(_EchoRepo()),
       accessRepositoryProvider.overrideWithValue(_FreeAccessRepo()),
+      seenDisclaimerStorage(),
       ...readingScreenDeps(),
     ],
     child: MaterialApp.router(
