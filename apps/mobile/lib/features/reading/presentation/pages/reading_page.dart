@@ -97,7 +97,8 @@ class _ReadingView extends ConsumerWidget {
     final bridge = ref.read(telegramBridgeProvider);
     final name = ref.read(profileControllerProvider).valueOrNull?.displayName;
     final body = stripLeadingName(reading.text, name);
-    final text = '${reading.title}\n\n$body\n\n🔮 بخت‌نگار';
+    final brand = context.strings.shareBrandLine;
+    final text = '${reading.title}\n\n$body\n\n$brand';
 
     var copied = true;
     try {
@@ -121,8 +122,8 @@ class _ReadingView extends ConsumerWidget {
       SnackBar(
         content: Text(
           copied
-              ? 'متنِ فال کپی شد؛ هرجا خواستی بفرست.'
-              : 'اشتراک‌گذاری ممکن نشد؛ دوباره تلاش کن.',
+              ? context.strings.shareCopied
+              : context.strings.shareFailed,
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../design_system/components/luxury_card.dart';
 import '../../../../design_system/components/premium_button.dart';
 import '../../../../design_system/foundations/app_colors.dart';
@@ -47,7 +48,7 @@ class _AccessSheetBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'روش دریافت فال را انتخاب کنید',
+              context.strings.accessSheetTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: c.textPrimary,
@@ -64,10 +65,9 @@ class _AccessSheetBody extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             _Option(
               icon: Icons.play_circle_outline,
-              title: 'دریافت رایگان با تبلیغ',
-              description:
-                  'یک تبلیغ کوتاه ببینید و فال خود را رایگان دریافت کنید.',
-              buttonLabel: 'دیدن تبلیغ و گرفتن فال',
+              title: context.strings.accessAdOptionTitle,
+              description: context.strings.accessAdOptionBody,
+              buttonLabel: context.strings.accessAdButton,
               onPressed: () => Navigator.of(context).pop('ad'),
             ),
           ],
@@ -139,20 +139,20 @@ Future<void> showAdLimitDialog(BuildContext context) {
     context: context,
     builder: (dialogContext) => AlertDialog(
       backgroundColor: AppPalette.nightPanel,
-      title: const Text(
-        'سهمیه فال رایگان امروز تمام شده است',
+      title: Text(
+        dialogContext.strings.accessLimitTitle,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16),
+        style: const TextStyle(fontSize: 16),
       ),
-      content: const Text(
-        'فردا دوباره سر بزنید تا فال‌های تازه را رایگان دریافت کنید.',
+      content: Text(
+        dialogContext.strings.accessLimitBody,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 13),
+        style: const TextStyle(fontSize: 13),
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         PremiumButton(
-          label: 'باشه',
+          label: dialogContext.strings.actionOkay,
           onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
@@ -166,20 +166,20 @@ Future<String?> showAdsExhaustedDialog(BuildContext context) {
     context: context,
     builder: (dialogContext) => AlertDialog(
       backgroundColor: AppPalette.nightPanel,
-      title: const Text(
-        'در حال حاضر تبلیغی در دسترس نیست',
+      title: Text(
+        dialogContext.strings.accessNoAdTitle,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16),
+        style: const TextStyle(fontSize: 16),
       ),
-      content: const Text(
-        'کمی بعد دوباره امتحان کنید.',
+      content: Text(
+        dialogContext.strings.accessNoAdBody,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 13),
+        style: const TextStyle(fontSize: 13),
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         PremiumButton(
-          label: 'تلاش دوباره',
+          label: dialogContext.strings.accessRetryLabel,
           onPressed: () => Navigator.of(dialogContext).pop('retry'),
         ),
       ],

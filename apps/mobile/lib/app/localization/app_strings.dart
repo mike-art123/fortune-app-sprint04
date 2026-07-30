@@ -101,6 +101,35 @@ class AppStrings {
   String get searchFortunesHint => 'جست‌وجوی فال';
   String get homeGuestName => 'مسافرِ بخت';
   String get fortuneSoonToast => 'این فال به‌زودی فعال می‌شود';
+  String get accessSheetTitle => 'روش دریافت فال را انتخاب کنید';
+  String get accessAdOptionTitle => 'دریافت رایگان با تبلیغ';
+  String get accessAdOptionBody =>
+      'یک تبلیغ کوتاه ببینید و فال خود را رایگان دریافت کنید.';
+  String get accessAdButton => 'دیدن تبلیغ و گرفتن فال';
+  String get accessLimitTitle => 'سهمیه فال رایگان امروز تمام شده است';
+  String get accessLimitBody =>
+      'فردا دوباره سر بزنید تا فال‌های تازه را رایگان دریافت کنید.';
+  String get actionOkay => 'باشه';
+  String get accessNoAdTitle => 'در حال حاضر تبلیغی در دسترس نیست';
+  String get accessNoAdBody => 'کمی بعد دوباره امتحان کنید.';
+  String get accessRetryLabel => 'تلاش دوباره';
+  String get shareBrandLine => '🔮 بخت‌نگار';
+  String get shareCopied => 'متنِ فال کپی شد؛ هرجا خواستی بفرست.';
+  String get shareFailed => 'اشتراک‌گذاری ممکن نشد؛ دوباره تلاش کن.';
+  String get profileSoonToast => 'این بخش به‌زودی فعال می‌شود';
+  String get profileHistory => 'تاریخچهٔ فال‌ها';
+  String get profileSupportAbout => 'پشتیبانی و درباره ما';
+  String get profileSeeker => 'جست‌وجوگرِ حقیقت';
+  String get profileEditTooltip => 'ویرایش نام و ماه تولد';
+  String get profileRecsTitle => 'پیشنهاد بر پایهٔ فال‌های خودم';
+  String get profileRecsBody => 'خاموش که باشد، هیچ پیشنهادی ساخته نمی‌شود.';
+  String get inviteShareText => 'با بخت‌نگار هر روز فال و استخاره بگیر ✨';
+  String get inviteTitle => 'دعوت از دوستان';
+  String get inviteBody => 'بخت‌نگار را با دوستانت به اشتراک بگذار';
+  String get socialTelegram => 'کانال تلگرام';
+  String get socialInstagram => 'اینستاگرام';
+  String profileSeekerBorn(String month) =>
+      'متولدِ $month · جست‌وجوگرِ حقیقت';
 }
 
 /// English.
@@ -259,6 +288,61 @@ class EnStrings extends AppStrings {
   String get homeGuestName => 'Fortune traveller';
   @override
   String get fortuneSoonToast => 'This fortune arrives soon';
+  @override
+  String get accessSheetTitle => 'Choose how to receive your fortune';
+  @override
+  String get accessAdOptionTitle => 'Free with an ad';
+  @override
+  String get accessAdOptionBody =>
+      'Watch a short ad and receive your fortune free.';
+  @override
+  String get accessAdButton => 'Watch the ad, get the reading';
+  @override
+  String get accessLimitTitle => 'Today\'s free readings are used up';
+  @override
+  String get accessLimitBody => 'Come back tomorrow for fresh free readings.';
+  @override
+  String get actionOkay => 'Okay';
+  @override
+  String get accessNoAdTitle => 'No ad is available right now';
+  @override
+  String get accessNoAdBody => 'Try again in a little while.';
+  @override
+  String get accessRetryLabel => 'Try again';
+  @override
+  String get shareBrandLine => '🔮 BakhtNegar';
+  @override
+  String get shareCopied => 'The reading was copied; share it anywhere.';
+  @override
+  String get shareFailed => 'Sharing did not work; try again.';
+  @override
+  String get profileSoonToast => 'This section arrives soon';
+  @override
+  String get profileHistory => 'Reading history';
+  @override
+  String get profileSupportAbout => 'Support and about';
+  @override
+  String get profileSeeker => 'Seeker of truth';
+  @override
+  String get profileEditTooltip => 'Edit name and birth month';
+  @override
+  String get profileRecsTitle => 'Suggestions from my own readings';
+  @override
+  String get profileRecsBody => 'When off, no suggestions are made.';
+  @override
+  String get inviteShareText =>
+      'Daily fortunes and istikhara with BakhtNegar ✨';
+  @override
+  String get inviteTitle => 'Invite friends';
+  @override
+  String get inviteBody => 'Share BakhtNegar with your friends';
+  @override
+  String get socialTelegram => 'Telegram channel';
+  @override
+  String get socialInstagram => 'Instagram';
+  @override
+  String profileSeekerBorn(String month) =>
+      'Born in $month · Seeker of truth';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -416,6 +500,59 @@ class ArStrings extends AppStrings {
   String get homeGuestName => 'مسافر البخت';
   @override
   String get fortuneSoonToast => 'يتاح هذا الفأل قريبًا';
+  @override
+  String get accessSheetTitle => 'اختر طريقة الحصول على فألك';
+  @override
+  String get accessAdOptionTitle => 'مجانًا بمشاهدة إعلان';
+  @override
+  String get accessAdOptionBody => 'شاهد إعلانًا قصيرًا واحصل على فألك مجانًا.';
+  @override
+  String get accessAdButton => 'شاهد الإعلان وخذ فألك';
+  @override
+  String get accessLimitTitle => 'انتهت حصة اليوم من الفؤول المجانية';
+  @override
+  String get accessLimitBody => 'عُد غدًا لتحصل على فؤول جديدة مجانًا.';
+  @override
+  String get actionOkay => 'حسنًا';
+  @override
+  String get accessNoAdTitle => 'لا يوجد إعلان متاح الآن';
+  @override
+  String get accessNoAdBody => 'حاول مرة أخرى بعد قليل.';
+  @override
+  String get accessRetryLabel => 'حاول مجددًا';
+  @override
+  String get shareBrandLine => '🔮 بخت‌نگار';
+  @override
+  String get shareCopied => 'نُسخ نصّ الفأل؛ أرسله أينما شئت.';
+  @override
+  String get shareFailed => 'تعذّرت المشاركة؛ حاول مرة أخرى.';
+  @override
+  String get profileSoonToast => 'يتاح هذا القسم قريبًا';
+  @override
+  String get profileHistory => 'سجلّ الفؤول';
+  @override
+  String get profileSupportAbout => 'الدعم وعنّا';
+  @override
+  String get profileSeeker => 'باحث عن الحقيقة';
+  @override
+  String get profileEditTooltip => 'تعديل الاسم وشهر الميلاد';
+  @override
+  String get profileRecsTitle => 'اقتراحات من فؤولي';
+  @override
+  String get profileRecsBody => 'عند إيقافه لا تُبنى أي اقتراحات.';
+  @override
+  String get inviteShareText => 'مع بخت‌نگار خذ فألك واستخارتك كل يوم ✨';
+  @override
+  String get inviteTitle => 'ادعُ أصدقاءك';
+  @override
+  String get inviteBody => 'شارك بخت‌نگار مع أصدقائك';
+  @override
+  String get socialTelegram => 'قناة تيليجرام';
+  @override
+  String get socialInstagram => 'إنستغرام';
+  @override
+  String profileSeekerBorn(String month) =>
+      'من مواليد $month · باحث عن الحقيقة';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -578,6 +715,59 @@ class TrStrings extends AppStrings {
   String get homeGuestName => 'Baht yolcusu';
   @override
   String get fortuneSoonToast => 'Bu fal yakında açılıyor';
+  @override
+  String get accessSheetTitle => 'Falını nasıl alacağını seç';
+  @override
+  String get accessAdOptionTitle => 'Reklamla ücretsiz';
+  @override
+  String get accessAdOptionBody => 'Kısa bir reklam izle, falını ücretsiz al.';
+  @override
+  String get accessAdButton => 'Reklamı izle, falını al';
+  @override
+  String get accessLimitTitle => 'Bugünün ücretsiz falları bitti';
+  @override
+  String get accessLimitBody => 'Yarın yeni ücretsiz fallar için tekrar gel.';
+  @override
+  String get actionOkay => 'Tamam';
+  @override
+  String get accessNoAdTitle => 'Şu an izlenecek reklam yok';
+  @override
+  String get accessNoAdBody => 'Birazdan tekrar dene.';
+  @override
+  String get accessRetryLabel => 'Tekrar dene';
+  @override
+  String get shareBrandLine => '🔮 BakhtNegar';
+  @override
+  String get shareCopied => 'Fal metni kopyalandı; istediğin yere gönder.';
+  @override
+  String get shareFailed => 'Paylaşım olmadı; tekrar dene.';
+  @override
+  String get profileSoonToast => 'Bu bölüm yakında açılıyor';
+  @override
+  String get profileHistory => 'Fal geçmişi';
+  @override
+  String get profileSupportAbout => 'Destek ve hakkımızda';
+  @override
+  String get profileSeeker => 'Hakikat arayıcısı';
+  @override
+  String get profileEditTooltip => 'İsim ve doğum ayını düzenle';
+  @override
+  String get profileRecsTitle => 'Kendi fallarımdan öneriler';
+  @override
+  String get profileRecsBody => 'Kapalıyken hiçbir öneri oluşturulmaz.';
+  @override
+  String get inviteShareText => 'BakhtNegar ile her gün fal ve istihare ✨';
+  @override
+  String get inviteTitle => 'Arkadaşlarını davet et';
+  @override
+  String get inviteBody => 'BakhtNegar\'ı arkadaşlarınla paylaş';
+  @override
+  String get socialTelegram => 'Telegram kanalı';
+  @override
+  String get socialInstagram => 'Instagram';
+  @override
+  String profileSeekerBorn(String month) =>
+      '$month doğumlu · Hakikat arayıcısı';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {

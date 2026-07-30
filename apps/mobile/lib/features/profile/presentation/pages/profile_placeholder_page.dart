@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../core/platform/telegram_top_inset.dart';
@@ -66,7 +67,7 @@ class _ProfilePlaceholderPageState
 
   void _soon(BuildContext context) {
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-      const SnackBar(content: Text('این بخش به‌زودی فعال می‌شود')),
+      SnackBar(content: Text(context.strings.profileSoonToast)),
     );
   }
 
@@ -92,31 +93,31 @@ class _ProfilePlaceholderPageState
           _menu(
             context,
             Icons.history,
-            'تاریخچهٔ فال‌ها',
+            context.strings.profileHistory,
             () => context.push(AppRoutes.historyPath),
           ),
           _menu(
             context,
             Icons.bookmark_border,
-            'فال‌های نشان‌شده',
+            context.strings.savedTitle,
             () => context.push(AppRoutes.savedPath),
           ),
           _menu(
             context,
             Icons.favorite_border,
-            'نیت‌های من',
+            context.strings.intentionsTitle,
             () => context.push(AppRoutes.intentionsPath),
           ),
           _menu(
             context,
             Icons.settings_outlined,
-            'تنظیمات',
+            context.strings.settingsTitle,
             () => context.push(AppRoutes.settingsPath),
           ),
           _menu(
             context,
             Icons.support_agent_outlined,
-            'پشتیبانی و درباره ما',
+            context.strings.profileSupportAbout,
             () => _soon(context),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -159,7 +160,7 @@ class _ProfilePlaceholderPageState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profile?.displayName ?? 'مسافرِ بخت',
+                  profile?.displayName ?? context.strings.homeGuestName,
                   style: TextStyle(
                     color: c.textPrimary,
                     fontSize: 18,
@@ -169,8 +170,8 @@ class _ProfilePlaceholderPageState
                 const SizedBox(height: 4),
                 Text(
                   month != null
-                      ? 'متولدِ $month · جست‌وجوگرِ حقیقت'
-                      : 'جست‌وجوگرِ حقیقت',
+                      ? context.strings.profileSeekerBorn(month)
+                      : context.strings.profileSeeker,
                   style: TextStyle(color: c.goldWarm, fontSize: 12),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -188,7 +189,7 @@ class _ProfilePlaceholderPageState
           ),
           IconButton(
             onPressed: () => showEditProfileSheet(context),
-            tooltip: 'ویرایش نام و ماه تولد',
+            tooltip: context.strings.profileEditTooltip,
             icon: Icon(Icons.edit_outlined, color: c.goldWarm, size: 20),
           ),
         ],
@@ -215,11 +216,11 @@ class _ProfilePlaceholderPageState
                 .read(profileControllerProvider.notifier)
                 .updateProfile(personalizationOptOut: !value),
         title: Text(
-          'پیشنهاد بر پایهٔ فال‌های خودم',
+          context.strings.profileRecsTitle,
           style: TextStyle(color: c.textPrimary, fontSize: 14),
         ),
         subtitle: Text(
-          'خاموش که باشد، هیچ پیشنهادی ساخته نمی‌شود.',
+          context.strings.profileRecsBody,
           style: TextStyle(color: c.textMuted, fontSize: 11),
         ),
         activeTrackColor: c.goldWarm.withValues(alpha: 0.5),
@@ -268,7 +269,7 @@ class _ProfilePlaceholderPageState
       path: 'share/url',
       queryParameters: {
         'url': 'https://t.me/Bakhtnegarbot/Bakhtnegar',
-        'text': 'با بخت‌نگار هر روز فال و استخاره بگیر ✨',
+        'text': context.strings.inviteShareText,
       },
     ).toString();
     await bridge.openTelegramLink(url);
@@ -309,7 +310,7 @@ class _ProfilePlaceholderPageState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'دعوت از دوستان',
+                  context.strings.inviteTitle,
                   style: TextStyle(
                     color: c.textPrimary,
                     fontSize: 15,
@@ -318,7 +319,7 @@ class _ProfilePlaceholderPageState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'بخت‌نگار را با دوستانت به اشتراک بگذار',
+                  context.strings.inviteBody,
                   style: TextStyle(color: c.textMuted, fontSize: 11),
                 ),
               ],
@@ -339,7 +340,7 @@ class _ProfilePlaceholderPageState
           Expanded(
             child: _socialCard(
               icon: Icons.send_rounded,
-              label: 'کانال تلگرام',
+              label: context.strings.socialTelegram,
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -352,7 +353,7 @@ class _ProfilePlaceholderPageState
           Expanded(
             child: _socialCard(
               icon: Icons.camera_alt_rounded,
-              label: 'اینستاگرام',
+              label: context.strings.socialInstagram,
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
