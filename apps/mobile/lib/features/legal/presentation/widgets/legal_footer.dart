@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
@@ -15,11 +16,12 @@ class LegalFooter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fortuneColors;
     final config = ref.watch(appConfigProvider);
-    const links = <(String, String)>[
-      ('درباره', AppRoutes.aboutPath),
-      ('حریم خصوصی', AppRoutes.privacyPath),
-      ('قوانین', AppRoutes.termsPath),
-      ('تماس', AppRoutes.contactPath),
+    final s = context.strings;
+    final links = <(String, String)>[
+      (s.legalAbout, AppRoutes.aboutPath),
+      (s.legalPrivacy, AppRoutes.privacyPath),
+      (s.legalTerms, AppRoutes.termsPath),
+      (s.legalContact, AppRoutes.contactPath),
     ];
     return Column(
       children: [
@@ -44,12 +46,12 @@ class LegalFooter extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'نسخهٔ ${config.appVersion}+${config.buildNumber}',
+          s.versionLine('${config.appVersion}+${config.buildNumber}'),
           style: TextStyle(color: c.textMuted, fontSize: 11.5),
         ),
         const SizedBox(height: AppSpacing.xxs),
         Text(
-          '© بخت‌نگار ${DateTime.now().year} — همهٔ حقوق محفوظ است.',
+          s.legalCopyright('${DateTime.now().year}'),
           style: TextStyle(color: c.textMuted, fontSize: 11.5),
         ),
       ],

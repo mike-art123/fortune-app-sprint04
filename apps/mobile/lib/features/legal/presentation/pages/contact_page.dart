@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../app/localization/app_strings.dart';
 import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
@@ -22,7 +23,7 @@ class ContactPage extends ConsumerWidget {
     await Clipboard.setData(const ClipboardData(text: _supportEmail));
     if (!context.mounted) return;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-      const SnackBar(content: Text('ایمیل کپی شد.')),
+      SnackBar(content: Text(context.strings.contactEmailCopied)),
     );
   }
 
@@ -30,11 +31,12 @@ class ContactPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
+    final s = context.strings;
     final config = ref.watch(appConfigProvider);
     final bridge = ref.watch(telegramBridgeProvider);
 
     return FortuneScaffold(
-      appBar: const FortuneAppBar(title: Text('تماس با ما')),
+      appBar: FortuneAppBar(title: Text(s.contactTitle)),
       scrollable: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,8 +45,7 @@ class ContactPage extends ConsumerWidget {
           GoldBorderContainer(
             glow: true,
             child: Text(
-              'سؤال، پیشنهاد یا مشکلی داری؟\n'
-              'همین‌جا در کنارت هستیم.',
+              s.contactHero,
               textAlign: TextAlign.center,
               style: textTheme.titleMedium?.copyWith(
                 color: c.textPrimary,
@@ -56,33 +57,33 @@ class ContactPage extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           _ContactTile(
             icon: Icons.send_rounded,
-            title: 'کانال تلگرام',
+            title: s.contactChannel,
             value: 't.me/bakhtnegar',
             onTap: () => bridge.openTelegramLink(_supportChannel),
           ),
           const SizedBox(height: AppSpacing.sm),
           _ContactTile(
             icon: Icons.smart_toy_outlined,
-            title: 'بات بخت‌نگار',
+            title: s.contactBot,
             value: '@Bakhtnegarbot',
             onTap: () => bridge.openTelegramLink(_supportBot),
           ),
           const SizedBox(height: AppSpacing.sm),
           _ContactTile(
             icon: Icons.mail_outline_rounded,
-            title: 'ایمیل پشتیبانی (لمس کن تا کپی شود)',
+            title: s.contactEmailTile,
             value: _supportEmail,
             onTap: () => _copyEmail(context),
           ),
           const SizedBox(height: AppSpacing.sm),
           _ContactTile(
             icon: Icons.info_outline_rounded,
-            title: 'نسخهٔ برنامه',
+            title: s.contactVersionTile,
             value: '${config.appVersion}+${config.buildNumber}',
           ),
           const SizedBox(height: AppSpacing.md),
           FortuneButton(
-            label: 'گزارش مشکل',
+            label: s.contactReport,
             onPressed: () => bridge.openTelegramLink(_supportChannel),
           ),
           const SizedBox(height: AppSpacing.lg),

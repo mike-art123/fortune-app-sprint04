@@ -209,6 +209,39 @@ class AppStrings {
       ' پیشنهادی ساخته نمی‌شود.';
   String notifQuiet(String from, String to) =>
       'بین $from و $to هیچ پیامی نمی‌آید.';
+  String get legalTerms => 'قوانین';
+  String get legalPrivacy => 'حریم خصوصی';
+  String get legalAbout => 'درباره';
+  String get legalContact => 'تماس';
+  String get aboutTitle => 'درباره بخت‌نگار';
+  String get contactTitle => 'تماس با ما';
+  String get privacyUpdated => 'آخرین به‌روزرسانی: تیر ۱۴۰۵ (July 2026)';
+  String get legalUnderstood => 'متوجه شدم';
+  String get contactChannel => 'کانال تلگرام';
+  String get contactBot => 'بات بخت‌نگار';
+  String get contactEmailTile => 'ایمیل پشتیبانی (لمس کن تا کپی شود)';
+  String get contactVersionTile => 'نسخهٔ برنامه';
+  String get contactReport => 'گزارش مشکل';
+  String get contactEmailCopied => 'ایمیل کپی شد.';
+  String get termsHero =>
+      'بخت‌نگار هیچ‌گونه مسئولیتی نمی‌پذیرد.\n'
+      'این برنامه فقط یک فال است، و تصمیم‌گیرندهٔ تمام امورِ '
+      'زندگی‌تان خودتان هستید.';
+  String get aboutHero =>
+      'بخت‌نگار — فال و اسرارِ زندگی.\n'
+      'یک لحظهٔ آرام برای خودت، به زبان فارسی.';
+  String get privacyHero =>
+      'حریم خصوصی تو برای ما جدی است.\n'
+      'کمترین دادهٔ ممکن، فقط برای کارکردن خودِ فال.';
+  String get contactHero =>
+      'سؤال، پیشنهاد یا مشکلی داری؟\n'
+      'همین‌جا در کنارت هستیم.';
+  String get disclaimerBody =>
+      'فال‌های بخت‌نگار صرفاً برای سرگرمی و تأمل شخصی ارائه '
+      'می‌شوند و نباید مبنای تصمیم‌های مهم زندگی قرار گیرند.';
+  String versionLine(String v) => 'نسخهٔ $v';
+  String legalCopyright(String year) =>
+      '© بخت‌نگار $year — همهٔ حقوق محفوظ است.';
 }
 
 /// English.
@@ -550,6 +583,63 @@ class EnStrings extends AppStrings {
   @override
   String notifQuiet(String from, String to) =>
       'No messages between $from and $to.';
+  @override
+  String get legalTerms => 'Terms';
+  @override
+  String get legalPrivacy => 'Privacy';
+  @override
+  String get legalAbout => 'About';
+  @override
+  String get legalContact => 'Contact';
+  @override
+  String get aboutTitle => 'About BakhtNegar';
+  @override
+  String get contactTitle => 'Contact us';
+  @override
+  String get privacyUpdated => 'Last updated: July 2026';
+  @override
+  String get legalUnderstood => 'Understood';
+  @override
+  String get contactChannel => 'Telegram channel';
+  @override
+  String get contactBot => 'BakhtNegar bot';
+  @override
+  String get contactEmailTile => 'Support email (tap to copy)';
+  @override
+  String get contactVersionTile => 'App version';
+  @override
+  String get contactReport => 'Report a problem';
+  @override
+  String get contactEmailCopied => 'Email copied.';
+  @override
+  String get termsHero =>
+      'BakhtNegar accepts no responsibility.
+'
+      'This app is only a fortune; every decision in your life is yours.';
+  @override
+  String get aboutHero =>
+      'BakhtNegar — fortunes and the secrets of life.
+'
+      'A calm moment of your own, in your language.';
+  @override
+  String get privacyHero =>
+      'Your privacy is serious to us.
+'
+      'The least possible data, only so the fortune itself works.';
+  @override
+  String get contactHero =>
+      'A question, an idea, a problem?
+'
+      'We are right here with you.';
+  @override
+  String get disclaimerBody =>
+      'BakhtNegar readings are offered for entertainment and personal '
+      'reflection only, never as a basis for important life decisions.';
+  @override
+  String versionLine(String v) => 'Version $v';
+  @override
+  String legalCopyright(String year) =>
+      '© BakhtNegar $year — all rights reserved.';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -879,6 +969,63 @@ class ArStrings extends AppStrings {
       'هذه الملاحظة خاصة: لا تُشارَك ولا تُبنى عليها اقتراحات.';
   @override
   String notifQuiet(String from, String to) => 'لا رسائل بين $from و$to.';
+  @override
+  String get legalTerms => 'الشروط';
+  @override
+  String get legalPrivacy => 'الخصوصية';
+  @override
+  String get legalAbout => 'حول';
+  @override
+  String get legalContact => 'تواصل';
+  @override
+  String get aboutTitle => 'حول بخت‌نگار';
+  @override
+  String get contactTitle => 'تواصل معنا';
+  @override
+  String get privacyUpdated => 'آخر تحديث: يوليو 2026';
+  @override
+  String get legalUnderstood => 'فهمت';
+  @override
+  String get contactChannel => 'قناة تيليجرام';
+  @override
+  String get contactBot => 'بوت بخت‌نگار';
+  @override
+  String get contactEmailTile => 'بريد الدعم (المس للنسخ)';
+  @override
+  String get contactVersionTile => 'نسخة التطبيق';
+  @override
+  String get contactReport => 'الإبلاغ عن مشكلة';
+  @override
+  String get contactEmailCopied => 'نُسخ البريد.';
+  @override
+  String get termsHero =>
+      'بخت‌نگار لا يتحمّل أي مسؤولية.
+'
+      'هذا التطبيق مجرد فأل، وأنت صاحب القرار في حياتك كلها.';
+  @override
+  String get aboutHero =>
+      'بخت‌نگار — الفأل وأسرار الحياة.
+'
+      'لحظة هادئة لك وحدك، بلغتك.';
+  @override
+  String get privacyHero =>
+      'خصوصيتك أمر جاد عندنا.
+'
+      'أقل قدر ممكن من البيانات، فقط ليعمل الفأل نفسه.';
+  @override
+  String get contactHero =>
+      'سؤال أو اقتراح أو مشكلة؟
+'
+      'نحن هنا إلى جانبك.';
+  @override
+  String get disclaimerBody =>
+      'فؤول بخت‌نگار للتسلية والتأمل الشخصي فقط، ولا ينبغي أن تكون أساسًا '
+      'لقرارات الحياة المهمة.';
+  @override
+  String versionLine(String v) => 'الإصدار $v';
+  @override
+  String legalCopyright(String year) =>
+      '© بخت‌نگار $year — جميع الحقوق محفوظة.';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -1220,6 +1367,63 @@ class TrStrings extends AppStrings {
   @override
   String notifQuiet(String from, String to) =>
       '$from ile $to arasında mesaj gelmez.';
+  @override
+  String get legalTerms => 'Şartlar';
+  @override
+  String get legalPrivacy => 'Gizlilik';
+  @override
+  String get legalAbout => 'Hakkında';
+  @override
+  String get legalContact => 'İletişim';
+  @override
+  String get aboutTitle => 'BakhtNegar hakkında';
+  @override
+  String get contactTitle => 'Bize ulaş';
+  @override
+  String get privacyUpdated => 'Son güncelleme: Temmuz 2026';
+  @override
+  String get legalUnderstood => 'Anladım';
+  @override
+  String get contactChannel => 'Telegram kanalı';
+  @override
+  String get contactBot => 'BakhtNegar botu';
+  @override
+  String get contactEmailTile => 'Destek e-postası (kopyalamak için dokun)';
+  @override
+  String get contactVersionTile => 'Uygulama sürümü';
+  @override
+  String get contactReport => 'Sorun bildir';
+  @override
+  String get contactEmailCopied => 'E-posta kopyalandı.';
+  @override
+  String get termsHero =>
+      'BakhtNegar hiçbir sorumluluk kabul etmez.
+'
+      'Bu uygulama yalnızca bir fal; hayatındaki tüm kararlar senindir.';
+  @override
+  String get aboutHero =>
+      'BakhtNegar — fal ve hayatın sırları.
+'
+      'Kendine ait sakin bir an, kendi dilinde.';
+  @override
+  String get privacyHero =>
+      'Gizliliğin bizim için ciddi bir iştir.
+'
+      'Mümkün olan en az veri, yalnızca fal çalışsın diye.';
+  @override
+  String get contactHero =>
+      'Soru, öneri ya da sorun mu var?
+'
+      'Tam buradayız, yanındayız.';
+  @override
+  String get disclaimerBody =>
+      'BakhtNegar falları yalnızca eğlence ve kişisel düşünme içindir; önemli '
+      'yaşam kararlarına dayanak yapılmamalıdır.';
+  @override
+  String versionLine(String v) => 'Sürüm $v';
+  @override
+  String legalCopyright(String year) =>
+      '© BakhtNegar $year — tüm hakları saklıdır.';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {
