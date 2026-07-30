@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/gold_border_container.dart';
@@ -76,6 +77,7 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
+    final s = context.strings;
     return GoldBorderContainer(
       // A touch taller than the default card: the prompt breathes, and the
       // language row above the title gets its own quiet space.
@@ -100,7 +102,7 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'بخت‌نگار تو را چه صدا کند؟',
+            s.personalizeTitle,
             textAlign: TextAlign.center,
             style: textTheme.titleMedium?.copyWith(height: 1.5),
           ),
@@ -108,12 +110,12 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
           WhisperField(
             controller: _name,
             accent: c.goldWarm,
-            placeholder: 'نامت، یا نامی که دوستش داری',
+            placeholder: s.personalizeNameHint,
             maxLength: 40,
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'ماه تولدت؟',
+            s.personalizeMonthQuestion,
             style: textTheme.bodySmall?.copyWith(color: c.textSecondary),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -132,7 +134,7 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'اطلاعاتی که وارد می‌کنی، فالت را دقیق‌تر و شخصی‌تر می‌کند.',
+            s.personalizeNote,
             textAlign: TextAlign.center,
             style: textTheme.bodySmall?.copyWith(color: c.textMuted),
           ),
@@ -146,13 +148,13 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
           ],
           const SizedBox(height: AppSpacing.lg),
           FortuneButton(
-            label: _saving ? 'در حال ذخیره…' : 'بریم',
+            label: _saving ? s.personalizeSaving : s.personalizeGo,
             isLoading: _saving,
             onPressed: _ready && !_saving ? _save : null,
           ),
           const SizedBox(height: AppSpacing.sm),
           FortuneButton(
-            label: 'نمی‌خوام ثبت کنم',
+            label: s.personalizeSkip,
             variant: FortuneButtonVariant.text,
             onPressed: _saving ? null : _skip,
           ),

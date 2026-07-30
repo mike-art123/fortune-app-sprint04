@@ -82,6 +82,21 @@ class AppStrings {
   String get authOutsideTelegramBody =>
       'برای ورود، اپ را از داخل تلگرام باز کن.';
   String get authRejectedBody => 'ورود تأیید نشد؛ دوباره تلاش کن.';
+  String get navProfile => 'پروفایل';
+  String get navFortunes => 'فال‌ها';
+  String get navHome => 'خانه';
+  String get navHistory => 'تاریخچه';
+  String get navTerms => 'قوانین';
+  String get settingsTitle => 'تنظیمات';
+  String get actionBack => 'بازگشت';
+  String get personalizeTitle => 'بخت‌نگار تو را چه صدا کند؟';
+  String get personalizeNameHint => 'نامت، یا نامی که دوستش داری';
+  String get personalizeMonthQuestion => 'ماه تولدت؟';
+  String get personalizeNote =>
+      'اطلاعاتی که وارد می‌کنی، فالت را دقیق‌تر و شخصی‌تر می‌کند.';
+  String get personalizeGo => 'بریم';
+  String get personalizeSaving => 'در حال ذخیره…';
+  String get personalizeSkip => 'نمی‌خوام ثبت کنم';
 }
 
 /// English.
@@ -203,6 +218,35 @@ class EnStrings extends AppStrings {
       'Open the app from inside Telegram to sign in.';
   @override
   String get authRejectedBody => 'Sign-in was not confirmed; try again.';
+  @override
+  String get navProfile => 'Profile';
+  @override
+  String get navFortunes => 'Fortunes';
+  @override
+  String get navHome => 'Home';
+  @override
+  String get navHistory => 'History';
+  @override
+  String get navTerms => 'Terms';
+  @override
+  String get settingsTitle => 'Settings';
+  @override
+  String get actionBack => 'Back';
+  @override
+  String get personalizeTitle => 'What should BakhtNegar call you?';
+  @override
+  String get personalizeNameHint => 'Your name, or one you love';
+  @override
+  String get personalizeMonthQuestion => 'Your birth month?';
+  @override
+  String get personalizeNote =>
+      'What you share makes your reading more precise and personal.';
+  @override
+  String get personalizeGo => 'Let\'s go';
+  @override
+  String get personalizeSaving => 'Saving…';
+  @override
+  String get personalizeSkip => 'I\'d rather not';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -324,6 +368,34 @@ class ArStrings extends AppStrings {
       'للدخول، افتح التطبيق من داخل تيليجرام.';
   @override
   String get authRejectedBody => 'لم يتأكد الدخول؛ حاول مرة أخرى.';
+  @override
+  String get navProfile => 'الملف الشخصي';
+  @override
+  String get navFortunes => 'الفؤول';
+  @override
+  String get navHome => 'الرئيسية';
+  @override
+  String get navHistory => 'السجلّ';
+  @override
+  String get navTerms => 'الشروط';
+  @override
+  String get settingsTitle => 'الإعدادات';
+  @override
+  String get actionBack => 'رجوع';
+  @override
+  String get personalizeTitle => 'بمَ يناديك بخت‌نگار؟';
+  @override
+  String get personalizeNameHint => 'اسمك، أو اسم تحبّه';
+  @override
+  String get personalizeMonthQuestion => 'شهر ميلادك؟';
+  @override
+  String get personalizeNote => 'ما تدخله يجعل فألك أدقّ وأكثر خصوصية.';
+  @override
+  String get personalizeGo => 'هيّا بنا';
+  @override
+  String get personalizeSaving => 'جارٍ الحفظ…';
+  @override
+  String get personalizeSkip => 'لا أريد التسجيل';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -449,6 +521,35 @@ class TrStrings extends AppStrings {
       'Giriş için uygulamayı Telegram içinden aç.';
   @override
   String get authRejectedBody => 'Giriş doğrulanamadı; tekrar dene.';
+  @override
+  String get navProfile => 'Profil';
+  @override
+  String get navFortunes => 'Fallar';
+  @override
+  String get navHome => 'Ana Sayfa';
+  @override
+  String get navHistory => 'Geçmiş';
+  @override
+  String get navTerms => 'Kurallar';
+  @override
+  String get settingsTitle => 'Ayarlar';
+  @override
+  String get actionBack => 'Geri';
+  @override
+  String get personalizeTitle => 'BakhtNegar sana nasıl seslensin?';
+  @override
+  String get personalizeNameHint => 'Adın ya da sevdiğin bir isim';
+  @override
+  String get personalizeMonthQuestion => 'Doğum ayın?';
+  @override
+  String get personalizeNote =>
+      'Paylaştıkların falını daha isabetli ve kişisel yapar.';
+  @override
+  String get personalizeGo => 'Hadi başlayalım';
+  @override
+  String get personalizeSaving => 'Kaydediliyor…';
+  @override
+  String get personalizeSkip => 'Kaydetmek istemiyorum';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {

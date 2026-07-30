@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/localization/app_strings.dart';
 import '../foundations/app_colors.dart';
 import '../foundations/app_effects.dart';
 import '../foundations/app_gradients.dart';
@@ -18,16 +19,24 @@ class PremiumBottomNavigation extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  static const _items = [
-    (icon: Icons.person_outline, label: 'پروفایل'),
-    (icon: Icons.auto_awesome_outlined, label: 'فال‌ها'),
-    (icon: Icons.home_rounded, label: 'خانه'),
-    (icon: Icons.menu_book_outlined, label: 'تاریخچه'),
-    (icon: Icons.gavel_rounded, label: 'قوانین'),
+  static const _icons = [
+    Icons.person_outline,
+    Icons.auto_awesome_outlined,
+    Icons.home_rounded,
+    Icons.menu_book_outlined,
+    Icons.gavel_rounded,
   ];
 
   @override
   Widget build(BuildContext context) {
+    final s = context.strings;
+    final labels = [
+      s.navProfile,
+      s.navFortunes,
+      s.navHome,
+      s.navHistory,
+      s.navTerms,
+    ];
     return Container(
       height: 74,
       decoration: const BoxDecoration(
@@ -38,17 +47,17 @@ class PremiumBottomNavigation extends StatelessWidget {
         top: false,
         child: Row(
           children: [
-            for (var i = 0; i < _items.length; i++)
+            for (var i = 0; i < _icons.length; i++)
               Expanded(
                 child: i == 2
                     ? _NavOrb(
-                        icon: _items[i].icon,
-                        label: _items[i].label,
+                        icon: _icons[i],
+                        label: labels[i],
                         onTap: () => onTap(i),
                       )
                     : _NavItem(
-                        icon: _items[i].icon,
-                        label: _items[i].label,
+                        icon: _icons[i],
+                        label: labels[i],
                         active: currentIndex == i,
                         onTap: () => onTap(i),
                       ),

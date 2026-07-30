@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/foundations/app_colors.dart';
@@ -59,11 +60,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             children: [
               IconButton(
                 onPressed: () => context.pop(),
-                tooltip: 'بازگشت',
+                tooltip: context.strings.actionBack,
                 icon: Icon(Icons.arrow_back, color: c.goldWarm),
               ),
               Text(
-                'تنظیمات',
+                context.strings.settingsTitle,
                 style: TextStyle(
                   color: c.textPrimary,
                   fontSize: 18,
