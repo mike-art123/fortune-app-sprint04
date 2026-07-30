@@ -35,6 +35,15 @@ interface SweepUser {
   notificationPreference: NotificationPreference | null;
 }
 
+/** The same page as queried — telegramId still nullable until narrowed. The
+ *  explicit annotation also keeps the query's inferred type out of the loop's
+ *  cursor cycle (TS7022). */
+interface SweepUserRow {
+  id: string;
+  telegramId: string | null;
+  notificationPreference: NotificationPreference | null;
+}
+
 export interface SweepResult {
   considered: number;
   sent: number;
@@ -136,7 +145,7 @@ export class NotificationsService {
     let exhausted = false;
 
     while (!exhausted) {
-      const rows = await this.prisma.user.findMany({
+      const rows: SweepUserRow[] = await this.prisma.user.findMany({
         where: { onboardingCompleted: true, telegramId: { not: null } },
         orderBy: { id: 'asc' },
         take: pageSize,
