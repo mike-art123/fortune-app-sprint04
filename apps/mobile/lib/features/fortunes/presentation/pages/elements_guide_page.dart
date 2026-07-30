@@ -7,6 +7,7 @@ import '../../../../design_system/foundations/app_gradients.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../../shared/models/localized_text.dart';
 
 /// The four classical elements — an honest, content-rich astrology screen.
 /// It teaches each element's temperament and its three zodiac signs, and says
@@ -14,30 +15,144 @@ import '../../../../design_system/theme/fortune_theme_extension.dart';
 class ElementsGuidePage extends StatelessWidget {
   const ElementsGuidePage({super.key});
 
+  static const _title = LocalizedText(
+    fa: 'عناصر چهارگانه',
+    en: 'The Four Elements',
+    ar: 'العناصر الأربعة',
+    tr: 'Dört Element',
+  );
+
+  static const _intro = LocalizedText(
+    fa: 'هر برج به یکی از چهار عنصر تعلق دارد؛ عنصرِ تو زبانِ روحِ توست.',
+    en: 'Every sign belongs to an element; yours speaks for your spirit.',
+    ar: 'لكل برج عنصره؛ وعنصرك لسان روحك.',
+    tr: 'Her burç bir elemente aittir; elementin ruhunun dilidir.',
+  );
+
+  static const _footerTitle = LocalizedText(
+    fa: 'طالعِ کاملِ تو به‌زودی',
+    en: 'Your full chart, coming soon',
+    ar: 'طالعك الكامل قريبًا',
+    tr: 'Tam yıldız haritan çok yakında',
+  );
+
+  static const _footerBody = LocalizedText(
+    fa: 'به‌زودی با ماهِ تولدت طالعِ شخصی و کاملت را می‌خوانی.',
+    en: 'Soon your birth month will unlock your full personal chart.',
+    ar: 'قريبًا يفتح شهر ميلادك طالعك الشخصي الكامل.',
+    tr: 'Yakında doğum ayınla kişisel ve tam taliini okuyacaksın.',
+  );
+
   static const _elements = [
-    ('el_fire', 'آتش', 'شور، اراده و رهبری', 'حمل · اسد · قوس'),
-    ('el_earth', 'خاک', 'پایداری، صبر و واقع‌گرایی', 'ثور · سنبله · جدی'),
-    ('el_air', 'باد', 'اندیشه، ارتباط و آزادی', 'جوزا · میزان · دلو'),
-    ('el_water', 'آب', 'احساس، شهود و همدلی', 'سرطان · عقرب · حوت'),
+    (
+      'el_fire',
+      LocalizedText(
+        fa: 'آتش',
+        en: 'Fire',
+        ar: 'نار',
+        tr: 'Ateş',
+      ),
+      LocalizedText(
+        fa: 'شور، اراده و رهبری',
+        en: 'Passion, will, leadership',
+        ar: 'شغف وإرادة وقيادة',
+        tr: 'Tutku, irade ve liderlik',
+      ),
+      LocalizedText(
+        fa: 'حمل · اسد · قوس',
+        en: 'Aries · Leo · Sagittarius',
+        ar: 'الحمل · الأسد · القوس',
+        tr: 'Koç · Aslan · Yay',
+      ),
+    ),
+    (
+      'el_earth',
+      LocalizedText(
+        fa: 'خاک',
+        en: 'Earth',
+        ar: 'تراب',
+        tr: 'Toprak',
+      ),
+      LocalizedText(
+        fa: 'پایداری، صبر و واقع‌گرایی',
+        en: 'Steadiness, patience, realism',
+        ar: 'ثبات وصبر وواقعية',
+        tr: 'Kararlılık, sabır ve gerçekçilik',
+      ),
+      LocalizedText(
+        fa: 'ثور · سنبله · جدی',
+        en: 'Taurus · Virgo · Capricorn',
+        ar: 'الثور · العذراء · الجدي',
+        tr: 'Boğa · Başak · Oğlak',
+      ),
+    ),
+    (
+      'el_air',
+      LocalizedText(
+        fa: 'باد',
+        en: 'Air',
+        ar: 'هواء',
+        tr: 'Hava',
+      ),
+      LocalizedText(
+        fa: 'اندیشه، ارتباط و آزادی',
+        en: 'Thought, connection, freedom',
+        ar: 'فكر وتواصل وحرية',
+        tr: 'Düşünce, iletişim ve özgürlük',
+      ),
+      LocalizedText(
+        fa: 'جوزا · میزان · دلو',
+        en: 'Gemini · Libra · Aquarius',
+        ar: 'الجوزاء · الميزان · الدلو',
+        tr: 'İkizler · Terazi · Kova',
+      ),
+    ),
+    (
+      'el_water',
+      LocalizedText(
+        fa: 'آب',
+        en: 'Water',
+        ar: 'ماء',
+        tr: 'Su',
+      ),
+      LocalizedText(
+        fa: 'احساس، شهود و همدلی',
+        en: 'Feeling, intuition, empathy',
+        ar: 'إحساس وحدس وتعاطف',
+        tr: 'Duygu, sezgi ve empati',
+      ),
+      LocalizedText(
+        fa: 'سرطان · عقرب · حوت',
+        en: 'Cancer · Scorpio · Pisces',
+        ar: 'السرطان · العقرب · الحوت',
+        tr: 'Yengeç · Akrep · Balık',
+      ),
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
     final t = Theme.of(context).textTheme;
+    final locale = Localizations.localeOf(context);
     return FortuneScaffold(
-      appBar: const FortuneAppBar(title: Text('عناصر چهارگانه')),
+      appBar: FortuneAppBar(title: Text(_title.resolve(locale))),
       scrollable: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'هر برج به یکی از چهار عنصر تعلق دارد؛ عنصرِ تو زبانِ روحِ توست.',
+            _intro.resolve(locale),
             style: t.bodyMedium?.copyWith(color: c.textSecondary, height: 1.6),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (final e in _elements)
-            _ElementCard(id: e.$1, name: e.$2, trait: e.$3, signs: e.$4),
+            _ElementCard(
+              id: e.$1,
+              name: e.$2.resolve(locale),
+              trait: e.$3.resolve(locale),
+              signs: e.$4.resolve(locale),
+            ),
           const SizedBox(height: AppSpacing.sm),
           GoldBorderContainer(
             gradient: AppGradients.rewardWash,
@@ -45,12 +160,12 @@ class ElementsGuidePage extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'طالعِ کاملِ تو به‌زودی',
+                  _footerTitle.resolve(locale),
                   style: t.titleSmall?.copyWith(color: c.textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'به‌زودی با ماهِ تولدت طالعِ شخصی و کاملت را می‌خوانی.',
+                  _footerBody.resolve(locale),
                   textAlign: TextAlign.center,
                   style: t.bodySmall?.copyWith(color: c.textMuted),
                 ),

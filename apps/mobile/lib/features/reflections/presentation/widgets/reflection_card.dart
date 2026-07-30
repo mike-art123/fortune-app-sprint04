@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
@@ -76,6 +77,8 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
+    final s = context.strings;
+    final locale = Localizations.localeOf(context);
     _adopt(ref.watch(reflectionForReadingProvider(widget.readingId)));
 
     final feeling = _feeling;
@@ -90,13 +93,12 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'برای خودت بنویس',
+              s.reflectTitle,
               style: textTheme.titleMedium?.copyWith(color: c.textPrimary),
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(
-              'این یادداشت خصوصی است: جایی به اشتراک گذاشته نمی‌شود و از آن'
-              ' پیشنهادی ساخته نمی‌شود.',
+              s.reflectPrivacy,
               style: textTheme.labelSmall?.copyWith(color: c.textMuted),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -106,7 +108,7 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
               children: [
                 for (final option in Feeling.values)
                   _FeelingChip(
-                    label: option.labelFa,
+                    label: option.label.resolve(locale),
                     selected: option == feeling,
                     onTap: () => setState(() {
                       _feeling = option;
@@ -133,7 +135,7 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
               maxLength: 4000,
               style: TextStyle(color: c.textPrimary, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'هرچه دوست داری…',
+                hintText: s.reflectHint,
                 hintStyle: TextStyle(color: c.textMuted, fontSize: 13),
                 counterText: '',
                 filled: true,
@@ -152,7 +154,7 @@ class _ReflectionCardState extends ConsumerState<ReflectionCard> {
                 child: Text(
                   // Not «ذخیره» — the reading already has one of those, and two
                   // buttons with the same word on one screen is a small lie.
-                  _justSaved ? 'ثبت شد' : 'ثبت',
+                  _justSaved ? s.reflectSaved : s.reflectSave,
                   style: TextStyle(color: c.goldWarm, fontSize: 13),
                 ),
               ),

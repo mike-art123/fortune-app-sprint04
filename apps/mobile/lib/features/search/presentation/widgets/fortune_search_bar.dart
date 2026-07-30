@@ -79,12 +79,17 @@ class _FortuneSearchBarState extends State<FortuneSearchBar> {
 
   void _onChanged(String value) {
     final results = FortuneSearch.query(value);
+    // Names first: a sentence only reaches the intent rules when the index
+    // has nothing to say (scope §2 pipeline order).
+    final locale = Localizations.localeOf(context);
+    SearchIntentMatch? intent;
+    if (results.isEmpty) {
+      intent = SearchIntents.match(value, locale: locale);
+    }
     setState(() {
       _asked = value.trim().isNotEmpty;
       _results = results;
-      // Names first: a sentence only reaches the intent rules when the index
-      // has nothing to say (scope §2 pipeline order).
-      _intent = results.isEmpty ? SearchIntents.match(value) : null;
+      _intent = intent;
       // A previous answer belongs to a previous question.
       _remote = _answers[value.trim()];
     });

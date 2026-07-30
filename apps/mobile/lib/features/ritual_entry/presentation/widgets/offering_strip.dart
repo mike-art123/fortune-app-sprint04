@@ -4,6 +4,7 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../shared/models/localized_text.dart';
 import '../../../fortunes/domain/fortune_definition.dart';
+import '../../../profile/domain/user_profile.dart';
 
 /// Interior phase 5 — a bespoke, registry-driven offering element for fortunes
 /// whose ritual asks for a *choice* rather than free prose: a birth month, a
@@ -29,30 +30,79 @@ class OfferingStrip extends StatefulWidget {
   /// Labels for [FortuneOffering.chips], resolved to the active locale.
   final List<LocalizedText> chips;
 
-  static const List<String> _months = [
-    'فروردین',
-    'اردیبهشت',
-    'خرداد',
-    'تیر',
-    'مرداد',
-    'شهریور',
-    'مهر',
-    'آبان',
-    'آذر',
-    'دی',
-    'بهمن',
-    'اسفند',
-  ];
-
-  static const List<(String, Color)> _colors = [
-    ('سرخ', Color(0xFFE5484D)),
-    ('نارنجی', Color(0xFFE68A3C)),
-    ('طلایی', Color(0xFFE9C46A)),
-    ('سبز', Color(0xFF5FBF8F)),
-    ('فیروزه‌ای', Color(0xFF4FB6B0)),
-    ('آبی', Color(0xFF6FA8DC)),
-    ('بنفش', Color(0xFFA78BFA)),
-    ('صورتی', Color(0xFFCB6FB0)),
+  static const List<(LocalizedText, Color)> _colors = [
+    (
+      LocalizedText(
+        fa: 'سرخ',
+        en: 'Red',
+        ar: 'أحمر',
+        tr: 'Kırmızı',
+      ),
+      Color(0xFFE5484D),
+    ),
+    (
+      LocalizedText(
+        fa: 'نارنجی',
+        en: 'Orange',
+        ar: 'برتقالي',
+        tr: 'Turuncu',
+      ),
+      Color(0xFFE68A3C),
+    ),
+    (
+      LocalizedText(
+        fa: 'طلایی',
+        en: 'Gold',
+        ar: 'ذهبي',
+        tr: 'Altın',
+      ),
+      Color(0xFFE9C46A),
+    ),
+    (
+      LocalizedText(
+        fa: 'سبز',
+        en: 'Green',
+        ar: 'أخضر',
+        tr: 'Yeşil',
+      ),
+      Color(0xFF5FBF8F),
+    ),
+    (
+      LocalizedText(
+        fa: 'فیروزه‌ای',
+        en: 'Turquoise',
+        ar: 'فيروزي',
+        tr: 'Turkuaz',
+      ),
+      Color(0xFF4FB6B0),
+    ),
+    (
+      LocalizedText(
+        fa: 'آبی',
+        en: 'Blue',
+        ar: 'أزرق',
+        tr: 'Mavi',
+      ),
+      Color(0xFF6FA8DC),
+    ),
+    (
+      LocalizedText(
+        fa: 'بنفش',
+        en: 'Purple',
+        ar: 'بنفسجي',
+        tr: 'Mor',
+      ),
+      Color(0xFFA78BFA),
+    ),
+    (
+      LocalizedText(
+        fa: 'صورتی',
+        en: 'Pink',
+        ar: 'وردي',
+        tr: 'Pembe',
+      ),
+      Color(0xFFCB6FB0),
+    ),
   ];
 
   @override
@@ -69,21 +119,23 @@ class _OfferingStripState extends State<OfferingStrip> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final lang = locale.languageCode;
     switch (widget.offering) {
       case FortuneOffering.none:
         return const SizedBox.shrink();
       case FortuneOffering.months:
         return _wrap([
-          for (final m in OfferingStrip._months) _pill(m),
+          for (final m in kBirthMonths) _pill(monthLabel(m, lang)),
         ]);
       case FortuneOffering.chips:
-        final locale = Localizations.localeOf(context);
         return _wrap([
           for (final c in widget.chips) _pill(c.resolve(locale)),
         ]);
       case FortuneOffering.colors:
         return _wrap([
-          for (final c in OfferingStrip._colors) _swatch(c.$1, c.$2),
+          for (final c in OfferingStrip._colors)
+            _swatch(c.$1.resolve(locale), c.$2),
         ]);
     }
   }

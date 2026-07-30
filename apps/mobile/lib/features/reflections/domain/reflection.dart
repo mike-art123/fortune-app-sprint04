@@ -1,3 +1,5 @@
+import '../../../shared/models/localized_text.dart';
+
 /// The five words the app offers after a reading (scope §8). A closed list, and
 /// the same five the server knows.
 enum Feeling { calm, hopeful, longing, worried, heavy }
@@ -11,13 +13,40 @@ extension FeelingWire on Feeling {
         Feeling.heavy => 'heavy',
       };
 
-  String get labelFa => switch (this) {
-        Feeling.calm => 'آرام',
-        Feeling.hopeful => 'امیدوار',
-        Feeling.longing => 'دل‌تنگ',
-        Feeling.worried => 'نگران',
-        Feeling.heavy => 'گرفته',
+  LocalizedText get label => switch (this) {
+        Feeling.calm => const LocalizedText(
+            fa: 'آرام',
+            en: 'Calm',
+            ar: 'هادئ',
+            tr: 'Sakin',
+          ),
+        Feeling.hopeful => const LocalizedText(
+            fa: 'امیدوار',
+            en: 'Hopeful',
+            ar: 'متفائل',
+            tr: 'Umutlu',
+          ),
+        Feeling.longing => const LocalizedText(
+            fa: 'دل‌تنگ',
+            en: 'Longing',
+            ar: 'مشتاق',
+            tr: 'Özlem dolu',
+          ),
+        Feeling.worried => const LocalizedText(
+            fa: 'نگران',
+            en: 'Worried',
+            ar: 'قلق',
+            tr: 'Endişeli',
+          ),
+        Feeling.heavy => const LocalizedText(
+            fa: 'گرفته',
+            en: 'Heavy',
+            ar: 'مثقل',
+            tr: 'Buruk',
+          ),
       };
+
+  String get labelFa => label.fa;
 
   /// The two the app answers with room instead of another question. Nothing is
   /// inferred from what anybody wrote — this follows the word they chose.

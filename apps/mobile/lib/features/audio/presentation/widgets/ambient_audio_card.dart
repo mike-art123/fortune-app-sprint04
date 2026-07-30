@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
@@ -21,6 +22,8 @@ class AmbientAudioCard extends ConsumerWidget {
     if (!AudioThemes.hasAny) return const SizedBox.shrink();
 
     final c = context.fortuneColors;
+    final s = context.strings;
+    final locale = Localizations.localeOf(context);
     final state = ref.watch(audioControllerProvider);
     final controller = ref.read(audioControllerProvider.notifier);
 
@@ -38,11 +41,11 @@ class AmbientAudioCard extends ConsumerWidget {
               value: state.enabled,
               onChanged: controller.setEnabled,
               title: Text(
-                'صدای پس‌زمینه',
+                s.audioCardTitle,
                 style: TextStyle(color: c.textPrimary, fontSize: 14),
               ),
               subtitle: Text(
-                'آرام و بی‌مزاحمت؛ هر وقت خواستی خاموشش کن.',
+                s.audioCardSubtitle,
                 style: TextStyle(color: c.textMuted, fontSize: 11),
               ),
               activeTrackColor: c.goldWarm.withValues(alpha: 0.5),
@@ -55,7 +58,7 @@ class AmbientAudioCard extends ConsumerWidget {
                 children: [
                   for (final theme in AudioThemes.available)
                     _ThemeChip(
-                      label: theme.labelFa,
+                      label: theme.label.resolve(locale),
                       selected: theme == state.theme,
                       onTap: () => controller.chooseTheme(theme),
                     ),

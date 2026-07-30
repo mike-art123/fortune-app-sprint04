@@ -187,6 +187,28 @@ class AppStrings {
   String get adPreparing => 'در حال آماده‌سازی تبلیغ...';
   String get splashTagline => 'در حال گشودن رازهای بخت شما…';
   String get editProfileTitle => 'نام و ماه تولد';
+  String get audioCardTitle => 'صدای پس‌زمینه';
+  String get audioCardSubtitle => 'آرام و بی‌مزاحمت؛ هر وقت خواستی خاموشش کن.';
+  String get historyLookback => 'نگاهی به گذشته';
+  String get historyCounting => 'در حال شمردن…';
+  String get historyAiNote =>
+      'این جمله را دستیار از شمارشِ خودِ فال‌هایت نوشته است.';
+  String get notifTitle => 'یادآوری‌ها';
+  String get notifMutedNote => 'تا وقتی خودت بخواهی، پیامی نمی‌فرستیم.';
+  String get notifDaily => 'فال امروز';
+  String get notifStreak => 'وقتی چند روز سر نزدم';
+  String get notifWeekly => 'نگاهی به هفته‌ای که گذشت';
+  String get notifUnmute => 'باز هم خبرم بده';
+  String get notifMuteWeek => 'یک هفته چیزی نفرست';
+  String get reflectTitle => 'برای خودت بنویس';
+  String get reflectHint => 'هرچه دوست داری…';
+  String get reflectSave => 'ثبت';
+  String get reflectSaved => 'ثبت شد';
+  String get reflectPrivacy =>
+      'این یادداشت خصوصی است: جایی به اشتراک گذاشته نمی‌شود و از آن'
+      ' پیشنهادی ساخته نمی‌شود.';
+  String notifQuiet(String from, String to) =>
+      'بین $from و $to هیچ پیامی نمی‌آید.';
 }
 
 /// English.
@@ -488,6 +510,46 @@ class EnStrings extends AppStrings {
   String get splashTagline => 'Unveiling the secrets of your fortune…';
   @override
   String get editProfileTitle => 'Name and birth month';
+  @override
+  String get audioCardTitle => 'Ambient sound';
+  @override
+  String get audioCardSubtitle =>
+      'Soft and unobtrusive; turn it off whenever you like.';
+  @override
+  String get historyLookback => 'A look back';
+  @override
+  String get historyCounting => 'Counting…';
+  @override
+  String get historyAiNote =>
+      'The assistant wrote this line from the count of your own readings.';
+  @override
+  String get notifTitle => 'Reminders';
+  @override
+  String get notifMutedNote => 'Until you say so, we send nothing.';
+  @override
+  String get notifDaily => 'Today\'s fortune';
+  @override
+  String get notifStreak => 'When I\'m away for a few days';
+  @override
+  String get notifWeekly => 'A look at the week gone by';
+  @override
+  String get notifUnmute => 'Tell me again';
+  @override
+  String get notifMuteWeek => 'Nothing for a week';
+  @override
+  String get reflectTitle => 'Write for yourself';
+  @override
+  String get reflectHint => 'Whatever you like…';
+  @override
+  String get reflectSave => 'Note it';
+  @override
+  String get reflectSaved => 'Noted';
+  @override
+  String get reflectPrivacy =>
+      'This note is private — never shared, never turned into suggestions.';
+  @override
+  String notifQuiet(String from, String to) =>
+      'No messages between $from and $to.';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -780,6 +842,43 @@ class ArStrings extends AppStrings {
   String get splashTagline => 'نكشف أسرار بختك…';
   @override
   String get editProfileTitle => 'الاسم وشهر الميلاد';
+  @override
+  String get audioCardTitle => 'صوت خلفي';
+  @override
+  String get audioCardSubtitle => 'هادئ وغير مزعج؛ أطفئه متى شئت.';
+  @override
+  String get historyLookback => 'نظرة إلى الوراء';
+  @override
+  String get historyCounting => 'نعدّ الآن…';
+  @override
+  String get historyAiNote => 'كتب المساعد هذه الجملة من إحصاء فؤولك نفسها.';
+  @override
+  String get notifTitle => 'التذكيرات';
+  @override
+  String get notifMutedNote => 'لن نرسل شيئًا حتى تطلب ذلك.';
+  @override
+  String get notifDaily => 'فأل اليوم';
+  @override
+  String get notifStreak => 'حين أغيب بضعة أيام';
+  @override
+  String get notifWeekly => 'نظرة على الأسبوع المنصرم';
+  @override
+  String get notifUnmute => 'أخبرني مجددًا';
+  @override
+  String get notifMuteWeek => 'لا شيء لأسبوع';
+  @override
+  String get reflectTitle => 'اكتب لنفسك';
+  @override
+  String get reflectHint => 'ما تشاء…';
+  @override
+  String get reflectSave => 'دوّن';
+  @override
+  String get reflectSaved => 'دُوِّن';
+  @override
+  String get reflectPrivacy =>
+      'هذه الملاحظة خاصة: لا تُشارَك ولا تُبنى عليها اقتراحات.';
+  @override
+  String notifQuiet(String from, String to) => 'لا رسائل بين $from و$to.';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -1082,6 +1181,45 @@ class TrStrings extends AppStrings {
   String get splashTagline => 'Bahtının sırları aralanıyor…';
   @override
   String get editProfileTitle => 'İsim ve doğum ayı';
+  @override
+  String get audioCardTitle => 'Ortam sesi';
+  @override
+  String get audioCardSubtitle => 'Sakin ve rahatsız etmez; istediğinde kapat.';
+  @override
+  String get historyLookback => 'Geçmişe bir bakış';
+  @override
+  String get historyCounting => 'Sayıyorum…';
+  @override
+  String get historyAiNote =>
+      'Bu cümleyi asistan, kendi fallarının sayımından yazdı.';
+  @override
+  String get notifTitle => 'Hatırlatmalar';
+  @override
+  String get notifMutedNote => 'Sen istemedikçe mesaj göndermeyiz.';
+  @override
+  String get notifDaily => 'Bugünün falı';
+  @override
+  String get notifStreak => 'Birkaç gün uğramadığımda';
+  @override
+  String get notifWeekly => 'Geçen haftaya bir bakış';
+  @override
+  String get notifUnmute => 'Yine haber ver';
+  @override
+  String get notifMuteWeek => 'Bir hafta bir şey gönderme';
+  @override
+  String get reflectTitle => 'Kendin için yaz';
+  @override
+  String get reflectHint => 'İçinden ne geliyorsa…';
+  @override
+  String get reflectSave => 'Not al';
+  @override
+  String get reflectSaved => 'Alındı';
+  @override
+  String get reflectPrivacy =>
+      'Bu not özeldir: paylaşılmaz ve içinden öneri üretilmez.';
+  @override
+  String notifQuiet(String from, String to) =>
+      '$from ile $to arasında mesaj gelmez.';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {

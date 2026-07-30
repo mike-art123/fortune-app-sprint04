@@ -1,3 +1,5 @@
+import '../../../shared/models/localized_text.dart';
+
 /// The seven ambient beds the app offers (scope §1).
 ///
 /// The list is the product decision; the files are an external dependency the
@@ -18,15 +20,52 @@ extension AudioThemeInfo on AudioTheme {
         AudioTheme.piano => 'piano',
       };
 
-  String get labelFa => switch (this) {
-        AudioTheme.night => 'شب',
-        AudioTheme.rain => 'باران',
-        AudioTheme.candle => 'شمع',
-        AudioTheme.nature => 'طبیعت',
-        AudioTheme.persian => 'ایرانی',
-        AudioTheme.santurNey => 'سنتور و نی',
-        AudioTheme.piano => 'پیانو',
+  LocalizedText get label => switch (this) {
+        AudioTheme.night => const LocalizedText(
+            fa: 'شب',
+            en: 'Night',
+            ar: 'ليل',
+            tr: 'Gece',
+          ),
+        AudioTheme.rain => const LocalizedText(
+            fa: 'باران',
+            en: 'Rain',
+            ar: 'مطر',
+            tr: 'Yağmur',
+          ),
+        AudioTheme.candle => const LocalizedText(
+            fa: 'شمع',
+            en: 'Candle',
+            ar: 'شمعة',
+            tr: 'Mum',
+          ),
+        AudioTheme.nature => const LocalizedText(
+            fa: 'طبیعت',
+            en: 'Nature',
+            ar: 'طبيعة',
+            tr: 'Doğa',
+          ),
+        AudioTheme.persian => const LocalizedText(
+            fa: 'ایرانی',
+            en: 'Persian',
+            ar: 'إيراني',
+            tr: 'İran ezgisi',
+          ),
+        AudioTheme.santurNey => const LocalizedText(
+            fa: 'سنتور و نی',
+            en: 'Santur & Ney',
+            ar: 'سنطور وناي',
+            tr: 'Santur ve Ney',
+          ),
+        AudioTheme.piano => const LocalizedText(
+            fa: 'پیانو',
+            en: 'Piano',
+            ar: 'بيانو',
+            tr: 'Piyano',
+          ),
       };
+
+  String get labelFa => label.fa;
 
   /// Where the licensed file will live. One naming rule, no exceptions, so
   /// adding a bed is dropping a file in and listing it in `pubspec.yaml`.

@@ -1,5 +1,8 @@
+import 'dart:ui' show Locale;
+
 import '../../../app/routing/app_routes.dart';
 import '../../fortunes/domain/fortune_registry.dart';
+import '../../../shared/models/localized_text.dart';
 import 'fa_text.dart';
 import 'search_action.dart';
 
@@ -37,25 +40,55 @@ class AppScreenTarget {
   });
 
   final String path;
-  final String label;
-  final String hint;
+  final LocalizedText label;
+  final LocalizedText hint;
 }
 
 const Map<String, AppScreenTarget> kSearchScreens = {
   'history': AppScreenTarget(
     path: AppRoutes.historyPath,
-    label: 'تاریخچهٔ فال‌ها',
-    hint: 'هرچه تا امروز خوانده‌ای',
+    label: LocalizedText(
+      fa: 'تاریخچهٔ فال‌ها',
+      en: 'Fortune history',
+      ar: 'سجلّ الفؤول',
+      tr: 'Fal geçmişi',
+    ),
+    hint: LocalizedText(
+      fa: 'هرچه تا امروز خوانده‌ای',
+      en: 'Everything read so far',
+      ar: 'كل ما قرأته حتى اليوم',
+      tr: 'Bugüne dek okudukların',
+    ),
   ),
   'profile': AppScreenTarget(
     path: AppRoutes.profilePath,
-    label: 'پروفایل من',
-    hint: 'نام و ماه تولدت',
+    label: LocalizedText(
+      fa: 'پروفایل من',
+      en: 'My profile',
+      ar: 'ملفي الشخصي',
+      tr: 'Profilim',
+    ),
+    hint: LocalizedText(
+      fa: 'نام و ماه تولدت',
+      en: 'Your name and birth month',
+      ar: 'اسمك وشهر ميلادك',
+      tr: 'Adın ve doğum ayın',
+    ),
   ),
   'fortunes': AppScreenTarget(
     path: AppRoutes.allFortunesPath,
-    label: 'همه فال‌ها',
-    hint: 'فهرست کامل، دسته‌بندی‌شده',
+    label: LocalizedText(
+      fa: 'همه فال‌ها',
+      en: 'All fortunes',
+      ar: 'كل الفؤول',
+      tr: 'Tüm fallar',
+    ),
+    hint: LocalizedText(
+      fa: 'فهرست کامل، دسته‌بندی‌شده',
+      en: 'The full list, by category',
+      ar: 'القائمة الكاملة مصنّفة',
+      tr: 'Kategorilere göre tam liste',
+    ),
   ),
 };
 
@@ -78,7 +111,7 @@ class _FortuneRule {
 
   final List<String> triggers;
   final String fortuneId;
-  final String hint;
+  final LocalizedText hint;
 }
 
 const List<_RouteRule> _routeRules = [
@@ -103,17 +136,32 @@ const List<_FortuneRule> _fortuneRules = [
   _FortuneRule(
     triggers: ['فال بگیر', 'فالم بگو', 'یه فال', 'امروز چی', 'امروزم چطور'],
     fortuneId: 'daily',
-    hint: 'فال امروزت',
+    hint: LocalizedText(
+      fa: 'فال امروزت',
+      en: 'Your fortune for today',
+      ar: 'فأل يومك',
+      tr: 'Bugünün falın',
+    ),
   ),
   _FortuneRule(
     triggers: ['جواب کوتاه', 'سوال بله'],
     fortuneId: 'yesno',
-    hint: 'یک پاسخ کوتاه',
+    hint: LocalizedText(
+      fa: 'یک پاسخ کوتاه',
+      en: 'One short answer',
+      ar: 'إجابة قصيرة',
+      tr: 'Kısa bir yanıt',
+    ),
   ),
   _FortuneRule(
     triggers: ['خوابم تعبیر', 'تعبیر کن'],
     fortuneId: 'dream',
-    hint: 'خوابت را می‌خوانیم',
+    hint: LocalizedText(
+      fa: 'خوابت را می‌خوانیم',
+      en: 'We read your dream',
+      ar: 'نقرأ حلمك',
+      tr: 'Rüyanı yorumluyoruz',
+    ),
   ),
 ];
 
@@ -121,7 +169,10 @@ abstract final class SearchIntents {
   /// The best intent for a sentence, or null when nothing is certain enough.
   /// The most specific trigger wins (most words matched), and a tie keeps the
   /// order written above — so the same sentence always lands the same place.
-  static SearchIntentMatch? match(String raw) {
+  static SearchIntentMatch? match(
+    String raw, {
+    Locale locale = const Locale('fa'),
+  }) {
     final tokens = faTokens(raw).toSet();
     if (tokens.isEmpty) return null;
 
@@ -131,7 +182,7 @@ abstract final class SearchIntents {
     for (final rule in _routeRules) {
       final score = _score(rule.triggers, tokens);
       if (score <= bestScore) continue;
-      final match = SearchIntents.forScreen(rule.screen);
+      final match = SearchIntents.forScreen(rule.screen, locale: locale);
       if (match == null) continue;
       bestScore = score;
       best = match;
@@ -140,14 +191,14 @@ abstract final class SearchIntents {
     for (final rule in _fortuneRules) {
       final score = _score(rule.triggers, tokens);
       if (score <= bestScore) continue;
-      final match = SearchIntents.forFortune(rule.fortuneId);
+      final match = SearchIntents.forFortune(rule.fortuneId, locale: locale);
       if (match == null) continue;
       bestScore = score;
       // The rule's own hint says why this sentence leads here; the registry
       // subtitle is kept for answers that arrive without one.
       best = SearchIntentMatch(
         label: match.label,
-        hint: rule.hint,
+        hint: rule.hint.resolve(locale),
         action: match.action,
       );
     }
@@ -158,26 +209,33 @@ abstract final class SearchIntents {
   /// A screen by its key, or null when the key is not one we own. Every stage
   /// that wants to open a screen — the rules here, or an answer from the
   /// server — goes through this, so no stage can name a screen we do not have.
-  static SearchIntentMatch? forScreen(String screen) {
+  static SearchIntentMatch? forScreen(
+    String screen, {
+    Locale locale = const Locale('fa'),
+  }) {
     final target = kSearchScreens[screen];
     if (target == null) return null;
+    final label = target.label.resolve(locale);
     return SearchIntentMatch(
-      label: target.label,
-      hint: target.hint,
-      action: OpenDestinationAction(path: target.path, label: target.label),
+      label: label,
+      hint: target.hint.resolve(locale),
+      action: OpenDestinationAction(path: target.path, label: label),
     );
   }
 
   /// A fortune by its id, resolved through the shared destination map so an
   /// answer can never outrank availability, and named by the registry so the
   /// row reads exactly like every other row.
-  static SearchIntentMatch? forFortune(String fortuneId) {
+  static SearchIntentMatch? forFortune(
+    String fortuneId, {
+    Locale locale = const Locale('fa'),
+  }) {
     final action = SearchActions.forFortune(fortuneId);
     final fortune = FortuneRegistry.byId(fortuneId);
     if (action is! OpenFortuneAction || fortune == null) return null;
     return SearchIntentMatch(
-      label: fortune.title.fa,
-      hint: fortune.subtitle.fa,
+      label: fortune.title.resolve(locale),
+      hint: fortune.subtitle.resolve(locale),
       action: action,
     );
   }

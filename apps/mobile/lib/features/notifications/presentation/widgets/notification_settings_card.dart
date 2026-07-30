@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
@@ -19,21 +20,25 @@ class NotificationSettingsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fortuneColors;
+    final s = context.strings;
+    final lang = Localizations.localeOf(context).languageCode;
     final prefs = ref.watch(notificationControllerProvider).valueOrNull;
     if (prefs == null) return const SizedBox.shrink();
 
     final controller = ref.read(notificationControllerProvider.notifier);
     final muted = prefs.isMutedAt(DateTime.now());
-    final note = muted
-        ? 'تا وقتی خودت بخواهی، پیامی نمی‌فرستیم.'
-        : _quietSentence(prefs);
+    final quiet = s.notifQuiet(
+      _hour(prefs.quietFromHour, lang),
+      _hour(prefs.quietToHour, lang),
+    );
+    final note = muted ? s.notifMutedNote : quiet;
 
     return GoldBorderContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'یادآوری‌ها',
+            s.notifTitle,
             style: TextStyle(color: c.textPrimary, fontSize: 14),
           ),
           const SizedBox(height: AppSpacing.xxs),
@@ -43,17 +48,17 @@ class NotificationSettingsCard extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           _Toggle(
-            label: 'فال امروز',
+            label: s.notifDaily,
             value: prefs.dailyFortune,
             onChanged: muted ? null : controller.setDailyFortune,
           ),
           _Toggle(
-            label: 'وقتی چند روز سر نزدم',
+            label: s.notifStreak,
             value: prefs.streakReminder,
             onChanged: muted ? null : controller.setStreakReminder,
           ),
           _Toggle(
-            label: 'نگاهی به هفته‌ای که گذشت',
+            label: s.notifWeekly,
             value: prefs.weeklySummary,
             onChanged: muted ? null : controller.setWeeklySummary,
           ),
@@ -63,7 +68,7 @@ class NotificationSettingsCard extends ConsumerWidget {
             child: TextButton(
               onPressed: () => controller.mute(muted ? 0 : 168),
               child: Text(
-                muted ? 'باز هم خبرم بده' : 'یک هفته چیزی نفرست',
+                muted ? s.notifUnmute : s.notifMuteWeek,
                 style: TextStyle(color: c.goldWarm, fontSize: 12),
               ),
             ),
@@ -74,15 +79,10 @@ class NotificationSettingsCard extends ConsumerWidget {
   }
 }
 
-/// A 24-hour clock in Persian digits — «۲۲» reads as a time, «22» does not.
-String _hour(int hour) => '${hour.toPersianDigits}:۰۰';
-
-/// The one line that says exactly when the app will stay quiet.
-String _quietSentence(NotificationPreferences prefs) {
-  final from = _hour(prefs.quietFromHour);
-  final to = _hour(prefs.quietToHour);
-  return 'بین $from و $to هیچ پیامی نمی‌آید.';
-}
+/// A 24-hour clock in the reader's own digits — «۲۲» reads as a time to a
+/// Persian eye, and «22:00» to everyone else.
+String _hour(int hour, String lang) =>
+    lang == 'fa' ? '${hour.toPersianDigits}:۰۰' : '$hour:00';
 
 class _Toggle extends StatelessWidget {
   const _Toggle({

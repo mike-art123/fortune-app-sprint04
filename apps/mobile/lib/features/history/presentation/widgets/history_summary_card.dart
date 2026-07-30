@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/localization/app_strings.dart';
 import '../../../../core/extensions/string_extensions.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_radius.dart';
@@ -21,6 +22,8 @@ class HistorySummaryCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
+    final s = context.strings;
+    final locale = Localizations.localeOf(context);
     final range = ref.watch(summaryRangeProvider);
     final summary = ref.watch(historySummaryProvider).valueOrNull;
 
@@ -34,7 +37,7 @@ class HistorySummaryCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'نگاهی به گذشته',
+                    s.historyLookback,
                     style: textTheme.titleMedium?.copyWith(
                       color: c.textPrimary,
                     ),
@@ -42,7 +45,7 @@ class HistorySummaryCard extends ConsumerWidget {
                 ),
                 for (final option in SummaryRange.values)
                   _RangeChip(
-                    label: option.labelFa,
+                    label: option.label.resolve(locale),
                     selected: option == range,
                     onTap: () =>
                         ref.read(summaryRangeProvider.notifier).state = option,
@@ -52,7 +55,7 @@ class HistorySummaryCard extends ConsumerWidget {
             const SizedBox(height: AppSpacing.sm),
             if (summary == null)
               Text(
-                'در حال شمردن…',
+                s.historyCounting,
                 style: textTheme.bodySmall?.copyWith(color: c.textMuted),
               )
             else ...[
@@ -66,7 +69,7 @@ class HistorySummaryCard extends ConsumerWidget {
               if (summary.writtenByAi) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'این جمله را دستیار از شمارشِ خودِ فال‌هایت نوشته است.',
+                  s.historyAiNote,
                   style: textTheme.labelSmall?.copyWith(color: c.textMuted),
                 ),
               ],
@@ -131,6 +134,9 @@ class _RangeChip extends StatelessWidget {
   }
 }
 
+/// Counts in the reader's own digits — «۲» for Persian eyes, «2» otherwise.
+String _digits(int n, String lang) => lang == 'fa' ? n.toPersianDigits : '$n';
+
 class _TallyPill extends StatelessWidget {
   const _TallyPill({required this.tally});
 
@@ -139,6 +145,7 @@ class _TallyPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
+    final lang = Localizations.localeOf(context).languageCode;
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
         horizontal: AppSpacing.xs,
@@ -149,7 +156,7 @@ class _TallyPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
-        '${tally.title} · ${tally.count.toPersianDigits}',
+        '${tally.title} · ${_digits(tally.count, lang)}',
         style: TextStyle(fontSize: 11, color: c.textMuted),
       ),
     );

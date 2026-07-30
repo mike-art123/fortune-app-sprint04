@@ -1,3 +1,5 @@
+import '../../../shared/models/localized_text.dart';
+
 /// The windows the journal can look back over (scope §6). A closed list, and
 /// the same three names the server knows.
 enum SummaryRange { last7, last30, last90 }
@@ -10,11 +12,28 @@ extension SummaryRangeWire on SummaryRange {
       };
 
   /// The chip label. Short, because it sits next to two others.
-  String get labelFa => switch (this) {
-        SummaryRange.last7 => 'هفته',
-        SummaryRange.last30 => 'ماه',
-        SummaryRange.last90 => 'سه ماه',
+  LocalizedText get label => switch (this) {
+        SummaryRange.last7 => const LocalizedText(
+            fa: 'هفته',
+            en: 'Week',
+            ar: 'أسبوع',
+            tr: 'Hafta',
+          ),
+        SummaryRange.last30 => const LocalizedText(
+            fa: 'ماه',
+            en: 'Month',
+            ar: 'شهر',
+            tr: 'Ay',
+          ),
+        SummaryRange.last90 => const LocalizedText(
+            fa: 'سه ماه',
+            en: '3 months',
+            ar: '٣ أشهر',
+            tr: '3 ay',
+          ),
       };
+
+  String get labelFa => label.fa;
 }
 
 /// How many times one fortune was opened in the window.
