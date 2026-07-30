@@ -69,3 +69,57 @@ jobs:
       # validates the js_interop bridge and the web/ target (analyze/test alone
       # run on the VM and never exercise the web-only implementation).
       - run: cd apps/mobile && flutter build web --release
+
+  # Play build (Sprint Android): the production flavor with guest login and
+  # native bridges on. The AAB is what Mike uploads to Play Console; the APK
+  # installs directly on a phone for pre-Play testing. Both come out of the
+  # run's Artifacts. Release signing appears only when the ANDROID_KEYSTORE_*
+  # secrets exist; until then the bundle is debug-signed and CI stays green.
+  android:
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable }
+      - run: cd apps/mobile && flutter pub get
+      - run: cd apps/mobile && flutter gen-l10n
+      - name: Materialize release signing from secrets
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        working-directory: apps/mobile/android
+        run: |
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > upload-keystore.jks
+          {
+            echo "storeFile=../upload-keystore.jks"
+            echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            echo "keyPassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            echo "keyAlias=upload"
+          } > key.properties
+      - name: Build Play bundle (production flavor)
+        working-directory: apps/mobile
+        run: >
+          flutter build appbundle --release
+          -t lib/main_production.dart
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
+          --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
+          --dart-define=ENABLE_GUEST_AUTH=true
+          --dart-define=ENABLE_ANDROID_BRIDGES=true
+      - name: Build installable APK (same flavor)
+        working-directory: apps/mobile
+        run: >
+          flutter build apk --release
+          -t lib/main_production.dart
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
+          --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
+          --dart-define=ENABLE_GUEST_AUTH=true
+          --dart-define=ENABLE_ANDROID_BRIDGES=true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bakhtnegar-android
+          path: |
+            apps/mobile/build/app/outputs/bundle/release/app-release.aab
+            apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14

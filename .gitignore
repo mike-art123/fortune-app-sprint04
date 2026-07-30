@@ -32,8 +32,9 @@ apps/mobile/pubspec.lock
 **/*.freezed.dart
 
 # Generated native shells (created by `flutter create .`). The web/ target is
-# committed (Sprint 05) — the Telegram Mini App ships as a web build.
-apps/mobile/android/
+# committed (Sprint 05) — the Telegram Mini App ships as a web build — and so
+# is android/ (Sprint Android): it carries the Play identity, signing config
+# and launcher art; its own .gitignore keeps wrapper/keystore files out.
 apps/mobile/ios/
 apps/mobile/macos/
 apps/mobile/linux/
