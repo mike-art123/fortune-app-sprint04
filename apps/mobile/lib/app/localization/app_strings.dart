@@ -128,8 +128,7 @@ class AppStrings {
   String get inviteBody => 'بخت‌نگار را با دوستانت به اشتراک بگذار';
   String get socialTelegram => 'کانال تلگرام';
   String get socialInstagram => 'اینستاگرام';
-  String profileSeekerBorn(String month) =>
-      'متولدِ $month · جست‌وجوگرِ حقیقت';
+  String profileSeekerBorn(String month) => 'متولدِ $month · جست‌وجوگرِ حقیقت';
 }
 
 /// English.
@@ -341,8 +340,7 @@ class EnStrings extends AppStrings {
   @override
   String get socialInstagram => 'Instagram';
   @override
-  String profileSeekerBorn(String month) =>
-      'Born in $month · Seeker of truth';
+  String profileSeekerBorn(String month) => 'Born in $month · Seeker of truth';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.

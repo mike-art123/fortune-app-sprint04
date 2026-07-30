@@ -121,9 +121,7 @@ class _ReadingView extends ConsumerWidget {
     messenger?.showSnackBar(
       SnackBar(
         content: Text(
-          copied
-              ? context.strings.shareCopied
-              : context.strings.shareFailed,
+          copied ? context.strings.shareCopied : context.strings.shareFailed,
         ),
       ),
     );
