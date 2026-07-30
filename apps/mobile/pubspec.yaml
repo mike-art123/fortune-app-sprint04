@@ -29,6 +29,8 @@ dependencies:
   connectivity_plus: ^6.0.5        # connectivity hint only
   intl: any # let flutter_localizations pin the version (Sprint 04B)
   uuid: ^4.4.2                     # request correlation ids + guest device id
+  share_plus: ^11.0.0              # Play build: native share sheet
+  url_launcher: ^6.3.0             # Play build: open external links
 
   # Serialization annotations (generators are dev-only)
   freezed_annotation: ^2.4.4

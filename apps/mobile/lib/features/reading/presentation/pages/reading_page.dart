@@ -15,6 +15,7 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/foundations/fortune_focus.dart';
 import '../../../../design_system/motion/fortune_fade_transition.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../../core/config/android_bridges_switch.dart';
 import '../../../../core/errors/app_failure.dart';
 import '../../../../core/errors/failure_message_resolver.dart';
 import '../../../../design_system/components/fortune_loading.dart';
@@ -87,8 +88,9 @@ class _ReadingView extends ConsumerWidget {
         : formatted;
   }
 
-  /// Real share: the reading is copied for pasting anywhere, and inside
-  /// Telegram the native share sheet opens with the text prefilled. Privacy
+  /// Real share: the reading is copied for pasting anywhere; inside Telegram
+  /// the Telegram share dialog opens, and on the Play build the Android share
+  /// sheet does (the bridge routes the same link either way). Privacy
   /// (scope §16): the person's name is stripped from the shared text — what
   /// leaves the app is impersonal by default.
   Future<void> _share(BuildContext context, WidgetRef ref) async {
@@ -103,7 +105,7 @@ class _ReadingView extends ConsumerWidget {
     } catch (_) {
       copied = false; // never a silent failure — the snackbar tells the truth
     }
-    if (bridge.isAvailable) {
+    if (bridge.isAvailable || kAndroidBridgesEnabled) {
       final url = Uri(
         scheme: 'https',
         host: 't.me',
