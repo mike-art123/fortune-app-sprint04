@@ -131,8 +131,7 @@ class EnStrings extends AppStrings {
   @override
   String get readingUnavailableTitle => 'This reading is not available';
   @override
-  String get readingUnavailableBody =>
-      'Open a ritual to receive your reading.';
+  String get readingUnavailableBody => 'Open a ritual to receive your reading.';
   @override
   String get startupFailedBody => 'Your data is safe. Please try once more.';
   @override
@@ -186,8 +185,7 @@ class EnStrings extends AppStrings {
   @override
   String get historyClearTitle => 'Clear all history?';
   @override
-  String get historyClearBody =>
-      'This permanently deletes your whole history.';
+  String get historyClearBody => 'This permanently deletes your whole history.';
   @override
   String get historyClearConfirm => 'Clear';
   @override
@@ -195,8 +193,7 @@ class EnStrings extends AppStrings {
   @override
   String get historyDeleteTitle => 'Delete this reading?';
   @override
-  String get historyDeleteBody =>
-      'This reading will be permanently deleted.';
+  String get historyDeleteBody => 'This reading will be permanently deleted.';
   @override
   String get historyDeleteConfirm => 'Delete';
   @override
@@ -246,8 +243,7 @@ class ArStrings extends AppStrings {
   @override
   String get readingSealedTitle => 'وصلت نيّتك.';
   @override
-  String get readingSealedBody =>
-      'تصل القراءة الكاملة هنا في المرحلة القادمة.';
+  String get readingSealedBody => 'تصل القراءة الكاملة هنا في المرحلة القادمة.';
   @override
   String get actionSave => 'حفظ';
   @override
@@ -277,8 +273,7 @@ class ArStrings extends AppStrings {
   @override
   String get intentionsEmptyTitle => 'لا نيّات بعد';
   @override
-  String get intentionsEmptyBody =>
-      'كل نيّة تهمس بها قبل الفأل تبقى هنا.';
+  String get intentionsEmptyBody => 'كل نيّة تهمس بها قبل الفأل تبقى هنا.';
   @override
   String get savedTitle => 'الفؤول المحفوظة';
   @override
