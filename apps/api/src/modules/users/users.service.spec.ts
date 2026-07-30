@@ -75,6 +75,38 @@ describe('UsersService.upsertTelegramUser', () => {
   });
 });
 
+describe('UsersService.upsertGuestUser', () => {
+  it('creates the guest row once with only the device anchor', async () => {
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.user.create.mockResolvedValue(userRow({ telegramId: null, deviceId: 'device-1' }));
+
+    await service.upsertGuestUser({ deviceId: 'device-1' });
+
+    expect(prisma.user.create).toHaveBeenCalledWith({ data: { deviceId: 'device-1' } });
+  });
+
+  it('reuses the existing row on later logins', async () => {
+    prisma.user.findUnique.mockResolvedValue(userRow({ telegramId: null, deviceId: 'device-1' }));
+
+    const user = await service.upsertGuestUser({ deviceId: 'device-1' });
+
+    expect(prisma.user.create).not.toHaveBeenCalled();
+    expect(user).toMatchObject({ deviceId: 'device-1' });
+  });
+
+  it('survives a first-login race by adopting the winner row', async () => {
+    prisma.user.findUnique.mockResolvedValueOnce(null);
+    prisma.user.create.mockRejectedValue(new Error('unique constraint'));
+    prisma.user.findUnique.mockResolvedValueOnce(
+      userRow({ telegramId: null, deviceId: 'device-1' }),
+    );
+
+    const user = await service.upsertGuestUser({ deviceId: 'device-1' });
+
+    expect(user).toMatchObject({ deviceId: 'device-1' });
+  });
+});
+
 describe('UsersService.completeOnboarding', () => {
   it('normalizes the name, stores the month, and completes exactly once', async () => {
     prisma.user.findUnique.mockResolvedValue(userRow());

@@ -14,6 +14,8 @@ export class FeatureFlagsService {
   /** Safe defaults — a missing flag never breaks a request. */
   private readonly defaults: Record<string, boolean> = {
     'system.maintenance-banner': false,
+    // Guest (device-anchored) login for the Play build — dark until launch.
+    'auth.guest': false,
     'hafez.raw-engine': true,
     'abjad.raw-engine': true,
     'tarot.raw-engine': true,

@@ -27,7 +27,8 @@ enum BirthMonth {
 /// User anchored to Telegram identity (`tg:<id>` = the unique telegramId).
 model User {
   id                    String      @id @default(cuid())
-  telegramId            String      @unique @map("telegram_id")
+  telegramId            String?     @unique @map("telegram_id")
+  deviceId              String?     @unique @map("device_id")
   displayName           String?     @map("display_name")
   locale                String      @default("fa")
   birthMonth            BirthMonth? @map("birth_month")

@@ -7,6 +7,8 @@ import { TokenService } from './token.service';
  * The real production verifier (Sprint 04 / doc 53): a bearer token is valid
  * iff it is a JWT signed by us with live iss/aud/exp claims. Replaces
  * DenyAllTokenVerifier behind the same seam — the guard is untouched.
+ * Telegram logins carry the tid anchor; guest (device-anchored) tokens omit
+ * it, so the principal simply has no telegramId.
  */
 @Injectable()
 export class TelegramTokenVerifier implements TokenVerifier {

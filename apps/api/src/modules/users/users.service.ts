@@ -16,7 +16,9 @@ export interface ProfileView {
 /**
  * User lifecycle (Sprint 04 / doc 53). The identity anchor is `tg:<id>` —
  * i.e. the unique telegramId column; one Telegram account maps to exactly one
- * user row, created on first login and updated on later logins.
+ * user row, created on first login and updated on later logins. The Play
+ * build adds a second anchor: `device:<id>` via the unique deviceId column
+ * (guest login) — every user row has exactly one of the two anchors.
  *
  * Profile onboarding (scope §16): the Telegram first name is only a
  * SUGGESTION. Once the user confirms a display name (onboarding complete),
@@ -53,6 +55,30 @@ export class UsersService {
         ...(locale ? { locale } : {}),
       },
     });
+  }
+
+  /**
+   * Guest identity for the Play build: the row is created on first login and
+   * returned verbatim afterwards. Nothing about the profile is ever derived
+   * from the device — the id is an opaque anchor, and a guest's profile works
+   * exactly like a Telegram user's.
+   */
+  async upsertGuestUser(input: { deviceId: string }): Promise<User> {
+    const existing = await this.prisma.user.findUnique({
+      where: { deviceId: input.deviceId },
+    });
+    if (existing) return existing;
+    try {
+      return await this.prisma.user.create({ data: { deviceId: input.deviceId } });
+    } catch (error) {
+      // Two first-logins can race; the unique index lets exactly one create
+      // win, and the loser simply adopts the winner's row.
+      const winner = await this.prisma.user.findUnique({
+        where: { deviceId: input.deviceId },
+      });
+      if (winner) return winner;
+      throw error;
+    }
   }
 
   findById(id: string): Promise<User | null> {

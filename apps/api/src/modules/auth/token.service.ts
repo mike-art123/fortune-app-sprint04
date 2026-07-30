@@ -28,7 +28,8 @@ export interface AccessTokenClaims {
   iss: string;
   aud: string;
   sub: string;
-  tid: string;
+  /** Telegram identity anchor; absent on guest (device-anchored) tokens. */
+  tid?: string;
   roles: readonly string[];
   iat: number;
   exp: number;
@@ -103,10 +104,11 @@ export class TokenService {
     return this.alg === 'RS256' ? 'sha256' : null;
   }
 
-  /** Signs a new access token for `subject` (the internal user id). */
+  /** Signs a new access token for `subject` (the internal user id). Guest
+   *  (device-anchored) sessions simply omit the Telegram anchor. */
   sign(
     subject: string,
-    details: { telegramId: string; roles: readonly string[] },
+    details: { telegramId?: string; roles: readonly string[] },
   ): SignedAccessToken {
     const iat = Math.floor(Date.now() / 1000);
     const ttl = this.authConfig.tokenTtlSeconds;
@@ -114,7 +116,7 @@ export class TokenService {
       iss: this.securityConfig.jwtIssuer,
       aud: this.securityConfig.jwtAudience,
       sub: subject,
-      tid: details.telegramId,
+      ...(details.telegramId !== undefined ? { tid: details.telegramId } : {}),
       roles: details.roles,
       iat,
       exp: iat + ttl,
@@ -161,7 +163,9 @@ export class TokenService {
       if (claims.iss !== this.securityConfig.jwtIssuer) return null;
       if (claims.aud !== this.securityConfig.jwtAudience) return null;
       if (typeof claims.sub !== 'string' || claims.sub.length === 0) return null;
-      if (typeof claims.tid !== 'string' || claims.tid.length === 0) return null;
+      // tid is optional (guest tokens), but when present it must be sound.
+      const tid = claims.tid;
+      if (tid !== undefined && (typeof tid !== 'string' || tid.length === 0)) return null;
       if (!Array.isArray(claims.roles)) return null;
       if (typeof claims.exp !== 'number' || claims.exp <= now - CLOCK_SKEW_SECONDS) return null;
       if (typeof claims.iat !== 'number' || claims.iat > now + CLOCK_SKEW_SECONDS) return null;

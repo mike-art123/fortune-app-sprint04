@@ -13,6 +13,7 @@ ensureTestBotToken();
 // Imported after the env is prepared.
 import { AppModule } from '../src/app.module';
 import { configureApplication } from '../src/bootstrap/app-factory';
+import { PrismaService } from '../src/infrastructure/database/prisma.service';
 
 /** Requires PostgreSQL + Redis (docker compose up) and a migrated database. */
 describe('auth (e2e)', () => {
@@ -105,5 +106,65 @@ describe('auth (e2e)', () => {
       .set('authorization', `Bearer ${session.accessToken}`)
       .expect(200);
     expect(res.body.success).toBe(true);
+  });
+
+  describe('guest login (Play build)', () => {
+    const deviceId = `e2e-device-${Date.now()}-4f9a1b2c3d`;
+
+    beforeAll(async () => {
+      // Turned on for this suite exactly the way production turns it on: a
+      // feature_flags row (the code default is off — dark launch).
+      await app.get(PrismaService).featureFlag.upsert({
+        where: { key: 'auth.guest' },
+        create: { key: 'auth.guest', enabled: true },
+        update: { enabled: true },
+      });
+    });
+
+    it('exchanges a device id for a bearer token and a guest user', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/guest')
+        .send({ deviceId })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.tokenType).toBe('Bearer');
+      expect(res.body.data.user.telegramId).toBeNull();
+      expect(res.body.data.accessToken.split('.')).toHaveLength(3);
+    });
+
+    it('is stable: the same device maps to the same user on re-login', async () => {
+      const first = await request(app.getHttpServer())
+        .post('/api/v1/auth/guest')
+        .send({ deviceId })
+        .expect(200);
+      const second = await request(app.getHttpServer())
+        .post('/api/v1/auth/guest')
+        .send({ deviceId })
+        .expect(200);
+
+      expect(second.body.data.user.id).toBe(first.body.data.user.id);
+    });
+
+    it('a guest token opens protected routes', async () => {
+      const login = await request(app.getHttpServer())
+        .post('/api/v1/auth/guest')
+        .send({ deviceId })
+        .expect(200);
+
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/readings')
+        .set('authorization', `Bearer ${login.body.data.accessToken}`)
+        .expect(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('rejects a malformed device id at the validation boundary', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/guest')
+        .send({ deviceId: 'short!' })
+        .expect(400);
+      await request(app.getHttpServer()).post('/api/v1/auth/guest').send({}).expect(400);
+    });
   });
 });

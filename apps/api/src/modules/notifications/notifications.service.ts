@@ -136,18 +136,22 @@ export class NotificationsService {
     let exhausted = false;
 
     while (!exhausted) {
-      const page: SweepUser[] = await this.prisma.user.findMany({
-        where: { onboardingCompleted: true },
+      const rows = await this.prisma.user.findMany({
+        where: { onboardingCompleted: true, telegramId: { not: null } },
         orderBy: { id: 'asc' },
         take: pageSize,
         ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
         select: { id: true, telegramId: true, notificationPreference: true },
       });
 
-      if (page.length === 0) break;
-      cursor = page.at(-1)?.id ?? null;
-      considered += page.length;
-      if (page.length < pageSize) exhausted = true;
+      if (rows.length === 0) break;
+      cursor = rows.at(-1)?.id ?? null;
+      considered += rows.length;
+      if (rows.length < pageSize) exhausted = true;
+
+      // Guests (device-anchored users) have no Telegram chat to message; the
+      // filter narrows the type of what the where clause already guarantees.
+      const page = rows.filter((user): user is SweepUser => user.telegramId !== null);
 
       const outcome = await this.sweepPage(page, now);
       sent += outcome.sent;

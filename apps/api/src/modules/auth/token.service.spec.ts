@@ -42,6 +42,17 @@ describe('TokenService', () => {
     expect(claims?.aud).toBe('fortune-clients');
   });
 
+  it('signs a guest token with no tid claim and verifies it', () => {
+    const service = makeService();
+    const signed = service.sign('guest-1', { roles: ['user'] });
+
+    const claims = service.verify(signed.accessToken);
+    expect(claims).not.toBeNull();
+    expect(claims?.sub).toBe('guest-1');
+    expect(claims?.tid).toBeUndefined();
+    expect(claims?.roles).toEqual(['user']);
+  });
+
   it('rejects a tampered payload', () => {
     const service = makeService();
     const token = service.sign('user-1', { telegramId: '42', roles: ['user'] }).accessToken;

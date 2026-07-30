@@ -37,6 +37,8 @@ function makeTokenService(): TokenService {
   );
 }
 
+const flags = { isEnabled: jest.fn() };
+
 describe('AuthService.loginWithTelegram', () => {
   const authConfig = { botToken: BOT_TOKEN, initDataMaxAgeSeconds: 3600 };
   const users = {
@@ -56,8 +58,15 @@ describe('AuthService.loginWithTelegram', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    flags.isEnabled.mockResolvedValue(true);
     tokens = makeTokenService();
-    service = new AuthService(authConfig as never, users as never, tokens, logger as never);
+    service = new AuthService(
+      authConfig as never,
+      users as never,
+      tokens,
+      flags as never,
+      logger as never,
+    );
   });
 
   it('verifies initData, upserts the tg:<id> anchor, and returns a working token', async () => {
@@ -114,10 +123,78 @@ describe('AuthService.loginWithTelegram', () => {
       { botToken: null, initDataMaxAgeSeconds: 3600 } as never,
       users as never,
       tokens,
+      flags as never,
       logger as never,
     );
     await expect(broken.loginWithTelegram('anything')).rejects.toMatchObject({
       code: 'INTERNAL',
     });
+  });
+});
+
+describe('AuthService.loginAsGuest', () => {
+  const authConfig = { botToken: BOT_TOKEN, initDataMaxAgeSeconds: 3600 };
+  const users = {
+    upsertGuestUser: jest.fn().mockImplementation(({ deviceId }) =>
+      Promise.resolve({
+        id: `guest-${deviceId}`,
+        telegramId: null,
+        deviceId,
+        displayName: null,
+        locale: 'fa',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    ),
+  };
+  let tokens: TokenService;
+  let service: AuthService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    flags.isEnabled.mockResolvedValue(true);
+    tokens = makeTokenService();
+    service = new AuthService(
+      authConfig as never,
+      users as never,
+      tokens,
+      flags as never,
+      logger as never,
+    );
+  });
+
+  it('upserts the device anchor and returns a working guest token', async () => {
+    const res = await service.loginAsGuest('device-1234567890abcdef');
+
+    expect(users.upsertGuestUser).toHaveBeenCalledWith({ deviceId: 'device-1234567890abcdef' });
+    expect(res.tokenType).toBe('Bearer');
+    expect(res.user.telegramId).toBeNull();
+
+    const verifier = new TelegramTokenVerifier(tokens);
+    const principal = await verifier.verify(res.accessToken);
+    expect(principal?.userId).toBe('guest-device-1234567890abcdef');
+    expect(principal?.telegramId).toBeUndefined();
+    expect(principal?.roles).toEqual(['user']);
+  });
+
+  it('answers NOT_FOUND while the auth.guest flag is off (dark launch)', async () => {
+    flags.isEnabled.mockResolvedValue(false);
+
+    await expect(service.loginAsGuest('device-1234567890abcdef')).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
+    expect(users.upsertGuestUser).not.toHaveBeenCalled();
+  });
+
+  it('never logs the device id itself', async () => {
+    await service.loginAsGuest('device-raz-mahramane-123');
+
+    const allLogged = JSON.stringify([
+      logger.debug.mock.calls,
+      logger.info.mock.calls,
+      logger.warn.mock.calls,
+      logger.error.mock.calls,
+    ]);
+    expect(allLogged).not.toContain('device-raz-mahramane-123');
   });
 });
