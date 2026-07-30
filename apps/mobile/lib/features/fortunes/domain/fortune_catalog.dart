@@ -746,7 +746,7 @@ abstract final class FortuneCatalog {
     final byId = <String, FortuneItem>{};
     for (final group in groups) {
       for (final item in group.items) {
-        byId[item.\$1] = item;
+        byId[item.$1] = item;
       }
     }
     final resolved = <FortuneItem>[];
