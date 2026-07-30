@@ -7,6 +7,8 @@ import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/foundations/app_colors.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../../design_system/components/gold_border_container.dart';
+import '../../../../shared/widgets/language_selector.dart';
 import '../../../audio/presentation/widgets/ambient_audio_card.dart';
 import '../../../notifications/presentation/widgets/notification_settings_card.dart';
 
@@ -69,6 +71,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          GoldBorderContainer(
+            child: Row(
+              children: [
+                Icon(Icons.language_rounded, color: c.goldWarm, size: 22),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    'زبان · Language',
+                    style: TextStyle(
+                      color: c.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const LanguagePill(),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           const AmbientAudioCard(),

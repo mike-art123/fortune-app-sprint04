@@ -6,6 +6,7 @@ import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../../shared/widgets/language_selector.dart';
 import '../../../ritual_entry/presentation/widgets/whisper_field.dart';
 import '../../application/profile_controller.dart';
 import '../../domain/user_profile.dart';
@@ -76,17 +77,34 @@ class _PersonalizePromptState extends ConsumerState<PersonalizePrompt> {
     final c = context.fortuneColors;
     final textTheme = Theme.of(context).textTheme;
     return GoldBorderContainer(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      // A touch taller than the default card: the prompt breathes, and the
+      // language row above the title gets its own quiet space.
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xl,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const LanguagePill(),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                'Language',
+                style: TextStyle(color: c.textMuted, fontSize: 11.5),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
           Text(
             'بخت‌نگار تو را چه صدا کند؟',
             textAlign: TextAlign.center,
             style: textTheme.titleMedium?.copyWith(height: 1.5),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
           WhisperField(
             controller: _name,
             accent: c.goldWarm,
