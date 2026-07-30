@@ -14,8 +14,10 @@ export class FeatureFlagsService {
   /** Safe defaults — a missing flag never breaks a request. */
   private readonly defaults: Record<string, boolean> = {
     'system.maintenance-banner': false,
-    // Guest (device-anchored) login for the Play build — dark until launch.
-    'auth.guest': false,
+    // Guest (device-anchored) login for the Play build. Live by default so
+    // the Android testers can sign in; a feature_flags row (enabled=false)
+    // still force-closes it without a deploy, since rows win over defaults.
+    'auth.guest': true,
     'hafez.raw-engine': true,
     'abjad.raw-engine': true,
     'tarot.raw-engine': true,

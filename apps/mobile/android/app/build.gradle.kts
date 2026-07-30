@@ -1,3 +1,7 @@
+// In build scripts the bare `java` identifier resolves to the Gradle java
+// extension, not the package — hence the explicit import.
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -8,11 +12,11 @@ plugins {
 // repository secrets — or written locally next to this project — and is
 // gitignored either way. Without it, release builds fall back to the debug
 // keys so `flutter build` and CI stay green before signing is configured.
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 val hasReleaseKeys = keystorePropertiesFile.exists()
 if (hasReleaseKeys) {
-    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+    keystorePropertiesFile.inputStream().use { stream -> keystoreProperties.load(stream) }
 }
 
 android {
