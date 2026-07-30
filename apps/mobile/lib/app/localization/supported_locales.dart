@@ -6,8 +6,10 @@ import 'app_strings.dart';
 abstract final class SupportedLocales {
   static const fa = Locale('fa');
   static const en = Locale('en');
+  static const ar = Locale('ar');
+  static const tr = Locale('tr');
 
-  static const all = <Locale>[fa, en];
+  static const all = <Locale>[fa, en, ar, tr];
   static const fallback = fa;
 
   static const delegates = <LocalizationsDelegate<dynamic>>[
