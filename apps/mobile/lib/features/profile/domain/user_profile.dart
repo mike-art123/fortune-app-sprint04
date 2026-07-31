@@ -29,30 +29,112 @@ class UserProfile {
 
 /// Persian months paired with their shared backend enum names — one list used
 /// by onboarding, the profile editor, and any later birth-month feature.
-typedef BirthMonth = ({String value, String fa, String latin, String ar});
+typedef BirthMonth = ({
+  String value,
+  String fa,
+  String en,
+  String ar,
+  String tr,
+});
 
-/// The Persian calendar months. Latin transliteration serves English and
-/// Turkish; Arabic gets its own script. The stored value never changes.
+/// Every language keeps its own calendar: Persian shows the Jalali months,
+/// English and Turkish the Gregorian ones, Arabic the Hijri (lunar) ones.
+/// The STORED value never changes — it is the month's slot (1st..12th), so a
+/// pick means «the Nth month of my own calendar» and profiles stay stable
+/// across language switches.
 const List<BirthMonth> kBirthMonths = [
-  (value: 'FARVARDIN', fa: 'فروردین', latin: 'Farvardin', ar: 'فروردين'),
-  (value: 'ORDIBEHESHT', fa: 'اردیبهشت', latin: 'Ordibehesht', ar: 'أرديبهشت'),
-  (value: 'KHORDAD', fa: 'خرداد', latin: 'Khordad', ar: 'خرداد'),
-  (value: 'TIR', fa: 'تیر', latin: 'Tir', ar: 'تير'),
-  (value: 'MORDAD', fa: 'مرداد', latin: 'Mordad', ar: 'مرداد'),
-  (value: 'SHAHRIVAR', fa: 'شهریور', latin: 'Shahrivar', ar: 'شهريور'),
-  (value: 'MEHR', fa: 'مهر', latin: 'Mehr', ar: 'مهر'),
-  (value: 'ABAN', fa: 'آبان', latin: 'Aban', ar: 'آبان'),
-  (value: 'AZAR', fa: 'آذر', latin: 'Azar', ar: 'آذر'),
-  (value: 'DEY', fa: 'دی', latin: 'Dey', ar: 'دي'),
-  (value: 'BAHMAN', fa: 'بهمن', latin: 'Bahman', ar: 'بهمن'),
-  (value: 'ESFAND', fa: 'اسفند', latin: 'Esfand', ar: 'إسفند'),
+  (
+    value: 'FARVARDIN',
+    fa: 'فروردین',
+    en: 'January',
+    ar: 'محرم',
+    tr: 'Ocak',
+  ),
+  (
+    value: 'ORDIBEHESHT',
+    fa: 'اردیبهشت',
+    en: 'February',
+    ar: 'صفر',
+    tr: 'Şubat',
+  ),
+  (
+    value: 'KHORDAD',
+    fa: 'خرداد',
+    en: 'March',
+    ar: 'ربيع الأول',
+    tr: 'Mart',
+  ),
+  (
+    value: 'TIR',
+    fa: 'تیر',
+    en: 'April',
+    ar: 'ربيع الآخر',
+    tr: 'Nisan',
+  ),
+  (
+    value: 'MORDAD',
+    fa: 'مرداد',
+    en: 'May',
+    ar: 'جمادى الأولى',
+    tr: 'Mayıs',
+  ),
+  (
+    value: 'SHAHRIVAR',
+    fa: 'شهریور',
+    en: 'June',
+    ar: 'جمادى الآخرة',
+    tr: 'Haziran',
+  ),
+  (
+    value: 'MEHR',
+    fa: 'مهر',
+    en: 'July',
+    ar: 'رجب',
+    tr: 'Temmuz',
+  ),
+  (
+    value: 'ABAN',
+    fa: 'آبان',
+    en: 'August',
+    ar: 'شعبان',
+    tr: 'Ağustos',
+  ),
+  (
+    value: 'AZAR',
+    fa: 'آذر',
+    en: 'September',
+    ar: 'رمضان',
+    tr: 'Eylül',
+  ),
+  (
+    value: 'DEY',
+    fa: 'دی',
+    en: 'October',
+    ar: 'شوال',
+    tr: 'Ekim',
+  ),
+  (
+    value: 'BAHMAN',
+    fa: 'بهمن',
+    en: 'November',
+    ar: 'ذو القعدة',
+    tr: 'Kasım',
+  ),
+  (
+    value: 'ESFAND',
+    fa: 'اسفند',
+    en: 'December',
+    ar: 'ذو الحجة',
+    tr: 'Aralık',
+  ),
 ];
 
 /// A month's label in the given language code ('fa' default).
 String monthLabel(BirthMonth month, String languageCode) {
   return switch (languageCode) {
     'ar' => month.ar,
-    'en' || 'tr' => month.latin,
+    'en' => month.en,
+    'tr' => month.tr,
     _ => month.fa,
   };
 }
