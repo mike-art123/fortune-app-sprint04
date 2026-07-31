@@ -1,6 +1,11 @@
 import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { ReadingProfileContext } from '../providers/reading-provider.interface';
-import { VOICE, languageDirective, personaFor } from '../providers/prompt-builder';
+import {
+  VOICE,
+  languageDirective,
+  languageReminder,
+  personaFor,
+} from '../providers/prompt-builder';
 import { toPersianDigits, type AbjadResult } from './abjad-numerology';
 
 /**
@@ -45,10 +50,12 @@ export function buildAbjadPrompt(
     .join('\n');
 
   const total = toPersianDigits(abjad.total);
+  const reminder = languageReminder(profile?.locale);
   const user = [
     `نام یا نیتِ کاربر: «${word}»`,
     `حسابِ ابجدِ کبیر: عددِ ${total}.`,
     'حالا همین عدد را برای این نیت بخوان.',
+    ...(reminder ? [reminder] : []),
   ].join('\n\n');
 
   return [

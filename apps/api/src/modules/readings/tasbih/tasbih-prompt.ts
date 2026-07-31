@@ -1,7 +1,12 @@
 import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type { ReadingProfileContext } from '../providers/reading-provider.interface';
-import { VOICE, languageDirective, personaFor } from '../providers/prompt-builder';
+import {
+  VOICE,
+  languageDirective,
+  languageReminder,
+  personaFor,
+} from '../providers/prompt-builder';
 import type { TasbihResult } from './tasbih-count';
 
 /**
@@ -50,10 +55,12 @@ export function buildTasbihPrompt(
     ? `نیت کاربر: «${intention}»`
     : 'کاربر نیتش را در دل نگه داشته و چیزی ننوشته است. سکوت او را محترم بشمار.';
 
+  const reminder = languageReminder(profile?.locale);
   const user = [
     `نتیجهٔ استخاره با تسبیح: «${result}».`,
     offering,
     'حالا همین نتیجه را برای این نیت، با احترام و فروتنی بخوان.',
+    ...(reminder ? [reminder] : []),
   ].join('\n\n');
 
   return [

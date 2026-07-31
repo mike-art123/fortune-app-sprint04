@@ -1,7 +1,12 @@
 import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type { ReadingProfileContext } from '../providers/reading-provider.interface';
-import { VOICE, languageDirective, personaFor } from '../providers/prompt-builder';
+import {
+  VOICE,
+  languageDirective,
+  languageReminder,
+  personaFor,
+} from '../providers/prompt-builder';
 import type { QuranVerse } from './quran-deck';
 
 /**
@@ -48,12 +53,14 @@ export function buildQuranPrompt(
     ? `نیت کاربر: «${intention}»`
     : 'کاربر نیتش را در دل نگه داشته و چیزی ننوشته است. سکوت او را محترم بشمار.';
 
+  const reminder = languageReminder(profile?.locale);
   const user = [
     `آیه (سورهٔ ${verse.surahNameFa}، آیهٔ ${verse.ayah}):`,
     verse.arabic,
     `ترجمه: ${verse.translationFa}`,
     offering,
     'حالا بر همین آیه برای این نیت، با احترام و امید تأمل کن.',
+    ...(reminder ? [reminder] : []),
   ].join('\n\n');
 
   return [

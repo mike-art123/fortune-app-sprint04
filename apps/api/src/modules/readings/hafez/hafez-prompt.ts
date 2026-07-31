@@ -2,7 +2,12 @@ import type { Ghazal } from '@prisma/client';
 import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type { ReadingProfileContext } from '../providers/reading-provider.interface';
-import { VOICE, languageDirective, personaFor } from '../providers/prompt-builder';
+import {
+  VOICE,
+  languageDirective,
+  languageReminder,
+  personaFor,
+} from '../providers/prompt-builder';
 
 /**
  * The Hafez raw engine's prompt (docs/hafez-dataset-sourcing.md, steps 4–5).
@@ -64,11 +69,13 @@ export function buildHafezPrompt(
     ? `نیت کاربر: «${intention}»`
     : 'کاربر نیتش را در دل نگه داشته و چیزی ننوشته است. سکوت او را محترم بشمار.';
 
+  const reminder = languageReminder(profile?.locale);
   const user = [
     `غزل شمارهٔ ${ghazal.number} دیوان حافظ:`,
     poem,
     offering,
     'حالا همین غزل را برای این نیت بخوان.',
+    ...(reminder ? [reminder] : []),
   ].join('\n\n');
 
   return [

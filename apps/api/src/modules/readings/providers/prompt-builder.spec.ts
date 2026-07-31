@@ -103,6 +103,7 @@ describe('buildPrompt', () => {
 
     const en = buildPrompt(hafez, {}, { displayName: null, locale: 'en' });
     expect(en[0].content).toContain('For today:');
+    expect(en[1].content).toContain('in English only.');
     expect(en[0].content).toContain('انگلیسی');
   });
 });

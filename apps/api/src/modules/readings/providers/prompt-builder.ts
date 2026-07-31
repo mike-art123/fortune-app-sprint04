@@ -136,6 +136,25 @@ export function languageDirective(locale?: string): string | null {
   ].join('\n');
 }
 
+/**
+ * One line for the END of the user message, written in the target language
+ * itself — the last thing the model reads before answering. The Persian
+ * sources in engine prompts (a whole ghazal, a verse) pull the output toward
+ * Persian; an instruction in the output language anchors it back.
+ */
+export function languageReminder(locale?: string): string | null {
+  switch (locale) {
+    case 'en':
+      return 'Write the title and the entire reading in English only.';
+    case 'ar':
+      return 'اكتب العنوان والقراءة كلّها بالعربية فقط.';
+    case 'tr':
+      return 'Başlığı ve yorumun tamamını yalnızca Türkçe yaz.';
+    default:
+      return null;
+  }
+}
+
 export function buildPrompt(
   fortune: FortuneCatalogEntry,
   input: ReadingInputDto,
@@ -148,11 +167,13 @@ export function buildPrompt(
     .concat(language ? ['', language] : [])
     .join('\n');
 
+  const reminder = languageReminder(profile?.locale);
   const user = [
     `نوع فال: ${fortune.titleFa}`,
     offeringFor(fortune, input),
     '',
     'حالا متن فال را بنویس.',
+    ...(reminder ? [reminder] : []),
   ].join('\n\n');
 
   return [
