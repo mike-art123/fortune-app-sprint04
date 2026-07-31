@@ -11,8 +11,11 @@ void main() {
     expect(FortuneDestinations.pathFor('dream'), '/ritual/dream');
   });
 
+  test('coffee is live: its card opens the photo ritual', () {
+    expect(FortuneDestinations.pathFor('coffee'), '/ritual/coffee');
+  });
+
   test('a guided fortune leads to its guide, not a ritual', () {
-    expect(FortuneDestinations.pathFor('coffee'), '/coffee');
     expect(FortuneDestinations.pathFor('elements'), '/elements');
   });
 

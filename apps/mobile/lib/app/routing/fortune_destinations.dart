@@ -5,9 +5,9 @@ import 'app_routes.dart';
 /// and by search, so a card and a search result can never disagree.
 abstract final class FortuneDestinations {
   /// Fortunes that open a real guide instead of a live ritual. These are never
-  /// «به‌زودی»: they lead somewhere real.
+  /// «به‌زودی»: they lead somewhere real. Coffee left this list the day its
+  /// vision backend went live — its card now opens the photo ritual itself.
   static const Map<String, String> guides = {
-    'coffee': AppRoutes.coffeePath,
     'elements': AppRoutes.elementsPath,
   };
 

@@ -92,9 +92,15 @@ void main() {
     });
 
     test('a guided fortune resolves to its guide, not to «به‌زودی»', () {
+      final action = SearchActions.forFortune('elements');
+      expect(action, isA<OpenFortuneAction>());
+      expect((action as OpenFortuneAction).path, '/elements');
+    });
+
+    test('coffee resolves to its live photo ritual', () {
       final action = SearchActions.forFortune('coffee');
       expect(action, isA<OpenFortuneAction>());
-      expect((action as OpenFortuneAction).path, '/coffee');
+      expect((action as OpenFortuneAction).path, '/ritual/coffee');
     });
 
     test('an unknown or malformed id can never navigate', () {
