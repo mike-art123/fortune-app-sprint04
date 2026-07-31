@@ -101,7 +101,6 @@ export function personaFor(profile?: ReadingProfileContext): string | null {
   ].join('\n');
 }
 
-
 /** Model-facing names of the non-Persian output languages. */
 const LANGUAGE_NAME: Record<string, string> = {
   en: 'انگلیسی',
