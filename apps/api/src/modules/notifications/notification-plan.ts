@@ -57,15 +57,18 @@ export interface NotificationContext {
  * birth month, and never a line from a reading. A message that lands on a lock
  * screen is read by whoever is holding the phone.
  */
+const FA_TEXTS: Record<NotificationKind, string> = {
+  dailyFortune: 'بیا که فالِ روزتو بگیرم، ببینی امروز چی در انتظارته',
+  streakReminder: 'چند روزی است سراغ فالی نرفته‌ای. هر وقت خواستی، همین‌جاست.',
+  weeklySummary: 'یک نگاه به هفته‌ای که گذشت در تاریخچه‌ات آماده است.',
+};
+
 const TEXTS: Record<string, Record<NotificationKind, string>> = {
-  fa: {
-    dailyFortune: 'بیا که فالِ روزتو بگیرم، ببینی امروز چی در انتظارته',
-    streakReminder: 'چند روزی است سراغ فالی نرفته‌ای. هر وقت خواستی، همین‌جاست.',
-    weeklySummary: 'یک نگاه به هفته‌ای که گذشت در تاریخچه‌ات آماده است.',
-  },
+  fa: FA_TEXTS,
   en: {
     dailyFortune: 'Come, let me read your fortune for today — see what awaits you.',
-    streakReminder: 'It has been a few days since your last fortune. It is right here whenever you wish.',
+    streakReminder:
+      'It has been a few days since your last fortune. It is right here whenever you wish.',
     weeklySummary: 'A look at your past week is ready in your history.',
   },
   ar: {
@@ -82,7 +85,7 @@ const TEXTS: Record<string, Record<NotificationKind, string>> = {
 
 /** The copy for one kind, in the reader's own language (fa is the default). */
 export function notificationText(kind: NotificationKind, locale?: string): string {
-  const table = locale && TEXTS[locale] ? TEXTS[locale] : TEXTS.fa;
+  const table = (locale ? TEXTS[locale] : undefined) ?? FA_TEXTS;
   return table[kind];
 }
 

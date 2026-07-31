@@ -105,5 +105,4 @@ describe('buildPrompt', () => {
     expect(en[0].content).toContain('For today:');
     expect(en[0].content).toContain('انگلیسی');
   });
-
 });

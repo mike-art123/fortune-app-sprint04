@@ -10,7 +10,7 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 export function normalizeLocale(raw: string | undefined): SupportedLocale | undefined {
   if (!raw) return undefined;
   const primary = raw.split(',')[0]?.split(';')[0]?.trim().toLowerCase() ?? '';
-  const base = primary.split('-')[0];
+  const base = primary.split('-')[0] ?? '';
   return (SUPPORTED_LOCALES as readonly string[]).includes(base)
     ? (base as SupportedLocale)
     : undefined;

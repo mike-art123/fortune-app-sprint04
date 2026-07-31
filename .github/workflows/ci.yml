@@ -45,7 +45,10 @@ jobs:
           --to-schema-datamodel prisma/schema.prisma
           --shadow-database-url "postgresql://fortune:fortune@localhost:5432/fortune_shadow"
           --exit-code
-      - run: npm run api:format:check
+      - name: API format (prints exact drift on failure)
+        run: |
+          npx --workspace apps/api prettier --write "src/**/*.ts" "test/**/*.ts"
+          git diff --exit-code -- apps/api
       - run: npm run api:lint
       - run: npm run api:test
       - run: npm run api:e2e
