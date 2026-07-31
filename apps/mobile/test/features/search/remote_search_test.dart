@@ -93,13 +93,13 @@ void main() {
     });
 
     test('a fortune that is not live is refused, however it was named', () {
-      // «coffee» is a guide, «elements» is not in the registry at all: both
-      // still go through the shared map rather than around it.
+      // «coffee» is live (the photo ritual); «elements» is not in the registry
+      // at all: both still go through the shared map rather than around it.
       final coffee = matchFromInterpretation({
         'kind': 'fortune',
         'fortuneId': 'coffee',
       });
-      expect((coffee!.action as OpenFortuneAction).path, '/coffee');
+      expect((coffee!.action as OpenFortuneAction).path, '/ritual/coffee');
       expect(
         matchFromInterpretation({'kind': 'fortune', 'fortuneId': 'elements'}),
         isNull,

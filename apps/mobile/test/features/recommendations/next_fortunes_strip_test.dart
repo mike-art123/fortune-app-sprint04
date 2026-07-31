@@ -77,10 +77,6 @@ Widget host({
           body: Text('ritual-stub-${state.pathParameters['fortuneId']}'),
         ),
       ),
-      GoRoute(
-        path: '/coffee',
-        builder: (_, __) => const Scaffold(body: Text('coffee-guide-stub')),
-      ),
     ],
   );
   return ProviderScope(
@@ -122,10 +118,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // After «فال حافظ» the first of its family is the coffee guide.
+    // After «فال حافظ» the first of its family is the coffee ritual.
     await tester.tap(find.text('فال قهوه'));
     await tester.pumpAndSettle();
-    expect(find.text('coffee-guide-stub'), findsOneWidget);
+    expect(find.text('ritual-stub-coffee'), findsOneWidget);
   });
 
   testWidgets('says nothing at all when personalization is off', (

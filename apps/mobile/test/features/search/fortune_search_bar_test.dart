@@ -80,7 +80,7 @@ void main() {
     expect(find.text('ritual-stub-hafez'), findsOneWidget);
   });
 
-  testWidgets('a guided fortune opens its guide, never a dead end', (
+  testWidgets('coffee opens its live photo ritual, never a dead end', (
     tester,
   ) async {
     await tester.pumpWidget(host());
@@ -91,7 +91,7 @@ void main() {
 
     await tester.tap(find.text('فال قهوه'));
     await tester.pumpAndSettle();
-    expect(find.text('coffee-guide-stub'), findsOneWidget);
+    expect(find.text('ritual-stub-coffee'), findsOneWidget);
   });
 
   testWidgets('a whole sentence lands on the screen it asked for', (
