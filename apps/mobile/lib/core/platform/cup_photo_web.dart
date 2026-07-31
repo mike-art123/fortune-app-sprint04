@@ -15,25 +15,55 @@ import 'dart:js_interop_unsafe';
 const int _maxDimension = 1080;
 const double _jpegQuality = 0.82;
 
+/// Keeps the active picker alive across the camera round-trip. iOS WebKit
+/// (Telegram's WKWebView included) suspends the page while the camera is up;
+/// a detached, unreferenced input can be collected in that gap and `change`
+/// then never fires — the photo silently vanishes.
+JSObject? _activeInput;
+
 Future<String?> captureCupPhoto() {
   final document = globalContext.getProperty<JSObject?>('document'.toJS);
   if (document == null) return Future<String?>.value(null);
 
   final completer = Completer<String?>();
   var settled = false;
-  void finish(String? value) {
-    if (settled) return;
-    settled = true;
-    if (!completer.isCompleted) completer.complete(value);
-  }
 
   final input = document.callMethod<JSObject>(
     'createElement'.toJS,
     'input'.toJS,
   );
+
+  void finish(String? value) {
+    if (settled) return;
+    settled = true;
+    try {
+      input.callMethod<JSAny?>('remove'.toJS);
+    } catch (_) {
+      // Detachment is cosmetic; never let cleanup eat the result.
+    }
+    if (identical(_activeInput, input)) _activeInput = null;
+    if (!completer.isCompleted) completer.complete(value);
+  }
+
+  // A previous picker that never resolved (old WebKit fires no `cancel`)
+  // must not linger once a new capture starts.
+  try {
+    _activeInput?.callMethod<JSAny?>('remove'.toJS);
+  } catch (_) {
+    // Same: cleanup is best effort.
+  }
+
   input.setProperty('type'.toJS, 'file'.toJS);
   input.setProperty('accept'.toJS, 'image/*'.toJS);
   input.setProperty('capture'.toJS, 'environment'.toJS);
+
+  // iOS only delivers the captured file reliably when the input is attached
+  // to the document and survives the camera round-trip.
+  final style = input.getProperty<JSObject?>('style'.toJS);
+  style?.setProperty('display'.toJS, 'none'.toJS);
+  final body = document.getProperty<JSObject?>('body'.toJS);
+  body?.callMethod<JSAny?>('appendChild'.toJS, input);
+  _activeInput = input;
 
   input.setProperty(
     'onchange'.toJS,
@@ -53,6 +83,10 @@ Future<String?> captureCupPhoto() {
       _downscale(document, file, finish);
     }).toJS,
   );
+
+  // Newer WebKit fires `cancel` when the sheet is dismissed; without it the
+  // button would look dead until the next tap.
+  input.setProperty('oncancel'.toJS, (() => finish(null)).toJS);
 
   input.callMethod<JSAny?>('click'.toJS);
   return completer.future;
@@ -86,7 +120,12 @@ void _downscale(
     (() {
       final data = _encode(document, image);
       revoke();
-      finish(data);
+      if (data != null) {
+        finish(data);
+      } else {
+        // Canvas refused this image (rare codecs) — the raw file still works.
+        _readRaw(file, finish);
+      }
     }).toJS,
   );
   image.setProperty(
