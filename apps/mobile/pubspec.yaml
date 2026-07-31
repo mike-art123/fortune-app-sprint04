@@ -31,6 +31,7 @@ dependencies:
   uuid: ^4.4.2                     # request correlation ids + guest device id
   share_plus: ^11.0.0              # Play build: native share sheet
   url_launcher: ^6.3.0             # Play build: open external links
+  image_picker: ^1.2.0             # Play build: cup photo (coffee ritual)
 
   # Serialization annotations (generators are dev-only)
   freezed_annotation: ^2.4.4

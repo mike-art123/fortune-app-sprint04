@@ -1,4 +1,11 @@
-// Non-web builds (analyze, `flutter test`, native) never capture a cup photo —
-// the coffee fortune is a web-only ritual. Returning null makes the caller ask
-// for the photo again rather than crash.
-Future<String?> captureCupPhoto() => Future<String?>.value(null);
+import '../config/android_bridges_switch.dart';
+import 'cup_photo_io.dart';
+
+/// Non-web resolution. The Play build (ENABLE_ANDROID_BRIDGES) captures the
+/// cup through the native camera / photo picker; every other non-web target —
+/// analyze, `flutter test`, desktop — returns null so the caller asks for the
+/// photo again rather than crash. The web build never loads this file (see
+/// the conditional export in `cup_photo.dart`).
+Future<String?> captureCupPhoto() => kAndroidBridgesEnabled
+    ? captureCupPhotoAndroid()
+    : Future<String?>.value(null);
