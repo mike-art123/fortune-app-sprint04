@@ -1006,9 +1006,7 @@ class ArStrings extends AppStrings {
       'خصوصيتك أمر جاد عندنا.\n'
       'أقل قدر ممكن من البيانات، فقط ليعمل الفأل نفسه.';
   @override
-  String get contactHero =>
-      'سؤال أو اقتراح أو مشكلة؟\n'
-      'نحن هنا إلى جانبك.';
+  String get contactHero => 'سؤال أو اقتراح أو مشكلة؟\n' 'نحن هنا إلى جانبك.';
   @override
   String get disclaimerBody =>
       'فؤول بخت‌نگار للتسلية والتأمل الشخصي فقط، ولا ينبغي أن تكون أساسًا '
