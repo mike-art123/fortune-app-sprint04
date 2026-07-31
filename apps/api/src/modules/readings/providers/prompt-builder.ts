@@ -101,14 +101,50 @@ export function personaFor(profile?: ReadingProfileContext): string | null {
   ].join('\n');
 }
 
+
+/** Model-facing names of the non-Persian output languages. */
+const LANGUAGE_NAME: Record<string, string> = {
+  en: 'انگلیسی',
+  ar: 'عربی فصیح',
+  tr: 'ترکی استانبولی',
+};
+
+/** The mandated opening of the last paragraph, per output language. */
+const FOR_TODAY: Record<string, string> = {
+  en: 'For today:',
+  ar: 'لهذا اليوم:',
+  tr: 'Bugün için:',
+};
+
+/**
+ * Output-language block (phase E). Persian needs none — the whole prompt is
+ * already Persian. Any other supported language keeps every rule above and
+ * changes only the language of the produced text; original sources (a ghazal,
+ * a verse, a card name) stay in their own script, translated alongside.
+ */
+export function languageDirective(locale?: string): string | null {
+  if (!locale || locale === 'fa') return null;
+  const name = LANGUAGE_NAME[locale];
+  if (!name) return null;
+  return [
+    `زبانِ خروجی: مقدارهای title و reading را کاملاً به ${name} بنویس، نه فارسی.`,
+    'همه‌ی قواعد بالا سرِ جای خود می‌مانند؛ فقط زبانِ متن عوض می‌شود.',
+    'متنِ اصیل (بیت حافظ، آیه، نام کارت یا نماد) را به خط و زبانِ اصلی نگه دار',
+    `و ترجمه‌اش را به ${name} کنارش بیاور.`,
+    `بند آخر به‌جای «برای امروز:» با «${FOR_TODAY[locale]}» شروع شود.`,
+  ].join('\n');
+}
+
 export function buildPrompt(
   fortune: FortuneCatalogEntry,
   input: ReadingInputDto,
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
+  const language = languageDirective(profile?.locale);
   const system = [VOICE, '', framingFor(fortune), '', OUTPUT_CONTRACT]
     .concat(persona ? ['', persona] : [])
+    .concat(language ? ['', language] : [])
     .join('\n');
 
   const user = [

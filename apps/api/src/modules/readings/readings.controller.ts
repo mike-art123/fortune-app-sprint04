@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { AcceptLanguage } from '../../common/decorators/accept-language.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientPlatform } from '../../common/decorators/client-platform.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -30,6 +31,7 @@ export class ReadingsController {
     @CurrentUser() principal: AuthenticatedPrincipal | undefined,
     @IdempotencyKey() idempotencyKey: string | null,
     @ClientPlatform() platform: string | null,
+    @AcceptLanguage() locale: string | null,
   ): Promise<ReadingResponse> {
     return this.readings.create(
       dto,
@@ -37,6 +39,7 @@ export class ReadingsController {
       this.required(principal),
       idempotencyKey,
       platform,
+      locale,
     );
   }
 

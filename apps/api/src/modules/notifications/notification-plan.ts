@@ -48,6 +48,8 @@ export interface NotificationContext {
   lastReadingAt: Date | null;
   /** Kinds already sent today, in this reader's own timezone. */
   sentToday: readonly NotificationKind[];
+  /** The reader's stored UI language; undefined means Persian. */
+  locale?: string;
 }
 
 /**
@@ -55,11 +57,34 @@ export interface NotificationContext {
  * birth month, and never a line from a reading. A message that lands on a lock
  * screen is read by whoever is holding the phone.
  */
-const TEXT: Record<NotificationKind, string> = {
-  dailyFortune: 'بیا که فالِ روزتو بگیرم، ببینی امروز چی در انتظارته',
-  streakReminder: 'چند روزی است سراغ فالی نرفته‌ای. هر وقت خواستی، همین‌جاست.',
-  weeklySummary: 'یک نگاه به هفته‌ای که گذشت در تاریخچه‌ات آماده است.',
+const TEXTS: Record<string, Record<NotificationKind, string>> = {
+  fa: {
+    dailyFortune: 'بیا که فالِ روزتو بگیرم، ببینی امروز چی در انتظارته',
+    streakReminder: 'چند روزی است سراغ فالی نرفته‌ای. هر وقت خواستی، همین‌جاست.',
+    weeklySummary: 'یک نگاه به هفته‌ای که گذشت در تاریخچه‌ات آماده است.',
+  },
+  en: {
+    dailyFortune: 'Come, let me read your fortune for today — see what awaits you.',
+    streakReminder: 'It has been a few days since your last fortune. It is right here whenever you wish.',
+    weeklySummary: 'A look at your past week is ready in your history.',
+  },
+  ar: {
+    dailyFortune: 'تعال أقرأ لك فأل يومك، لترى ما ينتظرك اليوم.',
+    streakReminder: 'مرت أيام منذ آخر فأل لك. متى شئت، فهو هنا.',
+    weeklySummary: 'نظرة على أسبوعك الماضي جاهزة في سجلّك.',
+  },
+  tr: {
+    dailyFortune: 'Gel, günlük falına bakayım — bugün seni neler bekliyor gör.',
+    streakReminder: 'Birkaç gündür fala uğramadın. Ne zaman istersen, burada.',
+    weeklySummary: 'Geçen haftana bir bakış geçmişinde hazır.',
+  },
 };
+
+/** The copy for one kind, in the reader's own language (fa is the default). */
+export function notificationText(kind: NotificationKind, locale?: string): string {
+  const table = locale && TEXTS[locale] ? TEXTS[locale] : TEXTS.fa;
+  return table[kind];
+}
 
 /** Local wall-clock fields, from the server clock and the reader's zone. */
 export function localFields(
@@ -113,7 +138,7 @@ function daysSince(now: Date, last: Date | null): number | null {
  * switched off, or simply nothing worth saying.
  */
 export function decideNotifications(context: NotificationContext): NotificationPlan[] {
-  const { now, prefs, lastReadingAt, sentToday } = context;
+  const { now, prefs, lastReadingAt, sentToday, locale } = context;
 
   if (prefs.mutedUntil !== null && new Date(prefs.mutedUntil).getTime() > now.getTime()) {
     return [];
@@ -135,7 +160,7 @@ export function decideNotifications(context: NotificationContext): NotificationP
 
   const consider = (kind: NotificationKind, when: boolean): void => {
     if (!when || already.has(kind) || plans.length >= remaining) return;
-    plans.push({ kind, text: TEXT[kind] });
+    plans.push({ kind, text: notificationText(kind, locale) });
   };
 
   // A real absence is the most useful thing we could say, so it goes first

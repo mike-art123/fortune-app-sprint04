@@ -97,4 +97,13 @@ describe('buildPrompt', () => {
       }
     }
   });
+  it('adds the output-language block only for non-Persian locales', () => {
+    const fa = buildPrompt(hafez, {}, { displayName: null, locale: 'fa' });
+    expect(fa[0].content).not.toContain('For today:');
+
+    const en = buildPrompt(hafez, {}, { displayName: null, locale: 'en' });
+    expect(en[0].content).toContain('For today:');
+    expect(en[0].content).toContain('انگلیسی');
+  });
+
 });

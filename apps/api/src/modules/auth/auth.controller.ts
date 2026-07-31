@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { AcceptLanguage } from '../../common/decorators/accept-language.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
 import { AuthService, type LoginResponse } from './auth.service';
@@ -20,15 +21,21 @@ export class AuthController {
   @Public()
   @Post('telegram')
   @HttpCode(HttpStatus.OK)
-  loginWithTelegram(@Body() dto: TelegramLoginDto): Promise<LoginResponse> {
-    return this.auth.loginWithTelegram(dto.initData);
+  loginWithTelegram(
+    @Body() dto: TelegramLoginDto,
+    @AcceptLanguage() locale: string | null,
+  ): Promise<LoginResponse> {
+    return this.auth.loginWithTelegram(dto.initData, locale);
   }
 
   /** Exchange a device id for a token (the Play build's guest login). */
   @Public()
   @Post('guest')
   @HttpCode(HttpStatus.OK)
-  loginAsGuest(@Body() dto: GuestLoginDto): Promise<LoginResponse> {
-    return this.auth.loginAsGuest(dto.deviceId);
+  loginAsGuest(
+    @Body() dto: GuestLoginDto,
+    @AcceptLanguage() locale: string | null,
+  ): Promise<LoginResponse> {
+    return this.auth.loginAsGuest(dto.deviceId, locale);
   }
 }

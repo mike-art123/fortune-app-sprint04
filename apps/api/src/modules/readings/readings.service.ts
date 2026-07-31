@@ -1,6 +1,7 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import type { Reading } from '@prisma/client';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { normalizeLocale } from '../../common/i18n/locale.util';
 import { AppException } from '../../common/exceptions/app.exception';
 import type { AuthenticatedPrincipal } from '../../common/types/authenticated-principal';
 import { nowIso, toIso } from '../../common/utils/date.util';
@@ -76,6 +77,7 @@ export class ReadingsService {
     principal: AuthenticatedPrincipal,
     idempotencyKey: string | null,
     platform: string | null,
+    locale?: string | null,
   ): Promise<ReadingResponse> {
     const fortune = findFortune(dto.fortuneId);
     if (!fortune) {
@@ -87,6 +89,12 @@ export class ReadingsService {
     this.assertOfferingComplete(fortune, dto.input);
 
     const userId = principal.userId;
+
+    // Phase E: remember the UI language for offline surfaces (notifications).
+    const uiLocale = normalizeLocale(locale ?? undefined);
+    if (uiLocale) {
+      await this.users.syncLocale(userId, uiLocale).catch(() => undefined);
+    }
 
     if (idempotencyKey) {
       const replay = await this.idempotency.check({
@@ -131,6 +139,7 @@ export class ReadingsService {
       const owner = await this.users.findById(userId);
       const profile = {
         displayName: owner?.onboardingCompleted === true ? (owner.displayName ?? null) : null,
+        locale: uiLocale,
       };
       const generated = await this.provider.generate(fortune, dto.input, profile);
       record = await this.repository.create({

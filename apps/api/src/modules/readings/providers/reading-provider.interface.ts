@@ -14,6 +14,8 @@ export interface GeneratedReading {
  */
 export interface ReadingProfileContext {
   displayName: string | null;
+  /** UI language for the reading text; undefined or 'fa' means Persian. */
+  locale?: string;
 }
 
 /**

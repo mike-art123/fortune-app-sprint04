@@ -4,6 +4,7 @@ import { DomainException } from '../../common/exceptions/domain.exception';
 import { InfrastructureException } from '../../common/exceptions/infrastructure.exception';
 import { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-flags.service';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
+import { normalizeLocale } from '../../common/i18n/locale.util';
 import { UsersService } from '../users/users.service';
 import { verifyTelegramInitData } from './telegram-init-data';
 import { TokenService } from './token.service';
@@ -42,7 +43,7 @@ export class AuthService {
     private readonly logger: AppLoggerService,
   ) {}
 
-  async loginWithTelegram(initData: string): Promise<LoginResponse> {
+  async loginWithTelegram(initData: string, requestLocale?: string | null): Promise<LoginResponse> {
     const botToken = this.config.botToken;
     if (!botToken) {
       // Production cannot reach here (env schema requires the token).
@@ -66,6 +67,13 @@ export class AuthService {
       displayName: verification.displayName,
       languageCode: verification.languageCode,
     });
+
+    // Phase E: the client's own UI language wins over Telegram's guess.
+    const headerLocale = normalizeLocale(requestLocale ?? undefined);
+    if (headerLocale && headerLocale !== user.locale) {
+      await this.users.syncLocale(user.id, headerLocale);
+      user.locale = headerLocale;
+    }
 
     const signed = this.tokens.sign(user.id, {
       telegramId: verification.telegramId,
@@ -92,7 +100,7 @@ export class AuthService {
    * whole identity. Dark-launched — while the `auth.guest` flag is off the
    * route answers NOT_FOUND, exactly like a feature that does not exist.
    */
-  async loginAsGuest(deviceId: string): Promise<LoginResponse> {
+  async loginAsGuest(deviceId: string, requestLocale?: string | null): Promise<LoginResponse> {
     if (!(await this.flags.isEnabled(GUEST_AUTH_FLAG))) {
       throw new DomainException('NOT_FOUND', 'موردی که دنبالش بودی پیدا نشد.', {
         status: HttpStatus.NOT_FOUND,
@@ -100,6 +108,12 @@ export class AuthService {
     }
 
     const user = await this.users.upsertGuestUser({ deviceId });
+
+    const headerLocale = normalizeLocale(requestLocale ?? undefined);
+    if (headerLocale && headerLocale !== user.locale) {
+      await this.users.syncLocale(user.id, headerLocale);
+      user.locale = headerLocale;
+    }
     const signed = this.tokens.sign(user.id, { roles: ['user'] });
 
     this.logger.info('auth.guest.login', { userId: user.id });

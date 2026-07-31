@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { BirthMonth, Prisma, type User } from '@prisma/client';
 import { DomainException } from '../../common/exceptions/domain.exception';
+import { normalizeLocale } from '../../common/i18n/locale.util';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 
 /** Public profile shape (scope §16) — never leaks internals. */
@@ -33,7 +34,7 @@ export class UsersService {
     displayName: string | null;
     languageCode: string | null;
   }): Promise<User> {
-    const locale = input.languageCode?.toLowerCase().startsWith('fa') ? 'fa' : undefined;
+    const locale = normalizeLocale(input.languageCode ?? undefined);
     const existing = await this.prisma.user.findUnique({
       where: { telegramId: input.telegramId },
     });
@@ -54,6 +55,19 @@ export class UsersService {
         ...(mayUpdateName ? { displayName: input.displayName } : {}),
         ...(locale ? { locale } : {}),
       },
+    });
+  }
+
+  /**
+   * Remembers the client's UI language (phase E). A no-op when nothing
+   * changed, so the hot paths that call this stay cheap.
+   */
+  async syncLocale(userId: string, locale: string | undefined): Promise<void> {
+    const normalized = normalizeLocale(locale);
+    if (!normalized) return;
+    await this.prisma.user.updateMany({
+      where: { id: userId, NOT: { locale: normalized } },
+      data: { locale: normalized },
     });
   }
 

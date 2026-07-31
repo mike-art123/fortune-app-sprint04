@@ -32,6 +32,7 @@ export interface NotificationPreferencePatch {
 interface SweepUser {
   id: string;
   telegramId: string;
+  locale: string;
   notificationPreference: NotificationPreference | null;
 }
 
@@ -41,6 +42,7 @@ interface SweepUser {
 interface SweepUserRow {
   id: string;
   telegramId: string | null;
+  locale: string;
   notificationPreference: NotificationPreference | null;
 }
 
@@ -150,7 +152,7 @@ export class NotificationsService {
         orderBy: { id: 'asc' },
         take: pageSize,
         ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-        select: { id: true, telegramId: true, notificationPreference: true },
+        select: { id: true, telegramId: true, locale: true, notificationPreference: true },
       });
 
       if (rows.length === 0) break;
@@ -213,6 +215,7 @@ export class NotificationsService {
         prefs,
         lastReadingAt: lastReading?.createdAt ?? null,
         sentToday: sentToday.map((row) => row.kind as NotificationKind),
+        locale: user.locale,
       });
 
       if (plans.length === 0) {
