@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
+import '../../../../app/routing/fortune_destinations.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/fortune_cards.dart';
@@ -56,12 +57,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _openId(BuildContext context, String id, bool available) {
-    if (id == 'coffee') {
-      context.push(AppRoutes.coffeePath);
-      return;
-    }
-    if (id == 'elements') {
-      context.push(AppRoutes.elementsPath);
+    // One shared map decides where every fortune leads (coffee's live photo
+    // ritual included) — home must never route around it.
+    final path = FortuneDestinations.pathFor(id);
+    if (path != null) {
+      context.push(path);
       return;
     }
     if (!available) {
