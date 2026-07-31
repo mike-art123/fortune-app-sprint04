@@ -613,20 +613,16 @@ class EnStrings extends AppStrings {
   String get contactEmailCopied => 'Email copied.';
   @override
   String get termsHero =>
-      'BakhtNegar accepts no responsibility.\n'
-      'This app is only a fortune; every decision in your life is yours.';
+      'BakhtNegar accepts no responsibility.\nEvery decision is yours.';
   @override
   String get aboutHero =>
-      'BakhtNegar — fortunes and the secrets of life.\n'
-      'A calm moment of your own, in your language.';
+      'BakhtNegar — fortunes and secrets of life.\nA calm moment of your own.';
   @override
   String get privacyHero =>
-      'Your privacy is serious to us.\n'
-      'The least possible data, only so the fortune itself works.';
+      'Your privacy is serious to us.\nThe least data, only for the fortune.';
   @override
   String get contactHero =>
-      'A question, an idea, a problem?\n'
-      'We are right here with you.';
+      'A question, an idea, a problem?\nWe are right here with you.';
   @override
   String get disclaimerBody =>
       'BakhtNegar readings are offered for entertainment and personal '
@@ -995,18 +991,15 @@ class ArStrings extends AppStrings {
   String get contactEmailCopied => 'نُسخ البريد.';
   @override
   String get termsHero =>
-      'بخت‌نگار لا يتحمّل أي مسؤولية.\n'
-      'هذا التطبيق مجرد فأل، وأنت صاحب القرار في حياتك كلها.';
+      'بخت‌نگار لا يتحمّل أي مسؤولية.\nالقرار في حياتك لك وحدك.';
   @override
   String get aboutHero =>
-      'بخت‌نگار — الفأل وأسرار الحياة.\n'
-      'لحظة هادئة لك وحدك، بلغتك.';
+      'بخت‌نگار — الفأل وأسرار الحياة.\nلحظة هادئة لك وحدك.';
   @override
   String get privacyHero =>
-      'خصوصيتك أمر جاد عندنا.\n'
-      'أقل قدر ممكن من البيانات، فقط ليعمل الفأل نفسه.';
+      'خصوصيتك أمر جاد عندنا.\nأقل البيانات، فقط ليعمل الفأل.';
   @override
-  String get contactHero => 'سؤال أو اقتراح أو مشكلة؟\n' 'نحن هنا إلى جانبك.';
+  String get contactHero => 'سؤال أو اقتراح أو مشكلة؟\nنحن هنا إلى جانبك.';
   @override
   String get disclaimerBody =>
       'فؤول بخت‌نگار للتسلية والتأمل الشخصي فقط، ولا ينبغي أن تكون أساسًا '
@@ -1387,20 +1380,15 @@ class TrStrings extends AppStrings {
   String get contactEmailCopied => 'E-posta kopyalandı.';
   @override
   String get termsHero =>
-      'BakhtNegar hiçbir sorumluluk kabul etmez.\n'
-      'Bu uygulama yalnızca bir fal; hayatındaki tüm kararlar senindir.';
+      'BakhtNegar sorumluluk kabul etmez.\nTüm kararlar senindir.';
   @override
   String get aboutHero =>
-      'BakhtNegar — fal ve hayatın sırları.\n'
-      'Kendine ait sakin bir an, kendi dilinde.';
+      'BakhtNegar — fal ve hayatın sırları.\nKendine ait sakin bir an.';
   @override
   String get privacyHero =>
-      'Gizliliğin bizim için ciddi bir iştir.\n'
-      'Mümkün olan en az veri, yalnızca fal çalışsın diye.';
+      'Gizliliğin bizim için ciddidir.\nEn az veri, yalnızca fal için.';
   @override
-  String get contactHero =>
-      'Soru, öneri ya da sorun mu var?\n'
-      'Tam buradayız, yanındayız.';
+  String get contactHero => 'Soru, öneri ya da sorun mu var?\nTam buradayız.';
   @override
   String get disclaimerBody =>
       'BakhtNegar falları yalnızca eğlence ve kişisel düşünme içindir; önemli '
