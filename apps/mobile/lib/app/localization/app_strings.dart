@@ -223,18 +223,14 @@ class AppStrings {
   String get contactVersionTile => 'نسخهٔ برنامه';
   String get contactReport => 'گزارش مشکل';
   String get contactEmailCopied => 'ایمیل کپی شد.';
-  String get termsHero =>
-      'بخت‌نگار هیچ‌گونه مسئولیتی نمی‌پذیرد.\n'
+  String get termsHero => 'بخت‌نگار هیچ‌گونه مسئولیتی نمی‌پذیرد.\n'
       'این برنامه فقط یک فال است، و تصمیم‌گیرندهٔ تمام امورِ '
       'زندگی‌تان خودتان هستید.';
-  String get aboutHero =>
-      'بخت‌نگار — فال و اسرارِ زندگی.\n'
+  String get aboutHero => 'بخت‌نگار — فال و اسرارِ زندگی.\n'
       'یک لحظهٔ آرام برای خودت، به زبان فارسی.';
-  String get privacyHero =>
-      'حریم خصوصی تو برای ما جدی است.\n'
+  String get privacyHero => 'حریم خصوصی تو برای ما جدی است.\n'
       'کمترین دادهٔ ممکن، فقط برای کارکردن خودِ فال.';
-  String get contactHero =>
-      'سؤال، پیشنهاد یا مشکلی داری؟\n'
+  String get contactHero => 'سؤال، پیشنهاد یا مشکلی داری؟\n'
       'همین‌جا در کنارت هستیم.';
   String get disclaimerBody =>
       'فال‌های بخت‌نگار صرفاً برای سرگرمی و تأمل شخصی ارائه '

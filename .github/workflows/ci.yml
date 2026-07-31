@@ -61,7 +61,10 @@ jobs:
       # Format gate runs BEFORE gen-l10n: it must judge committed sources
       # only, not the generated app_localizations*.dart (which gen-l10n
       # emits into lib/l10n with its own generator formatting).
-      - run: cd apps/mobile && dart format --output=none --set-exit-if-changed .
+      - name: Format (prints exact drift on failure)
+        run: |
+          cd apps/mobile && dart format .
+          git -C ../.. diff --exit-code -- apps/mobile
       - run: cd apps/mobile && flutter gen-l10n
       - run: cd apps/mobile && flutter analyze
       - run: cd apps/mobile && flutter test
