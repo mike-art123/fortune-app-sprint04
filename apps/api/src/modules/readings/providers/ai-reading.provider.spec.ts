@@ -127,7 +127,7 @@ describe('AiReadingProvider', () => {
     expect(userContent[0].type).toBe('text');
     expect(userContent[1]).toEqual({
       type: 'image_url',
-      image_url: { url: 'data:image/jpeg;base64,AAAA' },
+      image_url: { url: 'data:image/jpeg;base64,AAAA', detail: 'high' },
     });
   });
 
