@@ -1,7 +1,7 @@
 import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type { ReadingProfileContext } from '../providers/reading-provider.interface';
-import { VOICE, personaFor } from '../providers/prompt-builder';
+import { VOICE, languageDirective, personaFor } from '../providers/prompt-builder';
 import type { RuneCard } from './rune-deck';
 
 /**
@@ -37,8 +37,10 @@ export function buildRunePrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
+  const language = languageDirective(profile?.locale);
   const system = [VOICE, '', RUNE_FRAMING, '', RUNE_CONTRACT]
     .concat(persona ? ['', persona] : [])
+    .concat(language ? ['', language] : [])
     .join('\n');
 
   const intention = input.intention?.trim();

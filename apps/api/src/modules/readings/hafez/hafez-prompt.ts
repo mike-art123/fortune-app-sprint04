@@ -2,7 +2,7 @@ import type { Ghazal } from '@prisma/client';
 import type { PromptMessage } from '../../../common/ai/prompt-message';
 import type { ReadingInputDto } from '../dto/create-reading.dto';
 import type { ReadingProfileContext } from '../providers/reading-provider.interface';
-import { VOICE, personaFor } from '../providers/prompt-builder';
+import { VOICE, languageDirective, personaFor } from '../providers/prompt-builder';
 
 /**
  * The Hafez raw engine's prompt (docs/hafez-dataset-sourcing.md, steps 4–5).
@@ -53,8 +53,10 @@ export function buildHafezPrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
+  const language = languageDirective(profile?.locale);
   const system = [VOICE, '', HAFEZ_FRAMING, '', HAFEZ_CONTRACT]
     .concat(persona ? ['', persona] : [])
+    .concat(language ? ['', language] : [])
     .join('\n');
 
   const intention = input.intention?.trim();
