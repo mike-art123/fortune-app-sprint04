@@ -74,5 +74,10 @@ export async function loginAs(
 
 /** A unique Telegram id per test run so state never leaks between runs. */
 export function freshTelegramId(): number {
-  return 100_000_000 + (Date.now() % 100_000_000) * 10 + Math.floor(Math.random() * 10);
+  return (
+    100_000_000 +
+    (Date.now() % 10_000_000) * 1000 +
+    (process.pid % 100) * 10 +
+    Math.floor(Math.random() * 10)
+  );
 }

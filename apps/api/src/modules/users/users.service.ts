@@ -39,13 +39,23 @@ export class UsersService {
       where: { telegramId: input.telegramId },
     });
     if (!existing) {
-      return this.prisma.user.create({
-        data: {
-          telegramId: input.telegramId,
-          displayName: input.displayName,
-          ...(locale ? { locale } : {}),
-        },
-      });
+      try {
+        return await this.prisma.user.create({
+          data: {
+            telegramId: input.telegramId,
+            displayName: input.displayName,
+            ...(locale ? { locale } : {}),
+          },
+        });
+      } catch (error) {
+        // Two first-logins can race; the unique index lets exactly one create
+        // win, and the loser simply adopts the winner's row.
+        const winner = await this.prisma.user.findUnique({
+          where: { telegramId: input.telegramId },
+        });
+        if (winner) return winner;
+        throw error;
+      }
     }
     // A confirmed name is the user's own choice — Telegram may not overwrite.
     const mayUpdateName = !existing.onboardingCompleted && input.displayName !== null;
