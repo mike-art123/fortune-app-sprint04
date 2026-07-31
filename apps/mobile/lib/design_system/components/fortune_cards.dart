@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../app/localization/app_strings.dart';
+
 import '../foundations/app_colors.dart';
 import '../foundations/app_gradients.dart';
 import '../foundations/app_layout.dart';
@@ -99,6 +101,53 @@ class _CtaPill extends StatelessWidget {
 }
 
 /// 1 — full-width hero fortune (16:9), title + one line + CTA.
+/// A small diagonal «ویژه» band across the top-right corner — reserved for
+/// the coffee reading, the house specialty. Clipped by the card's own
+/// rounded clip, so it reads as a stitched ribbon rather than a sticker.
+class _SpecialRibbon extends StatelessWidget {
+  const _SpecialRibbon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 10,
+      right: -26,
+      child: IgnorePointer(
+        child: Transform.rotate(
+          angle: 0.7854,
+          child: Container(
+            width: 96,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFE5484D), Color(0xFFB3261E)],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x59000000),
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              context.strings.badgeSpecial,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                height: 1.0,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class FeaturedWideFortuneCard extends StatelessWidget {
   const FeaturedWideFortuneCard({
     super.key,
@@ -131,6 +180,7 @@ class FeaturedWideFortuneCard extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: FortuneArt(id: id, accent: accent)),
+            if (id == 'coffee') const _SpecialRibbon(),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Align(
@@ -191,6 +241,7 @@ class SectionFeatureCard extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: FortuneArt(id: id, accent: accent)),
+            if (id == 'coffee') const _SpecialRibbon(),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Align(
@@ -251,6 +302,7 @@ class PortraitFortuneCard extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: FortuneArt(id: id, accent: accent)),
+            if (id == 'coffee') const _SpecialRibbon(),
             if (available && priceLabel != null)
               PositionedDirectional(
                 top: AppSpacing.xs,
@@ -325,6 +377,7 @@ class CompactLandscapeFortuneCard extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: FortuneArt(id: id, accent: accent)),
+            if (id == 'coffee') const _SpecialRibbon(),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.sm),
               child: Align(

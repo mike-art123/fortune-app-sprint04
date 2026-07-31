@@ -238,6 +238,7 @@ class AppStrings {
   String versionLine(String v) => 'نسخهٔ $v';
   String legalCopyright(String year) =>
       '© بخت‌نگار $year — همهٔ حقوق محفوظ است.';
+  String get badgeSpecial => 'ویژه';
 }
 
 /// English.
@@ -628,6 +629,8 @@ class EnStrings extends AppStrings {
   @override
   String legalCopyright(String year) =>
       '© BakhtNegar $year — all rights reserved.';
+  @override
+  String get badgeSpecial => 'Special';
 }
 
 /// Arabic — modern, calm فصحى; RTL like Persian.
@@ -1005,6 +1008,8 @@ class ArStrings extends AppStrings {
   @override
   String legalCopyright(String year) =>
       '© بخت‌نگار $year — جميع الحقوق محفوظة.';
+  @override
+  String get badgeSpecial => 'مميز';
 }
 
 /// Turkish — natural, warm İstanbul Turkish; LTR.
@@ -1394,6 +1399,8 @@ class TrStrings extends AppStrings {
   @override
   String legalCopyright(String year) =>
       '© BakhtNegar $year — tüm hakları saklıdır.';
+  @override
+  String get badgeSpecial => 'Özel';
 }
 
 class _AppStringsDelegate extends LocalizationsDelegate<AppStrings> {
