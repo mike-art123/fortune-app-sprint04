@@ -3,12 +3,15 @@ import type { NotificationPreference } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-flags.service';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
+import { TelegramBotConfig } from '../telegram/telegram-bot.config';
 import { TelegramBotService } from '../telegram/telegram-bot.service';
 import {
   DEFAULT_PREFERENCES,
   decideNotifications,
   localFields,
+  type NotificationAction,
   type NotificationKind,
+  type NotificationPlan,
   type NotificationPreferenceView,
 } from './notification-plan';
 import { NotificationsConfig } from './notifications.config';
@@ -85,6 +88,7 @@ export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly telegram: TelegramBotService,
+    private readonly botConfig: TelegramBotConfig,
     private readonly flags: FeatureFlagsService,
     private readonly config: NotificationsConfig,
     private readonly logger: AppLoggerService,
@@ -240,7 +244,7 @@ export class NotificationsService {
     userId: string,
     telegramId: string,
     dateKey: string,
-    plan: { kind: NotificationKind; text: string },
+    plan: NotificationPlan,
   ): Promise<boolean> {
     try {
       await this.prisma.notificationDelivery.create({
@@ -251,9 +255,11 @@ export class NotificationsService {
     }
 
     try {
+      const url = this.deepLink(plan.button.action);
       const response = await this.telegram.api('sendMessage', {
         chat_id: telegramId,
         text: plan.text,
+        reply_markup: { inline_keyboard: [[{ text: plan.button.label, web_app: { url } }]] },
       });
       if (!response.ok) {
         // The row stays: a Telegram refusal is not something to retry all day.
@@ -273,6 +279,14 @@ export class NotificationsService {
       });
       return false;
     }
+  }
+
+  /** The Mini App URL a button opens; `?start=` names the page inside. */
+  private deepLink(action: NotificationAction): string {
+    const base = this.botConfig.miniAppUrl;
+    if (action === 'openDaily') return `${base}?start=daily`;
+    if (action === 'openHistory') return `${base}?start=history`;
+    return base;
   }
 
   private view(row: {

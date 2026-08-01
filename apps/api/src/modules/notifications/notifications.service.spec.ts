@@ -1,6 +1,7 @@
 import type { PrismaService } from '../../infrastructure/database/prisma.service';
 import type { FeatureFlagsService } from '../../infrastructure/feature-flags/feature-flags.service';
 import type { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
+import type { TelegramBotConfig } from '../telegram/telegram-bot.config';
 import type { TelegramBotService } from '../telegram/telegram-bot.service';
 import { DEFAULT_PREFERENCES } from './notification-plan';
 import type { NotificationsConfig } from './notifications.config';
@@ -17,6 +18,10 @@ const config = {
   sweepBatch: 50,
   sweepBudgetMs: 60000,
 } as unknown as NotificationsConfig;
+
+const botConfig = {
+  miniAppUrl: 'https://app.bakhtnegar.com',
+} as unknown as TelegramBotConfig;
 
 function flags(enabled: boolean): FeatureFlagsService {
   return { isEnabled: jest.fn().mockResolvedValue(enabled) } as unknown as FeatureFlagsService;
@@ -84,6 +89,7 @@ function build(overrides: { enabled?: boolean; db?: DbOptions; ok?: boolean } = 
   const service = new NotificationsService(
     store.service,
     bot.service,
+    botConfig,
     flags(overrides.enabled ?? true),
     config,
     logger,
@@ -119,10 +125,18 @@ describe('NotificationsService', () => {
     await expect(service.sweep(MORNING)).resolves.toMatchObject({ sent: 1 });
 
     expect(api).toHaveBeenCalledTimes(1);
-    const [method, body] = api.mock.calls[0] as [string, { chat_id: string; text: string }];
+    const [method, body] = api.mock.calls[0] as [string, Record<string, unknown>];
     expect(method).toBe('sendMessage');
     expect(body.chat_id).toBe('4242');
     expect(body.text).toContain('در انتظارته');
+
+    // The message is never a dead end: one button, straight to the page.
+    const markup = body.reply_markup as {
+      inline_keyboard: Array<Array<{ text: string; web_app: { url: string } }>>;
+    };
+    const button = markup.inline_keyboard[0][0];
+    expect(button.web_app.url).toBe('https://app.bakhtnegar.com?start=daily');
+    expect(button.text).toBe('فال امروزت را ببین');
   });
 
   it('claims the slot before sending, so a second sweep is silent', async () => {

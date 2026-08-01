@@ -34,10 +34,20 @@ export const DEFAULT_PREFERENCES: NotificationPreferenceView = {
   mutedUntil: null,
 };
 
-/** One message, already decided on. The text is Persian and final. */
+/** Where the button under a message leads inside the Mini App. */
+export type NotificationAction = 'openDaily' | 'openHistory' | 'openApp';
+
+/** The one tap we offer under a message: a localized label and a place. */
+export interface NotificationButton {
+  label: string;
+  action: NotificationAction;
+}
+
+/** One message, already decided on, in the reader's own language. */
 export interface NotificationPlan {
   kind: NotificationKind;
   text: string;
+  button: NotificationButton;
 }
 
 /** Everything the decision is allowed to look at. */
@@ -87,6 +97,44 @@ const TEXTS: Record<string, Record<NotificationKind, string>> = {
 export function notificationText(kind: NotificationKind, locale?: string): string {
   const table = (locale ? TEXTS[locale] : undefined) ?? FA_TEXTS;
   return table[kind];
+}
+
+/** Every kind leads somewhere specific; nobody is left hunting for a page. */
+const ACTIONS: Record<NotificationKind, NotificationAction> = {
+  dailyFortune: 'openDaily',
+  streakReminder: 'openApp',
+  weeklySummary: 'openHistory',
+};
+
+const FA_BUTTONS: Record<NotificationKind, string> = {
+  dailyFortune: 'فال امروزت را ببین',
+  streakReminder: 'باز کردن بخت‌نگار',
+  weeklySummary: 'دیدن تاریخچه',
+};
+
+const BUTTON_TEXTS: Record<string, Record<NotificationKind, string>> = {
+  fa: FA_BUTTONS,
+  en: {
+    dailyFortune: 'See your fortune for today',
+    streakReminder: 'Open BakhtNegar',
+    weeklySummary: 'See your history',
+  },
+  ar: {
+    dailyFortune: 'افتح فأل اليوم',
+    streakReminder: 'افتح التطبيق',
+    weeklySummary: 'اعرض سجلّك',
+  },
+  tr: {
+    dailyFortune: 'Günün falını aç',
+    streakReminder: 'Uygulamayı aç',
+    weeklySummary: 'Geçmişini gör',
+  },
+};
+
+/** The button for one kind, in the reader's language (fa is the default). */
+export function notificationButton(kind: NotificationKind, locale?: string): NotificationButton {
+  const table = (locale ? BUTTON_TEXTS[locale] : undefined) ?? FA_BUTTONS;
+  return { label: table[kind], action: ACTIONS[kind] };
 }
 
 /** Local wall-clock fields, from the server clock and the reader's zone. */
@@ -163,7 +211,11 @@ export function decideNotifications(context: NotificationContext): NotificationP
 
   const consider = (kind: NotificationKind, when: boolean): void => {
     if (!when || already.has(kind) || plans.length >= remaining) return;
-    plans.push({ kind, text: notificationText(kind, locale) });
+    plans.push({
+      kind,
+      text: notificationText(kind, locale),
+      button: notificationButton(kind, locale),
+    });
   };
 
   // A real absence is the most useful thing we could say, so it goes first

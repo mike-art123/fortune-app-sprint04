@@ -13,6 +13,6 @@ import { TelegramWebhookController } from './telegram-webhook.controller';
   providers: [TelegramBotConfig, TelegramBotService],
   // Notifications (scope §7) send through this same bot rather than opening a
   // second channel to Telegram.
-  exports: [TelegramBotService],
+  exports: [TelegramBotService, TelegramBotConfig],
 })
 export class TelegramModule {}

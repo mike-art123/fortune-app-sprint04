@@ -3,6 +3,7 @@ import {
   decideNotifications,
   isQuiet,
   localFields,
+  notificationButton,
   type NotificationKind,
   type NotificationPreferenceView,
 } from './notification-plan';
@@ -133,6 +134,15 @@ describe('notification rules', () => {
       expect(plan.text).not.toMatch(/[A-Za-z]/); // Persian only, no ids or urls
       expect(plan.text.length).toBeLessThan(120);
     }
+  });
+
+  it('puts a button under every message, leading to the right page', () => {
+    expect(notificationButton('dailyFortune').action).toBe('openDaily');
+    expect(notificationButton('weeklySummary').action).toBe('openHistory');
+    expect(notificationButton('streakReminder').action).toBe('openApp');
+    expect(notificationButton('dailyFortune').label).toBe('فال امروزت را ببین');
+    expect(notificationButton('dailyFortune', 'tr').label).toBe('Günün falını aç');
+    expect(notificationButton('dailyFortune', 'de').label).toBe('فال امروزت را ببین');
   });
 
   it('reads the clock in the reader’s own zone, not the server’s', () => {

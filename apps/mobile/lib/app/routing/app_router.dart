@@ -30,6 +30,7 @@ import '../navigation/telegram_back_observer.dart';
 import 'app_routes.dart';
 import 'route_guards.dart';
 import 'route_observer.dart';
+import 'start_intent.dart';
 
 /// Central router (doc 51 §12). Deep-link ready: parameters are validated so a
 /// malformed link can never crash the app or reach the backend.
@@ -73,12 +74,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       // splash forever, so a hard failure counts as "no gate".
       final onboardingCompleted =
           profile.hasError ? true : profile.valueOrNull?.onboardingCompleted;
-      return RouteGuards.redirect(
+      final guarded = RouteGuards.redirect(
         startup: startup,
         onboardingCompleted:
             startup is StartupReady ? onboardingCompleted : null,
         location: state.matchedLocation,
       );
+      // The first hop off the splash honors the URL that opened the app —
+      // the `?start=` carried by notification buttons — before home.
+      if (guarded == AppRoutes.homePath) {
+        return StartIntent.consume() ?? AppRoutes.homePath;
+      }
+      return guarded;
     },
     routes: [
       GoRoute(
