@@ -43,8 +43,7 @@ class PremiumBottomNavigation extends StatelessWidget {
     // by the bottom inset keeps the row at full height while the SafeArea
     // below lifts it clear. On web the inset is always zero, so the bar
     // stays exactly 74px — identical to before.
-    final bottomInset =
-        kIsWeb ? 0.0 : MediaQuery.viewPaddingOf(context).bottom;
+    final bottomInset = kIsWeb ? 0.0 : MediaQuery.viewPaddingOf(context).bottom;
     return Container(
       height: 74 + bottomInset,
       decoration: const BoxDecoration(
