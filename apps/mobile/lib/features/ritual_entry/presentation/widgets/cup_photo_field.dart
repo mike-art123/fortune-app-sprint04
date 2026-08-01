@@ -6,18 +6,21 @@ import '../../../../design_system/components/fortune_button.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 
-/// The coffee offering: capture a cup photo, preview it, retake if needed. The
-/// picked image is a downscaled data URL; the parent holds it and submits it.
+/// The coffee offering: capture a cup photo, preview it, retake if needed —
+/// or pick one from the gallery. The picked image is a downscaled data URL;
+/// the parent holds it and submits it.
 class CupPhotoField extends StatelessWidget {
   const CupPhotoField({
     super.key,
     required this.imageDataUrl,
     required this.onPick,
+    required this.onPickGallery,
     required this.accent,
   });
 
   final String? imageDataUrl;
   final VoidCallback onPick;
+  final VoidCallback onPickGallery;
   final Color accent;
 
   @override
@@ -39,6 +42,12 @@ class CupPhotoField extends StatelessWidget {
           label: hasImage ? s.coffeeRetake : s.coffeeTakePhoto,
           variant: variant,
           onPressed: onPick,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        TextButton.icon(
+          onPressed: onPickGallery,
+          icon: Icon(Icons.photo_library_outlined, size: 18, color: accent),
+          label: Text(s.coffeeFromGallery, style: TextStyle(color: accent)),
         ),
       ],
     );

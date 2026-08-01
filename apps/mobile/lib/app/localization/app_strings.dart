@@ -77,6 +77,7 @@ class AppStrings {
   String get coffeeCaptureHint =>
       'فنجان را وارونه کن، بگذار ته‌نشین شود، بعد از تهِ فنجان یک عکس بگیر.';
   String get coffeeTakePhoto => 'گرفتن عکس';
+  String get coffeeFromGallery => 'انتخاب از گالری';
   String get coffeeRetake => 'عکس دیگر';
   String get coffeeGuideTitle => 'راهنمای نشانه‌ها';
   String get coffeeGuideIntro =>
@@ -333,6 +334,8 @@ class EnStrings extends AppStrings {
       'Flip the cup, let it settle, then photograph the bottom.';
   @override
   String get coffeeTakePhoto => 'Take a photo';
+  @override
+  String get coffeeFromGallery => 'Choose from gallery';
   @override
   String get coffeeRetake => 'Retake';
   @override
@@ -724,6 +727,8 @@ class ArStrings extends AppStrings {
   @override
   String get coffeeTakePhoto => 'التقاط صورة';
   @override
+  String get coffeeFromGallery => 'اختيار من المعرض';
+  @override
   String get coffeeRetake => 'صورة أخرى';
   @override
   String get coffeeGuideTitle => 'دليل الرموز';
@@ -1106,6 +1111,8 @@ class TrStrings extends AppStrings {
       'dibinin fotoğrafını çek.';
   @override
   String get coffeeTakePhoto => 'Fotoğraf çek';
+  @override
+  String get coffeeFromGallery => 'Galeriden seç';
   @override
   String get coffeeRetake => 'Yeniden çek';
   @override

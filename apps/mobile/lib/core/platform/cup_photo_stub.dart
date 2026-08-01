@@ -9,3 +9,8 @@ import 'cup_photo_io.dart';
 Future<String?> captureCupPhoto() => kAndroidBridgesEnabled
     ? captureCupPhotoAndroid()
     : Future<String?>.value(null);
+
+/// Gallery-only entry, mirroring the web split between camera and library.
+Future<String?> pickCupPhotoFromGallery() => kAndroidBridgesEnabled
+    ? pickCupPhotoGalleryAndroid()
+    : Future<String?>.value(null);

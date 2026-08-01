@@ -36,3 +36,12 @@ Future<String?> _pick(ImagePicker picker, ImageSource source) async {
   final bytes = await file.readAsBytes();
   return 'data:image/jpeg;base64,${base64Encode(bytes)}';
 }
+
+/// Straight to the photo library — the separate "from gallery" button.
+Future<String?> pickCupPhotoGalleryAndroid() async {
+  try {
+    return await _pick(ImagePicker(), ImageSource.gallery);
+  } catch (_) {
+    return null;
+  }
+}

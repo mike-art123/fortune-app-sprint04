@@ -85,10 +85,16 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
     ref.read(accessFlowControllerProvider(fortune.id).notifier).begin();
   }
 
-  /// Opens the camera/gallery for the coffee ritual and keeps the downscaled
-  /// photo. A dismissed picker leaves the previous choice untouched.
-  Future<void> _pickPhoto() async {
-    final data = await captureCupPhoto();
+  /// Opens the camera for the coffee ritual and keeps the downscaled photo.
+  /// A dismissed picker leaves the previous choice untouched.
+  Future<void> _pickPhoto() => _applyPhoto(captureCupPhoto());
+
+  /// Same contract, straight to the photo library — Android's chooser offers
+  /// no camera, so the two entries stay separate buttons.
+  Future<void> _pickFromGallery() => _applyPhoto(pickCupPhotoFromGallery());
+
+  Future<void> _applyPhoto(Future<String?> source) async {
+    final data = await source;
     if (!mounted || data == null) return;
     setState(() => _imageDataUrl = data);
     ref.read(ritualEntryControllerProvider(widget.fortuneId).notifier).soften();
@@ -370,6 +376,7 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             CupPhotoField(
               imageDataUrl: _imageDataUrl,
               onPick: _pickPhoto,
+              onPickGallery: _pickFromGallery,
               accent: fortune.accent,
             ),
             const SizedBox(height: AppSpacing.lg),
