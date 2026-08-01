@@ -21,7 +21,7 @@ void main() {
   test('non-share telegram links and other urls stay external', () {
     expect(shareMessageFromTelegramLink('https://t.me/bakhtnegar'), isNull);
     expect(
-      shareMessageFromTelegramLink('https://instagram.com/bakhtnegar_fal'),
+      shareMessageFromTelegramLink('https://instagram.com/bakhtnegar_app'),
       isNull,
     );
     expect(shareMessageFromTelegramLink('::bad::'), isNull);

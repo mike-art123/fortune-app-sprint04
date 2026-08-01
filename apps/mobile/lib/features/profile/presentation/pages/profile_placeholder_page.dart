@@ -366,7 +366,7 @@ class _ProfilePlaceholderPageState
                   Color(0xFFF77737),
                 ],
               ),
-              onTap: () => _openUrl('https://instagram.com/bakhtnegar_fal'),
+              onTap: () => _openUrl('https://instagram.com/bakhtnegar_app'),
             ),
           ),
         ],
