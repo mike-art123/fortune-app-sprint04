@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/localization/app_strings.dart';
@@ -37,8 +38,15 @@ class PremiumBottomNavigation extends StatelessWidget {
       s.navHistory,
       s.navTerms,
     ];
+    // Android 15+ draws the app edge-to-edge behind the system navigation
+    // bar, so a fixed 74px bar loses that inset and clips its items. Growing
+    // by the bottom inset keeps the row at full height while the SafeArea
+    // below lifts it clear. On web the inset is always zero, so the bar
+    // stays exactly 74px — identical to before.
+    final bottomInset =
+        kIsWeb ? 0.0 : MediaQuery.viewPaddingOf(context).bottom;
     return Container(
-      height: 74,
+      height: 74 + bottomInset,
       decoration: const BoxDecoration(
         gradient: AppGradients.cardLuxe,
         border: Border(top: BorderSide(color: Color(0x38E7C25E))),
