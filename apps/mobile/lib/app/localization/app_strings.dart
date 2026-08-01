@@ -141,6 +141,7 @@ class AppStrings {
   String get socialTelegram => 'کانال تلگرام';
   String get socialInstagram => 'اینستاگرام';
   String profileSeekerBorn(String month) => 'متولدِ $month · جست‌وجوگرِ حقیقت';
+  String profileBorn(String month) => 'متولدِ $month';
   String get nextStripTitle => 'بعد از این';
   String get reasonFamily => 'هم‌خانوادهٔ چیزی که همین حالا خواندی';
   String get reasonUntried => 'هنوز امتحانش نکرده‌ای';
@@ -454,6 +455,8 @@ class EnStrings extends AppStrings {
   String get socialInstagram => 'Instagram';
   @override
   String profileSeekerBorn(String month) => 'Born in $month · Seeker of truth';
+  @override
+  String profileBorn(String month) => 'Born in $month';
   @override
   String get nextStripTitle => 'After this';
   @override
@@ -847,6 +850,8 @@ class ArStrings extends AppStrings {
   String profileSeekerBorn(String month) =>
       'من مواليد $month · باحث عن الحقيقة';
   @override
+  String profileBorn(String month) => 'من مواليد $month';
+  @override
   String get nextStripTitle => 'بعد هذا';
   @override
   String get reasonFamily => 'من عائلة ما قرأته للتوّ';
@@ -1232,6 +1237,8 @@ class TrStrings extends AppStrings {
   @override
   String profileSeekerBorn(String month) =>
       '$month doğumlu · Hakikat arayıcısı';
+  @override
+  String profileBorn(String month) => '$month doğumlu';
   @override
   String get nextStripTitle => 'Bundan sonra';
   @override

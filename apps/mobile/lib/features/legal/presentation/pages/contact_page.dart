@@ -11,7 +11,7 @@ import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../../shared/providers/shared_providers.dart';
 import '../widgets/legal_footer.dart';
 
-const _supportEmail = 'rezaeiardakanim@gmail.com';
+const _supportEmail = 'bakhtnegarapp@gmail.com';
 const _supportChannel = 'https://t.me/bakhtnegar';
 const _supportBot = 'https://t.me/Bakhtnegarbot';
 

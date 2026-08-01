@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -65,12 +66,6 @@ class _ProfilePlaceholderPageState
     }
   }
 
-  void _soon(BuildContext context) {
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-      SnackBar(content: Text(context.strings.profileSoonToast)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(profileControllerProvider).valueOrNull;
@@ -117,8 +112,14 @@ class _ProfilePlaceholderPageState
           _menu(
             context,
             Icons.support_agent_outlined,
-            context.strings.profileSupportAbout,
-            () => _soon(context),
+            context.strings.contactTitle,
+            () => context.push(AppRoutes.contactPath),
+          ),
+          _menu(
+            context,
+            Icons.info_outline_rounded,
+            context.strings.aboutTitle,
+            () => context.push(AppRoutes.aboutPath),
           ),
           const SizedBox(height: AppSpacing.sm),
           _personalization(context, ref, profile),
@@ -170,23 +171,13 @@ class _ProfilePlaceholderPageState
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  month != null
-                      ? context.strings.profileSeekerBorn(month)
-                      : context.strings.profileSeeker,
-                  style: TextStyle(color: c.goldWarm, fontSize: 12),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                  child: const LinearProgressIndicator(
-                    value: 0.7,
-                    minHeight: 6,
-                    backgroundColor: AppPalette.nightPanel,
-                    color: AppPalette.goldMid,
+                if (month != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    context.strings.profileBorn(month),
+                    style: TextStyle(color: c.goldWarm, fontSize: 12),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -263,15 +254,20 @@ class _ProfilePlaceholderPageState
     );
   }
 
-  /// Invite: share the Mini App with friends through the Telegram share dialog.
+  /// Invite: share the Mini App through the Telegram share dialog on web; the
+  /// Play build turns the same link into the native share sheet, carrying the
+  /// Google Play listing instead of the Telegram one.
   Future<void> _shareApp() async {
     final bridge = ref.read(telegramBridgeProvider);
+    const appUrl = kIsWeb
+        ? 'https://t.me/Bakhtnegarbot/Bakhtnegar'
+        : 'https://play.google.com/store/apps/details?id=com.bakhtnegar.app';
     final url = Uri(
       scheme: 'https',
       host: 't.me',
       path: 'share/url',
       queryParameters: {
-        'url': 'https://t.me/Bakhtnegarbot/Bakhtnegar',
+        'url': appUrl,
         'text': context.strings.inviteShareText,
       },
     ).toString();
