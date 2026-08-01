@@ -13,8 +13,9 @@ const TELEGRAM_API = 'https://api.telegram.org';
 const REQUEST_TIMEOUT_MS = 10_000;
 
 /**
- * Telegram Bot integration: self-registers the webhook on startup and answers
- * `/start` with a WebApp button that opens the Mini App. Outbound calls are
+ * Telegram Bot integration: self-registers the webhook and the chat menu
+ * button on startup, and answers `/start` with a WebApp button that opens the
+ * Mini App. Outbound calls are
  * time-bounded and every outcome is logged; a Telegram failure never throws
  * into the request path.
  */
@@ -32,6 +33,11 @@ export class TelegramBotService implements OnApplicationBootstrap {
       });
       return;
     }
+
+    // The menu button lives bot-side at Telegram, so a URL set once by hand
+    // can go stale forever. Re-asserting it on every boot keeps the blue
+    // button on the exact same truth the /start button uses.
+    await this.registerMenuButton();
 
     const url = this.config.webhookUrl;
     if (!url) {
@@ -58,6 +64,31 @@ export class TelegramBotService implements OnApplicationBootstrap {
     } catch (error) {
       this.logger.error('telegram.webhook.error', {
         url,
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+    }
+  }
+
+  private async registerMenuButton(): Promise<void> {
+    try {
+      const res = await this.call('setChatMenuButton', {
+        menu_button: {
+          type: 'web_app',
+          text: 'باز کردن بخت‌نگار',
+          web_app: { url: this.config.miniAppUrl },
+        },
+      });
+      if (res.ok) {
+        this.logger.info('telegram.menu_button.registered', {
+          url: this.config.miniAppUrl,
+        });
+      } else {
+        this.logger.warn('telegram.menu_button.failed', {
+          description: res.description ?? 'unknown',
+        });
+      }
+    } catch (error) {
+      this.logger.warn('telegram.menu_button.error', {
         error: error instanceof Error ? error.message : 'unknown',
       });
     }

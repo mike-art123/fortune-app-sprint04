@@ -32,13 +32,23 @@ describe('TelegramBotService', () => {
     globalThis.fetch = fetchMock as unknown as typeof fetch;
   });
 
-  it('registers the webhook on startup with the public URL and secret', async () => {
+  it('registers the menu button and the webhook on startup', async () => {
     const service = new TelegramBotService(makeConfig(), makeLogger());
 
     await service.onApplicationBootstrap();
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0] as [string, { body: string }];
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    // First the blue menu button, re-asserted so it can never go stale.
+    const [menuUrl, menuInit] = fetchMock.mock.calls[0] as [string, { body: string }];
+    expect(menuUrl).toBe('https://api.telegram.org/bot123:ABC/setChatMenuButton');
+    const menuBody = JSON.parse(menuInit.body) as {
+      menu_button: { type: string; text: string; web_app: { url: string } };
+    };
+    expect(menuBody.menu_button.type).toBe('web_app');
+    expect(menuBody.menu_button.web_app.url).toBe('https://app.bakhtnegar.com');
+
+    const [url, init] = fetchMock.mock.calls[1] as [string, { body: string }];
     expect(url).toBe('https://api.telegram.org/bot123:ABC/setWebhook');
     const body = JSON.parse(init.body) as Record<string, unknown>;
     expect(body.url).toBe('https://api.example.com/api/v1/telegram/webhook');
@@ -57,7 +67,7 @@ describe('TelegramBotService', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('skips registration when no public URL is available', async () => {
+  it('still refreshes the menu button when no public URL is available', async () => {
     const service = new TelegramBotService(
       makeConfig({ webhookUrl: null } as Partial<TelegramBotConfig>),
       makeLogger(),
@@ -65,7 +75,9 @@ describe('TelegramBotService', () => {
 
     await service.onApplicationBootstrap();
 
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toBe('https://api.telegram.org/bot123:ABC/setChatMenuButton');
   });
 
   it('answers /start with a WebApp button to the Mini App', async () => {
