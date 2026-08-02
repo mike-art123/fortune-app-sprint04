@@ -120,6 +120,16 @@ const FOR_TODAY: Record<string, string> = {
  * already Persian. Any other supported language keeps every rule above and
  * changes only the language of the produced text; original sources (a ghazal,
  * a verse, a card name) stay in their own script, translated alongside.
+ *
+ * It used to name `title` and `reading`, which are the two fields of the
+ * *generic* contract and of nothing else. Every raw engine asks the model for
+ * its own shape — `messageOfThePoem`, `interpretationForIntention`, `hope`,
+ * `caution`, `practicalAdvice`, `selectedVerses` — so in all eight of them
+ * this block was ordering the translation of two fields that were never
+ * requested, and the model, reading an otherwise entirely Persian prompt,
+ * answered in Persian. That is why a Hafez reading stayed Persian in English
+ * while thirty-one other fortunes did not. It now speaks about the contract
+ * it is attached to, whatever that contract happens to be.
  */
 export function languageDirective(locale?: string): string | null {
   if (!locale || locale === 'fa') return null;
@@ -127,12 +137,16 @@ export function languageDirective(locale?: string): string | null {
   if (!name) return null;
   return [
     'مهم‌ترین قاعده و ناسخِ هر قاعدهٔ دیگر — زبانِ خروجی:',
-    `مقدارهای title و reading را کاملاً و فقط به ${name} بنویس، نه فارسی.`,
+    `همهٔ مقدارهای متنیِ همان JSON که بالا خواسته شد را کاملاً و فقط به ${name}`,
+    'بنویس — هر فیلدی که در «ساختار دقیق» آمده، بدون استثنا، نه فارسی.',
+    'تنها استثنا: فیلدی که نقلِ عینیِ متنِ اصیل است (بیتِ حافظ، آیهٔ قرآن).',
+    'آن باید کلمه‌به‌کلمه و به خط و زبانِ خودش بماند و حتی یک حرفش عوض نشود.',
     'قاعدهٔ «فارسی روان و امروزی بنویس» فقط برای خروجیِ فارسی بود و این‌جا',
-    'لغو می‌شود: به‌جز نقلِ متنِ اصیل، حتی یک جمله فارسی در reading نیاور.',
-    'متنِ اصیل (بیت حافظ، آیه، نام کارت یا نماد) را به خط و زبانِ اصلی نگه',
-    `دار و بلافاصله ترجمه‌اش را به ${name} بیاور.`,
-    `بند آخر به‌جای «برای امروز:» با «${FOR_TODAY[locale]}» شروع شود.`,
+    'لغو می‌شود: به‌جز همان نقلِ عینی، حتی یک جملهٔ فارسی ننویس.',
+    'نامِ کارت، نماد یا سوره را اگر در متن آوردی، به خط اصلی بیاور و',
+    `بلافاصله ترجمه‌اش را به ${name} کنارش بگذار.`,
+    `اگر خواسته شد بندی با «برای امروز:» شروع شود، به‌جایش «${FOR_TODAY[locale]}»`,
+    'بنویس.',
   ].join('\n');
 }
 
@@ -145,11 +159,11 @@ export function languageDirective(locale?: string): string | null {
 export function languageReminder(locale?: string): string | null {
   switch (locale) {
     case 'en':
-      return 'Write the title and the entire reading in English only.';
+      return 'Write every text value in the JSON in English only. A verse quoted from the poem stays exactly as it was given to you.';
     case 'ar':
-      return 'اكتب العنوان والقراءة كلّها بالعربية فقط.';
+      return 'اكتب كل القيم النصية في الـJSON بالعربية فقط. أما البيت المقتبس من القصيدة فيبقى كما أُعطي لك حرفيًا.';
     case 'tr':
-      return 'Başlığı ve yorumun tamamını yalnızca Türkçe yaz.';
+      return 'JSON içindeki bütün metin değerlerini yalnızca Türkçe yaz. Şiirden alıntılanan beyit sana verildiği gibi kalır.';
     default:
       return null;
   }
