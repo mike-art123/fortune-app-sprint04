@@ -22,7 +22,8 @@
 # Secrets consumed (set in repo Settings → Secrets and variables → Actions):
 #   APP_STORE_CONNECT_KEY_ID          the KEYID from AuthKey_<KEYID>.p8
 #   APP_STORE_CONNECT_ISSUER_ID       the issuer UUID shown above the key list
-#   APP_STORE_CONNECT_KEY_P8_BASE64   the .p8 file, base64, single line
+#   APP_STORE_CONNECT_KEY_P8          the .p8 file: paste its text as-is,
+#                                     or base64 — the job accepts either
 #   APPLE_TEAM_ID                     10-character team id
 # The key is written to disk only inside the runner and never printed.
 name: iOS
@@ -37,7 +38,7 @@ jobs:
     env:
       ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-      ASC_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_P8_BASE64 }}
+      ASC_KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       # Same defines as the Android Play job, with one deliberate difference:
       # ENABLE_MONETIZATION=false — v1 ships with no ads (Strategy A).
@@ -63,7 +64,7 @@ jobs:
         id: signing
         run: |
           if [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] \
-             && [ -n "$ASC_KEY_P8_BASE64" ] && [ -n "$APPLE_TEAM_ID" ]; then
+             && [ -n "$ASC_KEY_P8" ] && [ -n "$APPLE_TEAM_ID" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
             echo "App Store Connect credentials found — archiving and uploading to TestFlight."
           else
@@ -89,15 +90,29 @@ jobs:
 
       # ---------- signed path (archive + TestFlight) ----------
 
+      # The secret may hold the .p8 either verbatim (open it in Notepad,
+      # select all, paste — no tooling needed) or base64-encoded. Both are
+      # accepted so the easy path is available without being the only one.
       - name: Install the App Store Connect key
         if: steps.signing.outputs.ready == 'true'
         run: |
           mkdir -p ~/private_keys
-          echo -n "$ASC_KEY_P8_BASE64" | base64 --decode \
-            -o ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
-          chmod 600 ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
-          # Size only — never the contents.
-          wc -c < ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          KEYFILE=~/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          if printf '%s' "$ASC_KEY_P8" | grep -q 'BEGIN PRIVATE KEY'; then
+            echo "Key pasted verbatim."
+            printf '%s\n' "$ASC_KEY_P8" | tr -d '\r' > "$KEYFILE"
+          else
+            echo "Key pasted base64-encoded."
+            printf '%s' "$ASC_KEY_P8" | tr -d '\r\n ' | base64 --decode -o "$KEYFILE"
+          fi
+          chmod 600 "$KEYFILE"
+          # Shape only — never the contents. A wrong paste fails here with a
+          # sentence Mike can act on, instead of an opaque xcodebuild error.
+          if ! grep -q 'BEGIN PRIVATE KEY' "$KEYFILE"; then
+            echo "::error::APP_STORE_CONNECT_KEY_P8 is not a readable .p8 key. Re-copy the whole file, including the BEGIN and END lines."
+            exit 1
+          fi
+          echo "Key installed, $(wc -c < "$KEYFILE") bytes."
 
       - name: Configure the Xcode project
         if: steps.signing.outputs.ready == 'true'
