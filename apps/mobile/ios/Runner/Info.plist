@@ -40,6 +40,14 @@
 	     from the AdMob console is declared here rather than left to chance. -->
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-9505109087247499~4676816995</string>
+	<!-- The app's only cryptography is the HTTPS that URLSession gives it,
+	     which Apple lists as exempt: "the use of encryption that's built into
+	     the operating system … is exempt from export documentation upload
+	     requirements". Declaring it here also spares a manual export-compliance
+	     questionnaire on every single upload. Revisit if a bundled crypto
+	     library ever replaces the system stack. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
