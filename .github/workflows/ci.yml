@@ -113,6 +113,7 @@ jobs:
           --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
           --dart-define=ENABLE_GUEST_AUTH=true
           --dart-define=ENABLE_ANDROID_BRIDGES=true
+          --dart-define=ENABLE_MONETIZATION=true
       - name: Build installable APK (same flavor)
         working-directory: apps/mobile
         run: >
@@ -122,6 +123,7 @@ jobs:
           --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
           --dart-define=ENABLE_GUEST_AUTH=true
           --dart-define=ENABLE_ANDROID_BRIDGES=true
+          --dart-define=ENABLE_MONETIZATION=true
       - uses: actions/upload-artifact@v4
         with:
           name: bakhtnegar-android

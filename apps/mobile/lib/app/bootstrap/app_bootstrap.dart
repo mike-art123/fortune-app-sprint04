@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/ads/ads_bootstrap.dart';
 import '../../core/config/app_config.dart';
 import '../../core/config/app_flavor.dart';
 import '../../core/config/environment_loader.dart';
@@ -44,6 +45,8 @@ abstract final class AppBootstrap {
     WidgetsFlutterBinding.ensureInitialized();
 
     final config = EnvironmentLoader.load(flavor);
+    // Ad SDK warm-up: a no-op on web and while monetization is paused.
+    warmUpAdsSdk();
     final prefs = await SharedPreferences.getInstance();
 
     return BootstrapDependencies(

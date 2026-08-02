@@ -37,6 +37,11 @@ export class AdsConfig {
     return this.config.get<string>('MONETAG_REWARD_SECRET') ?? '';
   }
 
+  /** AdMob rewarded ad unit id (a public client identifier, Android). */
+  get admobRewardedUnitId(): string {
+    return this.config.get<string>('ADMOB_REWARDED_UNIT_ID') ?? '';
+  }
+
   /** How long the client may wait for a provider to load an ad. */
   get loadTimeoutMs(): number {
     return this.config.get<number>('AD_LOAD_TIMEOUT_MS') ?? 12000;
@@ -88,6 +93,7 @@ export class AdsConfig {
   clientConfigFor(provider: string): Record<string, string> {
     if (provider === 'adsgram') return { blockId: this.adsgramBlockId };
     if (provider === 'monetag') return { zoneId: this.monetagZoneId };
+    if (provider === 'admob') return { adUnitId: this.admobRewardedUnitId };
     return {};
   }
 
