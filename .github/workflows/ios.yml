@@ -6,18 +6,24 @@
 #
 # Bootstrap phase: apps/mobile/ios does not exist in git yet, and the cloud
 # assistant cannot run `flutter create` itself (Flutter's download host is
-# blocked there). So until the scaffold is committed, this workflow generates
+# blocked there). Until the scaffold is committed, this workflow generates
 # ios/ with the official stable templates, builds it UNSIGNED to prove it
-# compiles, and uploads the generated folder as an artifact to be reviewed
-# and committed. Once apps/mobile/ios lands in git the scaffold step becomes
-# a no-op and this bootstrap block gets removed. Code signing + TestFlight
-# upload arrive in a later phase, once the App Store Connect API key exists
-# in GitHub Secrets (never in git).
+# compiles, and then publishes the generated files to the helper branch
+# `ios-scaffold` (never to main). The assistant picks them up from that
+# branch after a "Fetch origin" in GitHub Desktop, customizes them (bundle
+# id, display name, Persian permission strings) and commits them to main
+# locally. Once apps/mobile/ios lands in git, the bootstrap steps become
+# no-ops and get removed. Code signing + TestFlight upload arrive in a later
+# phase, once the App Store Connect API key exists in GitHub Secrets (never
+# in git).
 name: iOS
 
 on:
   push: { branches: [main] }
   workflow_dispatch:
+
+permissions:
+  contents: write # bootstrap only: lets CI push the ios-scaffold helper branch
 
 jobs:
   ios:
@@ -51,7 +57,21 @@ jobs:
           --dart-define=ENABLE_GUEST_AUTH=true
           --dart-define=ENABLE_ANDROID_BRIDGES=true
           --dart-define=ENABLE_MONETIZATION=false
-      - name: Pack scaffold for review/commit
+      - name: Publish scaffold to helper branch (bootstrap — removed once committed)
+        working-directory: apps/mobile
+        run: |
+          if [ -n "$(git ls-files ios)" ]; then
+            echo "ios/ already tracked in git — nothing to publish"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B ios-scaffold
+          git add ios
+          [ -f .metadata ] && git add .metadata
+          git commit -m "bootstrap: iOS scaffold from flutter create (CI, stable channel)"
+          git push -f origin ios-scaffold
+      - name: Pack scaffold artifact (backup path)
         if: always()
         working-directory: apps/mobile
         run: |
