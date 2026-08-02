@@ -31,6 +31,15 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<!-- The app ships with no ads: monetization is compiled off and the
+	     Google Mobile Ads SDK is never initialised. The SDK is still linked,
+	     because google_mobile_ads sits in the shared pubspec for the Android
+	     v4 plan and Flutter offers no supported way to drop a plugin from one
+	     platform's build. Google documents a hard crash when this key is
+	     absent and does not bound when the check fires, so the real iOS app id
+	     from the AdMob console is declared here rather than left to chance. -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-9505109087247499~4676816995</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
