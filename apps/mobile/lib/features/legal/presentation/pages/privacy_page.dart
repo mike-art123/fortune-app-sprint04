@@ -98,7 +98,8 @@ const _sectionsEn = <(String, List<String>)>[
   (
     'Artificial intelligence',
     [
-      'To write an interpretation, we send a third-party AI service the '
+      'To write an interpretation, we send OpenAI — a third-party AI '
+          'service — the '
           'fortune you chose, the intention you wrote, your display language, '
           'the first name you gave us if you gave one, and — for the coffee '
           'reading only — the photograph of your cup. Without this, there is '
@@ -111,8 +112,7 @@ const _sectionsEn = <(String, List<String>)>[
       'The source of every fortune — the ghazal, the card, the verse, the '
           'sign — is chosen before the AI is involved, and its only task is '
           'to interpret that source.',
-      'Which service? Ask us from the contact page and we will tell you which '
-          'provider does this today. If it ever changes, the change is '
+      'Which service? OpenAI, today. If it ever changes, the change is '
           'written on this page.',
     ],
   ),
@@ -196,7 +196,8 @@ const _sectionsAr = <(String, List<String>)>[
   (
     'الذكاء الاصطناعي',
     [
-      'لكتابة التفسير نرسل إلى خدمة ذكاء اصطناعي تابعة لطرف ثالث: الفأل الذي '
+      'لكتابة التفسير نرسل إلى OpenAI، وهي خدمة ذكاء اصطناعي تابعة لطرف '
+          'ثالث: الفأل الذي '
           'اخترته، ونيّتك التي كتبتها، ولغة العرض، والاسم الأول إن أعطيتنا '
           'إياه، وفي قراءة الفنجان وحدها صورة فنجانك. من دون ذلك لا يوجد فأل '
           'يُكتب لك.',
@@ -205,8 +206,8 @@ const _sectionsAr = <(String, List<String>)>[
       'صورة الفنجان تُقرأ مرة واحدة لتلك القراءة ولا تُحفظ على خوادمنا أبدًا.',
       'مصدر كل فأل — الغزل أو البطاقة أو الآية أو العلامة — يُختار قبل تدخّل '
           'الذكاء الاصطناعي، ومهمته الوحيدة تفسير ذلك المصدر.',
-      'أي خدمة؟ اسألنا من صفحة الاتصال ونخبرك أي مزوّد يقوم بذلك اليوم. وإن '
-          'تغيّر يومًا فسيُكتب التغيير في هذه الصفحة.',
+      'أي خدمة؟ OpenAI، اليوم. وإن تغيّر يومًا فسيُكتب التغيير في هذه '
+          'الصفحة.',
     ],
   ),
   (
@@ -284,7 +285,8 @@ const _sections = <(String, List<String>)>[
   (
     'هوش مصنوعی',
     [
-      'برای نوشتنِ تفسیر، این‌ها به یک سرویسِ هوش مصنوعیِ شخصِ ثالث فرستاده '
+      'برای نوشتنِ تفسیر، این‌ها به OpenAI — یک سرویسِ هوش مصنوعیِ شخصِ '
+          'ثالث — فرستاده '
           'می‌شود: فالی که انتخاب کرده‌ای، نیتی که نوشته‌ای، زبانِ نمایش، '
           'نامِ کوچکی که داده‌ای اگر داده باشی، و فقط در فال قهوه، عکس '
           'فنجانت. بدون این کار، فالی نوشته نمی‌شود.',
@@ -295,9 +297,8 @@ const _sections = <(String, List<String>)>[
           'ذخیره نمی‌شود.',
       'منبعِ هر فال — غزل، کارت، آیه، نشانه — پیش از دخالتِ هوش مصنوعی '
           'انتخاب می‌شود و تنها کارِ آن، تفسیرِ همان منبع است.',
-      'کدام سرویس؟ از صفحهٔ «تماس با ما» بپرس تا بگوییم امروز کدام سرویس این '
-          'کار را می‌کند. اگر روزی عوض شود، تغییرش در همین صفحه نوشته '
-          'می‌شود.',
+      'کدام سرویس؟ امروز OpenAI. اگر روزی عوض شود، تغییرش در همین صفحه '
+          'نوشته می‌شود.',
     ],
   ),
   (
@@ -380,7 +381,8 @@ const _sectionsTr = <(String, List<String>)>[
   (
     'Yapay zekâ',
     [
-      'Yorumu yazmak için üçüncü taraf bir yapay zekâ hizmetine şunları '
+      'Yorumu yazmak için üçüncü taraf bir yapay zekâ hizmeti olan OpenAI’ye '
+          'şunları '
           'gönderiyoruz: seçtiğin fal, yazdığın niyet, görüntü dilin, '
           'verdiysen adın ve yalnızca kahve falında fincanının fotoğrafı. '
           'Bunlar olmadan yazılacak bir fal olmaz.',
@@ -391,8 +393,7 @@ const _sectionsTr = <(String, List<String>)>[
           'asla saklanmaz.',
       'Her falın kaynağı — gazel, kart, ayet, işaret — yapay zekâ devreye '
           'girmeden önce seçilir; onun tek işi o kaynağı yorumlamaktır.',
-      'Hangi hizmet? İletişim sayfasından sor, bugün bunu hangi sağlayıcının '
-          'yaptığını söyleyelim. Değişirse değişiklik bu sayfaya yazılır.',
+      'Hangi hizmet? Bugün OpenAI. Değişirse değişiklik bu sayfaya yazılır.',
     ],
   ),
   (

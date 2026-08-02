@@ -194,7 +194,7 @@ class AppStrings {
   /// the way out on every ritual, and the longest of them already fills a
   /// narrow phone. The whole of it is one tap away.
   String get aiConsentNote =>
-      'نیتت برای تفسیر به یک هوش مصنوعیِ شخصِ ثالث می‌رود — بیشتر';
+      'نیتت برای تفسیر به هوش مصنوعیِ OpenAI می‌رود — بیشتر';
   String get splashTagline => 'در حال گشودن رازهای بخت شما…';
   String get editProfileTitle => 'نام و ماه تولد';
   String get audioCardTitle => 'صدای پس‌زمینه';
@@ -554,7 +554,7 @@ class EnStrings extends AppStrings {
 
   @override
   String get aiConsentNote =>
-      'Your intention goes to a third-party AI — read more';
+      'Your intention goes to OpenAI to be interpreted — read more';
   @override
   String get splashTagline => 'Unveiling the secrets of your fortune…';
   @override
@@ -947,7 +947,7 @@ class ArStrings extends AppStrings {
 
   @override
   String get aiConsentNote =>
-      'نيّتك تُرسل إلى ذكاء اصطناعي من طرف ثالث — المزيد';
+      'نيّتك تُرسل إلى OpenAI ليكتب التفسير — المزيد';
   @override
   String get splashTagline => 'نكشف أسرار بختك…';
   @override
@@ -1346,7 +1346,7 @@ class TrStrings extends AppStrings {
 
   @override
   String get aiConsentNote =>
-      'Niyetin üçüncü taraf bir yapay zekâya gider — daha fazlası';
+      'Niyetin yorumlanmak üzere OpenAI\'ye gider — daha fazlası';
   @override
   String get splashTagline => 'Bahtının sırları aralanıyor…';
   @override
