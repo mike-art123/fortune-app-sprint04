@@ -145,10 +145,17 @@ jobs:
           ssh-keygen -t rsa -b 2048 -m PEM -f "$RUNNER_TEMP/cert_key" -q -N ""
           export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/private_keys/AuthKey_"$ASC_KEY_ID".p8)"
           keychain initialize
+          set -o pipefail
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
-            --certificate-key "@file:$RUNNER_TEMP/cert_key"
+            --certificate-key "@file:$RUNNER_TEMP/cert_key" 2>&1 \
+            | tee "$RUNNER_TEMP/signing.log"
+          # Remember what was created so the cleanup step can remove exactly
+          # that, rather than guessing at filters or touching anything else.
+          sed -n 's/.*Created Signing Certificate \([A-Z0-9]*\).*/\1/p' \
+            "$RUNNER_TEMP/signing.log" | head -1 > "$RUNNER_TEMP/cert_id"
+          echo "Certificate created: $(cat "$RUNNER_TEMP/cert_id")"
           keychain add-certificates
           xcode-project use-profiles
 
@@ -176,24 +183,46 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         run: |
+          set -o pipefail
           export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/private_keys/AuthKey_"$ASC_KEY_ID".p8)"
           IPA="$(find build/ios/ipa -name '*.ipa' | head -1)"
           echo "Uploading $(basename "$IPA")"
-          app-store-connect publish --path "$IPA"
+          # The binary lands in one call and the tool then reads the app back
+          # over the API. That read is not part of the delivery, and Apple
+          # answering it with a 500 has already turned one green upload red.
+          # The transfer's own verdict is what counts.
+          if app-store-connect publish --path "$IPA" 2>&1 | tee "$RUNNER_TEMP/publish.log"; then
+            echo "Uploaded and published."
+          elif grep -q 'UPLOAD SUCCEEDED' "$RUNNER_TEMP/publish.log"; then
+            echo "::warning::The binary reached App Store Connect (UPLOAD SUCCEEDED); a follow-up API call failed on Apple's side. Check TestFlight - the build is there."
+          else
+            echo "::error::The upload itself failed."
+            exit 1
+          fi
 
-      # Best-effort, and deliberately non-fatal: a failure to tidy up must
-      # never turn a successful upload red. The help output is printed so the
-      # exact revoke syntax is captured from a real run instead of guessed.
-      - name: Revoke this run's certificate
+      # Each run mints a certificate whose private key dies with the runner,
+      # so yesterday's certificates are unusable by anyone, including us -
+      # they are pure clutter against Apple's cap. This deletes the one this
+      # run created. Non-fatal on purpose: tidying up must never turn a
+      # delivered build red.
+      - name: Delete this run's certificate
         if: always() && steps.signing.outputs.ready == 'true'
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         continue-on-error: true
         run: |
+          CERT_ID="$(cat "$RUNNER_TEMP/cert_id" 2>/dev/null || true)"
+          if [ -z "$CERT_ID" ]; then
+            echo "No certificate was created this run; nothing to delete."
+            exit 0
+          fi
           export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/private_keys/AuthKey_"$ASC_KEY_ID".p8)"
-          app-store-connect certificates --help || true
-          app-store-connect certificates list --certificate-type IOS_DISTRIBUTION --json || true
+          echo "Deleting signing certificate $CERT_ID"
+          app-store-connect certificates delete "$CERT_ID" --ignore-not-found \
+            || app-store-connect certificates delete "$CERT_ID" \
+            || { echo "Delete refused; printing the syntax for next time:"; \
+                 app-store-connect certificates delete --help; }
 
       - name: Remove the key from the runner
         if: always() && steps.signing.outputs.ready == 'true'
