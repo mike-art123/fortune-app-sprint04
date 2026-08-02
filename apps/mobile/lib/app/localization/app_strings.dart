@@ -187,6 +187,14 @@ class AppStrings {
   String get searchAsking => 'دارم می‌پرسم…';
   String get searchAskAssistant => 'از دستیار بپرس';
   String get adPreparing => 'در حال آماده‌سازی تبلیغ...';
+
+  /// App Review Guideline 5.1.2(i): the person is told what leaves the device
+  /// at the moment they choose to send it, not in a policy they would have to
+  /// go looking for. Tapping the line opens that policy anyway.
+  String get aiConsentNote =>
+      'با زدن این دکمه می‌پذیری که نیتت — و در فال قهوه، عکس فنجانت — برای '
+      'نوشتنِ تفسیر به یک سرویسِ هوش مصنوعیِ شخصِ ثالث فرستاده شود. '
+      'برای جزئیات، این‌جا را بزن و حریم خصوصی را بخوان.';
   String get splashTagline => 'در حال گشودن رازهای بخت شما…';
   String get editProfileTitle => 'نام و ماه تولد';
   String get audioCardTitle => 'صدای پس‌زمینه';
@@ -543,6 +551,12 @@ class EnStrings extends AppStrings {
   String get searchAskAssistant => 'Ask the assistant';
   @override
   String get adPreparing => 'Preparing the ad...';
+
+  @override
+  String get aiConsentNote =>
+      'By tapping this you agree that your intention — and, for the coffee '
+      'reading, the photo of your cup — is sent to a third-party AI service '
+      'to write the interpretation. Tap here to read the privacy policy.';
   @override
   String get splashTagline => 'Unveiling the secrets of your fortune…';
   @override
@@ -932,6 +946,12 @@ class ArStrings extends AppStrings {
   String get searchAskAssistant => 'اسأل المساعد';
   @override
   String get adPreparing => 'جارٍ تجهيز الإعلان...';
+
+  @override
+  String get aiConsentNote =>
+      'بالضغط هنا توافق على إرسال نيّتك — وفي قراءة الفنجان صورة فنجانك — '
+      'إلى خدمة ذكاء اصطناعي تابعة لطرف ثالث لكتابة التفسير. '
+      'اضغط هنا لقراءة سياسة الخصوصية.';
   @override
   String get splashTagline => 'نكشف أسرار بختك…';
   @override
@@ -1327,6 +1347,12 @@ class TrStrings extends AppStrings {
   String get searchAskAssistant => 'Asistana sor';
   @override
   String get adPreparing => 'Reklam hazırlanıyor...';
+
+  @override
+  String get aiConsentNote =>
+      'Buna dokunarak niyetinin — kahve falında ise fincanının fotoğrafının — '
+      'yorumu yazmak üzere üçüncü taraf bir yapay zekâ hizmetine '
+      'gönderilmesini kabul edersin. Gizlilik politikası için buraya dokun.';
   @override
   String get splashTagline => 'Bahtının sırları aralanıyor…';
   @override
