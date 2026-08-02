@@ -96,6 +96,24 @@ const _sectionsEn = <(String, List<String>)>[
     ],
   ),
   (
+    'Artificial intelligence',
+    [
+      'To write an interpretation, we send a third-party AI service the '
+          'fortune you chose, the intention you wrote, your display language, '
+          'the first name you gave us if you gave one, and — for the coffee '
+          'reading only — the photograph of your cup. Without this, there is '
+          'no reading to give you.',
+      'Nothing that identifies you goes with it: no account, no email '
+          'address, no phone number, no device or user identifier. The app '
+          'holds none of these in the first place.',
+      'The photograph of your cup is read once for that reading and is never '
+          'stored on our servers.',
+      'The source of every fortune — the ghazal, the card, the verse, the '
+          'sign — is chosen before the AI is involved, and its only task is '
+          'to interpret that source.',
+    ],
+  ),
+  (
     'Analytics',
     [
       'Only anonymous, content-free technical events (like «screen opened») '
@@ -173,6 +191,20 @@ const _sectionsAr = <(String, List<String>)>[
     ],
   ),
   (
+    'الذكاء الاصطناعي',
+    [
+      'لكتابة التفسير نرسل إلى خدمة ذكاء اصطناعي تابعة لطرف ثالث: الفأل الذي '
+          'اخترته، ونيّتك التي كتبتها، ولغة العرض، والاسم الأول إن أعطيتنا '
+          'إياه، وفي قراءة الفنجان وحدها صورة فنجانك. من دون ذلك لا يوجد فأل '
+          'يُكتب لك.',
+      'ولا يُرسل معها ما يعرّف بك: لا حساب ولا بريد إلكتروني ولا رقم هاتف '
+          'ولا معرّف جهاز أو مستخدم. التطبيق لا يملك شيئًا من ذلك أصلًا.',
+      'صورة الفنجان تُقرأ مرة واحدة لتلك القراءة ولا تُحفظ على خوادمنا أبدًا.',
+      'مصدر كل فأل — الغزل أو البطاقة أو الآية أو العلامة — يُختار قبل تدخّل '
+          'الذكاء الاصطناعي، ومهمته الوحيدة تفسير ذلك المصدر.',
+    ],
+  ),
+  (
     'التحليلات',
     [
       'تُسجل فقط أحداث تقنية مجهولة بلا محتوى (مثل «فُتحت الشاشة») لتحسين '
@@ -242,6 +274,22 @@ const _sections = <(String, List<String>)>[
       'تنظیمات برنامه (زبان، صدا، اعلان‌ها).',
       'نیت‌ها خصوصی‌اند: فقط برای ساختن همان فال استفاده می‌شوند و '
           'متنشان هرگز در گزارش‌ها و لاگ‌ها ثبت نمی‌شود.',
+    ],
+  ),
+  (
+    'هوش مصنوعی',
+    [
+      'برای نوشتنِ تفسیر، این‌ها به یک سرویسِ هوش مصنوعیِ شخصِ ثالث فرستاده '
+          'می‌شود: فالی که انتخاب کرده‌ای، نیتی که نوشته‌ای، زبانِ نمایش، '
+          'نامِ کوچکی که داده‌ای اگر داده باشی، و فقط در فال قهوه، عکس '
+          'فنجانت. بدون این کار، فالی نوشته نمی‌شود.',
+      'هیچ چیزی که تو را بشناساند همراهش نمی‌رود: نه حساب، نه ایمیل، نه '
+          'شمارهٔ تلفن، نه شناسهٔ دستگاه یا کاربر. برنامه اصلاً هیچ‌کدام را '
+          'ندارد.',
+      'عکس فنجان یک‌بار برای همان خوانش خوانده می‌شود و هرگز روی سرورهای ما '
+          'ذخیره نمی‌شود.',
+      'منبعِ هر فال — غزل، کارت، آیه، نشانه — پیش از دخالتِ هوش مصنوعی '
+          'انتخاب می‌شود و تنها کارِ آن، تفسیرِ همان منبع است.',
     ],
   ),
   (
@@ -319,6 +367,22 @@ const _sectionsTr = <(String, List<String>)>[
       'Uygulama ayarları (dil, ses, bildirimler).',
       'Niyetler özeldir: yalnızca o falı üretmek için kullanılır; metni asla '
           'rapor ve kayıtlara girmez.',
+    ],
+  ),
+  (
+    'Yapay zekâ',
+    [
+      'Yorumu yazmak için üçüncü taraf bir yapay zekâ hizmetine şunları '
+          'gönderiyoruz: seçtiğin fal, yazdığın niyet, görüntü dilin, '
+          'verdiysen adın ve yalnızca kahve falında fincanının fotoğrafı. '
+          'Bunlar olmadan yazılacak bir fal olmaz.',
+      'Yanında seni tanıtan hiçbir şey gitmez: hesap yok, e-posta yok, '
+          'telefon numarası yok, cihaz ya da kullanıcı kimliği yok. '
+          'Uygulamada bunların hiçbiri zaten bulunmuyor.',
+      'Fincanının fotoğrafı o yorum için bir kez okunur ve sunucularımızda '
+          'asla saklanmaz.',
+      'Her falın kaynağı — gazel, kart, ayet, işaret — yapay zekâ devreye '
+          'girmeden önce seçilir; onun tek işi o kaynağı yorumlamaktır.',
     ],
   ),
   (
