@@ -317,27 +317,6 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
                   : () => _seal(fortune),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-
-          // What actually leaves the device, said where the person decides to
-          // send it rather than in a policy they would have to go looking for
-          // (App Review Guideline 5.1.2(i): disclose sharing with third-party
-          // AI, and obtain permission before it happens). The whole line opens
-          // the policy, so the detail is one tap away and never in the way.
-          Semantics(
-            button: true,
-            child: GestureDetector(
-              onTap: () => context.push(AppRoutes.privacyPath),
-              child: Text(
-                s.aiConsentNote,
-                textAlign: TextAlign.center,
-                style: textTheme.labelSmall?.copyWith(
-                  color: c.textMuted,
-                  height: 1.7,
-                ),
-              ),
-            ),
-          ),
           const SizedBox(height: AppSpacing.sm),
 
           // An explicit way out for anyone who chooses not to take this
@@ -348,7 +327,29 @@ class _RitualEntryPageState extends ConsumerState<RitualEntryPage> {
             variant: FortuneButtonVariant.secondary,
             onPressed: () => AppBack.goBack(context),
           ),
-          const SizedBox(height: AppSpacing.lg),
+
+          // What actually leaves the device, on the screen where the person
+          // decides to send it (App Review Guideline 5.1.2(i): disclose
+          // sharing with third-party AI, and obtain permission before it
+          // happens). Tapping opens the policy in full.
+          //
+          // It sits below both buttons and is paid for out of the closing
+          // spacer, so neither button moves and the page ends where it always
+          // did — the smoke test over every ritual is there to catch exactly
+          // the overflow a taller page would cause on a narrow phone, and it
+          // caught it once already.
+          const SizedBox(height: AppSpacing.xs),
+          Semantics(
+            button: true,
+            child: GestureDetector(
+              onTap: () => context.push(AppRoutes.privacyPath),
+              child: Text(
+                s.aiConsentNote,
+                textAlign: TextAlign.center,
+                style: textTheme.labelSmall?.copyWith(color: c.textMuted),
+              ),
+            ),
+          ),
         ],
       ),
     );

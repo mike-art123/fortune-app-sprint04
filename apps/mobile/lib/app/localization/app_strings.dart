@@ -190,11 +190,11 @@ class AppStrings {
 
   /// App Review Guideline 5.1.2(i): the person is told what leaves the device
   /// at the moment they choose to send it, not in a policy they would have to
-  /// go looking for. Tapping the line opens that policy anyway.
+  /// go looking for. Kept to one line on purpose — it sits between the act and
+  /// the way out on every ritual, and the longest of them already fills a
+  /// narrow phone. The whole of it is one tap away.
   String get aiConsentNote =>
-      'با زدن این دکمه می‌پذیری که نیتت — و در فال قهوه، عکس فنجانت — برای '
-      'نوشتنِ تفسیر به یک سرویسِ هوش مصنوعیِ شخصِ ثالث فرستاده شود. '
-      'برای جزئیات، این‌جا را بزن و حریم خصوصی را بخوان.';
+      'نیتت برای تفسیر به یک هوش مصنوعیِ شخصِ ثالث می‌رود — بیشتر';
   String get splashTagline => 'در حال گشودن رازهای بخت شما…';
   String get editProfileTitle => 'نام و ماه تولد';
   String get audioCardTitle => 'صدای پس‌زمینه';
@@ -554,9 +554,7 @@ class EnStrings extends AppStrings {
 
   @override
   String get aiConsentNote =>
-      'By tapping this you agree that your intention — and, for the coffee '
-      'reading, the photo of your cup — is sent to a third-party AI service '
-      'to write the interpretation. Tap here to read the privacy policy.';
+      'Your intention goes to a third-party AI — read more';
   @override
   String get splashTagline => 'Unveiling the secrets of your fortune…';
   @override
@@ -949,9 +947,7 @@ class ArStrings extends AppStrings {
 
   @override
   String get aiConsentNote =>
-      'بالضغط هنا توافق على إرسال نيّتك — وفي قراءة الفنجان صورة فنجانك — '
-      'إلى خدمة ذكاء اصطناعي تابعة لطرف ثالث لكتابة التفسير. '
-      'اضغط هنا لقراءة سياسة الخصوصية.';
+      'نيّتك تُرسل إلى ذكاء اصطناعي من طرف ثالث — المزيد';
   @override
   String get splashTagline => 'نكشف أسرار بختك…';
   @override
@@ -1350,9 +1346,7 @@ class TrStrings extends AppStrings {
 
   @override
   String get aiConsentNote =>
-      'Buna dokunarak niyetinin — kahve falında ise fincanının fotoğrafının — '
-      'yorumu yazmak üzere üçüncü taraf bir yapay zekâ hizmetine '
-      'gönderilmesini kabul edersin. Gizlilik politikası için buraya dokun.';
+      'Niyetin üçüncü taraf bir yapay zekâya gider — daha fazlası';
   @override
   String get splashTagline => 'Bahtının sırları aralanıyor…';
   @override

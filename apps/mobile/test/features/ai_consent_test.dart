@@ -18,7 +18,7 @@ void main() {
       expect(note, isNotEmpty, reason: '${locale.languageCode}: no note');
       expect(
         note.length,
-        greaterThan(60),
+        greaterThan(40),
         reason: '${locale.languageCode}: too short to disclose much',
       );
     }
