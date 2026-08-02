@@ -69,6 +69,10 @@ void main() {
 
     expect(find.text('Hafez · 2'), findsOneWidget);
     expect(find.text('فال حافظ · ۲'), findsNothing);
+    // And the paragraph above them, which the server sends already written in
+    // Persian, is said again in English rather than passed straight through.
+    expect(find.text('در سی روز گذشته ۲ فال گرفتی.'), findsNothing);
+    expect(find.textContaining('in the last 30 days'), findsOneWidget);
   });
 
   testWidgets('says so when the sentence was written by the assistant', (

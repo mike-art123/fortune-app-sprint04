@@ -9,6 +9,7 @@ import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
 import '../../../fortunes/domain/fortune_registry.dart';
 import '../../application/history_summary_controller.dart';
+import '../../domain/history_recap.dart';
 import '../../domain/history_summary.dart';
 
 /// «نگاهی به گذشته» — what this stretch of time looked like (scope §6).
@@ -27,6 +28,8 @@ class HistorySummaryCard extends ConsumerWidget {
     final locale = Localizations.localeOf(context);
     final range = ref.watch(summaryRangeProvider);
     final summary = ref.watch(historySummaryProvider).valueOrNull;
+    // Null in Persian, where the server's sentence is already the right one.
+    final recap = summary == null ? null : recapFor(summary, locale);
 
     return Padding(
       padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
@@ -61,13 +64,16 @@ class HistorySummaryCard extends ConsumerWidget {
               )
             else ...[
               Text(
-                summary.summary,
+                recap ?? summary.summary,
                 style: textTheme.bodyMedium?.copyWith(
                   color: c.textSecondary,
                   height: 1.8,
                 ),
               ),
-              if (summary.writtenByAi) ...[
+              // The note belongs to the server's sentence. When this screen
+              // wrote the line itself, no model was involved and saying so
+              // would be a lie.
+              if (summary.writtenByAi && recap == null) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   s.historyAiNote,
