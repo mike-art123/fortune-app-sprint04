@@ -111,6 +111,9 @@ const _sectionsEn = <(String, List<String>)>[
       'The source of every fortune — the ghazal, the card, the verse, the '
           'sign — is chosen before the AI is involved, and its only task is '
           'to interpret that source.',
+      'Which service? Ask us from the contact page and we will tell you which '
+          'provider does this today. If it ever changes, the change is '
+          'written on this page.',
     ],
   ),
   (
@@ -202,6 +205,8 @@ const _sectionsAr = <(String, List<String>)>[
       'صورة الفنجان تُقرأ مرة واحدة لتلك القراءة ولا تُحفظ على خوادمنا أبدًا.',
       'مصدر كل فأل — الغزل أو البطاقة أو الآية أو العلامة — يُختار قبل تدخّل '
           'الذكاء الاصطناعي، ومهمته الوحيدة تفسير ذلك المصدر.',
+      'أي خدمة؟ اسألنا من صفحة الاتصال ونخبرك أي مزوّد يقوم بذلك اليوم. وإن '
+          'تغيّر يومًا فسيُكتب التغيير في هذه الصفحة.',
     ],
   ),
   (
@@ -290,6 +295,9 @@ const _sections = <(String, List<String>)>[
           'ذخیره نمی‌شود.',
       'منبعِ هر فال — غزل، کارت، آیه، نشانه — پیش از دخالتِ هوش مصنوعی '
           'انتخاب می‌شود و تنها کارِ آن، تفسیرِ همان منبع است.',
+      'کدام سرویس؟ از صفحهٔ «تماس با ما» بپرس تا بگوییم امروز کدام سرویس این '
+          'کار را می‌کند. اگر روزی عوض شود، تغییرش در همین صفحه نوشته '
+          'می‌شود.',
     ],
   ),
   (
@@ -383,6 +391,8 @@ const _sectionsTr = <(String, List<String>)>[
           'asla saklanmaz.',
       'Her falın kaynağı — gazel, kart, ayet, işaret — yapay zekâ devreye '
           'girmeden önce seçilir; onun tek işi o kaynağı yorumlamaktır.',
+      'Hangi hizmet? İletişim sayfasından sor, bugün bunu hangi sağlayıcının '
+          'yaptığını söyleyelim. Değişirse değişiklik bu sayfaya yazılır.',
     ],
   ),
   (
