@@ -30,4 +30,18 @@ void main() {
   test('an empty share payload is refused rather than shared blank', () {
     expect(shareMessageFromTelegramLink('https://t.me/share/url'), isNull);
   });
+
+  // iOS 26 rejects a zero-sized anchor and the share sheet never opens, which
+  // is how «دعوت از دوستان» came to do nothing at all on an iPhone. The one
+  // property that matters is that this rectangle is never empty.
+  test('the share sheet is handed a rectangle that is not empty', () {
+    final anchor = shareAnchor();
+
+    expect(anchor.isEmpty, isFalse);
+    expect(anchor.width, greaterThan(0));
+    expect(anchor.height, greaterThan(0));
+    // NaN slips through `> 0` unnoticed, so say it out loud.
+    expect(anchor.width.isFinite, isTrue);
+    expect(anchor.height.isFinite, isTrue);
+  });
 }

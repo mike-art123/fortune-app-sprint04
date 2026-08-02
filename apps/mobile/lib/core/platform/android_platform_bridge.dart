@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,6 +21,37 @@ String? shareMessageFromTelegramLink(String url) {
     if (target != null && target.isNotEmpty) target,
   ].join('\n');
   return message.isEmpty ? null : message;
+}
+
+/// The rectangle the share sheet opens from.
+///
+/// Documented as an iPad/Mac popover anchor that "has no effect on other
+/// devices" — but iOS 26 refuses a zero-sized one outright, and this project
+/// is pinned to share_plus 11, below the 12.0.1 release whose changelog reads
+/// "Avoid crash on iOS 26 on iPhones with no sharePositionOrigin param". Left
+/// unset, the invite button on an iPhone did nothing at all: the plugin threw,
+/// and the catch below swallowed it.
+///
+/// The centre of the screen is a neutral, always-valid anchor, and one logical
+/// pixel is enough to be non-zero. Android is unaffected by construction — the
+/// parameter has no meaning there.
+Rect shareAnchor() {
+  const fallback = Rect.fromLTWH(0, 0, 1, 1);
+  final view = PlatformDispatcher.instance.implicitView;
+  if (view == null) return fallback;
+  final width = view.physicalSize.width / view.devicePixelRatio;
+  final height = view.physicalSize.height / view.devicePixelRatio;
+  // A view reports nothing useful before its first frame, and a zero pixel
+  // ratio turns that nothing into NaN — which would sail past a plain `> 0`
+  // and hand iOS the very rectangle this function exists to avoid.
+  if (!width.isFinite || !height.isFinite || width <= 0 || height <= 0) {
+    return fallback;
+  }
+  return Rect.fromCenter(
+    center: Offset(width / 2, height / 2),
+    width: 1,
+    height: 1,
+  );
 }
 
 /// The Play build's stand-in for the Telegram bridge: links open through the
@@ -58,16 +91,25 @@ class AndroidPlatformBridge implements TelegramPlatformBridge {
 
   /// t.me share links become the native share sheet; every other t.me link
   /// opens externally, which lands in the Telegram app when it is installed.
+  ///
+  /// A share sheet that refuses to open no longer ends in silence. It falls
+  /// through to the same link opened externally, which is Telegram's own share
+  /// dialog — so the button always does something, whatever the plugin makes
+  /// of this OS version.
   @override
   Future<void> openTelegramLink(String url) async {
     final message = shareMessageFromTelegramLink(url);
-    if (message != null) {
-      try {
-        await SharePlus.instance.share(ShareParams(text: message));
-      } catch (_) {
-        // A dismissed or failed share sheet is calmer than a crash.
-      }
+    if (message == null) {
+      await _launchExternal(url);
       return;
+    }
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: message, sharePositionOrigin: shareAnchor()),
+      );
+      return;
+    } catch (_) {
+      // Fall through: somewhere is better than nowhere.
     }
     await _launchExternal(url);
   }
