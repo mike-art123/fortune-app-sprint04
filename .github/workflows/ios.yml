@@ -7,9 +7,24 @@
 # com.bakhtnegar.app, display name «بخت‌نگار», Persian camera/photo
 # permission strings for the coffee ritual).
 #
-# This phase builds UNSIGNED — it proves the app compiles for a device.
-# Code signing and the TestFlight upload arrive next, once the App Store
-# Connect API key exists in GitHub Secrets (never in git).
+# Two paths, chosen by whether the App Store Connect secrets exist — the same
+# shape the Android job uses for its keystore, so CI stays green before the
+# credentials arrive:
+#
+#   secrets absent  → build UNSIGNED. Proves the app compiles for a device
+#                     and that its shipped identity is what we intend.
+#   secrets present → archive with Xcode CLOUD SIGNING and upload to
+#                     TestFlight. No .p12 and no Mac are needed: with an
+#                     App Store Connect *team* API key (Admin access) and
+#                     -allowProvisioningUpdates, xcodebuild creates and uses
+#                     a cloud-managed distribution certificate on the runner.
+#
+# Secrets consumed (set in repo Settings → Secrets and variables → Actions):
+#   APP_STORE_CONNECT_KEY_ID          the KEYID from AuthKey_<KEYID>.p8
+#   APP_STORE_CONNECT_ISSUER_ID       the issuer UUID shown above the key list
+#   APP_STORE_CONNECT_KEY_P8_BASE64   the .p8 file, base64, single line
+#   APPLE_TEAM_ID                     10-character team id
+# The key is written to disk only inside the runner and never printed.
 name: iOS
 
 on:
@@ -19,36 +34,135 @@ on:
 jobs:
   ios:
     runs-on: macos-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      ASC_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_P8_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # Same defines as the Android Play job, with one deliberate difference:
+      # ENABLE_MONETIZATION=false — v1 ships with no ads (Strategy A).
+      # ENABLE_ANDROID_BRIDGES turns on the shared native io paths
+      # (share_plus / url_launcher / image_picker), all of which carry iOS.
+      DART_DEFINES: >-
+        --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
+        --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
+        --dart-define=ENABLE_GUEST_AUTH=true
+        --dart-define=ENABLE_ANDROID_BRIDGES=true
+        --dart-define=ENABLE_MONETIZATION=false
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with: { channel: stable }
       - run: cd apps/mobile && flutter pub get
       - run: cd apps/mobile && flutter gen-l10n
-      # Same defines as the Android Play job, with two deliberate differences:
-      # ENABLE_MONETIZATION=false (v1 ships with no ads — Strategy A) and the
-      # unsigned build (signing needs the ASC key). ENABLE_ANDROID_BRIDGES
-      # turns on the shared native io paths (share_plus / url_launcher /
-      # image_picker), all of which support iOS as-is.
+
+      # TestFlight rejects a build number it has already seen for a given
+      # version string, so the run number drives CFBundleVersion. It only ever
+      # increases, which is the one property TestFlight asks of it.
+      - name: Decide which path this run takes
+        id: signing
+        run: |
+          if [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] \
+             && [ -n "$ASC_KEY_P8_BASE64" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "App Store Connect credentials found — archiving and uploading to TestFlight."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "No App Store Connect credentials yet — building unsigned only."
+          fi
+
+      # ---------- unsigned path (before the credentials exist) ----------
+
       - name: Build iOS (release, unsigned)
+        if: steps.signing.outputs.ready != 'true'
         working-directory: apps/mobile
         run: >
           flutter build ios --release --no-codesign
           -t lib/main_production.dart
-          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
-          --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
-          --dart-define=ENABLE_GUEST_AUTH=true
-          --dart-define=ENABLE_ANDROID_BRIDGES=true
-          --dart-define=ENABLE_MONETIZATION=false
-      # Proof the shipped identity is what we think it is: the built app's
-      # Info.plist must carry the App Store bundle id and both permission
-      # strings. Cheap, and it fails loudly if a future edit drops one.
+          --build-number=${{ github.run_number }}
+          $DART_DEFINES
+
       - name: Verify built app identity
+        if: steps.signing.outputs.ready != 'true'
+        working-directory: apps/mobile
+        run: bash ../../.github/scripts/verify-ios-identity.sh build/ios/iphoneos/Runner.app/Info.plist
+
+      # ---------- signed path (archive + TestFlight) ----------
+
+      - name: Install the App Store Connect key
+        if: steps.signing.outputs.ready == 'true'
+        run: |
+          mkdir -p ~/private_keys
+          echo -n "$ASC_KEY_P8_BASE64" | base64 --decode \
+            -o ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          chmod 600 ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          # Size only — never the contents.
+          wc -c < ~/private_keys/AuthKey_"$ASC_KEY_ID".p8
+
+      - name: Configure the Xcode project
+        if: steps.signing.outputs.ready == 'true'
         working-directory: apps/mobile
         run: |
-          PLIST=build/ios/iphoneos/Runner.app/Info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST"
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$PLIST"
-          /usr/libexec/PlistBuddy -c 'Print :NSCameraUsageDescription' "$PLIST"
-          /usr/libexec/PlistBuddy -c 'Print :NSPhotoLibraryUsageDescription' "$PLIST"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST")" = "com.bakhtnegar.app"
+          flutter build ios --release --no-codesign --config-only \
+            -t lib/main_production.dart \
+            --build-number=${{ github.run_number }} \
+            $DART_DEFINES
+          # --config-only normally runs CocoaPods itself; this is the cheap
+          # self-heal if it ever does not.
+          [ -d ios/Pods ] || (cd ios && pod install)
+
+      - name: Archive with cloud signing
+        if: steps.signing.outputs.ready == 'true'
+        working-directory: apps/mobile
+        run: |
+          xcodebuild archive \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic
+
+      - name: Verify archived app identity
+        if: steps.signing.outputs.ready == 'true'
+        run: |
+          bash .github/scripts/verify-ios-identity.sh \
+            "$RUNNER_TEMP/Runner.xcarchive/Products/Applications/Runner.app/Info.plist"
+
+      - name: Export and upload to TestFlight
+        if: steps.signing.outputs.ready == 'true'
+        working-directory: apps/mobile
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>teamID</key>
+            <string>$APPLE_TEAM_ID</string>
+            <key>uploadSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/ipa" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Remove the key from the runner
+        if: always() && steps.signing.outputs.ready == 'true'
+        run: rm -rf ~/private_keys
