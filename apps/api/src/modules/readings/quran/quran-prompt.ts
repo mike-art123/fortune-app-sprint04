@@ -42,7 +42,10 @@ export function buildQuranPrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
-  const language = languageDirective(profile?.locale);
+  const language = languageDirective(
+    profile?.locale,
+    ['reflectionForIntention', 'hope', 'practicalAdvice'],
+  );
   const system = [VOICE, '', QURAN_FRAMING, '', QURAN_CONTRACT]
     .concat(persona ? ['', persona] : [])
     .concat(language ? ['', language] : [])

@@ -44,7 +44,10 @@ export function buildTasbihPrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
-  const language = languageDirective(profile?.locale);
+  const language = languageDirective(
+    profile?.locale,
+    ['interpretationForIntention', 'hope', 'caution', 'practicalAdvice'],
+  );
   const system = [VOICE, '', TASBIH_FRAMING, '', TASBIH_CONTRACT]
     .concat(persona ? ['', persona] : [])
     .concat(language ? ['', language] : [])

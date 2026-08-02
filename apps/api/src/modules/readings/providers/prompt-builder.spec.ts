@@ -104,16 +104,14 @@ describe('buildPrompt', () => {
     const en = buildPrompt(hafez, {}, { displayName: null, locale: 'en' });
     expect(en[0].content).toContain('For today:');
     expect(en[1].content).toContain('in English only.');
-    expect(en[0].content).toContain('انگلیسی');
-    // The directive must speak about the contract it is attached to, not name
-    // `title`/`reading` — the two fields of the generic shape and of no raw
-    // engine. Naming them is how a Hafez reading stayed Persian in English:
-    // the model was told to translate fields it had never been asked for.
-    expect(en[0].content).not.toContain('مقدارهای title و reading');
-    expect(en[0].content).toContain('ساختار دقیق');
-    // And the quoted source must be exempted by name, or the parser — which
-    // refuses any verse it cannot find in the poem word for word — rejects a
-    // translated couplet and the whole reading fails.
-    expect(en[0].content).toContain('نقلِ عینیِ متنِ اصیل');
+    // The instruction to answer in English is itself in English. Written in
+    // Persian it was one more line in a wall of Persian, and the model went
+    // on answering in Persian; a change of register is the part it cannot
+    // read past.
+    expect(en[0].content).toContain('OUTPUT LANGUAGE');
+    expect(en[0].content).toContain('in English, and in English only');
+    // And it names the keys of the contract it is attached to. The generic
+    // contract's two are the default; a raw engine passes its own.
+    expect(en[0].content).toContain('"title", "reading"');
   });
 });

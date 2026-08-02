@@ -1,3 +1,4 @@
+import { languageDirective } from './prompt-builder';
 import {
   abjadTitle,
   cardName,
@@ -95,5 +96,45 @@ describe('reading labels', () => {
       const advice = stripForToday('For today: rest a little.');
       expect(`${forToday('en')} ${advice}`).toBe('For today: rest a little.');
     });
+  });
+});
+
+
+/**
+ * The block that tells the model which language to answer in. It went wrong
+ * twice: first by naming two fields no raw engine asks for, then by saying so
+ * in Persian inside a prompt that is already 1,200 characters of Persian.
+ */
+describe('language directive', () => {
+  it('says nothing at all for Persian', () => {
+    expect(languageDirective('fa')).toBeNull();
+    expect(languageDirective()).toBeNull();
+    expect(languageDirective('de')).toBeNull();
+  });
+
+  it('asks in the language it is asking for', () => {
+    const en = languageDirective('en') ?? '';
+    expect(en).toContain('OUTPUT LANGUAGE');
+    expect(en.split('\n')[0]).not.toMatch(/[؀-ۿ]/);
+
+    const tr = languageDirective('tr') ?? '';
+    expect(tr).toContain('ÇIKTI DİLİ');
+  });
+
+  it('names the keys it was handed, not a fixed pair', () => {
+    const hafez =
+      languageDirective('en', ['messageOfThePoem', 'hope'], ['selectedVerses']) ?? '';
+    expect(hafez).toContain('"messageOfThePoem", "hope"');
+    expect(hafez).toContain('"selectedVerses"');
+    expect(hafez).not.toContain('"title"');
+  });
+
+  it('orders a verbatim field copied, never translated', () => {
+    const withVerse = languageDirective('en', ['hope'], ['selectedVerses']) ?? '';
+    expect(withVerse).toContain('exactly as it was given to you');
+
+    // Nothing to copy means no sentence about copying.
+    const without = languageDirective('en', ['hope']) ?? '';
+    expect(without).not.toContain('exactly as it was given to you');
   });
 });

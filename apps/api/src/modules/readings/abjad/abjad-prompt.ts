@@ -43,7 +43,10 @@ export function buildAbjadPrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
-  const language = languageDirective(profile?.locale);
+  const language = languageDirective(
+    profile?.locale,
+    ['numberMeaning', 'interpretationForIntention', 'hope', 'caution', 'practicalAdvice'],
+  );
   const system = [VOICE, '', ABJAD_FRAMING, '', ABJAD_CONTRACT]
     .concat(persona ? ['', persona] : [])
     .concat(language ? ['', language] : [])

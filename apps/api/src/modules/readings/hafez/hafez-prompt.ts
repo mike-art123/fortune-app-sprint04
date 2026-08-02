@@ -58,7 +58,11 @@ export function buildHafezPrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
-  const language = languageDirective(profile?.locale);
+  const language = languageDirective(
+    profile?.locale,
+    ['messageOfThePoem', 'interpretationForIntention', 'hope', 'caution', 'practicalAdvice'],
+    ['selectedVerses'],
+  );
   const system = [VOICE, '', HAFEZ_FRAMING, '', HAFEZ_CONTRACT]
     .concat(persona ? ['', persona] : [])
     .concat(language ? ['', language] : [])
