@@ -15,6 +15,7 @@ import type {
 import { RUNE_DECK, type RuneCard } from './rune-deck';
 import { buildRunePrompt } from './rune-prompt';
 import { drawRune } from './rune-selection';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -111,7 +112,7 @@ export class RuneReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(rune, parsed);
+        return composeReading(rune, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof RuneRequestError && error.retryable;
@@ -235,17 +236,29 @@ export function parseRuneReading(raw: string): RuneModelReading {
  * its reading, ending on the same «برای امروز:» promise every other fortune
  * keeps. The rune name and meaning are ours, never the model's.
  */
-function composeReading(rune: RuneCard, parsed: RuneModelReading): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
+function composeReading(
+  rune: RuneCard,
+  parsed: RuneModelReading,
+  locale?: string,
+): GeneratedReading {
+  const advice = labels.stripForToday(parsed.practicalAdvice);
+  const name = labels.cardName(rune, locale);
+  // A rune is read under its Norse name everywhere; the Persian reader gets
+  // both, as before, and everyone else gets the one they can pronounce.
+  const named = labels.showsPersianSource(locale)
+    ? `${rune.nameFa} (${rune.nameEn})`
+    : name;
   return {
-    title: `رون — ${rune.nameFa}`,
+    title: labels.runeTitle(name, locale),
     reading: [
-      `رونِ تو: ${rune.nameFa} (${rune.nameEn})`,
-      `معنای سنتی: ${rune.meaningFa}`,
+      `${labels.yourRune(locale)} ${named}`,
+      ...(labels.showsPersianSource(locale)
+        ? [`${labels.traditionalMeaning(locale)} ${rune.meaningFa}`]
+        : []),
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
+      `${labels.forToday(locale)} ${advice}`,
     ].join('\n\n'),
   };
 }

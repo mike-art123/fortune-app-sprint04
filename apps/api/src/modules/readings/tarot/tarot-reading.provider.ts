@@ -15,6 +15,7 @@ import type {
 import { TAROT_DECK, type TarotCard } from './tarot-deck';
 import { buildTarotPrompt } from './tarot-prompt';
 import { drawCard } from './card-selection';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -113,7 +114,7 @@ export class TarotReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(card, reversed, meaning, parsed);
+        return composeReading(card, reversed, meaning, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof TarotRequestError && error.retryable;
@@ -244,18 +245,24 @@ function composeReading(
   reversed: boolean,
   meaning: string,
   parsed: TarotModelReading,
+  locale?: string,
 ): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
-  const orientation = reversed ? 'وارونه' : 'راست';
+  const advice = labels.stripForToday(parsed.practicalAdvice);
+  const name = labels.cardName(card, locale);
   return {
-    title: `تاروت — ${card.nameFa}${reversed ? ' (وارونه)' : ''}`,
+    title: labels.tarotTitle(name, reversed, locale),
     reading: [
-      `کارتِ تو: ${card.nameFa} — ${orientation}`,
-      `معنای سنتی: ${meaning}`,
+      `${labels.yourCard(locale)} ${name} — ${labels.orientation(reversed, locale)}`,
+      // The deck's traditional meanings exist in Persian only. The model was
+      // given them and its paragraphs carry the sense, so a reader who cannot
+      // read Persian is not handed a line of it.
+      ...(labels.showsPersianSource(locale)
+        ? [`${labels.traditionalMeaning(locale)} ${meaning}`]
+        : []),
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
+      `${labels.forToday(locale)} ${advice}`,
     ].join('\n\n'),
   };
 }

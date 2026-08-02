@@ -16,6 +16,7 @@ import type {
 import { HafezCorpusService } from './hafez-corpus.service';
 import { buildHafezPrompt, renderPoem } from './hafez-prompt';
 import { selectGhazalNumber } from './ghazal-selection';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -115,7 +116,7 @@ export class HafezReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(ghazal, poem, parsed);
+        return composeReading(ghazal, poem, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof HafezRequestError && error.retryable;
@@ -267,12 +268,6 @@ export function parseHafezReading(raw: string, ghazal: Ghazal): HafezModelReadin
 
 const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 
-function toPersianNumber(value: number): string {
-  return String(value)
-    .split('')
-    .map((digit) => PERSIAN_DIGITS[Number(digit)] ?? digit)
-    .join('');
-}
 
 /**
  * Flattens the schema into the reading text the client already renders: the
@@ -281,17 +276,24 @@ function toPersianNumber(value: number): string {
  * fields stay validated here so the client can start rendering them as parts
  * when its own Hafez surface lands.
  */
-function composeReading(ghazal: Ghazal, poem: string, parsed: HafezModelReading): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
+function composeReading(
+  ghazal: Ghazal,
+  poem: string,
+  parsed: HafezModelReading,
+  locale?: string,
+): GeneratedReading {
+  const advice = labels.stripForToday(parsed.practicalAdvice);
   return {
-    title: `غزل ${toPersianNumber(ghazal.number)} دیوان حافظ`,
+    // The ghazal itself stays Persian in every language — it is the source,
+    // and the prompt keeps it so and translates alongside it.
+    title: labels.hafezTitle(ghazal.number, locale),
     reading: [
       poem,
       parsed.messageOfThePoem,
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
+      `${labels.forToday(locale)} ${advice}`,
     ].join('\n\n'),
   };
 }

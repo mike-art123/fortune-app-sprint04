@@ -14,9 +14,9 @@ import { buildAbjadPrompt } from './abjad-prompt';
 import {
   computeAbjad,
   renderBreakdown,
-  toPersianDigits,
   type AbjadResult,
 } from './abjad-numerology';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -112,7 +112,7 @@ export class AbjadReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(word, abjad, parsed);
+        return composeReading(word, abjad, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof AbjadRequestError && error.retryable;
@@ -241,22 +241,28 @@ function composeReading(
   word: string,
   abjad: AbjadResult,
   parsed: AbjadModelReading,
+  locale?: string,
 ): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
-  const total = toPersianDigits(abjad.total);
-  const working =
+  const advice = labels.stripForToday(parsed.practicalAdvice);
+  const total = labels.digits(abjad.total, locale);
+  // The letters are Arabic script whatever language reads them — the sum is
+  // of this person's own word — so only the sentence around them changes.
+  const working = labels.abjadWorking(
+    word,
     abjad.letters.length <= MAX_BREAKDOWN_LETTERS
-      ? `حسابِ ابجدِ «${word}»: ${renderBreakdown(abjad.letters)} = ${total}`
-      : `حسابِ ابجدِ «${word}»: عددِ ${total}`;
+      ? `${renderBreakdown(abjad.letters)} = ${total}`
+      : total,
+    locale,
+  );
   return {
-    title: `فال ابجد — عددِ ${total}`,
+    title: labels.abjadTitle(total, locale),
     reading: [
       working,
       parsed.numberMeaning,
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
+      `${labels.forToday(locale)} ${advice}`,
     ].join('\n\n'),
   };
 }

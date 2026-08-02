@@ -15,6 +15,7 @@ import type {
 import { CARDS_DECK, type PlayingCard } from './cards-deck';
 import { buildCardsPrompt } from './cards-prompt';
 import { drawPlayingCard } from './cards-selection';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -111,7 +112,7 @@ export class CardsReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(card, parsed);
+        return composeReading(card, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof CardsRequestError && error.retryable;
@@ -235,17 +236,24 @@ export function parseCardsReading(raw: string): CardsModelReading {
  * its reading, ending on the same «برای امروز:» promise every other fortune
  * keeps. The card name and meaning are ours, never the model's.
  */
-function composeReading(card: PlayingCard, parsed: CardsModelReading): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
+function composeReading(
+  card: PlayingCard,
+  parsed: CardsModelReading,
+  locale?: string,
+): GeneratedReading {
+  const advice = labels.stripForToday(parsed.practicalAdvice);
+  const name = labels.cardName(card, locale);
   return {
-    title: `کارت — ${card.nameFa}`,
+    title: labels.cardsTitle(name, locale),
     reading: [
-      `کارتِ تو: ${card.nameFa}`,
-      `معنای سنتی: ${card.meaningFa}`,
+      `${labels.yourCard(locale)} ${name}`,
+      ...(labels.showsPersianSource(locale)
+        ? [`${labels.traditionalMeaning(locale)} ${card.meaningFa}`]
+        : []),
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
+      `${labels.forToday(locale)} ${advice}`,
     ].join('\n\n'),
   };
 }

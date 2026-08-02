@@ -12,8 +12,9 @@ import type {
   ReadingProfileContext,
   ReadingProvider,
 } from '../providers/reading-provider.interface';
-import { computeTasbih, toPersianDigits, type TasbihReading } from './tasbih-count';
+import { computeTasbih, type TasbihReading } from './tasbih-count';
 import { buildTasbihPrompt } from './tasbih-prompt';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -23,9 +24,6 @@ const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 const MISCONFIGURED_STATUS = new Set([400, 401, 403, 404]);
 
 const MAX_SECTION_CHARS = 2200;
-
-const HUMILITY_NOTE =
-  'یادآوری: استخاره طلبِ خیر از خداوند است، نه حکمِ حتمی؛ تصمیمِ نهایی با تدبیر و مشورتِ توست.';
 
 class TasbihRequestError extends Error {
   constructor(
@@ -103,7 +101,7 @@ export class TasbihReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(reading, parsed);
+        return composeReading(reading, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof TasbihRequestError && error.retryable;
@@ -230,18 +228,22 @@ export function parseTasbihReading(raw: string): TasbihModelReading {
  * reading, the «برای امروز:» promise, and finally the humility note that keeps
  * istikhara what it is. The outcome is ours, never the model's.
  */
-function composeReading(reading: TasbihReading, parsed: TasbihModelReading): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
-  const beads = toPersianDigits(reading.beads);
+function composeReading(
+  reading: TasbihReading,
+  parsed: TasbihModelReading,
+  locale?: string,
+): GeneratedReading {
+  const advice = labels.stripForToday(parsed.practicalAdvice);
+  const beads = labels.digits(reading.beads, locale);
   return {
-    title: `فال تسبیح — ${reading.result}`,
+    title: labels.tasbihTitle(reading.result, locale),
     reading: [
-      `شمارشِ دانه‌ها: ${beads} دانه — نتیجه: ${reading.result}`,
+      labels.tasbihCount(beads, reading.result, locale),
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
-      HUMILITY_NOTE,
+      `${labels.forToday(locale)} ${advice}`,
+      labels.tasbihHumility(locale),
     ].join('\n\n'),
   };
 }

@@ -15,6 +15,7 @@ import type {
 import { QURAN_VERSES, type QuranVerse } from './quran-deck';
 import { buildQuranPrompt } from './quran-prompt';
 import { drawVerse } from './quran-selection';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -24,9 +25,6 @@ const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 const MISCONFIGURED_STATUS = new Set([400, 401, 403, 404]);
 
 const MAX_SECTION_CHARS = 2200;
-
-const HUMILITY_NOTE =
-  'یادآوری: این یک تفأل و نکتهٔ تأمل است، نه حکم؛ استخارهٔ حقیقی با نماز و توکل بر خداست.';
 
 class QuranRequestError extends Error {
   constructor(
@@ -113,7 +111,7 @@ export class QuranReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(verse, parsed);
+        return composeReading(verse, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof QuranRequestError && error.retryable;
@@ -237,18 +235,27 @@ export function parseQuranReading(raw: string): QuranModelReading {
  * keeps this تفأل and not a verdict. The verse and translation are ours,
  * never the model's.
  */
-function composeReading(verse: QuranVerse, parsed: QuranModelReading): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
+function composeReading(
+  verse: QuranVerse,
+  parsed: QuranModelReading,
+  locale?: string,
+): GeneratedReading {
+  const advice = labels.stripForToday(parsed.practicalAdvice);
   return {
-    title: `تفأل به قرآن — سورهٔ ${verse.surahNameFa}`,
+    title: labels.quranTitle(verse.surahNameFa, locale),
     reading: [
-      `سورهٔ ${verse.surahNameFa}، آیهٔ ${verse.ayah}`,
+      labels.quranReference(verse.surahNameFa, verse.ayah, locale),
+      // The verse is the source and stays in its own script for everyone.
       verse.arabic,
-      `ترجمه (${verse.translator}): ${verse.translationFa}`,
+      // Its translation exists in Persian only; a Turkish reader is better
+      // served by the reflection below than by a line they cannot read.
+      ...(labels.showsPersianSource(locale)
+        ? [labels.quranTranslation(verse.translator, verse.translationFa, locale)]
+        : []),
       parsed.reflectionForIntention,
       parsed.hope,
-      `برای امروز: ${advice}`,
-      HUMILITY_NOTE,
+      `${labels.forToday(locale)} ${advice}`,
+      labels.quranHumility(locale),
     ].join('\n\n'),
   };
 }

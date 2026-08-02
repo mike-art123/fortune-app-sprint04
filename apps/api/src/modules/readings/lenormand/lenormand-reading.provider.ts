@@ -15,6 +15,7 @@ import type {
 import { LENORMAND_DECK, type LenormandCard } from './lenormand-deck';
 import { buildLenormandPrompt } from './lenormand-prompt';
 import { drawLenormandCard } from './lenormand-selection';
+import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a
  *  pass-through and the catalog behaves exactly as before. */
@@ -111,7 +112,7 @@ export class LenormandReadingProvider implements ReadingProvider {
           attempt,
           durationMs: Date.now() - startedAt,
         });
-        return composeReading(card, parsed);
+        return composeReading(card, parsed, profile?.locale);
       } catch (error) {
         lastError = error;
         const retryable = error instanceof LenormandRequestError && error.retryable;
@@ -238,17 +239,24 @@ export function parseLenormandReading(raw: string): LenormandModelReading {
  * its reading, ending on the same «برای امروز:» promise every other fortune
  * keeps. The card name and meaning are ours, never the model's.
  */
-function composeReading(card: LenormandCard, parsed: LenormandModelReading): GeneratedReading {
-  const advice = parsed.practicalAdvice.replace(/^برای امروز:\s*/, '');
+function composeReading(
+  card: LenormandCard,
+  parsed: LenormandModelReading,
+  locale?: string,
+): GeneratedReading {
+  const advice = labels.stripForToday(parsed.practicalAdvice);
+  const name = labels.cardName(card, locale);
   return {
-    title: `لنورماند — ${card.nameFa}`,
+    title: labels.lenormandTitle(name, locale),
     reading: [
-      `کارتِ تو: ${card.nameFa}`,
-      `معنای سنتی: ${card.meaningFa}`,
+      `${labels.yourCard(locale)} ${name}`,
+      ...(labels.showsPersianSource(locale)
+        ? [`${labels.traditionalMeaning(locale)} ${card.meaningFa}`]
+        : []),
       parsed.interpretationForIntention,
       parsed.hope,
       parsed.caution,
-      `برای امروز: ${advice}`,
+      `${labels.forToday(locale)} ${advice}`,
     ].join('\n\n'),
   };
 }
