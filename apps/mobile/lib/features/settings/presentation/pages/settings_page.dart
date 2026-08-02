@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -93,9 +94,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          const AmbientAudioCard(),
-          const NotificationSettingsCard(),
+          // The ambient beds play through the browser's audio element and the
+          // reminders arrive as Telegram messages — two capabilities the Play
+          // build does not have. A switch that cannot deliver is a broken
+          // promise, so both cards stay web-only; on Android the page keeps
+          // only what truly works.
+          if (kIsWeb) ...[
+            const SizedBox(height: AppSpacing.sm),
+            const AmbientAudioCard(),
+            const NotificationSettingsCard(),
+          ],
         ],
       ),
     );
