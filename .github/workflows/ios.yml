@@ -55,8 +55,13 @@ jobs:
       ASC_KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       BUNDLE_ID: com.bakhtnegar.app
-      # Same defines as the Android Play job, with one deliberate difference:
-      # ENABLE_MONETIZATION=false — v1 ships with no ads (Strategy A).
+      # Same defines as the Android Play job, with two deliberate differences:
+      # ENABLE_MONETIZATION=false — v1 ships with no ads (Strategy A) — and
+      # ENABLE_SOCIAL_LINKS=false, which drops the invite card and the
+      # Telegram/Instagram tiles from the first submission. Neither breaks a
+      # rule (3.1.1 is about paying outside the app, and nothing here is for
+      # sale), but 4.3(b) names fortune telling by name, so the first review
+      # gets an app with nothing to buy, no account and nowhere it sends you.
       # ENABLE_ANDROID_BRIDGES turns on the shared native io paths
       # (share_plus / url_launcher / image_picker), all of which carry iOS.
       DART_DEFINES: >-
@@ -65,6 +70,7 @@ jobs:
         --dart-define=ENABLE_GUEST_AUTH=true
         --dart-define=ENABLE_ANDROID_BRIDGES=true
         --dart-define=ENABLE_MONETIZATION=false
+        --dart-define=ENABLE_SOCIAL_LINKS=false
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/config/social_links_switch.dart';
 import '../../../../core/platform/telegram_safe_area.dart';
 import '../../../../core/platform/telegram_top_inset.dart';
 import '../../../../design_system/components/gold_border_container.dart';
@@ -144,10 +145,14 @@ class _ProfilePlaceholderPageState
           const SizedBox(height: AppSpacing.sm),
           _personalization(context, ref, profile),
           const SizedBox(height: AppSpacing.lg),
-          _inviteCard(context),
-          const SizedBox(height: AppSpacing.sm),
-          _socialRow(),
-          const SizedBox(height: AppSpacing.lg),
+          // Off for the first iOS submission — see social_links_switch.dart.
+          // Compile-time, so the iOS binary carries no channel address at all.
+          if (kSocialLinksEnabled) ...[
+            _inviteCard(context),
+            const SizedBox(height: AppSpacing.sm),
+            _socialRow(),
+            const SizedBox(height: AppSpacing.lg),
+          ],
         ],
       ),
     );
