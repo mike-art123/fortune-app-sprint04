@@ -224,6 +224,7 @@ class AppStrings {
   String get contactEmailTile => 'ایمیل پشتیبانی (لمس کن تا کپی شود)';
   String get contactVersionTile => 'نسخهٔ برنامه';
   String get contactReport => 'گزارش مشکل';
+  String get contactReportEmailSubject => 'گزارش مشکل بخت‌نگار';
   String get contactEmailCopied => 'ایمیل کپی شد.';
   String get termsHero => 'بخت‌نگار هیچ‌گونه مسئولیتی نمی‌پذیرد.\n'
       'این برنامه فقط یک فال است، و تصمیم‌گیرندهٔ تمام امورِ '
@@ -613,6 +614,8 @@ class EnStrings extends AppStrings {
   @override
   String get contactReport => 'Report a problem';
   @override
+  String get contactReportEmailSubject => 'BakhtNegar problem report';
+  @override
   String get contactEmailCopied => 'Email copied.';
   @override
   String get termsHero =>
@@ -996,6 +999,8 @@ class ArStrings extends AppStrings {
   String get contactVersionTile => 'نسخة التطبيق';
   @override
   String get contactReport => 'الإبلاغ عن مشكلة';
+  @override
+  String get contactReportEmailSubject => 'بلاغ عن مشكلة في بخت‌نگار';
   @override
   String get contactEmailCopied => 'نُسخ البريد.';
   @override
@@ -1391,6 +1396,8 @@ class TrStrings extends AppStrings {
   String get contactVersionTile => 'Uygulama sürümü';
   @override
   String get contactReport => 'Sorun bildir';
+  @override
+  String get contactReportEmailSubject => 'BakhtNegar sorun bildirimi';
   @override
   String get contactEmailCopied => 'E-posta kopyalandı.';
   @override

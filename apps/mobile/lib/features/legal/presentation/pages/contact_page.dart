@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,19 @@ class ContactPage extends ConsumerWidget {
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(content: Text(context.strings.contactEmailCopied)),
     );
+  }
+
+  /// The Play build reports problems by email — Telegram may not even be
+  /// installed there — while the Mini App keeps the channel it lives in.
+  Future<void> _report(BuildContext context, WidgetRef ref) {
+    final bridge = ref.read(telegramBridgeProvider);
+    if (kIsWeb) return bridge.openTelegramLink(_supportChannel);
+    final uri = Uri(
+      scheme: 'mailto',
+      path: _supportEmail,
+      queryParameters: {'subject': context.strings.contactReportEmailSubject},
+    );
+    return bridge.openLink(uri.toString());
   }
 
   @override
@@ -84,7 +98,7 @@ class ContactPage extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           FortuneButton(
             label: s.contactReport,
-            onPressed: () => bridge.openTelegramLink(_supportChannel),
+            onPressed: () => _report(context, ref),
           ),
           const SizedBox(height: AppSpacing.lg),
           const LegalFooter(),
