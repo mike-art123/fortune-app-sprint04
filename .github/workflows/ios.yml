@@ -1,0 +1,68 @@
+# iOS (Strategy A: v1 without ads). New file — ci.yml and deploy-pages.yml
+# are intentionally untouched.
+#
+# iOS cannot be built on Windows, so like the Android job everything runs in
+# CI — here on GitHub's macOS runner.
+#
+# Bootstrap phase: apps/mobile/ios does not exist in git yet, and the cloud
+# assistant cannot run `flutter create` itself (Flutter's download host is
+# blocked there). So until the scaffold is committed, this workflow generates
+# ios/ with the official stable templates, builds it UNSIGNED to prove it
+# compiles, and uploads the generated folder as an artifact to be reviewed
+# and committed. Once apps/mobile/ios lands in git the scaffold step becomes
+# a no-op and this bootstrap block gets removed. Code signing + TestFlight
+# upload arrive in a later phase, once the App Store Connect API key exists
+# in GitHub Secrets (never in git).
+name: iOS
+
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable }
+      - run: cd apps/mobile && flutter pub get
+      - run: cd apps/mobile && flutter gen-l10n
+      - name: Scaffold ios/ if missing (bootstrap — removed once committed)
+        working-directory: apps/mobile
+        run: |
+          if [ ! -d ios ]; then
+            flutter create --platforms=ios --org com.bakhtnegar .
+            echo "--- created/changed by flutter create:"
+            git status --porcelain
+          fi
+      # Same defines as the Android Play job, with two deliberate differences:
+      # ENABLE_MONETIZATION=false (v1 ships with no ads — Strategy A) and the
+      # unsigned build (signing needs the ASC key). ENABLE_ANDROID_BRIDGES
+      # turns on the shared native io paths (share_plus / url_launcher /
+      # image_picker), all of which support iOS as-is.
+      - name: Build iOS (release, unsigned)
+        working-directory: apps/mobile
+        run: >
+          flutter build ios --release --no-codesign
+          -t lib/main_production.dart
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL || 'https://fortune-app-sprint04-production.up.railway.app/api/v1' }}
+          --dart-define=TELEGRAM_BOT_USERNAME=${{ vars.TELEGRAM_BOT_USERNAME || 'bakhtnegarbot' }}
+          --dart-define=ENABLE_GUEST_AUTH=true
+          --dart-define=ENABLE_ANDROID_BRIDGES=true
+          --dart-define=ENABLE_MONETIZATION=false
+      - name: Pack scaffold for review/commit
+        if: always()
+        working-directory: apps/mobile
+        run: |
+          git status --porcelain > ios-scaffold-changes.txt
+          targets="ios-scaffold-changes.txt"
+          [ -d ios ] && targets="$targets ios"
+          [ -f .metadata ] && targets="$targets .metadata"
+          zip -qr ios-scaffold.zip $targets
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bakhtnegar-ios-scaffold
+          path: apps/mobile/ios-scaffold.zip
+          retention-days: 14
