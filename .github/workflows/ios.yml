@@ -126,22 +126,45 @@ jobs:
           # self-heal if it ever does not.
           [ -d ios/Pods ] || (cd ios && pod install)
 
+      # Flutter's template pins CODE_SIGN_IDENTITY[sdk=iphoneos*] to
+      # "iPhone Developer". Automatic signing takes the profile *type* from
+      # the identity, so it goes hunting for an iOS App Development profile -
+      # and Apple will only mint one of those against a registered device,
+      # which a CI team has none of ("Your team has no devices from which to
+      # generate a provisioning profile"). Asking for the distribution
+      # identity instead lets cloud signing create an App Store profile, for
+      # which no device is needed.
+      #
+      # The fallback exists to spend one CI cycle instead of two: if the
+      # distribution identity is somehow refused, archive unsigned and let
+      # exportArchive do the signing, which is the other supported route.
+      # Whichever path runs says so in the log; once we have seen a green
+      # run, the loser should be deleted.
       - name: Archive with cloud signing
         if: steps.signing.outputs.ready == 'true'
         working-directory: apps/mobile
         run: |
-          xcodebuild archive \
-            -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic
+          archive() {
+            xcodebuild archive \
+              -workspace ios/Runner.xcworkspace \
+              -scheme Runner \
+              -configuration Release \
+              -destination 'generic/platform=iOS' \
+              -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+              -authenticationKeyID "$ASC_KEY_ID" \
+              -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+              DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+              CODE_SIGN_STYLE=Automatic \
+              "$@"
+          }
+          echo "Archiving with the App Store distribution identity."
+          if ! archive CODE_SIGN_IDENTITY="Apple Distribution"; then
+            echo "::warning::Distribution-identity archive failed. Retrying unsigned, leaving the signing to exportArchive."
+            rm -rf "$RUNNER_TEMP/Runner.xcarchive"
+            archive CODE_SIGNING_ALLOWED=NO
+          fi
 
       - name: Verify archived app identity
         if: steps.signing.outputs.ready == 'true'
