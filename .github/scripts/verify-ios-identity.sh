@@ -47,6 +47,18 @@ present NSPhotoLibraryUsageDescription
 # v1 serves no ads, but the Google Mobile Ads SDK is linked through the shared
 # pubspec and Google documents a crash when this key is missing.
 expect  GADApplicationIdentifier "$EXPECTED_AD_ID"
+# Portrait only, and one entry means one entry: an editor that "helpfully"
+# restores the landscape pair would hand App Review a screen nobody designed.
+count_key() { /usr/libexec/PlistBuddy -c "Print :$1" "$PLIST" | grep -c "$2"; }
+orientations="$(count_key UISupportedInterfaceOrientations UIInterfaceOrientation)"
+if [ "$orientations" != "1" ]; then
+  echo "FAIL  UISupportedInterfaceOrientations lists $orientations, expected 1" >&2
+  read_key UISupportedInterfaceOrientations >&2
+  exit 1
+fi
+echo "ok    UISupportedInterfaceOrientations = portrait only"
+# The app draws one theme. If the system draws another, the seams show.
+expect  UIUserInterfaceStyle "Dark"
 # The screen and the bundle have to say the same thing. They did not: the app
 # printed a hardcoded 0.1.0+1 while the bundle carried the real run number. The
 # workflow now tells the build what to print, so assert the bundle agrees with

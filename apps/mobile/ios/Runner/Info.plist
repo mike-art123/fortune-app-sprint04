@@ -77,22 +77,24 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- The app ships one theme and it is dark: ThemeModeRepository defaults to
+	     dark and nothing in the app ever writes another value. Saying so here
+	     keeps what the system draws — the status bar, the photo picker, the
+	     share sheet — from arriving in light mode against a navy screen. -->
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<!-- Portrait only. Every ritual is a single vertical column ending in one
+	     button, the widget test that opens all 39 of them runs at 390x844, and
+	     no one has ever seen this app sideways. Declaring an orientation the
+	     app has not been designed for hands a reviewer a screen nobody built,
+	     and a reviewer rotates the device. -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 </dict>
 </plist>
