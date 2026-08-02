@@ -6,8 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 /// The rewarded ad unit used when the backend's clientConfig omits one — the
 /// same public identifier the backend sends. Ad unit ids ship inside every
 /// APK by design; they are client identifiers, not secrets.
-const String kAdmobRewardedAdUnitId =
-    'ca-app-pub-9505109087247499/7659183496';
+const String kAdmobRewardedAdUnitId = 'ca-app-pub-9505109087247499/7659183496';
 
 /// Debug-only lifecycle logging for the whole AdMob integration.
 void logAdmob(String message) {

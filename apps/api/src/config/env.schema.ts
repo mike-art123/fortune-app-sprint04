@@ -91,9 +91,7 @@ export const envSchema = z
     ADSGRAM_REWARD_SECRET: z.string().default(''),
     MONETAG_ZONE_ID: z.string().default(''),
     MONETAG_REWARD_SECRET: z.string().default(''),
-    ADMOB_REWARDED_UNIT_ID: z
-      .string()
-      .default('ca-app-pub-9505109087247499/7659183496'),
+    ADMOB_REWARDED_UNIT_ID: z.string().default('ca-app-pub-9505109087247499/7659183496'),
     AD_LOAD_TIMEOUT_MS: z.coerce.number().int().positive().default(12000),
     AD_VERIFY_TIMEOUT_MS: z.coerce.number().int().positive().default(20000),
     AD_SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(600),
