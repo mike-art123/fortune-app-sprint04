@@ -7,6 +7,7 @@ import '../../../../design_system/components/gold_border_container.dart';
 import '../../../../design_system/foundations/app_radius.dart';
 import '../../../../design_system/foundations/app_spacing.dart';
 import '../../../../design_system/theme/fortune_theme_extension.dart';
+import '../../../fortunes/domain/fortune_registry.dart';
 import '../../application/history_summary_controller.dart';
 import '../../domain/history_summary.dart';
 
@@ -145,7 +146,16 @@ class _TallyPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.fortuneColors;
-    final lang = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context);
+    // The tally arrives labelled in Persian: the summary endpoint answers
+    // with `titleFa`, so under an English screen this chip used to read
+    // «فال حافظ». The app already carries every fortune's name in all four
+    // languages under the same id, and each Persian name there is identical
+    // to the server's — so in Persian this renders the very string it always
+    // did, and only en/ar/tr change. The server's label remains the fallback
+    // for an id this build does not know yet.
+    final known = FortuneRegistry.byId(tally.fortuneId);
+    final name = known?.title.resolve(locale) ?? tally.title;
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
         horizontal: AppSpacing.xs,
@@ -156,7 +166,7 @@ class _TallyPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
-        '${tally.title} · ${_digits(tally.count, lang)}',
+        '$name · ${_digits(tally.count, locale.languageCode)}',
         style: TextStyle(fontSize: 11, color: c.textMuted),
       ),
     );

@@ -26,11 +26,11 @@ HistorySummary _summary({
   );
 }
 
-Widget host(List<Override> overrides) {
+Widget host(List<Override> overrides, {Locale locale = SupportedLocales.fa}) {
   return ProviderScope(
     overrides: overrides,
     child: MaterialApp(
-      locale: SupportedLocales.fa,
+      locale: locale,
       supportedLocales: SupportedLocales.all,
       localizationsDelegates: SupportedLocales.delegates,
       theme: AppTheme.dark(),
@@ -54,6 +54,21 @@ void main() {
     expect(find.text('نگاهی به گذشته'), findsOneWidget);
     expect(find.text('در سی روز گذشته ۲ فال گرفتی.'), findsOneWidget);
     expect(find.text('فال حافظ · ۲'), findsOneWidget);
+  });
+
+  // The server labels every tally in Persian. On an English screen the chip
+  // must read English too, or the journal is left half-translated.
+  testWidgets('the tally is named in the language on screen', (tester) async {
+    await tester.pumpWidget(
+      host(
+        [historySummaryProvider.overrideWith((ref) async => _summary())],
+        locale: SupportedLocales.en,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hafez · 2'), findsOneWidget);
+    expect(find.text('فال حافظ · ۲'), findsNothing);
   });
 
   testWidgets('says so when the sentence was written by the assistant', (
