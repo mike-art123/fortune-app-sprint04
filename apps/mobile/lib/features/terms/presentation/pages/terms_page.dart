@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/localization/app_strings.dart';
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/config/monetization_switch.dart';
 import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/components/gold_border_container.dart';
@@ -83,13 +84,22 @@ class _TermsSection {
 }
 
 List<_TermsSection> _sectionsFor(String lang) {
-  return switch (lang) {
+  final all = switch (lang) {
     'en' => _sectionsEn,
     'ar' => _sectionsAr,
     'tr' => _sectionsTr,
     _ => _sections,
   };
+  return kMonetizationEnabled ? all : all.where(_notAboutAds).toList();
 }
+
+/// A build with monetization compiled off never shows an ad, so a clause
+/// explaining which networks serve them describes an app the reader is not
+/// holding. The web and Play builds keep it; the iOS build has no ad surface
+/// at all. Matched on the network names because that is what makes the
+/// paragraph an ads paragraph in every language.
+bool _notAboutAds(_TermsSection section) =>
+    !section.lines.any((line) => line.contains('AdsGram'));
 
 const _sectionsEn = <_TermsSection>[
   _TermsSection('What this app is', [

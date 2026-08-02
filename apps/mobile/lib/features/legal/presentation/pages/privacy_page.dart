@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/localization/app_strings.dart';
+import '../../../../core/config/monetization_switch.dart';
 import '../../../../design_system/components/fortune_app_bar.dart';
 import '../../../../design_system/components/fortune_scaffold.dart';
 import '../../../../design_system/components/gold_border_container.dart';
@@ -59,13 +60,20 @@ class PrivacyPage extends StatelessWidget {
 }
 
 List<(String, List<String>)> _sectionsFor(String lang) {
-  return switch (lang) {
+  final all = switch (lang) {
     'en' => _sectionsEn,
     'ar' => _sectionsAr,
     'tr' => _sectionsTr,
     _ => _sections,
   };
+  return kMonetizationEnabled ? all : all.where(_notAboutAds).toList();
 }
+
+/// See the note in terms_page.dart: with monetization compiled off there is
+/// no ad to disclose, so the paragraph naming the ad networks would describe
+/// an app the reader is not holding.
+bool _notAboutAds((String, List<String>) section) =>
+    !section.$2.any((line) => line.contains('AdsGram'));
 
 const _sectionsEn = <(String, List<String>)>[
   (
