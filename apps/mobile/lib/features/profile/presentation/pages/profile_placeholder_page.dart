@@ -20,6 +20,26 @@ import '../../application/profile_controller.dart';
 import '../../domain/user_profile.dart';
 import '../widgets/edit_profile_sheet.dart';
 
+/// Where an invitation should send whoever receives it.
+///
+/// The web build hands out the Mini App it lives inside, and the Play build
+/// hands out its own store listing. An iPhone must hand out neither: Apple
+/// asks that an app not include "names, icons, or imagery of other mobile
+/// platforms or alternative app marketplaces in your app or metadata"
+/// (App Review Guideline 2.3.10), and a play.google.com link sitting in the
+/// share sheet is precisely that. It shares the app's own site instead, which
+/// also happens to be the only one of the three that works on whatever phone
+/// the invitation lands on.
+///
+/// Pure and top-level so the choice is a unit test rather than a hope.
+String inviteDestination() {
+  if (kIsWeb) return 'https://t.me/Bakhtnegarbot/Bakhtnegar';
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    return 'https://app.bakhtnegar.com';
+  }
+  return 'https://play.google.com/store/apps/details?id=com.bakhtnegar.app';
+}
+
 /// Premium profile screen (BakhtNegar visual reference): the real name and
 /// birth month from the profile (scope §16, editable in place), journey
 /// stats and an ornate menu list.
@@ -255,13 +275,10 @@ class _ProfilePlaceholderPageState
   }
 
   /// Invite: share the Mini App through the Telegram share dialog on web; the
-  /// Play build turns the same link into the native share sheet, carrying the
-  /// Google Play listing instead of the Telegram one.
+  /// native builds turn the same link into the system share sheet.
   Future<void> _shareApp() async {
     final bridge = ref.read(telegramBridgeProvider);
-    const appUrl = kIsWeb
-        ? 'https://t.me/Bakhtnegarbot/Bakhtnegar'
-        : 'https://play.google.com/store/apps/details?id=com.bakhtnegar.app';
+    final appUrl = inviteDestination();
     final url = Uri(
       scheme: 'https',
       host: 't.me',
