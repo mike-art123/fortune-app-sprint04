@@ -72,6 +72,25 @@ jobs:
       - run: cd apps/mobile && flutter pub get
       - run: cd apps/mobile && flutter gen-l10n
 
+      # The About screen used to print a constant with nothing behind it —
+      # 0.1.0+1 on every platform, while TestFlight showed build 10 — and the
+      # same wrong string went out in every request's client-version header.
+      # The pair is read here from the two places that actually own it: the
+      # version name from pubspec, and the run number that becomes
+      # CFBundleVersion three steps below. ci.yml and deploy-pages.yml pass
+      # neither define, so web and Android keep compiling the same constants
+      # they do today.
+      - name: Read the version this build will report
+        run: |
+          NAME="$(sed -n 's/^version: *\([^+ ]*\).*/\1/p' apps/mobile/pubspec.yaml)"
+          if [ -z "$NAME" ]; then
+            echo "::error::Could not read 'version:' from apps/mobile/pubspec.yaml"
+            exit 1
+          fi
+          echo "APP_VERSION=$NAME" >> "$GITHUB_ENV"
+          echo "APP_BUILD_NUMBER=${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "This build reports $NAME+${{ github.run_number }}"
+
       - name: Decide which path this run takes
         id: signing
         run: |
@@ -94,6 +113,8 @@ jobs:
           -t lib/main_production.dart
           --build-number=${{ github.run_number }}
           $DART_DEFINES
+          --dart-define=APP_VERSION=$APP_VERSION
+          --dart-define=APP_BUILD_NUMBER=$APP_BUILD_NUMBER
 
       - name: Verify built app identity
         if: steps.signing.outputs.ready != 'true'
@@ -167,6 +188,8 @@ jobs:
           -t lib/main_production.dart
           --build-number=${{ github.run_number }}
           $DART_DEFINES
+          --dart-define=APP_VERSION=$APP_VERSION
+          --dart-define=APP_BUILD_NUMBER=$APP_BUILD_NUMBER
           --export-options-plist="$HOME/export_options.plist"
 
       - name: Verify archived app identity

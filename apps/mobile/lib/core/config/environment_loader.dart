@@ -30,6 +30,20 @@ abstract final class EnvironmentLoader {
     );
     const botUsername = String.fromEnvironment('TELEGRAM_BOT_USERNAME');
     const devInitData = String.fromEnvironment('DEV_TELEGRAM_INITDATA');
+    // What the About screen prints and what every request reports in its
+    // client-version header. Both used to be constants that had nothing to do
+    // with the build — 0.1.0+1 on every platform, while the store showed
+    // something else entirely. The defaults below are exactly the constants
+    // this file has always produced, so a build that passes no define (the web
+    // bundle and the Play job, today) compiles to the very same values.
+    const appVersion = String.fromEnvironment(
+      'APP_VERSION',
+      defaultValue: '0.1.0',
+    );
+    const buildNumber = String.fromEnvironment(
+      'APP_BUILD_NUMBER',
+      defaultValue: '1',
+    );
 
     final baseUrl =
         baseUrlDefine.isNotEmpty ? baseUrlDefine : _defaultBaseUrl(flavor);
@@ -48,6 +62,8 @@ abstract final class EnvironmentLoader {
       telegramBotUsername: botUsername.isEmpty ? null : botUsername,
       devTelegramInitData:
           flavor.isDevelopment && devInitData.isNotEmpty ? devInitData : null,
+      appVersion: appVersion,
+      buildNumber: buildNumber,
       flags: FeatureFlags(
         analyticsEnabled: analytics && flavor.isProduction,
         crashReportingEnabled: crash && !flavor.isDevelopment,

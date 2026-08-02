@@ -47,6 +47,18 @@ present NSPhotoLibraryUsageDescription
 # v1 serves no ads, but the Google Mobile Ads SDK is linked through the shared
 # pubspec and Google documents a crash when this key is missing.
 expect  GADApplicationIdentifier "$EXPECTED_AD_ID"
-present CFBundleShortVersionString
-present CFBundleVersion
+# The screen and the bundle have to say the same thing. They did not: the app
+# printed a hardcoded 0.1.0+1 while the bundle carried the real run number. The
+# workflow now tells the build what to print, so assert the bundle agrees with
+# it — a drift between the two can never ship again unnoticed.
+if [ -n "${APP_VERSION:-}" ]; then
+  expect CFBundleShortVersionString "$APP_VERSION"
+else
+  present CFBundleShortVersionString
+fi
+if [ -n "${APP_BUILD_NUMBER:-}" ]; then
+  expect CFBundleVersion "$APP_BUILD_NUMBER"
+else
+  present CFBundleVersion
+fi
 echo "Identity verified."
