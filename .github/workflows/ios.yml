@@ -7,11 +7,11 @@
 # Bootstrap phase: apps/mobile/ios does not exist in git yet, and the cloud
 # assistant cannot run `flutter create` itself (Flutter's download host is
 # blocked there). Until the scaffold is committed, this workflow generates
-# ios/ with the official stable templates, builds it UNSIGNED to prove it
-# compiles, and then publishes the generated files to the helper branch
-# `ios-scaffold` (never to main). The assistant picks them up from that
-# branch after a "Fetch origin" in GitHub Desktop, customizes them (bundle
-# id, display name, Persian permission strings) and commits them to main
+# ios/ with the official stable templates, publishes the pristine files to
+# the helper branch `ios-scaffold` (never to main), and then builds UNSIGNED
+# to prove they compile. The assistant picks the scaffold up from that
+# branch after a "Fetch origin" in GitHub Desktop, customizes it (bundle
+# id, display name, Persian permission strings) and commits it to main
 # locally. Once apps/mobile/ios lands in git, the bootstrap steps become
 # no-ops and get removed. Code signing + TestFlight upload arrive in a later
 # phase, once the App Store Connect API key exists in GitHub Secrets (never
@@ -42,6 +42,22 @@ jobs:
             echo "--- created/changed by flutter create:"
             git status --porcelain
           fi
+      # Publish BEFORE the build so the branch carries the pristine template,
+      # not a tree with pod/SPM build leftovers.
+      - name: Publish scaffold to helper branch (bootstrap — removed once committed)
+        working-directory: apps/mobile
+        run: |
+          if [ -n "$(git ls-files ios)" ]; then
+            echo "ios/ already tracked in git — nothing to publish"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B ios-scaffold
+          git add ios
+          [ -f .metadata ] && git add .metadata
+          git commit -m "bootstrap: iOS scaffold from flutter create (CI, stable channel)"
+          git push -f origin ios-scaffold
       # Same defines as the Android Play job, with two deliberate differences:
       # ENABLE_MONETIZATION=false (v1 ships with no ads — Strategy A) and the
       # unsigned build (signing needs the ASC key). ENABLE_ANDROID_BRIDGES
@@ -57,20 +73,6 @@ jobs:
           --dart-define=ENABLE_GUEST_AUTH=true
           --dart-define=ENABLE_ANDROID_BRIDGES=true
           --dart-define=ENABLE_MONETIZATION=false
-      - name: Publish scaffold to helper branch (bootstrap — removed once committed)
-        working-directory: apps/mobile
-        run: |
-          if [ -n "$(git ls-files ios)" ]; then
-            echo "ios/ already tracked in git — nothing to publish"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B ios-scaffold
-          git add ios
-          [ -f .metadata ] && git add .metadata
-          git commit -m "bootstrap: iOS scaffold from flutter create (CI, stable channel)"
-          git push -f origin ios-scaffold
       - name: Pack scaffold artifact (backup path)
         if: always()
         working-directory: apps/mobile

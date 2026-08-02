@@ -35,7 +35,8 @@ apps/mobile/pubspec.lock
 # committed (Sprint 05) — the Telegram Mini App ships as a web build — and so
 # is android/ (Sprint Android): it carries the Play identity, signing config
 # and launcher art; its own .gitignore keeps wrapper/keystore files out.
-apps/mobile/ios/
+# ios/ is committed too (Sprint iOS): it carries the App Store identity and
+# Info.plist; its own .gitignore keeps Pods/ and ephemeral files out.
 apps/mobile/macos/
 apps/mobile/linux/
 apps/mobile/windows/
