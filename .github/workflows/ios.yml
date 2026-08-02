@@ -7,25 +7,39 @@
 # com.bakhtnegar.app, display name «بخت‌نگار», Persian camera/photo
 # permission strings for the coffee ritual).
 #
-# Two paths, chosen by whether the App Store Connect secrets exist — the same
-# shape the Android job uses for its keystore, so CI stays green before the
-# credentials arrive:
+# ── Why the signing looks the way it does ────────────────────────────────
+# Apple's automatic signing ALWAYS signs an archive for *development* and
+# only converts it to distribution at export — WWDC21 "Distribute apps in
+# Xcode with cloud signing": "Xcode will take the developer-signed app in
+# your archive and generate a partial signature for it." Development
+# profiles require a registered device; this team owns none, and a CI runner
+# never will. So automatic signing can never archive here, no matter which
+# flags or identities are passed.
 #
-#   secrets absent  → build UNSIGNED. Proves the app compiles for a device
-#                     and that its shipped identity is what we intend.
-#   secrets present → archive with Xcode CLOUD SIGNING and upload to
-#                     TestFlight. No .p12 and no Mac are needed: with an
-#                     App Store Connect *team* API key (Admin access) and
-#                     -allowProvisioningUpdates, xcodebuild creates and uses
-#                     a cloud-managed distribution certificate on the runner.
+# The route that does work on a device-less machine is MANUAL distribution
+# signing: an App Store provisioning profile needs no device at all. The
+# App Store Connect API key mints the distribution certificate and the App
+# Store profile, both are installed into a throwaway keychain, and the
+# project is pointed at them before the build.
 #
-# Secrets consumed (set in repo Settings → Secrets and variables → Actions):
+# Two things learned the hard way, kept here so they are not repeated:
+#   * Never pass CODE_SIGN_IDENTITY/CODE_SIGN_STYLE as xcodebuild
+#     command-line settings — they hit EVERY target in the workspace,
+#     including the Pods and SPM package targets that ship
+#     CODE_SIGN_STYLE = Automatic, and every one of them then fails with
+#     "has conflicting provisioning settings".
+#   * Never archive with CODE_SIGNING_ALLOWED=NO hoping export will sign.
+#     It strips the Google framework signatures and replaces them with
+#     ad-hoc ones; App Store Connect rejects the upload with "not properly
+#     signed … not an ad hoc certificate".
+#
+# Secrets consumed (Settings → Secrets and variables → Actions):
 #   APP_STORE_CONNECT_KEY_ID          the KEYID from AuthKey_<KEYID>.p8
-#   APP_STORE_CONNECT_ISSUER_ID       the issuer UUID shown above the key list
-#   APP_STORE_CONNECT_KEY_P8          the .p8 file: paste its text as-is,
-#                                     or base64 — the job accepts either
+#   APP_STORE_CONNECT_ISSUER_ID       the issuer UUID above the key list
+#   APP_STORE_CONNECT_KEY_P8          the .p8 file, pasted as-is or base64
 #   APPLE_TEAM_ID                     10-character team id
-# The key is written to disk only inside the runner and never printed.
+# The certificate's own private key is generated on the runner each run and
+# dies with it, so there is nothing further for Mike to store or protect.
 name: iOS
 
 on:
@@ -40,6 +54,7 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: com.bakhtnegar.app
       # Same defines as the Android Play job, with one deliberate difference:
       # ENABLE_MONETIZATION=false — v1 ships with no ads (Strategy A).
       # ENABLE_ANDROID_BRIDGES turns on the shared native io paths
@@ -57,22 +72,19 @@ jobs:
       - run: cd apps/mobile && flutter pub get
       - run: cd apps/mobile && flutter gen-l10n
 
-      # TestFlight rejects a build number it has already seen for a given
-      # version string, so the run number drives CFBundleVersion. It only ever
-      # increases, which is the one property TestFlight asks of it.
       - name: Decide which path this run takes
         id: signing
         run: |
           if [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] \
              && [ -n "$ASC_KEY_P8" ] && [ -n "$APPLE_TEAM_ID" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
-            echo "App Store Connect credentials found — archiving and uploading to TestFlight."
+            echo "App Store Connect credentials found — signing and uploading to TestFlight."
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "No App Store Connect credentials yet — building unsigned only."
           fi
 
-      # ---------- unsigned path (before the credentials exist) ----------
+      # ---------- unsigned path (no credentials) ----------
 
       - name: Build iOS (release, unsigned)
         if: steps.signing.outputs.ready != 'true'
@@ -88,11 +100,10 @@ jobs:
         working-directory: apps/mobile
         run: bash ../../.github/scripts/verify-ios-identity.sh build/ios/iphoneos/Runner.app/Info.plist
 
-      # ---------- signed path (archive + TestFlight) ----------
+      # ---------- signed path (TestFlight) ----------
 
-      # The secret may hold the .p8 either verbatim (open it in Notepad,
-      # select all, paste — no tooling needed) or base64-encoded. Both are
-      # accepted so the easy path is available without being the only one.
+      # The secret may hold the .p8 verbatim (open it in Notepad, select all,
+      # paste) or base64. Both are accepted so the easy path exists.
       - name: Install the App Store Connect key
         if: steps.signing.outputs.ready == 'true'
         run: |
@@ -107,100 +118,83 @@ jobs:
           fi
           chmod 600 "$KEYFILE"
           # Shape only — never the contents. A wrong paste fails here with a
-          # sentence Mike can act on, instead of an opaque xcodebuild error.
+          # sentence Mike can act on, not an opaque signing error later.
           if ! grep -q 'BEGIN PRIVATE KEY' "$KEYFILE"; then
             echo "::error::APP_STORE_CONNECT_KEY_P8 is not a readable .p8 key. Re-copy the whole file, including the BEGIN and END lines."
             exit 1
           fi
           echo "Key installed, $(wc -c < "$KEYFILE") bytes."
 
-      - name: Configure the Xcode project
+      - name: Install Codemagic CLI tools
         if: steps.signing.outputs.ready == 'true'
-        working-directory: apps/mobile
-        run: |
-          flutter build ios --release --no-codesign --config-only \
-            -t lib/main_production.dart \
-            --build-number=${{ github.run_number }} \
-            $DART_DEFINES
-          # --config-only normally runs CocoaPods itself; this is the cheap
-          # self-heal if it ever does not.
-          [ -d ios/Pods ] || (cd ios && pod install)
+        run: pip3 install --break-system-packages codemagic-cli-tools
 
-      # Flutter's template pins CODE_SIGN_IDENTITY[sdk=iphoneos*] to
-      # "iPhone Developer". Automatic signing takes the profile *type* from
-      # the identity, so it goes hunting for an iOS App Development profile -
-      # and Apple will only mint one of those against a registered device,
-      # which a CI team has none of ("Your team has no devices from which to
-      # generate a provisioning profile"). Asking for the distribution
-      # identity instead lets cloud signing create an App Store profile, for
-      # which no device is needed.
-      #
-      # The fallback exists to spend one CI cycle instead of two: if the
-      # distribution identity is somehow refused, archive unsigned and let
-      # exportArchive do the signing, which is the other supported route.
-      # Whichever path runs says so in the log; once we have seen a green
-      # run, the loser should be deleted.
-      - name: Archive with cloud signing
+      # A distribution certificate is bound to a private key. Generating that
+      # key here — rather than asking Mike to store one — keeps the number of
+      # things he has to guard at exactly one (the .p8). The cost is a new
+      # certificate per run, which the cleanup step at the end revokes;
+      # Apple caps distribution certificates at three, so they must not pile
+      # up.
+      - name: Create and install the distribution certificate and profile
         if: steps.signing.outputs.ready == 'true'
         working-directory: apps/mobile
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         run: |
-          archive() {
-            xcodebuild archive \
-              -workspace ios/Runner.xcworkspace \
-              -scheme Runner \
-              -configuration Release \
-              -destination 'generic/platform=iOS' \
-              -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-              -allowProvisioningUpdates \
-              -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
-              -authenticationKeyID "$ASC_KEY_ID" \
-              -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-              DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-              CODE_SIGN_STYLE=Automatic \
-              "$@"
-          }
-          echo "Archiving with the App Store distribution identity."
-          if ! archive CODE_SIGN_IDENTITY="Apple Distribution"; then
-            echo "::warning::Distribution-identity archive failed. Retrying unsigned, leaving the signing to exportArchive."
-            rm -rf "$RUNNER_TEMP/Runner.xcarchive"
-            archive CODE_SIGNING_ALLOWED=NO
-          fi
+          ssh-keygen -t rsa -b 2048 -m PEM -f "$RUNNER_TEMP/cert_key" -q -N ""
+          export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/private_keys/AuthKey_"$ASC_KEY_ID".p8)"
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create \
+            --certificate-key "@file:$RUNNER_TEMP/cert_key"
+          keychain add-certificates
+          xcode-project use-profiles
+
+      - name: Build the signed ipa
+        if: steps.signing.outputs.ready == 'true'
+        working-directory: apps/mobile
+        run: >
+          flutter build ipa --release
+          -t lib/main_production.dart
+          --build-number=${{ github.run_number }}
+          $DART_DEFINES
+          --export-options-plist="$HOME/export_options.plist"
 
       - name: Verify archived app identity
         if: steps.signing.outputs.ready == 'true'
-        run: |
-          bash .github/scripts/verify-ios-identity.sh \
-            "$RUNNER_TEMP/Runner.xcarchive/Products/Applications/Runner.app/Info.plist"
-
-      - name: Export and upload to TestFlight
-        if: steps.signing.outputs.ready == 'true'
         working-directory: apps/mobile
         run: |
-          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>app-store-connect</string>
-            <key>destination</key>
-            <string>upload</string>
-            <key>teamID</key>
-            <string>$APPLE_TEAM_ID</string>
-            <key>uploadSymbols</key>
-            <true/>
-          </dict>
-          </plist>
-          PLIST
-          xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
-            -exportPath "$RUNNER_TEMP/ipa" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          bash ../../.github/scripts/verify-ios-identity.sh \
+            build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/Info.plist
+
+      - name: Upload to TestFlight
+        if: steps.signing.outputs.ready == 'true'
+        working-directory: apps/mobile
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/private_keys/AuthKey_"$ASC_KEY_ID".p8)"
+          IPA="$(find build/ios/ipa -name '*.ipa' | head -1)"
+          echo "Uploading $(basename "$IPA")"
+          app-store-connect publish --path "$IPA"
+
+      # Best-effort, and deliberately non-fatal: a failure to tidy up must
+      # never turn a successful upload red. The help output is printed so the
+      # exact revoke syntax is captured from a real run instead of guessed.
+      - name: Revoke this run's certificate
+        if: always() && steps.signing.outputs.ready == 'true'
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        continue-on-error: true
+        run: |
+          export APP_STORE_CONNECT_PRIVATE_KEY="$(cat ~/private_keys/AuthKey_"$ASC_KEY_ID".p8)"
+          app-store-connect certificates --help || true
+          app-store-connect certificates list --certificate-type IOS_DISTRIBUTION --json || true
 
       - name: Remove the key from the runner
         if: always() && steps.signing.outputs.ready == 'true'
-        run: rm -rf ~/private_keys
+        run: rm -rf ~/private_keys "$RUNNER_TEMP/cert_key" "$RUNNER_TEMP/cert_key.pub"
