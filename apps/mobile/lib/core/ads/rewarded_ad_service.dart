@@ -30,17 +30,24 @@ final class RewardedAdService {
     required String adUnitId,
     required int timeoutMs,
   }) async {
-    await AdmobService.ensureInitialized();
+    try {
+      await AdmobService.ensureInitialized();
 
-    var ad = _takeWarm(adUnitId);
-    if (ad == null) {
-      final loaded = await _load(adUnitId, Duration(milliseconds: timeoutMs));
-      final failure = loaded.outcome;
-      if (failure != null) return failure;
-      ad = loaded.ad;
+      var ad = _takeWarm(adUnitId);
+      if (ad == null) {
+        final loaded = await _load(adUnitId, Duration(milliseconds: timeoutMs));
+        final failure = loaded.outcome;
+        if (failure != null) return failure;
+        ad = loaded.ad;
+      }
+      if (ad == null) return 'temporary_provider_error';
+      return await _show(ad, adUnitId);
+    } catch (error) {
+      // An ad may fail; the ritual may not. Any unexpected SDK exception
+      // becomes a canonical failure the mediation chain knows how to hold.
+      logAdmob('unexpected error: $error');
+      return 'temporary_provider_error';
     }
-    if (ad == null) return 'temporary_provider_error';
-    return _show(ad, adUnitId);
   }
 
   RewardedAd? _takeWarm(String adUnitId) {
@@ -172,5 +179,16 @@ final class RewardedAdService {
         _warmUp(adUnitId);
       }
     });
+  }
+
+  /// Releases the warm ad and any pending retry timer.
+  void dispose() {
+    _retry?.cancel();
+    _retry = null;
+    _warming = false;
+    final warm = _warm;
+    _warm = null;
+    _warmUnitId = null;
+    if (warm != null) unawaited(warm.dispose());
   }
 }

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../ads/admob_service.dart';
 import '../ads/rewarded_ad_service.dart';
 
@@ -12,7 +14,9 @@ Future<String> playRewardedAd({
 }) async {
   if (provider != 'admob') return 'ad_unavailable';
   final configured = config['adUnitId'] ?? '';
-  final adUnitId = configured.isEmpty ? kAdmobRewardedAdUnitId : configured;
+  final production = configured.isEmpty ? kAdmobRewardedAdUnitId : configured;
+  // Debug/profile builds request Google's demo unit — never real traffic.
+  final adUnitId = kReleaseMode ? production : kAdmobTestRewardedAdUnitId;
   return RewardedAdService.instance.play(
     adUnitId: adUnitId,
     timeoutMs: timeoutMs,

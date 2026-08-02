@@ -8,6 +8,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 /// APK by design; they are client identifiers, not secrets.
 const String kAdmobRewardedAdUnitId = 'ca-app-pub-9505109087247499/7659183496';
 
+/// Google's public demo rewarded unit. Debug and profile builds request this
+/// instead of the real unit — the SDK's own recommended way to test — so
+/// development can never produce invalid traffic on the production unit.
+const String kAdmobTestRewardedAdUnitId =
+    'ca-app-pub-3940256099942544/5224354917';
+
 /// Debug-only lifecycle logging for the whole AdMob integration.
 void logAdmob(String message) {
   if (kDebugMode) debugPrint('[admob] $message');
