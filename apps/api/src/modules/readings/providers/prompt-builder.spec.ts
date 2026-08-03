@@ -103,7 +103,9 @@ describe('buildPrompt', () => {
 
     const en = buildPrompt(hafez, {}, { displayName: null, locale: 'en' });
     expect(en[0].content).toContain('For today:');
-    expect(en[1].content).toContain('in English only.');
+    // The user message closes on the same instruction, in the output
+    // language: the last line the model reads before it answers.
+    expect(en[1].content).toContain('Answer in English.');
     // The instruction to answer in English is itself in English. Written in
     // Persian it was one more line in a wall of Persian, and the model went
     // on answering in Persian; a change of register is the part it cannot
