@@ -266,8 +266,6 @@ export function parseHafezReading(raw: string, ghazal: Ghazal): HafezModelReadin
   };
 }
 
-const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
-
 /**
  * Flattens the schema into the reading text the client already renders: the
  * whole ghazal first — the fal IS the poem — then the reading of it, ending
