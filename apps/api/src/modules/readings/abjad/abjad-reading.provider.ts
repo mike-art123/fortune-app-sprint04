@@ -11,11 +11,7 @@ import type {
   ReadingProvider,
 } from '../providers/reading-provider.interface';
 import { buildAbjadPrompt } from './abjad-prompt';
-import {
-  computeAbjad,
-  renderBreakdown,
-  type AbjadResult,
-} from './abjad-numerology';
+import { computeAbjad, renderBreakdown, type AbjadResult } from './abjad-numerology';
 import * as labels from '../providers/reading-labels';
 
 /** The switch that brings the raw engine to life. Off means this file is a

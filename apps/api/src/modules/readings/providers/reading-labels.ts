@@ -78,8 +78,7 @@ const TRADITIONAL_MEANING: Row = {
   ar: 'المعنى التقليدي:',
   tr: 'Geleneksel anlamı:',
 };
-export const traditionalMeaning = (locale?: string): string =>
-  pick(TRADITIONAL_MEANING, locale);
+export const traditionalMeaning = (locale?: string): string => pick(TRADITIONAL_MEANING, locale);
 
 const UPRIGHT: Row = { fa: 'راست', en: 'upright', ar: 'مستقيمة', tr: 'düz' };
 const REVERSED: Row = { fa: 'وارونه', en: 'reversed', ar: 'مقلوبة', tr: 'ters' };
@@ -102,10 +101,7 @@ export const reversedTag = (reversed: boolean, locale?: string): string =>
  * seventy-eight tarot cards is not something this function should do — the
  * English name is what those traditions are read under anyway.
  */
-export function cardName(
-  names: { nameFa: string; nameEn: string },
-  locale?: string,
-): string {
+export function cardName(names: { nameFa: string; nameEn: string }, locale?: string): string {
   return localeOf(locale) === 'fa' ? names.nameFa : names.nameEn;
 }
 
@@ -116,8 +112,7 @@ export function cardName(
  * carry the sense; printing them raw would be the half-translated page this
  * whole module exists to end.
  */
-export const showsPersianSource = (locale?: string): boolean =>
-  localeOf(locale) === 'fa';
+export const showsPersianSource = (locale?: string): boolean => localeOf(locale) === 'fa';
 
 // ── per-engine titles ────────────────────────────────────────────────────
 

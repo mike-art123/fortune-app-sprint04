@@ -946,8 +946,7 @@ class ArStrings extends AppStrings {
   String get adPreparing => 'جارٍ تجهيز الإعلان...';
 
   @override
-  String get aiConsentNote =>
-      'نيّتك تُرسل إلى OpenAI ليكتب التفسير — المزيد';
+  String get aiConsentNote => 'نيّتك تُرسل إلى OpenAI ليكتب التفسير — المزيد';
   @override
   String get splashTagline => 'نكشف أسرار بختك…';
   @override

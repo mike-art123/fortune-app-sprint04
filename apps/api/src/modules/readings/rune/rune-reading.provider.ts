@@ -245,9 +245,7 @@ function composeReading(
   const name = labels.cardName(rune, locale);
   // A rune is read under its Norse name everywhere; the Persian reader gets
   // both, as before, and everyone else gets the one they can pronounce.
-  const named = labels.showsPersianSource(locale)
-    ? `${rune.nameFa} (${rune.nameEn})`
-    : name;
+  const named = labels.showsPersianSource(locale) ? `${rune.nameFa} (${rune.nameEn})` : name;
   return {
     title: labels.runeTitle(name, locale),
     reading: [

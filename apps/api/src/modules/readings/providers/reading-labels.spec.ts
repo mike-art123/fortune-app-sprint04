@@ -99,7 +99,6 @@ describe('reading labels', () => {
   });
 });
 
-
 /**
  * The block that tells the model which language to answer in. It went wrong
  * twice: first by naming two fields no raw engine asks for, then by saying so
@@ -122,8 +121,7 @@ describe('language directive', () => {
   });
 
   it('names the keys it was handed, not a fixed pair', () => {
-    const hafez =
-      languageDirective('en', ['messageOfThePoem', 'hope'], ['selectedVerses']) ?? '';
+    const hafez = languageDirective('en', ['messageOfThePoem', 'hope'], ['selectedVerses']) ?? '';
     expect(hafez).toContain('"messageOfThePoem", "hope"');
     expect(hafez).toContain('"selectedVerses"');
     expect(hafez).not.toContain('"title"');

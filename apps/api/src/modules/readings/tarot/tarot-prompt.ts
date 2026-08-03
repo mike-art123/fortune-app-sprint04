@@ -44,10 +44,12 @@ export function buildTarotPrompt(
   profile?: ReadingProfileContext,
 ): PromptMessage[] {
   const persona = personaFor(profile);
-  const language = languageDirective(
-    profile?.locale,
-    ['interpretationForIntention', 'hope', 'caution', 'practicalAdvice'],
-  );
+  const language = languageDirective(profile?.locale, [
+    'interpretationForIntention',
+    'hope',
+    'caution',
+    'practicalAdvice',
+  ]);
   const system = [VOICE, '', TAROT_FRAMING, '', TAROT_CONTRACT]
     .concat(persona ? ['', persona] : [])
     .concat(language ? ['', language] : [])
