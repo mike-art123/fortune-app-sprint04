@@ -24,6 +24,21 @@ export class TelegramBotConfig {
     return this.config.get<string>('TELEGRAM_MINIAPP_URL') ?? 'https://app.bakhtnegar.com';
   }
 
+  /**
+   * Telegram user ids allowed to run bot admin commands (e.g. `/stats`).
+   * Comma-separated in `ADMIN_TELEGRAM_IDS`; empty means nobody, so the
+   * command silently does nothing until access is deliberately granted.
+   */
+  get adminTelegramIds(): Set<string> {
+    const raw = this.config.get<string>('ADMIN_TELEGRAM_IDS') ?? '';
+    return new Set(
+      raw
+        .split(',')
+        .map((id) => id.trim())
+        .filter((id) => id.length > 0),
+    );
+  }
+
   /** `/api/v1/telegram/webhook` — global prefix + URI version + route path. */
   get webhookPath(): string {
     return `/${this.app.apiPrefix}/v${this.app.apiVersion}/telegram/webhook`;

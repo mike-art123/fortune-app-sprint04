@@ -1,5 +1,6 @@
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
+import { AdminStatsService } from './admin-stats.service';
 import { TelegramBotConfig } from './telegram-bot.config';
 import type { TelegramUpdate } from './telegram-update.types';
 
@@ -14,15 +15,16 @@ const REQUEST_TIMEOUT_MS = 10_000;
 
 /**
  * Telegram Bot integration: self-registers the webhook and the chat menu
- * button on startup, and answers `/start` with a WebApp button that opens the
- * Mini App. Outbound calls are
- * time-bounded and every outcome is logged; a Telegram failure never throws
- * into the request path.
+ * button on startup, answers `/start` with a WebApp button that opens the
+ * Mini App, and replies to an admin's `/stats` with live product numbers.
+ * Outbound calls are time-bounded and every outcome is logged; a Telegram
+ * failure never throws into the request path.
  */
 @Injectable()
 export class TelegramBotService implements OnApplicationBootstrap {
   constructor(
     private readonly config: TelegramBotConfig,
+    private readonly stats: AdminStatsService,
     private readonly logger: AppLoggerService,
   ) {}
 
@@ -104,8 +106,39 @@ export class TelegramBotService implements OnApplicationBootstrap {
     const message = update.message;
     const text = message?.text?.trim() ?? '';
     const chatId = message?.chat?.id;
-    if (chatId == null || !text.startsWith('/start')) return;
-    await this.sendStart(chatId);
+    if (chatId == null) return;
+    if (text.startsWith('/stats')) {
+      await this.handleStats(message?.from?.id, chatId);
+      return;
+    }
+    if (text.startsWith('/start')) {
+      await this.sendStart(chatId);
+    }
+  }
+
+  /**
+   * Admin-only live numbers. Only ids in `ADMIN_TELEGRAM_IDS` get a reply; for
+   * anyone else the command is silent, so its very existence never leaks.
+   */
+  private async handleStats(senderId: number | undefined, chatId: number): Promise<void> {
+    if (senderId == null || !this.config.adminTelegramIds.has(String(senderId))) {
+      return;
+    }
+    try {
+      const text = await this.stats.buildMessage(new Date());
+      const res = await this.call('sendMessage', { chat_id: chatId, text });
+      if (res.ok) {
+        this.logger.info('telegram.stats.sent', { senderId });
+      } else {
+        this.logger.warn('telegram.stats.failed', {
+          description: res.description ?? 'unknown',
+        });
+      }
+    } catch (error) {
+      this.logger.warn('telegram.stats.error', {
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+    }
   }
 
   /** Time-bounded Bot API call for sibling services (payments, invoices). */

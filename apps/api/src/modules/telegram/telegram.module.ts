@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AdminStatsService } from './admin-stats.service';
 import { TelegramBotConfig } from './telegram-bot.config';
 import { TelegramBotService } from './telegram-bot.service';
 import { TelegramWebhookController } from './telegram-webhook.controller';
@@ -10,7 +11,7 @@ import { TelegramWebhookController } from './telegram-webhook.controller';
  */
 @Module({
   controllers: [TelegramWebhookController],
-  providers: [TelegramBotConfig, TelegramBotService],
+  providers: [TelegramBotConfig, TelegramBotService, AdminStatsService],
   // Notifications (scope §7) send through this same bot rather than opening a
   // second channel to Telegram.
   exports: [TelegramBotService, TelegramBotConfig],

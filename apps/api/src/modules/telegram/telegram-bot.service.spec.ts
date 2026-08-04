@@ -1,4 +1,5 @@
 import { AppLoggerService } from '../../infrastructure/logging/app-logger.service';
+import type { AdminStatsService } from './admin-stats.service';
 import { TelegramBotConfig } from './telegram-bot.config';
 import { TelegramBotService } from './telegram-bot.service';
 import type { TelegramUpdate } from './telegram-update.types';
@@ -20,8 +21,13 @@ function makeConfig(overrides: Partial<TelegramBotConfig> = {}): TelegramBotConf
     publicBaseUrl: 'https://api.example.com',
     webhookUrl: 'https://api.example.com/api/v1/telegram/webhook',
     webhookSecret: 'secret123',
+    adminTelegramIds: new Set<string>(),
   };
   return { ...base, ...overrides } as unknown as TelegramBotConfig;
+}
+
+function makeStats(message = 'STATS'): AdminStatsService {
+  return { buildMessage: jest.fn().mockResolvedValue(message) } as unknown as AdminStatsService;
 }
 
 describe('TelegramBotService', () => {
@@ -33,7 +39,7 @@ describe('TelegramBotService', () => {
   });
 
   it('registers the menu button and the webhook on startup', async () => {
-    const service = new TelegramBotService(makeConfig(), makeLogger());
+    const service = new TelegramBotService(makeConfig(), makeStats(), makeLogger());
 
     await service.onApplicationBootstrap();
 
@@ -59,6 +65,7 @@ describe('TelegramBotService', () => {
   it('skips registration when no bot token is configured', async () => {
     const service = new TelegramBotService(
       makeConfig({ botToken: null } as Partial<TelegramBotConfig>),
+      makeStats(),
       makeLogger(),
     );
 
@@ -70,6 +77,7 @@ describe('TelegramBotService', () => {
   it('still refreshes the menu button when no public URL is available', async () => {
     const service = new TelegramBotService(
       makeConfig({ webhookUrl: null } as Partial<TelegramBotConfig>),
+      makeStats(),
       makeLogger(),
     );
 
@@ -81,7 +89,7 @@ describe('TelegramBotService', () => {
   });
 
   it('answers /start with a WebApp button to the Mini App', async () => {
-    const service = new TelegramBotService(makeConfig(), makeLogger());
+    const service = new TelegramBotService(makeConfig(), makeStats(), makeLogger());
     const update: TelegramUpdate = {
       message: { text: '/start', chat: { id: 42 } },
     };
@@ -100,16 +108,53 @@ describe('TelegramBotService', () => {
   });
 
   it('ignores messages that are not /start', async () => {
-    const service = new TelegramBotService(makeConfig(), makeLogger());
+    const service = new TelegramBotService(makeConfig(), makeStats(), makeLogger());
 
     await service.handleUpdate({ message: { text: 'hello', chat: { id: 1 } } });
 
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('answers /stats for an allowlisted admin with the live numbers', async () => {
+    const stats = makeStats('📊 آمار بخت‌نگار');
+    const service = new TelegramBotService(
+      makeConfig({ adminTelegramIds: new Set(['42']) } as Partial<TelegramBotConfig>),
+      stats,
+      makeLogger(),
+    );
+
+    await service.handleUpdate({
+      message: { text: '/stats', chat: { id: 42 }, from: { id: 42 } },
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, { body: string }];
+    expect(url).toBe('https://api.telegram.org/bot123:ABC/sendMessage');
+    const body = JSON.parse(init.body) as { chat_id: number; text: string };
+    expect(body.chat_id).toBe(42);
+    expect(body.text).toContain('آمار');
+  });
+
+  it('stays silent on /stats from anyone not on the admin allowlist', async () => {
+    const stats = makeStats();
+    const service = new TelegramBotService(
+      makeConfig({ adminTelegramIds: new Set(['42']) } as Partial<TelegramBotConfig>),
+      stats,
+      makeLogger(),
+    );
+
+    await service.handleUpdate({
+      message: { text: '/stats', chat: { id: 999 }, from: { id: 999 } },
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(stats.buildMessage as jest.Mock).not.toHaveBeenCalled();
+  });
+
   it('validates the Telegram secret header', () => {
     const service = new TelegramBotService(
       makeConfig({ webhookSecret: 'abc' } as Partial<TelegramBotConfig>),
+      makeStats(),
       makeLogger(),
     );
 
