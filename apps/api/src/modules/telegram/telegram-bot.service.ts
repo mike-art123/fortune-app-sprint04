@@ -14,6 +14,13 @@ const TELEGRAM_API = 'https://api.telegram.org';
 const REQUEST_TIMEOUT_MS = 10_000;
 
 /**
+ * What an admin may type to get the numbers. The slash command is joined by
+ * plain words — Persian and Latin — because Telegram's command menu turns
+ * `/st…` into `/start` mid-typing, which kept swallowing the admin's attempts.
+ */
+const STATS_TRIGGERS = new Set(['/stats', '/amar', 'امار', 'آمار']);
+
+/**
  * Telegram Bot integration: self-registers the webhook and the chat menu
  * button on startup, answers `/start` with a WebApp button that opens the
  * Mini App, and replies to an admin's `/stats` with live product numbers.
@@ -107,7 +114,8 @@ export class TelegramBotService implements OnApplicationBootstrap {
     const text = message?.text?.trim() ?? '';
     const chatId = message?.chat?.id;
     if (chatId == null) return;
-    if (text.startsWith('/stats')) {
+    const command = text.split('@')[0]?.trim().toLowerCase() ?? '';
+    if (STATS_TRIGGERS.has(command)) {
       await this.handleStats(message?.from?.id, chatId);
       return;
     }

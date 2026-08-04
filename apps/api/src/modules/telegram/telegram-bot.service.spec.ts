@@ -135,6 +135,24 @@ describe('TelegramBotService', () => {
     expect(body.text).toContain('آمار');
   });
 
+  it('answers the plain Persian word آمار exactly like /stats', async () => {
+    const stats = makeStats('📊 آمار بخت‌نگار');
+    const service = new TelegramBotService(
+      makeConfig({ adminTelegramIds: new Set(['42']) } as Partial<TelegramBotConfig>),
+      stats,
+      makeLogger(),
+    );
+
+    await service.handleUpdate({
+      message: { text: 'آمار', chat: { id: 42 }, from: { id: 42 } },
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, init] = fetchMock.mock.calls[0] as [string, { body: string }];
+    const body = JSON.parse(init.body) as { text: string };
+    expect(body.text).toContain('آمار');
+  });
+
   it('stays silent on /stats from anyone not on the admin allowlist', async () => {
     const stats = makeStats();
     const service = new TelegramBotService(
